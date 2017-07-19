@@ -1,0 +1,4 @@
+rootProject.name = 'opensrp-app-path'
+include ':opensrp-path', ':android-json-form-wizard'
+
+project(':opensrp-path').projectDir = "$rootDir/opensrp-path" as File
