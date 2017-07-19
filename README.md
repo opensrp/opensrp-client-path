@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/OpenSRP/opensrp-client-path.svg?branch=master)](https://travis-ci.org/OpenSRP/opensrp-client-path) [![Coverage Status](https://coveralls.io/repos/github/OpenSRP/opensrp-client-path/badge.svg?branch=master)](https://coveralls.io/github/OpenSRP/opensrp-client-path?branch=master)
 
-[![Dristhi](opensrp-app/res/drawable-mdpi/login_logo.png)](https://smartregister.atlassian.net/wiki/dashboard.action)
+[![Dristhi](https://raw.githubusercontent.com/OpenSRP/opensrp-client/master/opensrp-app/res/drawable-mdpi/login_logo.png)](https://smartregister.atlassian.net/wiki/dashboard.action)
 
 To run this project, you need to do this:
 =========================================
 
-1. Set the `ANDROID\_HOME` environment variable to point to the location of your installed Android SDK 4.1.2 API level 16. For more information, look at [the documentation of maven-android-plugin](http://code.google.com/p/maven-android-plugin/wiki/GettingStarted).
+1. Set the `ANDROID_HOME` environment variable to point to the location of your installed Android SDK 4.1.2 API level 16. For more information, look at [the documentation of maven-android-plugin](http://code.google.com/p/maven-android-plugin/wiki/GettingStarted).
 
 2. Start an Android Virtual Device. Normally, this means you need to run `android avd` and then start one of the devices there.
 
