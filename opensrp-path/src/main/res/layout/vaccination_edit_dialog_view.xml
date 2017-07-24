@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/name"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
                     android:layout_width="wrap_content"
@@ -48,7 +48,7 @@
             </LinearLayout>
 
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/number"
                 style="@style/CustomFontTextViewStyle.ClientList.Light"
                 android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="20dp"
                 android:orientation="vertical"/>
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/service_date"
                 style="@style/CustomFontTextViewStyle.ClientList.Light"
                 android:layout_width="wrap_content"

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="org.opensrp.path.tabfragments.Planning_Stock_fragment"
+    tools:context="org.smartregister.path.tabfragments.Planning_Stock_fragment"
     android:background="#ffffff">
 
     <!-- TODO: Update blank fragment layout -->
@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:background="#ffffff"
             android:layout_margin="10dp">
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/CustomFontTextViewStyle.ClientList"
@@ -29,7 +29,7 @@
                 android:textSize="@dimen/bottom_text_size"
                 android:layout_marginBottom="25dp"
                 android:layout_marginTop="10dp" />
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -65,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -83,7 +83,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -93,7 +93,7 @@
                         android:textSize="18sp"
                         android:layout_weight="3.5"
                         android:textIsSelectable="false" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -112,7 +112,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -122,7 +122,7 @@
                         android:textSize="18sp"
                         android:layout_weight="3.5"
                         android:textIsSelectable="false" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -141,7 +141,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -151,7 +151,7 @@
                         android:textSize="18sp"
                         android:layout_weight="3.5"
                         android:textIsSelectable="false" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -170,7 +170,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -180,7 +180,7 @@
                         android:textSize="18sp"
                         android:layout_weight="3.5"
                         android:textIsSelectable="false" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -205,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -214,7 +214,7 @@
                     android:textColor="@color/background_floating_material_dark"
                     android:textSize="20sp"
                     android:layout_gravity="center_vertical" />
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
@@ -236,7 +236,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -260,7 +260,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -270,7 +270,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -280,7 +280,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -290,7 +290,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -307,7 +307,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -316,7 +316,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -325,7 +325,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -334,7 +334,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -349,7 +349,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp">
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -358,7 +358,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -367,7 +367,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -376,7 +376,7 @@
                         android:textColor="@color/client_list_grey"
                         android:textSize="18sp"
                         android:layout_weight="1" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
@@ -393,7 +393,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -403,7 +403,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -413,7 +413,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -423,7 +423,7 @@
                         android:textSize="18sp"
                         android:layout_weight="1"
                         android:textStyle="bold" />
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -450,7 +450,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="center_vertical">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -459,7 +459,7 @@
                     android:textColor="@color/background_floating_material_dark"
                     android:textSize="20sp"
                     android:layout_gravity="center_vertical" />
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
@@ -470,7 +470,7 @@
                     android:textSize="20sp"
                     android:layout_gravity="center_vertical" />
             </LinearLayout>
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
@@ -491,7 +491,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="10dp">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
@@ -500,7 +500,7 @@
                     android:textColor="@color/background_floating_material_dark"
                     android:textSize="20sp"
                     android:layout_gravity="center_vertical" />
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.NoPadding"

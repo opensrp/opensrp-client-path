@@ -27,7 +27,7 @@
             android:layout_marginRight="@dimen/list_view_margin_left_and_right"
             android:orientation="horizontal">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/vaccination_summary"

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <org.opensrp.path.view.LocationPickerView
+    <org.smartregister.path.view.LocationPickerView
         android:id="@+id/item_text"
         style="@style/CustomFontTextViewStyle.NavBar.Black"
         android:layout_width="wrap_content"

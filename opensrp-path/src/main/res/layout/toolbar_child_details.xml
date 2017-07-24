@@ -1,4 +1,4 @@
-<org.opensrp.path.toolbar.ChildDetailsToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<org.smartregister.path.toolbar.ChildDetailsToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/child_detail_toolbar"
     android:layout_width="match_parent"
@@ -7,13 +7,13 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/title"
             style="@style/CustomFontTextViewStyle.NavBar.Black"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@android:color/transparent" />
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/CustomFontTextViewStyle.NavBar.Black"
@@ -24,4 +24,4 @@
             android:layout_marginRight="25dp" />
     </FrameLayout>
 
-</org.opensrp.path.toolbar.ChildDetailsToolbar>
+</org.smartregister.path.toolbar.ChildDetailsToolbar>

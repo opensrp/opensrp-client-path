@@ -27,7 +27,7 @@
         android:clickable="true"
         android:visibility="gone" />
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/vaccine"
         style="@style/CustomFontTextViewStyle.ClientList"
         android:layout_width="wrap_content"

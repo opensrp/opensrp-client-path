@@ -4,7 +4,7 @@
     android:background="#494949"
     android:theme="@style/AppThemeNoTitle.AppBarOverlay">
 
-    <org.opensrp.path.toolbar.LocationSwitcherToolbar
+    <org.smartregister.path.toolbar.LocationSwitcherToolbar
         android:id="@+id/location_switching_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/title"
                 style="@style/CustomFontTextViewStyle.NavBar.Black"
                 android:layout_width="wrap_content"
@@ -73,6 +73,6 @@
                 android:visibility="invisible"
                 android:scaleType="fitXY" />
         </FrameLayout>
-    </org.opensrp.path.toolbar.LocationSwitcherToolbar>
+    </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 
 </android.support.design.widget.AppBarLayout>

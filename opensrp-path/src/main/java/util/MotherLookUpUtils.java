@@ -7,13 +7,13 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.Context;
-import org.opensrp.clientandeventmodel.DateUtil;
-import org.opensrp.commonregistry.CommonPersonObject;
-import org.opensrp.commonregistry.CommonRepository;
-import org.opensrp.cursoradapter.SmartRegisterQueryBuilder;
-import org.opensrp.event.Listener;
-import org.opensrp.path.domain.EntityLookUp;
+import org.smartregister.Context;
+import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.event.Listener;
+import org.smartregister.path.domain.EntityLookUp;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class MotherLookUpUtils {
         Cursor cursor = null;
         try {
 
-            cursor = commonRepository.RawCustomQueryForAdapter(query);
+            cursor = commonRepository.rawCustomQueryForAdapter(query);
             if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     CommonPersonObject commonPersonObject = commonRepository.readAllcommonforCursorAdapter(cursor);

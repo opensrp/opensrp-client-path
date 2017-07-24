@@ -6,10 +6,10 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.domain.ServiceType;
-import org.opensrp.path.domain.ServiceSchedule;
-import org.opensrp.path.domain.ServiceTrigger;
-import org.opensrp.path.repository.RecurringServiceTypeRepository;
+import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceSchedule;
+import org.smartregister.path.domain.ServiceTrigger;
+import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

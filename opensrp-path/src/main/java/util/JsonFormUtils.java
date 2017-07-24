@@ -18,33 +18,33 @@ import com.google.gson.GsonBuilder;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.opensrp.clientandeventmodel.Address;
-import org.opensrp.clientandeventmodel.Client;
-import org.opensrp.clientandeventmodel.DateUtil;
-import org.opensrp.clientandeventmodel.Event;
-import org.opensrp.clientandeventmodel.FormEntityConstants;
-import org.opensrp.clientandeventmodel.Obs;
-import org.opensrp.commonregistry.AllCommonsRepository;
-import org.opensrp.domain.ProfileImage;
-import org.opensrp.domain.ServiceRecord;
-import org.opensrp.domain.Vaccine;
-import org.opensrp.domain.Weight;
-import org.opensrp.path.R;
-import org.opensrp.path.activity.PathJsonFormActivity;
-import org.opensrp.path.application.VaccinatorApplication;
-import org.opensrp.path.repository.BaseRepository;
-import org.opensrp.path.repository.PathRepository;
-import org.opensrp.path.repository.UniqueIdRepository;
-import org.opensrp.path.repository.VaccineRepository;
-import org.opensrp.path.repository.WeightRepository;
-import org.opensrp.path.sync.ECSyncUpdater;
-import org.opensrp.path.sync.PathClientProcessor;
-import org.opensrp.repository.AllSharedPreferences;
-import org.opensrp.repository.ImageRepository;
-import org.opensrp.sync.ClientProcessor;
-import org.opensrp.util.AssetHandler;
-import org.opensrp.util.FormUtils;
-import org.opensrp.view.activity.DrishtiApplication;
+import org.smartregister.clientandeventmodel.Address;
+import org.smartregister.clientandeventmodel.Client;
+import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.clientandeventmodel.Event;
+import org.smartregister.clientandeventmodel.FormEntityConstants;
+import org.smartregister.clientandeventmodel.Obs;
+import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.domain.ProfileImage;
+import org.smartregister.domain.ServiceRecord;
+import org.smartregister.domain.Vaccine;
+import org.smartregister.domain.Weight;
+import org.smartregister.path.R;
+import org.smartregister.path.activity.PathJsonFormActivity;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.repository.BaseRepository;
+import org.smartregister.path.repository.PathRepository;
+import org.smartregister.path.repository.UniqueIdRepository;
+import org.smartregister.path.repository.VaccineRepository;
+import org.smartregister.path.repository.WeightRepository;
+import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.ImageRepository;
+import org.smartregister.sync.ClientProcessor;
+import org.smartregister.util.AssetHandler;
+import org.smartregister.util.FormUtils;
+import org.smartregister.view.activity.DrishtiApplication;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -115,7 +115,7 @@ public class JsonFormUtils {
     public static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
 
 
-    public static void saveForm(Context context, org.opensrp.Context openSrpContext,
+    public static void saveForm(Context context, org.smartregister.Context openSrpContext,
                                 String jsonString, String providerId) {
         try {
             JSONObject form = new JSONObject(jsonString);
@@ -135,7 +135,7 @@ public class JsonFormUtils {
                 new SaveAdverseEventTask(jsonString, locationId, baseEntityId, providerId), null);
     }
 
-    private static void saveBirthRegistration(Context context, org.opensrp.Context openSrpContext,
+    private static void saveBirthRegistration(Context context, org.smartregister.Context openSrpContext,
                                               String jsonString, String providerId, String imageKey, String bindType,
                                               String subBindType) {
         if (context == null || openSrpContext == null || StringUtils.isBlank(providerId)
@@ -264,7 +264,7 @@ public class JsonFormUtils {
         }
     }
 
-    public static void editsave(Context context, org.opensrp.Context openSrpContext, String jsonString, String providerId, String imageKey, String bindType, String subBindType) {
+    public static void editsave(Context context, org.smartregister.Context openSrpContext, String jsonString, String providerId, String imageKey, String bindType, String subBindType) {
         if (context == null || StringUtils.isBlank(providerId) || StringUtils.isBlank(jsonString)) {
             return;
         }
@@ -410,7 +410,7 @@ public class JsonFormUtils {
 
     }
 
-    public static void saveOutOfAreaService(Context context, org.opensrp.Context openSrpContext,
+    public static void saveOutOfAreaService(Context context, org.smartregister.Context openSrpContext,
                                             String jsonString) {
         SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(context,
                 openSrpContext, jsonString);
@@ -426,7 +426,7 @@ public class JsonFormUtils {
      * @return A weight object if weight recorded in form, or {@code null} if weight not recorded
      * @throws Exception
      */
-    private static Weight getWeightObject(org.opensrp.Context openSrpContext, JSONObject outOfAreaForm) throws Exception {
+    private static Weight getWeightObject(org.smartregister.Context openSrpContext, JSONObject outOfAreaForm) throws Exception {
         Weight weight = null;
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
         String serviceDate = null;
@@ -479,7 +479,7 @@ public class JsonFormUtils {
      * @return A list of recorded vaccines
      */
     private static ArrayList<Vaccine> getVaccineObjects(Context context,
-                                                        org.opensrp.Context openSrpContext,
+                                                        org.smartregister.Context openSrpContext,
                                                         JSONObject outOfAreaForm) throws Exception {
         ArrayList<Vaccine> vaccines = new ArrayList<>();
         JSONArray fields = outOfAreaForm.getJSONObject("step1").getJSONArray("fields");
@@ -573,7 +573,7 @@ public class JsonFormUtils {
                 profileImage.setFilepath(absoluteFileName);
                 profileImage.setFilecategory("profilepic");
                 profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
-                ImageRepository imageRepo = (ImageRepository) org.opensrp.Context.getInstance().imageRepository();
+                ImageRepository imageRepo = (ImageRepository) org.smartregister.Context.getInstance().imageRepository();
                 imageRepo.add(profileImage);
             }
 
@@ -641,7 +641,7 @@ public class JsonFormUtils {
 
     }
 
-    public static Event createEvent(org.opensrp.Context openSrpContext,
+    public static Event createEvent(org.smartregister.Context openSrpContext,
                                     JSONArray fields, JSONObject metadata, String entityId,
                                     String encounterType, String providerId, String bindType) {
 
@@ -1494,7 +1494,7 @@ public class JsonFormUtils {
         }
     }
 
-    public static JSONArray generateLocationHierarchyTree(org.opensrp.Context context, boolean withOtherOption, ArrayList<String> allowedLevels) {
+    public static JSONArray generateLocationHierarchyTree(org.smartregister.Context context, boolean withOtherOption, ArrayList<String> allowedLevels) {
         JSONArray array = new JSONArray();
         try {
             JSONObject locationData = new JSONObject(context.anmLocationController().get());
@@ -1527,7 +1527,7 @@ public class JsonFormUtils {
         return array;
     }
 
-    public static JSONArray generateDefaultLocationHierarchy(org.opensrp.Context context, ArrayList<String> allowedLevels) {
+    public static JSONArray generateDefaultLocationHierarchy(org.smartregister.Context context, ArrayList<String> allowedLevels) {
         try {
             String defaultLocationUuid = context.allSharedPreferences()
                     .fetchDefaultLocalityId(context.allSharedPreferences().fetchRegisteredANM());
@@ -1620,7 +1620,7 @@ public class JsonFormUtils {
     }
 
     public static void addChildRegLocHierarchyQuestions(JSONObject form,
-                                                        org.opensrp.Context context) {
+                                                        org.smartregister.Context context) {
         try {
             JSONArray questions = form.getJSONObject("step1").getJSONArray("fields");
             ArrayList<String> allLevels = new ArrayList<>();
@@ -1909,7 +1909,7 @@ public class JsonFormUtils {
         }
     }
 
-    public static String getOpenMrsLocationId(org.opensrp.Context context,
+    public static String getOpenMrsLocationId(org.smartregister.Context context,
                                               String locationName) throws JSONException {
         String response = locationName;
 
@@ -1965,7 +1965,7 @@ public class JsonFormUtils {
      * @return The name hierarchy (starting with the top-most parent) for the location or {@code NULL}
      * if location id is not found
      */
-    public static JSONArray getOpenMrsLocationHierarchy(org.opensrp.Context context,
+    public static JSONArray getOpenMrsLocationHierarchy(org.smartregister.Context context,
                                                         String locationId) {
         JSONArray response = null;
 
@@ -2026,7 +2026,7 @@ public class JsonFormUtils {
         return null;
     }
 
-    public static String getOpenMrsLocationName(org.opensrp.Context context,
+    public static String getOpenMrsLocationName(org.smartregister.Context context,
                                                 String locationId) {
         String response = locationId;
         try {
@@ -2085,7 +2085,7 @@ public class JsonFormUtils {
     }
 
 
-    public static void saveReportDeceased(Context context, org.opensrp.Context openSrpContext,
+    public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext,
                                           String jsonString, String providerId, String locationId, String entityId) {
 
         try {
@@ -2225,10 +2225,10 @@ public class JsonFormUtils {
     private static class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
 
         private final Context context;
-        private final org.opensrp.Context openSrpContext;
+        private final org.smartregister.Context openSrpContext;
         private final String formString;
 
-        public SaveOutOfAreaServiceTask(Context context, org.opensrp.Context openSrpContext, String formString) {
+        public SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString) {
             this.context = context;
             this.openSrpContext = openSrpContext;
             this.formString = formString;
@@ -2375,7 +2375,7 @@ public class JsonFormUtils {
      * @param currentLocationId           OpenMRS id for the current device's location
      * @throws Exception
      */
-    public static void startForm(Activity context, org.opensrp.Context openSrpContext,
+    public static void startForm(Activity context, org.smartregister.Context openSrpContext,
                                  int jsonFormActivityRequestCode,
                                  String formName, String entityId, String metaData,
                                  String currentLocationId) throws Exception {
@@ -2510,7 +2510,7 @@ public class JsonFormUtils {
         return sortedTree;
     }
 
-    public static Event createMoveToCatchmentEvent(Context context, org.opensrp.path.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
+    public static Event createMoveToCatchmentEvent(Context context, org.smartregister.path.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
             final String FORM_SUBMISSION_FIELD = "formsubmissionField";

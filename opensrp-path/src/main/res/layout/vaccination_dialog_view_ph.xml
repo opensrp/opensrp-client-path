@@ -51,7 +51,7 @@
                     android:layout_height="20dp"
                     android:background="@color/alert_urgent_red" />
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/vaccine"
                     style="@style/CustomFontTextViewStyle.ListView.Medium"
                     android:layout_width="wrap_content"

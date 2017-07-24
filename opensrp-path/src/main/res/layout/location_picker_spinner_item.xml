@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.opensrp.view.customControls.CustomFontTextView
+<org.smartregister.view.customcontrols.CustomFontTextView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/item_text"
     style="@style/CustomFontTextViewStyle.NavBar.Black"

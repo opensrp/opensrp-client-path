@@ -60,7 +60,7 @@
         android:paddingLeft="2.5dp"
         android:visibility="visible">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/txt_title_label"
             style="@style/CustomFontTextViewStyle.NavBar.Black"
             android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
             android:maxWidth="@dimen/title_label_text_max_width"
             android:text="ZEIR"/>
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/btn_report_month"
             style="@style/CustomFontTextViewStyle.NavBar.Black"
             android:layout_width="wrap_content"
@@ -163,7 +163,7 @@
         android:src="@drawable/separator"
         android:visibility="gone" />
 
-    <org.opensrp.path.view.LocationPickerView
+    <org.smartregister.path.view.LocationPickerView
         android:id="@+id/clinic_selection"
         style="@style/CustomFontTextViewStyle.NavBar.Bold"
         android:layout_width="wrap_content"
@@ -192,7 +192,7 @@
         android:scaleType="fitXY"
         android:src="@drawable/separator" />
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/service_mode_selection"
         style="@style/CustomFontTextViewStyle.NavBar.Bold"
         android:layout_width="wrap_content"

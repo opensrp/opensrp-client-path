@@ -9,7 +9,7 @@ import android.graphics.RectF;
 
 import com.squareup.picasso.Transformation;
 
-import org.opensrp.Context;
+import org.smartregister.Context;
 
 /**
  * Created by oded on 9/15/15.

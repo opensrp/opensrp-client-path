@@ -1,8 +1,8 @@
 package shared.customshadows;
 
-import org.opensrp.commonregistry.CommonPersonObjectClient;
-import org.opensrp.path.R;
-import org.opensrp.path.domain.Photo;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.path.R;
+import org.smartregister.path.domain.Photo;
 import org.opensrp.api.constants.Gender;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;

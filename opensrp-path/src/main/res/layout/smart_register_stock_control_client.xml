@@ -19,7 +19,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/date"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="0dp"
@@ -29,7 +29,7 @@
             android:textSize="18sp"
             android:layout_weight="2.5" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/to_from"
             style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
             android:layout_width="0dp"
@@ -39,7 +39,7 @@
             android:textSize="18sp"
             android:layout_weight="2" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/received"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="0dp"
@@ -49,7 +49,7 @@
             android:textSize="18sp"
             android:layout_weight="2.5" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/issued"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="0dp"
@@ -59,7 +59,7 @@
             android:textSize="18sp"
             android:layout_weight="2" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/loss_adj"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="0dp"
@@ -69,7 +69,7 @@
             android:textSize="18sp"
             android:layout_weight="2.25" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/balance"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="0dp"

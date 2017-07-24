@@ -27,9 +27,9 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-import org.opensrp.path.R;
-import org.opensrp.view.activity.SecuredActivity;
-import org.opensrp.view.fragment.SecuredFragment;
+import org.smartregister.path.R;
+import org.smartregister.view.activity.SecuredActivity;
+import org.smartregister.view.fragment.SecuredFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;

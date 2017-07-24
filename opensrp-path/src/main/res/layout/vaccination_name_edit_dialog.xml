@@ -14,7 +14,7 @@
         android:tint="@color/alert_complete_green"
         android:scaleType="fitXY" />
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/vaccine"
         style="@style/CustomFontTextViewStyle.ClientList"
         android:layout_width="wrap_content"

@@ -1,7 +1,7 @@
 package util;
 
-import org.opensrp.AllConstants;
-import org.opensrp.path.BuildConfig;
+import org.smartregister.AllConstants;
+import org.smartregister.path.BuildConfig;
 
 /**
  * Created by coder on 2/14/17.
@@ -11,7 +11,7 @@ public class PathConstants extends AllConstants {
     public static final int DATABASE_VERSION = BuildConfig.DATABASE_VERSION;
 
     public static String openmrsUrl() {
-        String baseUrl = org.opensrp.Context.getInstance().allSharedPreferences().fetchBaseURL("");
+        String baseUrl = org.smartregister.Context.getInstance().allSharedPreferences().fetchBaseURL("");
         int lastIndex = baseUrl.lastIndexOf("/");
         baseUrl = baseUrl.substring(0, lastIndex) + "/openmrs";
         return OPENMRS_URL.isEmpty() || OPENMRS_URL == null ? baseUrl : OPENMRS_URL;

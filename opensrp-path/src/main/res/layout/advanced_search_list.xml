@@ -14,7 +14,7 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/search_criteria"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="match_parent"
@@ -28,7 +28,7 @@
             android:textColor="@color/client_list_grey"
             android:textSize="20sp" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/matching_results"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="match_parent"

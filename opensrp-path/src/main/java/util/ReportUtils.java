@@ -3,9 +3,9 @@ package util;
 import android.content.Context;
 import android.util.Log;
 
-import org.opensrp.path.domain.Report;
-import org.opensrp.path.domain.ReportHia2Indicator;
-import org.opensrp.path.sync.ECSyncUpdater;
+import org.smartregister.path.domain.Report;
+import org.smartregister.path.domain.ReportHia2Indicator;
+import org.smartregister.path.sync.ECSyncUpdater;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
 
@@ -24,8 +24,8 @@ public class ReportUtils {
         try {
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-            String providerId = org.opensrp.Context.getInstance().allSharedPreferences().fetchRegisteredANM();
-            String locationId = org.opensrp.Context.getInstance().allSharedPreferences().getPreference(PathConstants.CURRENT_LOCATION_ID);
+            String providerId = org.smartregister.Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+            String locationId = org.smartregister.Context.getInstance().allSharedPreferences().getPreference(PathConstants.CURRENT_LOCATION_ID);
             Report report = new Report();
             report.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
             report.setHia2Indicators(hia2Indicators);
