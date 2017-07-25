@@ -168,9 +168,9 @@ public class ImmunizationRowCard extends LinearLayout {
 
             Event event = null;
             if (vaccine.getEventId() != null) {
-                event = ecUpdater.convert(db.getEventsByEventId(vaccine.getEventId()), org.smartregister.path.db.Event.class);
+                event = ecUpdater.convert(db.getEventsByEventId(vaccine.getEventId()), Event.class);
             } else if (vaccine.getFormSubmissionId() != null) {
-                event = ecUpdater.convert(db.getEventsByFormSubmissionId(vaccine.getFormSubmissionId()), org.smartregister.path.db.Event.class);
+                event = ecUpdater.convert(db.getEventsByFormSubmissionId(vaccine.getFormSubmissionId()), Event.class);
             }
 
             if (event != null) {

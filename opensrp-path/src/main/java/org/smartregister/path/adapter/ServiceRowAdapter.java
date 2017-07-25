@@ -7,14 +7,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.smartregister.domain.ServiceType;
 import org.smartregister.path.domain.Photo;
 import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.view.ServiceRowCard;
 import org.smartregister.path.view.ServiceRowGroup;
-import org.smartregister.path.view.VaccineCard;
-import org.joda.time.DateTime;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
