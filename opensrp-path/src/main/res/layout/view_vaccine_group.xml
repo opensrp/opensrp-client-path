@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="15dp">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/name_tv"
                     style="@style/CustomFontTextViewStyle.ClientList"
                     android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
                     android:textColor="@color/text_black"
                     android:textSize="@dimen/activity_sub_title_size" />
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/record_all_tv"
                     style="@style/CustomFontTextViewStyle.ClientList"
                     android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
                     android:textSize="@dimen/activity_sub_title_size" />
             </RelativeLayout>
 
-            <org.opensrp.path.view.ExpandableHeightGridView
+            <org.smartregister.path.view.ExpandableHeightGridView
                 android:id="@+id/vaccines_gv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

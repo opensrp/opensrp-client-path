@@ -1,12 +1,12 @@
 package shared;
 
-import org.opensrp.domain.ServiceRecord;
-import org.opensrp.domain.Vaccine;
-import org.opensrp.path.application.VaccinatorApplication;
-import org.opensrp.path.repository.RecurringServiceRecordRepository;
-import org.opensrp.path.repository.RecurringServiceTypeRepository;
-import org.opensrp.path.repository.VaccineRepository;
-import org.opensrp.path.repository.WeightRepository;
+import org.smartregister.domain.ServiceRecord;
+import org.smartregister.domain.Vaccine;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.repository.RecurringServiceRecordRepository;
+import org.smartregister.path.repository.RecurringServiceTypeRepository;
+import org.smartregister.path.repository.VaccineRepository;
+import org.smartregister.path.repository.WeightRepository;
 import org.mockito.Mock;
 import org.robolectric.TestLifecycleApplication;
 

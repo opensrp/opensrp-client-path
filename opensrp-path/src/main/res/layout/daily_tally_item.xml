@@ -19,7 +19,7 @@
             android:paddingLeft="20dp"
             android:src="@drawable/ic_daily_tallies" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/tv"
             style="@style/CustomFontTextViewStyle.ClientList"
             android:layout_width="wrap_content"

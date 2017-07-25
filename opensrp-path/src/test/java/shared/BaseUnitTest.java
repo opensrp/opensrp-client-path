@@ -2,7 +2,7 @@ package shared;
 
 import android.view.View;
 
-import org.opensrp.path.BuildConfig;
+import org.smartregister.path.BuildConfig;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.modules.junit4.PowerMockRunner;

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_height="match_parent">
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/tv"
         style="@style/CustomFontTextViewStyle.ClientList.Light"
         android:layout_width="wrap_content"
@@ -20,7 +20,7 @@
         android:text="Name"
         android:textStyle="bold"
         android:textSize="22sp" />
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/month_draft_started_at"
         style="@style/CustomFontTextViewStyle.ClientList.Light"
         android:layout_width="wrap_content"

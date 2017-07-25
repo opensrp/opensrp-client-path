@@ -30,7 +30,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/child_boy_infant" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/name"
                 style="@style/CustomFontTextViewStyle.ClientList.Medium"
                 android:layout_width="wrap_content"
@@ -42,7 +42,7 @@
                 android:textSize="30sp" />
 
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/number"
                 style="@style/CustomFontTextViewStyle.ClientList.Light"
                 android:layout_width="wrap_content"

@@ -43,7 +43,7 @@
                     android:gravity="center_vertical"
                     android:orientation="vertical">
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/child_name"
                         style="@style/CustomFontTextViewStyle.ClientList.Medium"
                         android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
                         android:layout_marginBottom="5dp"
                         android:orientation="horizontal">
 
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/child_zeir_id"
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="wrap_content"
@@ -70,7 +70,7 @@
                             android:textColor="@color/client_list_grey"
                             android:textSize="22sp" />
 
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/child_age"
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="wrap_content"
@@ -81,7 +81,7 @@
                             android:textSize="22sp" />
                     </LinearLayout>
 
-                    <org.opensrp.view.customControls.CustomFontTextView
+                    <org.smartregister.view.customcontrols.CustomFontTextView
                         android:id="@+id/pmtct_status"
                         style="@style/CustomFontTextViewStyle.ClientList.Light"
                         android:layout_width="wrap_content"
@@ -99,7 +99,7 @@
                 android:layout_height="1dp"
                 android:background="@color/client_list_header_dark_grey" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/record_weight"
                 style="@style/CustomFontTextViewStyle.ClientList"
                 android:layout_width="wrap_content"
@@ -137,7 +137,7 @@
                     android:textColor="@color/light_grey"
                     android:textSize="100dp" />
             </LinearLayout>
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/service_date"
                 style="@style/CustomFontTextViewStyle.ClientList.Light"
                 android:layout_width="match_parent"

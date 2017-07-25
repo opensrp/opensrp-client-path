@@ -36,7 +36,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/child_name"
                 style="@style/CustomFontTextViewStyle.ClientList.Medium"
                 android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/child_mothername"
                     style="@style/CustomFontTextViewStyle.ClientList.Light"
                     android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
                     android:textColor="@color/client_list_grey"
                     android:textSize="14sp" />
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/child_age"
                     style="@style/CustomFontTextViewStyle.ClientList.Light"
                     android:layout_width="wrap_content"
@@ -85,7 +85,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_zeir_id"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="wrap_content"
@@ -94,7 +94,7 @@
             android:textColor="@color/client_list_grey"
             android:textSize="18sp" />
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/child_card_number"
             style="@style/CustomFontTextViewStyle.ClientList.Light"
             android:layout_width="wrap_content"

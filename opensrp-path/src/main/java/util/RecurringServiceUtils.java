@@ -4,13 +4,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 
-import org.opensrp.domain.Alert;
-import org.opensrp.domain.ServiceRecord;
-import org.opensrp.path.application.VaccinatorApplication;
-import org.opensrp.path.domain.ServiceWrapper;
-import org.opensrp.path.repository.RecurringServiceRecordRepository;
-import org.opensrp.path.view.ServiceGroup;
-import org.opensrp.path.view.ServiceRowGroup;
+import org.smartregister.domain.Alert;
+import org.smartregister.domain.ServiceRecord;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.ServiceWrapper;
+import org.smartregister.path.repository.RecurringServiceRecordRepository;
+import org.smartregister.path.view.ServiceGroup;
+import org.smartregister.path.view.ServiceRowGroup;
 
 import java.util.ArrayList;
 import java.util.List;

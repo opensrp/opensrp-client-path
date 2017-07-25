@@ -3,9 +3,9 @@ package shared.customshadows;
 import android.content.Context;
 import android.widget.Button;
 
-import org.opensrp.domain.Alert;
-import org.opensrp.path.domain.VaccineWrapper;
-import org.opensrp.path.view.ImmunizationRowCard;
+import org.smartregister.domain.Alert;
+import org.smartregister.path.domain.VaccineWrapper;
+import org.smartregister.path.view.ImmunizationRowCard;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowLinearLayout;

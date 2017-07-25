@@ -36,21 +36,21 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.commonregistry.CommonPersonObject;
-import org.opensrp.domain.Alert;
-import org.opensrp.domain.AlertStatus;
-import org.opensrp.domain.ServiceRecord;
-import org.opensrp.domain.ServiceType;
-import org.opensrp.path.R;
-import org.opensrp.path.db.VaccineRepo;
-import org.opensrp.path.db.VaccineRepo.Vaccine;
-import org.opensrp.path.domain.ServiceSchedule;
-import org.opensrp.path.domain.ServiceTrigger;
-import org.opensrp.path.domain.VaccineWrapper;
-import org.opensrp.path.fragment.UndoVaccinationDialogFragment;
-import org.opensrp.path.fragment.VaccinationDialogFragment;
-import org.opensrp.path.repository.RecurringServiceRecordRepository;
-import org.opensrp.util.IntegerUtil;
+import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.domain.Alert;
+import org.smartregister.domain.AlertStatus;
+import org.smartregister.domain.ServiceRecord;
+import org.smartregister.domain.ServiceType;
+import org.smartregister.path.R;
+import org.smartregister.path.db.VaccineRepo;
+import org.smartregister.path.db.VaccineRepo.Vaccine;
+import org.smartregister.path.domain.ServiceSchedule;
+import org.smartregister.path.domain.ServiceTrigger;
+import org.smartregister.path.domain.VaccineWrapper;
+import org.smartregister.path.fragment.UndoVaccinationDialogFragment;
+import org.smartregister.path.fragment.VaccinationDialogFragment;
+import org.smartregister.path.repository.RecurringServiceRecordRepository;
+import org.smartregister.util.IntegerUtil;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,10 +82,10 @@ public class VaccinatorUtils {
     private static final String TAG = "VaccinatorUtils";
 
     public static HashMap<String, String> providerDetails() {
-        org.opensrp.Context context = org.opensrp.Context.getInstance();
-        org.opensrp.util.Log.logDebug("ANM DETAILS" + context.anmController().get());
-        org.opensrp.util.Log.logDebug("USER DETAILS" + context.allSettings().fetchUserInformation());
-        org.opensrp.util.Log.logDebug("TEAM DETAILS" + getPreference(context.applicationContext(), "team", "{}"));
+        org.smartregister.Context context = org.smartregister.Context.getInstance();
+        org.smartregister.util.Log.logDebug("ANM DETAILS" + context.anmController().get());
+        org.smartregister.util.Log.logDebug("USER DETAILS" + context.allSettings().fetchUserInformation());
+        org.smartregister.util.Log.logDebug("TEAM DETAILS" + getPreference(context.applicationContext(), "team", "{}"));
 
         String locationJson = context.anmLocationController().get();
         LocationTree locationTree = EntityUtils.fromJson(locationJson, LocationTree.class);
@@ -125,11 +125,11 @@ public class VaccinatorUtils {
 
     public static ArrayList<HashMap<String, String>> getWasted(String startDate, String endDate, String type) {
         String sqlWasted = "select sum (total_wasted)as total_wasted from stock where `report` ='" + type + "' and `date` between '" + startDate + "' and '" + endDate + "'";
-        return org.opensrp.Context.getInstance().commonrepository("stock").rawQuery(sqlWasted);
+        return org.smartregister.Context.getInstance().commonrepository("stock").rawQuery(sqlWasted);
     }
 
     public static int getWasted(String startDate, String endDate, String type, String... variables) {
-        List<CommonPersonObject> cl = org.opensrp.Context.getInstance().commonrepository("stock").customQueryForCompleteRow("SELECT * FROM stock WHERE `report` ='" + type + "' and `date` between '" + startDate + "' and '" + endDate + "'", null, "stock");
+        List<CommonPersonObject> cl = org.smartregister.Context.getInstance().commonrepository("stock").customQueryForCompleteRow("SELECT * FROM stock WHERE `report` ='" + type + "' and `date` between '" + startDate + "' and '" + endDate + "'", null, "stock");
         int total = 0;
         for (CommonPersonObject c : cl) {
             for (String v : variables) {
@@ -149,7 +149,7 @@ public class VaccinatorUtils {
         q += " ) e ";
 
         Log.i("DD", q);
-        return org.opensrp.Context.getInstance().commonrepository(table).rawQuery(q);
+        return org.smartregister.Context.getInstance().commonrepository(table).rawQuery(q);
     }
 
     public static int getTotalUsed(String startDate, String endDate, String table, String... vaccines) {
@@ -712,10 +712,10 @@ public class VaccinatorUtils {
         return -1;
     }
 
-    public static Map<String, Date> receivedVaccines(List<org.opensrp.domain.Vaccine> vaccines) {
+    public static Map<String, Date> receivedVaccines(List<org.smartregister.domain.Vaccine> vaccines) {
         Map<String, Date> map = new LinkedHashMap<>();
         if (vaccines != null) {
-            for (org.opensrp.domain.Vaccine vaccine : vaccines) {
+            for (org.smartregister.domain.Vaccine vaccine : vaccines) {
                 if (vaccine.getDate() != null) {
                     map.put(vaccine.getName(), vaccine.getDate());
                 }
@@ -725,10 +725,10 @@ public class VaccinatorUtils {
 
     }
 
-    public static Map<String, Date> receivedServices(List<org.opensrp.domain.ServiceRecord> serviceRecordList) {
+    public static Map<String, Date> receivedServices(List<org.smartregister.domain.ServiceRecord> serviceRecordList) {
         Map<String, Date> map = new LinkedHashMap<>();
         if (serviceRecordList != null) {
-            for (org.opensrp.domain.ServiceRecord serviceRecord : serviceRecordList) {
+            for (org.smartregister.domain.ServiceRecord serviceRecord : serviceRecordList) {
                 if (serviceRecord.getDate() != null) {
                     map.put(serviceRecord.getName(), serviceRecord.getDate());
                 }

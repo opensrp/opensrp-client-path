@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:id="@+id/textView3"
             style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
             android:layout_width="wrap_content"

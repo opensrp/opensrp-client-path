@@ -1,0 +1,24 @@
+package org.smartregister.path.adapter;
+
+import android.view.LayoutInflater;
+import android.view.View;
+
+import org.smartregister.path.domain.Stock;
+import org.smartregister.view.contract.SmartRegisterClients;
+import org.smartregister.view.dialog.FilterOption;
+import org.smartregister.view.dialog.ServiceModeOption;
+import org.smartregister.view.dialog.SortOption;
+import org.smartregister.view.viewholder.OnClickFormLauncher;
+
+/**
+ * Created by raihan on 3/9/16.
+ */
+public interface StockProviderForCursorAdapter {
+    public void getView(Stock stock, View view);
+    SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
+                                       FilterOption searchFilter, SortOption sortOption);
+    void onServiceModeSelected(ServiceModeOption serviceModeOption);
+    public OnClickFormLauncher newFormLauncher(String formName, String entityId, String metaData);
+    public LayoutInflater inflater();
+    public View inflatelayoutForCursorAdapter();
+}

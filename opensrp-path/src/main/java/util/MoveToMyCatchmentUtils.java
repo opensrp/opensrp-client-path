@@ -5,17 +5,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.Context;
-import org.opensrp.DristhiConfiguration;
-import org.opensrp.domain.Response;
-import org.opensrp.domain.ResponseStatus;
-import org.opensrp.event.Listener;
-import org.opensrp.path.db.Event;
-import org.opensrp.path.db.Obs;
-import org.opensrp.path.repository.BaseRepository;
-import org.opensrp.path.sync.ECSyncUpdater;
-import org.opensrp.path.sync.PathClientProcessor;
-import org.opensrp.repository.AllSharedPreferences;
+import org.smartregister.Context;
+import org.smartregister.DristhiConfiguration;
+import org.smartregister.domain.Response;
+import org.smartregister.domain.ResponseStatus;
+import org.smartregister.event.Listener;
+import org.smartregister.path.db.Event;
+import org.smartregister.path.db.Obs;
+import org.smartregister.path.repository.BaseRepository;
+import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.repository.AllSharedPreferences;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -135,7 +135,7 @@ public class MoveToMyCatchmentUtils {
 
                 if (event.getEventType().equals(BIRTH_REGISTRATION_EVENT) || event.getEventType().equals(NEW_WOMAN_REGISTRATION_EVENT)) {
                     //Create move to catchment event;
-                    org.opensrp.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
+                    org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
                     JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
                     if (moveToCatchmentEvent != null) {
                         ecUpdater.addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);

@@ -5,11 +5,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.Context;
-import org.opensrp.DristhiConfiguration;
-import org.opensrp.domain.Response;
-import org.opensrp.event.Listener;
-import org.opensrp.path.fragment.AdvancedSearchFragment;
+import org.smartregister.Context;
+import org.smartregister.DristhiConfiguration;
+import org.smartregister.domain.Response;
+import org.smartregister.event.Listener;
+import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.json.JSONArray;
 
 import java.io.UnsupportedEncodingException;

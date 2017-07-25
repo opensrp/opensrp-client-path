@@ -27,7 +27,7 @@
                 android:orientation="vertical"
                 android:layout_margin="20dp">
 
-                <org.opensrp.view.customControls.CustomFontTextView
+                <org.smartregister.view.customcontrols.CustomFontTextView
                     android:id="@+id/child_name"
                     style="@style/CustomFontTextViewStyle.ClientList.Medium"
                     android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/child_active"
                             style="@style/CustomFontTextViewStyle.ClientList.Medium"
                             android:layout_width="wrap_content"
@@ -69,7 +69,7 @@
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:password="false" />
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/active_description"
                             style="@style/CustomFontTextViewStyle.ClientList.Light"
                             android:layout_width="wrap_content"
@@ -101,7 +101,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/child_inactive"
                             style="@style/CustomFontTextViewStyle.ClientList.Medium"
                             android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:password="false" />
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/inactive_description"
                             style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                             android:layout_width="match_parent"
@@ -143,7 +143,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/lost_to_followup"
                             style="@style/CustomFontTextViewStyle.ClientList.Medium"
                             android:layout_width="wrap_content"
@@ -153,7 +153,7 @@
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:password="false" />
-                        <org.opensrp.view.customControls.CustomFontTextView
+                        <org.smartregister.view.customcontrols.CustomFontTextView
                             android:id="@+id/lost_to_followup_description"
                             style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                             android:layout_width="match_parent"

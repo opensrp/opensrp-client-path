@@ -48,12 +48,12 @@ import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
-import org.opensrp.domain.AlertStatus;
-import org.opensrp.commonregistry.CommonPersonObjectClient;
-import org.opensrp.domain.ProfileImage;
-import org.opensrp.path.domain.EditWrapper;
-import org.opensrp.repository.ImageRepository;
-import org.opensrp.util.StringUtil;
+import org.smartregister.domain.AlertStatus;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.ProfileImage;
+import org.smartregister.path.domain.EditWrapper;
+import org.smartregister.repository.ImageRepository;
+import org.smartregister.util.StringUtil;
 import org.joda.time.DateTime;
 import org.opensrp.api.domain.Location;
 import org.opensrp.api.util.TreeNode;
@@ -159,15 +159,15 @@ public class Utils {
 
     public static String getColorValue(Context cxt, AlertStatus alertStatus) {
         if (alertStatus.equals(AlertStatus.upcoming)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.opensrp.path.R.color.alert_upcoming)).substring(2);
+            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_upcoming)).substring(2);
         }
         if (alertStatus.equals(AlertStatus.normal)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.opensrp.path.R.color.alert_normal)).substring(2);
+            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_normal)).substring(2);
         }
         if (alertStatus.equals(AlertStatus.urgent)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.opensrp.path.R.color.alert_urgent)).substring(2);
+            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_urgent)).substring(2);
         } else {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.opensrp.path.R.color.alert_na)).substring(2);
+            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_na)).substring(2);
         }
     }
 
@@ -440,7 +440,7 @@ public class Utils {
     }
 
     public static void setProfiePic(Context context, ImageView mImageView, String entityId, Object watermark) {
-        ProfileImage photo = ((ImageRepository) org.opensrp.Context.getInstance().imageRepository()).findByEntityId(entityId);
+        ProfileImage photo = ((ImageRepository) org.smartregister.Context.getInstance().imageRepository()).findByEntityId(entityId);
         if (photo != null) {
             setProfiePicFromPath(context, mImageView, photo.getFilepath(), watermark);
         }

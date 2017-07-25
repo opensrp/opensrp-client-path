@@ -17,7 +17,7 @@
             android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/label"
                 style="@style/CustomFontTextViewStyle.ClientList.NoPadding"
                 android:layout_width="0dp"
@@ -28,7 +28,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/dark_grey" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/value"
                 style="@style/CustomFontTextViewStyle.ClientList"
                 android:layout_width="0dp"

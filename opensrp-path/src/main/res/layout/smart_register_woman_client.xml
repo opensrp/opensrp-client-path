@@ -32,7 +32,7 @@
             android:layout_marginTop="1dp"
             android:layout_marginBottom="1dp">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Woman ID of 4teen"
@@ -41,7 +41,7 @@
                 android:textColor="@color/button_material_dark"
                 android:textSize="14sp" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/CustomFontTextViewStyle.ListView.Medium"
@@ -50,7 +50,7 @@
                 android:textColor="@color/light_blue"
                 android:textSize="14sp" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="husband Name"
@@ -58,7 +58,7 @@
                 android:id="@+id/woman_husbandname"
                 android:textSize="14sp" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="father name"
@@ -77,7 +77,7 @@
         android:background="#ffffff"
         android:layout_marginRight="1dp">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Age"
@@ -94,7 +94,7 @@
         android:background="#ffffff"
         android:layout_marginRight="1dp">
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="EPI Number"
@@ -111,7 +111,7 @@
         android:layout_weight="3"
         android:layout_marginRight="1dp">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EDD and GA"
@@ -120,7 +120,7 @@
                 android:textSize="14sp"
                 android:layout_gravity="top" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EDD and GA"
@@ -138,7 +138,7 @@
         android:background="#ffffff"
         android:layout_marginRight="1dp">
 
-        <org.opensrp.view.customControls.CustomFontTextView
+        <org.smartregister.view.customcontrols.CustomFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Contact Number"
@@ -168,7 +168,7 @@
                 android:layout_gravity="right"
                 android:scaleType="fitXY" />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Vaccine Name"
@@ -176,7 +176,7 @@
                 style="@style/CustomFontTextViewStyle.ListView.Medium"/>
 
         </LinearLayout>
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Last Vaccine Date"
@@ -201,7 +201,7 @@
             android:id="@+id/woman_next_visit_holder"
             android:background="@color/transparent_blue">
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Next Vaccine Name"
@@ -210,7 +210,7 @@
                 style="@style/CustomFontTextViewStyle.ListView.Medium"
                 />
 
-            <org.opensrp.view.customControls.CustomFontTextView
+            <org.smartregister.view.customcontrols.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Next Visit Date"

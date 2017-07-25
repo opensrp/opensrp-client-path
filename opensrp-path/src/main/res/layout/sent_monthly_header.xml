@@ -11,7 +11,7 @@
         android:background="@color/light_grey" />
 
 
-    <org.opensrp.view.customControls.CustomFontTextView
+    <org.smartregister.view.customcontrols.CustomFontTextView
         android:id="@+id/tv"
         style="@style/CustomFontTextViewStyle.ClientList"
         android:layout_width="wrap_content"

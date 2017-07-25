@@ -5,8 +5,8 @@ import android.app.Application;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.opensrp.path.adapter.ImmunizationRowAdapter;
-import org.opensrp.path.domain.VaccineWrapper;
+import org.smartregister.path.adapter.ImmunizationRowAdapter;
+import org.smartregister.path.domain.VaccineWrapper;
 import org.robolectric.ShadowsAdapter;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;

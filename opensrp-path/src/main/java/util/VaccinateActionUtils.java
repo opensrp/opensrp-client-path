@@ -16,22 +16,22 @@ import com.google.gson.Gson;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.opensrp.clientandeventmodel.DateUtil;
-import org.opensrp.commonregistry.AllCommonsRepository;
-import org.opensrp.commonregistry.CommonFtsObject;
-import org.opensrp.domain.Alert;
-import org.opensrp.domain.AlertStatus;
-import org.opensrp.domain.ServiceType;
-import org.opensrp.domain.Vaccine;
-import org.opensrp.domain.form.FormSubmission;
-import org.opensrp.path.R;
-import org.opensrp.path.db.VaccineRepo;
-import org.opensrp.path.domain.VaccinateFormSubmissionWrapper;
-import org.opensrp.path.domain.VaccineWrapper;
-import org.opensrp.path.fragment.VaccinationDialogFragment;
-import org.opensrp.service.AlertService;
-import org.opensrp.service.ZiggyService;
-import org.opensrp.util.FormUtils;
+import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.domain.Alert;
+import org.smartregister.domain.AlertStatus;
+import org.smartregister.domain.ServiceType;
+import org.smartregister.domain.Vaccine;
+import org.smartregister.domain.form.FormSubmission;
+import org.smartregister.path.R;
+import org.smartregister.path.db.VaccineRepo;
+import org.smartregister.path.domain.VaccinateFormSubmissionWrapper;
+import org.smartregister.path.domain.VaccineWrapper;
+import org.smartregister.path.fragment.VaccinationDialogFragment;
+import org.smartregister.service.AlertService;
+import org.smartregister.service.ZiggyService;
+import org.smartregister.util.FormUtils;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,13 +45,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.opensrp.AllConstants.ENTITY_ID_PARAM;
-import static org.opensrp.AllConstants.FORM_NAME_PARAM;
-import static org.opensrp.AllConstants.INSTANCE_ID_PARAM;
-import static org.opensrp.AllConstants.SYNC_STATUS;
-import static org.opensrp.AllConstants.VERSION_PARAM;
-import static org.opensrp.domain.SyncStatus.PENDING;
-import static org.opensrp.util.EasyMap.create;
+import static org.smartregister.AllConstants.ENTITY_ID_PARAM;
+import static org.smartregister.AllConstants.FORM_NAME_PARAM;
+import static org.smartregister.AllConstants.INSTANCE_ID_PARAM;
+import static org.smartregister.AllConstants.SYNC_STATUS;
+import static org.smartregister.AllConstants.VERSION_PARAM;
+import static org.smartregister.domain.SyncStatus.PENDING;
+import static org.smartregister.util.EasyMap.create;
 import static util.Utils.convertDateFormat;
 
 /**
@@ -182,7 +182,7 @@ public class VaccinateActionUtils {
             FormUtils formUtils = FormUtils.getInstance(appContext);
             final FormSubmission submission = formUtils.generateFormSubmisionFromXMLString(id, formSubmission, formName, fieldOverrides);
 
-            org.opensrp.Context context = org.opensrp.Context.getInstance();
+            org.smartregister.Context context = org.smartregister.Context.getInstance();
             ZiggyService ziggyService = context.ziggyService();
             ziggyService.saveForm(getParams(submission), submission.instance());
 
