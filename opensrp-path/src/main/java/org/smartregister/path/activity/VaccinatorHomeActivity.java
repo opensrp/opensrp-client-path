@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -12,22 +11,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.smartregister.Context;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.path.R;
 import org.smartregister.path.controller.VaccinatorNavigationController;
 import org.smartregister.path.sync.PathAfterFetchListener;
 import org.smartregister.path.sync.PathUpdateActionsTask;
-import org.smartregister.sync.SyncAfterFetchListener;
 import org.smartregister.sync.SyncProgressIndicator;
 import org.smartregister.view.activity.SecuredActivity;
 import org.smartregister.view.contract.HomeContext;
 import org.smartregister.view.controller.NativeAfterANMDetailsFetchListener;
 import org.smartregister.view.controller.NativeUpdateANMDetailsTask;
 import org.smartregister.view.fragment.DisplayFormFragment;
-
-import java.util.HashMap;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.lang.String.valueOf;

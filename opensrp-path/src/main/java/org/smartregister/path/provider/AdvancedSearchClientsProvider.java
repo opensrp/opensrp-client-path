@@ -4,10 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
-import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
@@ -19,7 +17,6 @@ import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static util.Utils.getValue;

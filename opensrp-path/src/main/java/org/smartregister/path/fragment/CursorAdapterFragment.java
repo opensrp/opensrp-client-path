@@ -8,8 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -26,11 +23,8 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.cursoradapter.CursorFilterOption;
-import org.smartregister.cursoradapter.CursorSortOption;
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.ReportMonth;
 import org.smartregister.path.R;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
@@ -40,13 +34,7 @@ import org.smartregister.view.customcontrols.FontVariant;
 import org.smartregister.view.dialog.AllClientsFilter;
 import org.smartregister.view.dialog.DialogOption;
 import org.smartregister.view.dialog.DialogOptionModel;
-import org.smartregister.view.dialog.ECSearchOption;
 import org.smartregister.view.dialog.EditOption;
-import org.smartregister.view.dialog.FilterOption;
-import org.smartregister.view.dialog.ServiceModeOption;
-import org.smartregister.view.dialog.SortOption;
-import org.smartregister.view.fragment.SecuredNativeSmartRegisterFragment;
-import org.joda.time.LocalDate;
 
 import java.util.List;
 
@@ -54,7 +42,6 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.text.MessageFormat.format;
 import static java.util.Arrays.asList;
-import static org.smartregister.AllConstants.SHORT_DATE_FORMAT;
 
 /**
  * Created by Raihan on 28/05/17.

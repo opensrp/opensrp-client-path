@@ -35,7 +35,7 @@ import org.smartregister.path.repository.WeightRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.view.ImmunizationRowGroup;
 import org.smartregister.path.view.ServiceRowGroup;
-import org.smartregister.path.viewComponents.WidgetFactory;
+import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.customcontrols.CustomFontTextView;

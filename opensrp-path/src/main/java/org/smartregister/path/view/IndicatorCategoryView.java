@@ -15,7 +15,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.smartregister.path.R;
-import org.smartregister.path.domain.Hia2Indicator;
 import org.smartregister.path.domain.Tally;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 

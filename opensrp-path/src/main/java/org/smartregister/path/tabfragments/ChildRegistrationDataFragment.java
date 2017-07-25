@@ -12,7 +12,7 @@ import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.viewComponents.WidgetFactory;
+import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.joda.time.DateTime;
 

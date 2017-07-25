@@ -1,59 +1,28 @@
 package org.smartregister.path.provider;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
-import org.smartregister.domain.Alert;
-import org.smartregister.domain.Vaccine;
-import org.smartregister.domain.Weight;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.StockProviderForCursorAdapter;
-import org.smartregister.path.db.VaccineRepo;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.path.repository.WeightRepository;
 import org.smartregister.service.AlertService;
-import org.smartregister.util.OpenSRPImageLoader;
-import org.smartregister.view.activity.DrishtiApplication;
-import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.contract.SmartRegisterClients;
 import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 import org.smartregister.view.viewholder.OnClickFormLauncher;
-import org.joda.time.DateTime;
 
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import util.DateUtils;
-import util.ImageUtils;
 import util.JsonFormUtils;
-import util.VaccinateActionUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static util.Utils.fillValue;
-import static util.Utils.getName;
-import static util.Utils.getValue;
-import static util.VaccinatorUtils.generateScheduleList;
-import static util.VaccinatorUtils.nextVaccineDue;
-import static util.VaccinatorUtils.receivedVaccines;
 
 /**
  * Created by Raihan  on 29-05-17.

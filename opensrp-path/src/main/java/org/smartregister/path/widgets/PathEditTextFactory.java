@@ -14,14 +14,12 @@ import com.vijay.jsonwizard.interfaces.CommonListener;
 import com.vijay.jsonwizard.interfaces.JsonApi;
 import com.vijay.jsonwizard.widgets.EditTextFactory;
 
-import org.smartregister.path.R;
-import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.path.watchers.LookUpTextWatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.path.R;
+import org.smartregister.path.watchers.LookUpTextWatcher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

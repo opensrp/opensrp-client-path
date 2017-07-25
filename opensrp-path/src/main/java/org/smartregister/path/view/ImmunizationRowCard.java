@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Vaccine;
 import org.smartregister.path.R;
@@ -19,7 +20,6 @@ import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

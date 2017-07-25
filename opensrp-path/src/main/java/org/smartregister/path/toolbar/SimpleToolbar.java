@@ -1,16 +1,12 @@
 package org.smartregister.path.toolbar;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import org.smartregister.path.R;
-import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 /**

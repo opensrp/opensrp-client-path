@@ -1,40 +1,30 @@
 package org.smartregister.path.view;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Path;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.DetailsRepository;
-import org.smartregister.repository.ImageRepository;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
-import org.json.JSONException;
-import org.opensrp.api.constants.Gender;
 
 import java.util.HashMap;
 import java.util.Map;

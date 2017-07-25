@@ -7,7 +7,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.path.domain.Vaccine_names;
-import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;

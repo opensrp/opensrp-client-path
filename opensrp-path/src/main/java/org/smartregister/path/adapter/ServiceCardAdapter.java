@@ -7,26 +7,21 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceType;
+import org.joda.time.DateTime;
+import org.json.JSONException;
 import org.smartregister.path.domain.Photo;
 import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.view.ServiceCard;
 import org.smartregister.path.view.ServiceGroup;
-import org.smartregister.path.view.VaccineCard;
-import org.joda.time.DateTime;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import util.ImageUtils;
 import util.Utils;
 
-import static util.Utils.fillValue;
 import static util.Utils.getName;
 import static util.Utils.getValue;
 

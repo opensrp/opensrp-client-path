@@ -3,7 +3,6 @@ package org.smartregister.path.interactors;
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.interactors.JsonFormInteractor;
 
-import org.smartregister.path.widgets.PathCalculateLabelFactory;
 import org.smartregister.path.widgets.PathDatePickerFactory;
 import org.smartregister.path.widgets.PathEditTextFactory;
 

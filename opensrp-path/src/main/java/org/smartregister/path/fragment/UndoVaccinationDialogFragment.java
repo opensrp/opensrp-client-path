@@ -3,7 +3,6 @@ package org.smartregister.path.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,18 +17,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.smartregister.path.activity.ChildDetailActivity;
-import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.path.domain.VaccinateFormSubmissionWrapper;
-import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.activity.WomanDetailActivity;
 import org.smartregister.path.R;
+import org.smartregister.path.db.VaccineRepo;
+import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.path.listener.VaccinationActionListener;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import util.ImageUtils;
 

@@ -1,18 +1,10 @@
 package org.smartregister.path.domain;
 
-import android.util.Pair;
-
-import org.smartregister.domain.Vaccine;
-import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.util.StringUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MulticastSocket;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**

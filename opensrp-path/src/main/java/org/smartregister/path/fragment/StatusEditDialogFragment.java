@@ -6,37 +6,19 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
-import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.WeightWrapper;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.listener.WeightActionListener;
-import org.smartregister.path.repository.WeightRepository;
-import org.smartregister.util.OpenSRPImageLoader;
-import org.smartregister.view.activity.DrishtiApplication;
-import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Map;
-
-import util.ImageUtils;
 
 @SuppressLint("ValidFragment")
 public class StatusEditDialogFragment extends DialogFragment {

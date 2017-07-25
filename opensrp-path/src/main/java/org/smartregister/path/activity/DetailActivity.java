@@ -133,7 +133,7 @@ public abstract class DetailActivity extends Activity {
             });
 
 
-            ProfileImage photo = ((ImageRepository) org.smartregister.Context.getInstance().imageRepository()).findByEntityId(client.entityId());
+            ProfileImage photo = Context.getInstance().imageRepository().findByEntityId(client.entityId());
 
             if (photo != null) {
                 setProfiePicFromPath(this, mImageView, photo.getFilepath(), org.smartregister.R.drawable.ic_pencil);

@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import org.smartregister.path.domain.Stock;
-import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.contract.SmartRegisterClients;
 import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;

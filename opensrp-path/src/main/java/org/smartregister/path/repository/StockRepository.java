@@ -7,23 +7,16 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ei.drishti.dto.AlertStatus;
+import org.joda.time.DateTime;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;
-import org.smartregister.commonregistry.CommonPersonObject;
-import org.smartregister.domain.Alert;
-import org.smartregister.domain.Vaccine;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.service.AlertService;
-import org.smartregister.util.StringUtil;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**

@@ -1,9 +1,5 @@
 package org.smartregister.path.domain;
 
-import org.smartregister.domain.Alert;
-import org.smartregister.path.db.VaccineRepo.Vaccine;
-import org.joda.time.DateTime;
-
 /**
  * Created by keyman on 16/11/2016.
  */

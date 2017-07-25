@@ -3,9 +3,6 @@ package org.smartregister.path.listener;
 import android.view.View;
 
 import org.smartregister.path.domain.ServiceWrapper;
-import org.smartregister.path.domain.VaccineWrapper;
-
-import java.util.ArrayList;
 
 /**
  * Created by keyman on 19/05/2017.

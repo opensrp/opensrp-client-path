@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.twotoasters.sectioncursoradapter.SectionCursorAdapter;
@@ -13,9 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
 import org.smartregister.path.R;
-import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.provider.AdvancedSearchClientsProvider;
 
 /**

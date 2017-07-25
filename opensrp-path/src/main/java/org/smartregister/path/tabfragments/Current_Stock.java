@@ -1,15 +1,12 @@
 package org.smartregister.path.tabfragments;
 
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -22,15 +19,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.Context;
-import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.cursoradapter.CursorSortOption;
-import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.PathJsonFormActivity;
@@ -38,23 +34,14 @@ import org.smartregister.path.activity.StockControlActivity;
 import org.smartregister.path.adapter.StockPaginatedCursorAdapter;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
-import org.smartregister.path.fragment.CursorAdapterFragment;
-import org.smartregister.path.provider.ChildSmartClientsProvider;
 import org.smartregister.path.provider.StockRowSmartClientsProvider;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.repository.Vaccine_typesRepository;
-import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.FormUtils;
-import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 import org.smartregister.view.dialog.AllClientsFilter;
 import org.smartregister.view.dialog.DialogOption;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
