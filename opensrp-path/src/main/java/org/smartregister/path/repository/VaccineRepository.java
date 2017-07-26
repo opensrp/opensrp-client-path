@@ -11,7 +11,7 @@ import org.ei.drishti.dto.AlertStatus;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;

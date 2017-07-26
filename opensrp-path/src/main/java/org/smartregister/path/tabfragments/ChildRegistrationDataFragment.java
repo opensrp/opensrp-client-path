@@ -23,7 +23,7 @@ import java.util.Map;
 
 import util.DateUtils;
 import util.JsonFormUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 
 public class ChildRegistrationDataFragment extends Fragment {

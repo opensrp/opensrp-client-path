@@ -8,7 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.smartregister.Context;
-import org.smartregister.domain.UniqueId;
+import org.smartregister.path.domain.UniqueId;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

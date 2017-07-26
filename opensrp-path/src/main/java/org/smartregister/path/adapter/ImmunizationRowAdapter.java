@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.Vaccine;
-import org.smartregister.path.domain.Photo;
+import org.smartregister.path.domain.Vaccine;
+import org.smartregister.domain.Photo;
 import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.path.view.VaccineCard;
 import org.smartregister.path.view.ImmunizationRowCard;
@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by raihan on 13/03/2017.

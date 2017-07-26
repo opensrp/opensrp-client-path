@@ -7,24 +7,23 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.joda.time.DateTime;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
-import org.smartregister.domain.Vaccine;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.MonthlyTally;
 import org.smartregister.path.domain.ReportHia2Indicator;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.domain.VaccineSchedule;
-import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.path.service.HIA2Service;
-import org.joda.time.DateTime;
-import org.json.JSONObject;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 import util.PathConstants;
 import util.ReportUtils;
-import util.Utils;
 
 
 /**
@@ -203,7 +201,7 @@ public class HIA2IntentService extends IntentService {
             return null;
         }
 
-        CommonPersonObjectClient childDetails = MotherLookUpSmartClientsProvider.convert(rawDetails);
+        CommonPersonObjectClient childDetails = org.smartregister.util.Utils.convert(rawDetails);
         List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
         DateTime dateTime = Utils.dobToDateTime(childDetails);

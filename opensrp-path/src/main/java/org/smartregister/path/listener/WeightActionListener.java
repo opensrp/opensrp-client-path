@@ -1,6 +1,6 @@
 package org.smartregister.path.listener;
 
-import org.smartregister.path.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
 
 /**
  * Created by keyman on 22/11/2016.

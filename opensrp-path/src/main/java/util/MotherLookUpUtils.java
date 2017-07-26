@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static android.view.View.VISIBLE;
-import static android.view.View.combineMeasuredStates;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by keyman on 26/01/2017.
@@ -39,7 +38,7 @@ public class MotherLookUpUtils {
 
     public static void motherLookUp(final Context context, final EntityLookUp entityLookUp, final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> listener, final ProgressBar progressBar) {
 
-        Utils.startAsyncTask(new AsyncTask<Void, Void, HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+        org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
             @Override
             protected HashMap<CommonPersonObject, List<CommonPersonObject>> doInBackground(Void... params) {
                 publishProgress();

@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;

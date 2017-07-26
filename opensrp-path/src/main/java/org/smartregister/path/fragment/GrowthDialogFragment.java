@@ -25,10 +25,10 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.Weight;
+import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.path.R;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.path.domain.ZScore;
+import org.smartregister.growthmonitoring.domain.ZScore;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.joda.time.DateTime;
@@ -49,7 +49,7 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.view.LineChartView;
 import util.DateUtils;
 import util.ImageUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 @SuppressLint("ValidFragment")
 public class GrowthDialogFragment extends DialogFragment {

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.path.domain.Photo;
+import org.smartregister.domain.Photo;
 import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.path.view.VaccineCard;
 import org.smartregister.path.view.VaccineGroup;
@@ -20,10 +20,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import util.ImageUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
-import static util.Utils.getName;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getName;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 22/02/2017.

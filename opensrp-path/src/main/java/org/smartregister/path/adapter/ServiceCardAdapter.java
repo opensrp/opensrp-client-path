@@ -9,7 +9,7 @@ import android.widget.BaseAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONException;
-import org.smartregister.path.domain.Photo;
+import org.smartregister.domain.Photo;
 import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.view.ServiceCard;
 import org.smartregister.path.view.ServiceGroup;
@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import util.ImageUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
-import static util.Utils.getName;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getName;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by keyman on 15/05/2017.

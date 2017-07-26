@@ -40,8 +40,8 @@ import java.util.Map;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static util.Utils.getValue;
-import static util.Utils.nonEmptyValue;
+import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.nonEmptyValue;
 import static util.VaccinatorUtils.providerDetails;
 
 public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursorAdapterFragment {

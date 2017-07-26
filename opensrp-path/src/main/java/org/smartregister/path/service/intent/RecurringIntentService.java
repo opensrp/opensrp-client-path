@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;

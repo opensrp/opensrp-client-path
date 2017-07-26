@@ -48,7 +48,7 @@ import java.util.UUID;
 
 import util.VaccinateActionUtils;
 
-import static util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.setProfiePic;
 import static util.Utils.setProfiePicFromPath;
 
@@ -96,7 +96,7 @@ public abstract class DetailActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (context().IsUserLoggedOut()) {
-            DrishtiApplication application = (DrishtiApplication)getApplication();
+            DrishtiApplication application = (DrishtiApplication) getApplication();
             application.logoutCurrentUser();
             return;
         }
@@ -147,7 +147,7 @@ public abstract class DetailActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (context().IsUserLoggedOut()) {
-            DrishtiApplication application = (DrishtiApplication)getApplication();
+            DrishtiApplication application = (DrishtiApplication) getApplication();
             application.logoutCurrentUser();
             return;
         }
@@ -268,7 +268,7 @@ public abstract class DetailActivity extends Activity {
         return null;
     }
 
-    protected void saveFormSubmission(VaccinateFormSubmissionWrapper vaccinateFormSubmissionWrapper){
+    protected void saveFormSubmission(VaccinateFormSubmissionWrapper vaccinateFormSubmissionWrapper) {
         if (vaccinateFormSubmissionWrapper != null && vaccinateFormSubmissionWrapper.updates() > 0) {
             final android.content.Context context = this;
             String data = vaccinateFormSubmissionWrapper.updateFormSubmission();
@@ -315,7 +315,7 @@ public abstract class DetailActivity extends Activity {
                 button.setTag(getString(R.string.save));
             } else if (view.getTag().equals(getString(R.string.save))) {
                 List<EditWrapper> editWrappers = edited(tableLayouts);
-                if(!editWrappers.isEmpty()){
+                if (!editWrappers.isEmpty()) {
                     // Save
                     editFormSubmissionWrapper.addAll(editWrappers);
                     String data = editFormSubmissionWrapper.updateFormSubmission();
@@ -333,7 +333,7 @@ public abstract class DetailActivity extends Activity {
     }
 
     private void updateEditViews(List<TableLayout> tableLayouts, boolean toEdit) {
-        if(tableLayouts != null && !tableLayouts.isEmpty()){
+        if (tableLayouts != null && !tableLayouts.isEmpty()) {
             for (TableLayout layout : tableLayouts) {
                 updateEditViews(layout, toEdit);
             }
@@ -364,7 +364,7 @@ public abstract class DetailActivity extends Activity {
 
     private List<EditWrapper> edited(List<TableLayout> tableLayouts) {
         List<EditWrapper> edits = new ArrayList<>();
-        if(tableLayouts != null && !tableLayouts.isEmpty()){
+        if (tableLayouts != null && !tableLayouts.isEmpty()) {
             for (TableLayout layout : tableLayouts) {
                 for (int i = 0; i < layout.getChildCount(); i++) {
                     View view = layout.getChildAt(i);
@@ -375,7 +375,7 @@ public abstract class DetailActivity extends Activity {
                             if (childView instanceof EditText) {
                                 EditText editText = (EditText) childView;
                                 EditWrapper editWrapper = edited(editText);
-                                if(editWrapper != null){
+                                if (editWrapper != null) {
                                     edits.add(editWrapper);
                                 }
                             }
@@ -387,12 +387,12 @@ public abstract class DetailActivity extends Activity {
         return edits;
     }
 
-    private EditWrapper edited(EditText editText){
-        if(editText.getTag() instanceof EditWrapper){
-            EditWrapper editWrapper = (EditWrapper)editText.getTag();
+    private EditWrapper edited(EditText editText) {
+        if (editText.getTag() instanceof EditWrapper) {
+            EditWrapper editWrapper = (EditWrapper) editText.getTag();
             String currentValue = editWrapper.getCurrentValue();
             String newValue = editText.getText().toString();
-            if(!currentValue.equals(newValue)){
+            if (!currentValue.equals(newValue)) {
                 editWrapper.setNewValue(newValue);
                 return editWrapper;
             }

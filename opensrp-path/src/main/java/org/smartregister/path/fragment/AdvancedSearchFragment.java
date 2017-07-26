@@ -59,7 +59,7 @@ import util.GlobalSearchUtils;
 import util.JsonFormUtils;
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private View mView;

@@ -109,6 +109,8 @@ dependencies {
         exclude group: 'com.github.johnkil.print', module: 'print'
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
+    compile(name: 'opensrp-growth-monitoring-debug', ext: 'aar')
+
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.android.support:design:22.2.1'
     compile 'com.android.support:appcompat-v7:22.1.1'
@@ -122,7 +124,6 @@ dependencies {
     compile 'id.zelory:compressor:1.0.4'
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
-    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
     compile 'com.github.lecho:hellocharts-android:v1.5.8'
     compile 'junit:junit:4.12'
 

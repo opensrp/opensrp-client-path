@@ -7,7 +7,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceRecord;
 
 import java.util.ArrayList;
 import java.util.Calendar;

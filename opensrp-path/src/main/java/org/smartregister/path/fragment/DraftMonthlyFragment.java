@@ -34,7 +34,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import util.Utils;
+import org.smartregister.util.Utils;
 
 /**
  * Created by coder on 6/7/17.

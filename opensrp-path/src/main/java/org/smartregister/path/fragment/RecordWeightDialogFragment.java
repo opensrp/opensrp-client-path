@@ -22,7 +22,7 @@ import com.vijay.jsonwizard.utils.DatePickerUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
-import org.smartregister.path.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.path.listener.WeightActionListener;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.view.activity.DrishtiApplication;

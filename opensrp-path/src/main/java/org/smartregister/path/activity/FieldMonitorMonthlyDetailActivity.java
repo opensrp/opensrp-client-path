@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import static util.Utils.addToRow;
+import static org.smartregister.util.Utils.addToRow;
 import static util.Utils.getDataRow;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 import static util.VaccinatorUtils.getTotalUsed;
 import static util.VaccinatorUtils.getWasted;
 import static util.VaccinatorUtils.providerDetails;

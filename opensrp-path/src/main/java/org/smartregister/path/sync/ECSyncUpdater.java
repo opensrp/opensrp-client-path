@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import util.Utils;
+import org.smartregister.util.Utils;
 
 public class ECSyncUpdater {
     public static final String SEARCH_URL = "/rest/event/sync";

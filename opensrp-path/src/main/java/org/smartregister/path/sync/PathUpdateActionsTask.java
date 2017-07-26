@@ -18,7 +18,7 @@ import org.smartregister.path.repository.BaseRepository;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
-import org.smartregister.path.service.intent.ZScoreRefreshIntentService;
+import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;

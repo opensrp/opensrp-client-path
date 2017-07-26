@@ -6,7 +6,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.domain.ServiceSchedule;
 import org.smartregister.path.domain.ServiceTrigger;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;

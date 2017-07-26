@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
-import org.joda.time.DateTime;
+import org.smartregister.util.Utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -20,9 +21,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static util.Utils.fillValue;
-import static util.Utils.getName;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.fillValue;
+import static org.smartregister.util.Utils.getName;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by Ahmed on 13-Oct-15.
@@ -41,11 +42,11 @@ public class MotherLookUpSmartClientsProvider {
     }
 
     public void getView(CommonPersonObject commonPersonObject, List<CommonPersonObject> children, View convertView) {
-        CommonPersonObjectClient pc = convert(commonPersonObject);
+        CommonPersonObjectClient pc = Utils.convert(commonPersonObject);
 
         List<CommonPersonObjectClient> childList = new ArrayList<CommonPersonObjectClient>();
         for (CommonPersonObject childCommonPersonObject : children) {
-            childList.add(convert(childCommonPersonObject));
+            childList.add(Utils.convert(childCommonPersonObject));
         }
 
         String childName = name(pc);
@@ -88,12 +89,6 @@ public class MotherLookUpSmartClientsProvider {
 
     public LayoutInflater inflater() {
         return inflater;
-    }
-
-    public static CommonPersonObjectClient convert(CommonPersonObject commonPersonObject) {
-        CommonPersonObjectClient pc = new CommonPersonObjectClient(commonPersonObject.getCaseId(), commonPersonObject.getDetails(), commonPersonObject.getColumnmaps().get("first_name"));
-        pc.setColumnmaps(commonPersonObject.getColumnmaps());
-        return pc;
     }
 
     private void sortList(List<CommonPersonObjectClient> childList) {

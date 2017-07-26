@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.VaccineCardAdapter;
 import org.smartregister.path.db.VaccineRepo;
@@ -34,7 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import util.Utils;
+import org.smartregister.util.Utils;
 import util.VaccinateActionUtils;
 
 import static util.VaccinatorUtils.generateScheduleList;

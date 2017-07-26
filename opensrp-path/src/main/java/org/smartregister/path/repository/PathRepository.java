@@ -13,6 +13,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.db.Address;
 import org.smartregister.path.db.Client;
@@ -46,7 +48,7 @@ import util.DatabaseUtils;
 import util.JsonFormUtils;
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 public class PathRepository extends Repository {
 

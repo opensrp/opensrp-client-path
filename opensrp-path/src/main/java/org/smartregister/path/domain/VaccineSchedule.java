@@ -9,7 +9,7 @@ import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
 import org.joda.time.DateTime;

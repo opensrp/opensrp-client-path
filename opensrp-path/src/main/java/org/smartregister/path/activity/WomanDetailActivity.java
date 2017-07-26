@@ -29,10 +29,10 @@ import java.util.Map;
 
 import util.VaccinateActionUtils;
 
-import static util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.getDataRow;
-import static util.Utils.getValue;
-import static util.Utils.nonEmptyValue;
+import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.nonEmptyValue;
 import static util.VaccinatorUtils.addStatusTag;
 import static util.VaccinatorUtils.addVaccineDetail;
 import static util.VaccinatorUtils.generateSchedule;

@@ -35,13 +35,13 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
+import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.Vaccine_typesRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
-import org.smartregister.path.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.util.Log;
@@ -60,7 +60,7 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import util.Utils;
+import org.smartregister.util.Utils;
 import util.PathConstants;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;

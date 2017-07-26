@@ -16,10 +16,10 @@ import android.widget.TextView;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
-import org.smartregister.domain.Vaccine;
-import org.smartregister.domain.Weight;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
+import org.smartregister.path.domain.Vaccine;
+import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -31,7 +31,7 @@ import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.path.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.view.ImmunizationRowGroup;
 import org.smartregister.path.view.ServiceRowGroup;
@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 import util.DateUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 import util.VaccinateActionUtils;
 
 

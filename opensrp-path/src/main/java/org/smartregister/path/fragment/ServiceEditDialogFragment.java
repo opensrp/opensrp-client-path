@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.vijay.jsonwizard.utils.DatePickerUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceRecord;
 import org.smartregister.path.R;
 import org.smartregister.path.domain.ServiceSchedule;
 import org.smartregister.path.domain.ServiceWrapper;
