@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.path.domain.Vaccine_names;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class Vaccine_NamesRepository extends BaseRepository {
 
 
 
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         if (vaccine_names.getId() == null) {
             vaccine_names.setId(database.insert(VACCINE_Names_TABLE_NAME, null, createValuesFor(vaccine_names)));
         } else {
@@ -64,7 +65,7 @@ public class Vaccine_NamesRepository extends BaseRepository {
 
 
 //    public List<Vaccine> findByEntityId(String entityId) {
-//        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+//        SQLiteDatabase database = getReadableDatabase();
 //        Cursor cursor = database.query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, BASE_ENTITY_ID + " = ? ORDER BY " + UPDATED_AT_COLUMN, new String[]{entityId}, null, null, null, null);
 //        return readAllVaccines(cursor);
 //    }
@@ -74,7 +75,7 @@ public class Vaccine_NamesRepository extends BaseRepository {
 //    public void deleteVaccine(Long caseId) {
 //        Vaccine vaccine = find(caseId);
 //        if(vaccine != null) {
-//            getPathRepository().getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
+//            getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
 //
 //            updateFtsSearch(vaccine.getBaseEntityId(), vaccine.getName());
 //        }
@@ -83,7 +84,7 @@ public class Vaccine_NamesRepository extends BaseRepository {
 //    public void close(Long caseId) {
 //        ContentValues values = new ContentValues();
 //        values.put(SYNC_STATUS, TYPE_Synced);
-//        getPathRepository().getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
+//        getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
 //    }
 
     private List<Vaccine_names> readAllVaccines(Cursor cursor) {

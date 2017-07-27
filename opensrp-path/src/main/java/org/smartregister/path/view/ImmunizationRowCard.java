@@ -11,15 +11,15 @@ import android.widget.TextView;
 
 import org.joda.time.DateTime;
 import org.smartregister.domain.Alert;
-import org.smartregister.path.domain.Vaccine;
+import org.smartregister.domain.db.Event;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.db.Event;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.repository.EventClientRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -164,7 +164,7 @@ public class ImmunizationRowCard extends LinearLayout {
         VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
         if (vaccineWrapper.getDbKey() != null) {
             Vaccine vaccine = vaccineRepository.find(vaccineWrapper.getDbKey());
-            PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             Event event = null;
             if (vaccine.getEventId() != null) {

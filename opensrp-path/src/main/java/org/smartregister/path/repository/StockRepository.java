@@ -13,6 +13,7 @@ import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.domain.Vaccine_types;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public class StockRepository extends BaseRepository {
             stock.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
         }
 
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         if (stock.getId() == null) {
             stock.setId(database.insert(stock_TABLE_NAME, null, createValuesFor(stock)));
         } else {
@@ -109,7 +110,7 @@ public class StockRepository extends BaseRepository {
 
             Long time = calendar.getTimeInMillis();
 
-            cursor = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ? AND " + SYNC_STATUS + " = ?", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
+            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ? AND " + SYNC_STATUS + " = ?", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
             stocks = readAllstocks(cursor);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -126,7 +127,7 @@ public class StockRepository extends BaseRepository {
         try {
 
 
-            cursor = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS,  SYNC_STATUS + " = ?", new String[]{ TYPE_Unsynced}, null, null, null, ""+limit);
+            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS,  SYNC_STATUS + " = ?", new String[]{ TYPE_Unsynced}, null, null, null, ""+limit);
             stocks = readAllstocks(cursor);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -142,7 +143,7 @@ public class StockRepository extends BaseRepository {
         List<Stock> stocks = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, VACCINE_TYPE_ID+ " = ? AND " + TRANSACTION_TYPE + " = ? AND " + PROVIDER_ID + " = ? AND " + VALUE + " = ? AND " + DATE_CREATED + " = ? AND " + TO_FROM + " = ?", new String[]{vaccine_type_id, transaction_type, providerid, value, date_created, to_from}, null, null, null, null);
+            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, VACCINE_TYPE_ID+ " = ? AND " + TRANSACTION_TYPE + " = ? AND " + PROVIDER_ID + " = ? AND " + VALUE + " = ? AND " + DATE_CREATED + " = ? AND " + TO_FROM + " = ?", new String[]{vaccine_type_id, transaction_type, providerid, value, date_created, to_from}, null, null, null, null);
             stocks = readAllstocks(cursor);
 
         } catch (Exception e) {
@@ -171,7 +172,7 @@ public class StockRepository extends BaseRepository {
 
 
 //    public List<Vaccine> findByEntityId(String entityId) {
-//        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+//        SQLiteDatabase database = getReadableDatabase();
 //        Cursor cursor = database.query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, BASE_ENTITY_ID + " = ? ORDER BY " + UPDATED_AT_COLUMN, new String[]{entityId}, null, null, null, null);
 //        return readAllVaccines(cursor);
 //    }
@@ -180,7 +181,7 @@ public class StockRepository extends BaseRepository {
 //        Vaccine vaccine = null;
 //        Cursor cursor = null;
 //        try {
-//            cursor = getPathRepository().getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
+//            cursor = getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
 //            List<Vaccine> vaccines = readAllVaccines(cursor);
 //            if (!vaccines.isEmpty()) {
 //                vaccine = vaccines.get(0);
@@ -198,7 +199,7 @@ public class StockRepository extends BaseRepository {
 //    public void deleteVaccine(Long caseId) {
 //        Vaccine vaccine = find(caseId);
 //        if(vaccine != null) {
-//            getPathRepository().getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
+//            getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
 //
 //            updateFtsSearch(vaccine.getBaseEntityId(), vaccine.getName());
 //        }
@@ -207,7 +208,7 @@ public class StockRepository extends BaseRepository {
 //    public void close(Long caseId) {
 //        ContentValues values = new ContentValues();
 //        values.put(SYNC_STATUS, TYPE_Synced);
-//        getPathRepository().getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
+//        getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
 //    }
 
     private List<Stock> readAllstocks(Cursor cursor) {
@@ -246,7 +247,7 @@ public class StockRepository extends BaseRepository {
         DateTime thedate = new DateTime(date);
         DateTime startofday = thedate.withTimeAtStartOfDay();
         DateTime endofday = thedate.plusDays(1).withTimeAtStartOfDay();
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor c = database.rawQuery("Select count(*) from vaccines where date >= "+startofday.getMillis()+" and date < "+endofday.getMillis()+" and name like '%"+vaccineName+"%'",null);
         c.moveToFirst();
         if(c.getCount()>0){
@@ -260,7 +261,7 @@ public class StockRepository extends BaseRepository {
     public int getVaccineUsedUntildate(Long date, String vaccineName){
         int vaccineUsed = 0;
         DateTime thedate = new DateTime(date);
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor c = database.rawQuery("Select count(*) from vaccines where date <= "+thedate.getMillis()+" and name like '%"+vaccineName+"%'",null);
         c.moveToFirst();
         if(c.getCount()>0){
@@ -274,8 +275,8 @@ public class StockRepository extends BaseRepository {
 
 
     public int getBalanceBefore(Stock stock) {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
-//        Cursor c = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
+        SQLiteDatabase database = getReadableDatabase();
+//        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
         Cursor c =database.rawQuery("Select sum(value) from Stocks Where date_updated <" +stock.getUpdatedAt()+ " and date_created <=" +new DateTime(stock.getDate_created()).toDate().getTime()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
         if(c.getCount() == 0) {
             c.close();
@@ -295,11 +296,11 @@ public class StockRepository extends BaseRepository {
 
     public int getBalanceBeforeCheck(Stock stock) {
         int sum = 0;
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
 
         Cursor c =database.rawQuery("Select sum(value) from Stocks Where date_created = " +stock.getDate_created()+ " and date_updated <" +stock.getUpdatedAt()+" and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
 
-//        Cursor c = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
+//        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
 //      c =database.rawQuery("Select sum(value) from Stocks Where date_updated <" +stock.getUpdatedAt()+ " and date_created <=" +new DateTime(stock.getDate_created()).toDate().getTime()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
         if(c.getCount() == 0) {
             sum = 0;
@@ -327,9 +328,9 @@ public class StockRepository extends BaseRepository {
         return sum;
     }
     public int getBalanceFromNameAndDate(String Name,Long updatedat) {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
-//        Cursor c = getPathRepository().getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
-        Vaccine_typesRepository vtr = new Vaccine_typesRepository(getPathRepository(), VaccinatorApplication.createCommonFtsObject(),Context.getInstance().alertService());
+        SQLiteDatabase database = getReadableDatabase();
+//        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
+        Vaccine_typesRepository vtr = new Vaccine_typesRepository((PathRepository) getRepository(), VaccinatorApplication.createCommonFtsObject(),Context.getInstance().alertService());
         ArrayList<Vaccine_types> allvaccinetypes = (ArrayList)vtr.findIDByName(Name);
         String id_for_vaccine = "";
         if(allvaccinetypes.size()>0){

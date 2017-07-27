@@ -36,13 +36,13 @@ import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.ServiceRecord;
 import org.smartregister.path.domain.Vaccine;
-import org.smartregister.path.repository.BaseRepository;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.sync.ClientProcessor;
 import org.smartregister.util.AssetHandler;
@@ -1210,7 +1210,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static void createVaccineEvent(Context context, Vaccine vaccine, String eventType, String entityType, JSONArray fields) {
         try {
-            PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             Event event = (Event) new Event()
                     .withBaseEntityId(vaccine.getBaseEntityId())
@@ -1253,7 +1253,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     public static void createServiceEvent(Context context, ServiceRecord serviceRecord, String eventType, String entityType, JSONArray fields) {
         try {
-            PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             Event event = (Event) new Event()
                     .withBaseEntityId(serviceRecord.getBaseEntityId())
@@ -1474,7 +1474,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                           String jsonString, String providerId, String locationId, String entityId) {
 
         try {
-            PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             JSONObject jsonForm = new JSONObject(jsonString);
 
@@ -1647,7 +1647,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+                EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
                 JSONObject jsonForm = new JSONObject(jsonString);
 
@@ -1879,7 +1879,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return sortedTree;
     }
 
-    public static Event createMoveToCatchmentEvent(Context context, org.smartregister.path.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
+    public static Event createMoveToCatchmentEvent(Context context, org.smartregister.domain.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
             final String FORM_SUBMISSION_FIELD = "formsubmissionField";

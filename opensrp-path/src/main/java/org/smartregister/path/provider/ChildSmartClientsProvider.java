@@ -12,17 +12,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
 import org.smartregister.domain.Alert;
-import org.smartregister.path.domain.Vaccine;
 import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.db.VaccineRepo;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.contract.SmartRegisterClients;
@@ -30,7 +33,6 @@ import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 import org.smartregister.view.viewholder.OnClickFormLauncher;
-import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,12 +40,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import util.DateUtils;
 import util.ImageUtils;
-import org.smartregister.util.Utils;
 import util.VaccinateActionUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -107,7 +106,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         if (StringUtils.isNotBlank(dobString)) {
             try {
                 birthDateTime = new DateTime(dobString);
-                String duration = DateUtils.getDuration(birthDateTime);
+                String duration = DateUtil.getDuration(birthDateTime);
                 if (duration != null) {
                     durationString = duration;
                 }

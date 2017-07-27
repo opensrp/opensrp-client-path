@@ -11,8 +11,12 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 
+import org.json.JSONArray;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
@@ -21,22 +25,21 @@ import org.smartregister.path.domain.VaccineSchedule;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.DailyTalliesRepository;
+import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
+import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.path.sync.PathUpdateActionsTask;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.receiver.TimeChangedBroadcastReceiver;
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +74,8 @@ public class VaccinatorApplication extends DrishtiApplication
     private ZScoreRepository zScoreRepository;
     private RecurringServiceRecordRepository recurringServiceRecordRepository;
     private RecurringServiceTypeRepository recurringServiceTypeRepository;
+    private EventClientRepository eventClientRepository;
+    private StockRepository stockRepository;
     private boolean lastModified;
 
     @Override
@@ -97,6 +102,9 @@ public class VaccinatorApplication extends DrishtiApplication
         initOfflineSchedules();
         setCrashlyticsUser(context);
         PathUpdateActionsTask.setAlarms(this);
+
+        //Initialize Modules
+        GrowthMonitoringLibrary.init(context(), getRepository());
 
     }
 
@@ -243,6 +251,7 @@ public class VaccinatorApplication extends DrishtiApplication
                 uniqueIdRepository();
                 recurringServiceTypeRepository();
                 recurringServiceRecordRepository();
+                eventClientRepository();
             }
         } catch (UnsatisfiedLinkError e) {
             logError("Error on getRepository: " + e);
@@ -319,6 +328,20 @@ public class VaccinatorApplication extends DrishtiApplication
             recurringServiceRecordRepository = new RecurringServiceRecordRepository((PathRepository) getRepository());
         }
         return recurringServiceRecordRepository;
+    }
+
+    public EventClientRepository eventClientRepository() {
+        if (eventClientRepository == null) {
+            eventClientRepository = new EventClientRepository(getRepository());
+        }
+        return eventClientRepository;
+    }
+
+    public StockRepository stockRepository() {
+        if (stockRepository == null) {
+            stockRepository = new StockRepository((PathRepository) getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
+        }
+        return stockRepository;
     }
 
     public boolean isLastModified() {

@@ -16,7 +16,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.activity.WomanDetailActivity;
 import org.smartregister.path.activity.WomanSmartRegisterActivity;
-import org.smartregister.path.db.Client;
+import org.smartregister.domain.db.Client;
 import org.smartregister.path.option.BasicSearchOption;
 import org.smartregister.path.option.DateSort;
 import org.smartregister.path.option.StatusSort;

@@ -8,6 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.repository.BaseRepository;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -71,7 +72,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
                 serviceRecord.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
             }
 
-            SQLiteDatabase database = getPathRepository().getWritableDatabase();
+            SQLiteDatabase database = getWritableDatabase();
             if (serviceRecord.getId() == null) {
                 ServiceRecord sameServiceRecord = findUnique(database, serviceRecord);
                 if (sameServiceRecord != null) {
@@ -97,7 +98,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
         }
 
         if (database == null) {
-            database = getPathRepository().getWritableDatabase();
+            database = getWritableDatabase();
         }
 
         try {
@@ -117,7 +118,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
 
             Long time = calendar.getTimeInMillis();
 
-            cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, UPDATED_AT_COLUMN + " < ? AND " + SYNC_STATUS + " = ?", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, UPDATED_AT_COLUMN + " < ? AND " + SYNC_STATUS + " = ?", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
             serviceRecords = readAllServiceRecords(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -130,7 +131,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
     }
 
     public List<ServiceRecord> findByEntityId(String entityId) {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         String sql = " SELECT " + TABLE_NAME + ".*, " + RecurringServiceTypeRepository.TABLE_NAME + ".name, " + RecurringServiceTypeRepository.TABLE_NAME + ".type FROM " + TABLE_NAME + " LEFT JOIN " + RecurringServiceTypeRepository.TABLE_NAME +
                 " ON " + TABLE_NAME + "." + RECURRING_SERVICE_ID + " = " + RecurringServiceTypeRepository.TABLE_NAME + "." + RecurringServiceTypeRepository.ID_COLUMN +
                 " WHERE " + TABLE_NAME + "." + BASE_ENTITY_ID + " = ? " + COLLATE_NOCASE + " ORDER BY " + TABLE_NAME + "." + UPDATED_AT_COLUMN;
@@ -142,7 +143,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
         ServiceRecord serviceRecord = null;
         Cursor cursor = null;
         try {
-            cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
             List<ServiceRecord> serviceRecords = readAllServiceRecords(cursor);
             if (!serviceRecords.isEmpty()) {
                 serviceRecord = serviceRecords.get(0);
@@ -165,7 +166,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
 
         try {
             if (database == null) {
-                database = getPathRepository().getReadableDatabase();
+                database = getReadableDatabase();
             }
 
             String selection = null;
@@ -197,7 +198,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
         try {
             ServiceRecord serviceRecord = find(caseId);
             if (serviceRecord != null) {
-                getPathRepository().getWritableDatabase().delete(TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
+                getWritableDatabase().delete(TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -208,7 +209,7 @@ public class RecurringServiceRecordRepository extends BaseRepository {
         try {
             ContentValues values = new ContentValues();
             values.put(SYNC_STATUS, TYPE_Synced);
-            getPathRepository().getWritableDatabase().update(TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
+            getWritableDatabase().update(TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }

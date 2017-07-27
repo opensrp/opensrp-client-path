@@ -21,7 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import util.DateUtils;
+import org.smartregister.util.DateUtil;
 import util.JsonFormUtils;
 import org.smartregister.util.Utils;
 
@@ -114,7 +114,7 @@ public class ChildRegistrationDataFragment extends Fragment {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtils.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff);
                 }
             }
 

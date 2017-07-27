@@ -6,6 +6,7 @@ import android.util.Log;
 import org.smartregister.domain.Response;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.PathRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -17,13 +18,15 @@ import java.util.List;
 
 import org.smartregister.util.Utils;
 
+import util.MoveToMyCatchmentUtils;
+
 public class ECSyncUpdater {
     public static final String SEARCH_URL = "/rest/event/sync";
 
     public static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
     public static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
 
-    private PathRepository db;
+    private EventClientRepository db;
     private Context context;
 
     private static ECSyncUpdater instance;
@@ -37,7 +40,7 @@ public class ECSyncUpdater {
 
     public ECSyncUpdater(Context context) {
         this.context = context;
-        db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+        db = VaccinatorApplication.getInstance().eventClientRepository();
     }
 
 
@@ -195,6 +198,6 @@ public class ECSyncUpdater {
     }
 
     public boolean deleteEventsByBaseEntityId(String baseEntityId) {
-        return db.deleteEventsByBaseEntityId(baseEntityId);
+        return db.deleteEventsByBaseEntityId(baseEntityId, MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT);
     }
 }

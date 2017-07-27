@@ -4,8 +4,8 @@ import android.database.Cursor;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.VaccineRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.util.Log;
 
 import java.text.DateFormat;
@@ -89,7 +89,7 @@ public class HIA2Service {
     public static String CHN3_090 = "CHN3-090";
     private Map<String, Object> hia2Report = new HashMap<>();
     private SQLiteDatabase database;
-    public static String PREVIOUS_REPORT_DATES_QUERY = "select distinct strftime('%Y-%m-%d'," + PathRepository.event_column.eventDate + ") as eventDate, " + PathRepository.event_column.updatedAt + " from " + PathRepository.Table.event.name();
+    public static String PREVIOUS_REPORT_DATES_QUERY = "select distinct strftime('%Y-%m-%d'," + EventClientRepository.event_column.eventDate + ") as eventDate, " + EventClientRepository.event_column.updatedAt + " from " + EventClientRepository.Table.event.name();
     public static String HIA2_LAST_PROCESSED_DATE = "HIA2_LAST_PROCESSED_DATE";
     private String reportDate;
 
@@ -197,7 +197,7 @@ public class HIA2Service {
     private int clinicAttendance(String gender, String age) {
         int count = 0;
         try {
-            String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join " + PathRepository.Table.event.name() + " e on e." + PathRepository.event_column.baseEntityId.name() + "= child.base_entity_id" +
+            String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join " + EventClientRepository.Table.event.name() + " e on e." + EventClientRepository.event_column.baseEntityId.name() + "= child.base_entity_id" +
                     " where age " + age + " and  '" + reportDate + "'=strftime('%Y-%m-%d',e.eventDate) and child.gender='" + (gender.isEmpty() ? "Male" : gender + "'");
             count = executeQueryAndReturnCount(query);
         } catch (Exception e) {

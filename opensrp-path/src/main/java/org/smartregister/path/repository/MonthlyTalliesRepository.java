@@ -13,6 +13,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
 import org.smartregister.path.domain.MonthlyTally;
+import org.smartregister.repository.BaseRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -111,7 +112,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
                     monthsString = monthsString + "'" + curMonthString + "'";
                 }
 
-                cursor = getPathRepository().getReadableDatabase().query(
+                cursor = getReadableDatabase().query(
                         TABLE_NAME,
                         new String[]{COLUMN_MONTH}, COLUMN_MONTH + " IN(" + monthsString + ")",
                         null, null, null, null);
@@ -159,7 +160,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
         Cursor cursor = null;
         List<MonthlyTally> monthlyTallies = new ArrayList<>();
         try {
-            cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
                     COLUMN_MONTH + " = '" + month +
                             "' AND " + COLUMN_DATE_SENT + " IS NULL",
                     null, null, null, null, null);
@@ -200,7 +201,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
         Cursor cursor = null;
         List<MonthlyTally> monthlyTallies = new ArrayList<>();
         try {
-            cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
                     COLUMN_MONTH + " = '" + month + "'",
                     null, null, null, null, null);
             monthlyTallies = readAllDataElements(cursor);
@@ -246,7 +247,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
         try {
             HashMap<Long, Hia2Indicator> indicatorMap = VaccinatorApplication.getInstance()
                     .hIA2IndicatorsRepository().findAll();
-            cursor = getPathRepository().getReadableDatabase()
+            cursor = getReadableDatabase()
                     .query(TABLE_NAME, TABLE_COLUMNS,
                             COLUMN_DATE_SENT + " IS NOT NULL", null, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -276,7 +277,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
     }
 
     public boolean save(MonthlyTally tally) {
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         try {
             database.beginTransaction();
             if (tally != null) {
@@ -316,7 +317,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
      * @return
      */
     public boolean save(Map<String, String> draftFormValues, Date month) {
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         try {
             database.beginTransaction();
             if (draftFormValues != null && !draftFormValues.isEmpty() && month != null) {
@@ -419,7 +420,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
         List<MonthlyTally> tallies = new ArrayList<>();
 
         try {
-            cursor = getPathRepository().getReadableDatabase().query(
+            cursor = getReadableDatabase().query(
                     TABLE_NAME, new String[]{COLUMN_MONTH, COLUMN_CREATED_AT},
                     COLUMN_DATE_SENT + " IS NULL AND " + COLUMN_EDITED + " = 1",
                     null, COLUMN_MONTH, null, null);
@@ -460,7 +461,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
             String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_NAME +
                     " WHERE " + COLUMN_INDICATOR_ID + " = " + String.valueOf(indicatorId) + " COLLATE NOCASE "
                     + " and " + COLUMN_MONTH + " = '" + month + "'";
-            mCursor = getPathRepository().getWritableDatabase().rawQuery(query, null);
+            mCursor = getWritableDatabase().rawQuery(query, null);
             if (mCursor != null && mCursor.moveToFirst()) {
                 return mCursor.getLong(0);
             }

@@ -20,6 +20,7 @@
             android:name=".activity.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:theme="@style/PathAppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

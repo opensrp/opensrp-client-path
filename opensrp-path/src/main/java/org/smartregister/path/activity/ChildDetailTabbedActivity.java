@@ -35,34 +35,37 @@ import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.path.domain.ServiceRecord;
-import org.smartregister.path.domain.ServiceType;
-import org.smartregister.path.domain.Vaccine;
+import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
+import org.smartregister.growthmonitoring.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.domain.Photo;
+import org.smartregister.path.domain.ServiceRecord;
 import org.smartregister.path.domain.ServiceSchedule;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.domain.ServiceWrapper;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.domain.VaccineSchedule;
 import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.growthmonitoring.domain.WeightWrapper;
-import org.smartregister.path.fragment.EditWeightDialogFragment;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.listener.ServiceActionListener;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.listener.VaccinationActionListener;
-import org.smartregister.path.listener.WeightActionListener;
-import org.smartregister.path.repository.BaseRepository;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
@@ -71,16 +74,15 @@ import org.smartregister.path.toolbar.ChildDetailsToolbar;
 import org.smartregister.path.view.ImmunizationRowGroup;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensrp.api.constants.Gender;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,12 +98,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import util.DateUtils;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
 import util.RecurringServiceUtils;
-import org.smartregister.util.Utils;
 import util.VaccinateActionUtils;
 import util.VaccinatorUtils;
 
@@ -323,12 +323,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         boolean show_weight_edit = false;
         for (int i = 0; i < weightlist.size(); i++) {
             Weight weight = weightlist.get(i);
-            org.smartregister.path.db.Event event = null;
-            PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            org.smartregister.domain.db.Event event = null;
+            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
             if (weight.getEventId() != null) {
-                event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.path.db.Event.class);
+                event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
             } else if (weight.getFormSubmissionId() != null) {
-                event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.path.db.Event.class);
+                event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
             }
             if (event != null) {
                 Date weight_create_date = event.getDateCreated().toDate();
@@ -794,7 +794,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtils.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff);
                 }
             }
         }
@@ -1074,7 +1074,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
         if (StringUtils.isNotBlank(dobString)) {
             DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", false));
-            duration = DateUtils.getDuration(dateTime);
+            duration = DateUtil.getDuration(dateTime);
         }
 
         Photo photo = getProfilePhotoByClient();
@@ -1360,7 +1360,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
             Date date = new Date();
-            PathRepository db = (PathRepository) getVaccinatorApplicationInstance().getRepository();
+            EventClientRepository db = getVaccinatorApplicationInstance().eventClientRepository();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(this);
 
             JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
@@ -1577,12 +1577,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private boolean showVaccineListCheck(String eventId, String formSubmissionId) {
         ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(ChildDetailTabbedActivity.this);
 
-        PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
-        org.smartregister.path.db.Event event = null;
+        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
+        org.smartregister.domain.db.Event event = null;
         if (eventId != null) {
-            event = ecUpdater.convert(db.getEventsByEventId(eventId), org.smartregister.path.db.Event.class);
+            event = ecUpdater.convert(db.getEventsByEventId(eventId), org.smartregister.domain.db.Event.class);
         } else if (formSubmissionId != null) {
-            event = ecUpdater.convert(db.getEventsByFormSubmissionId(formSubmissionId), org.smartregister.path.db.Event.class);
+            event = ecUpdater.convert(db.getEventsByFormSubmissionId(formSubmissionId), org.smartregister.domain.db.Event.class);
         }
         if (event != null) {
             Date vaccine_create_date = event.getDateCreated().toDate();
@@ -1598,7 +1598,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
 
     public VaccinatorApplication getVaccinatorApplicationInstance() {
-        return (VaccinatorApplication) this.getApplication();
+        return VaccinatorApplication.getInstance();
     }
 
 }

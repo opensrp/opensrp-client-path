@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.smartregister.Context;
 import org.smartregister.path.domain.UniqueId;
+import org.smartregister.repository.BaseRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class UniqueIdRepository extends BaseRepository {
     }
 
     public void add(UniqueId uniqueId) {
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         database.insert(UniqueIds_TABLE_NAME, null, createValuesFor(uniqueId));
         //database.close();
     }
@@ -53,7 +54,7 @@ public class UniqueIdRepository extends BaseRepository {
      * @param ids
      */
     public void bulkInserOpenmrsIds(List<String> ids) {
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
 
         try {
             String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
@@ -79,7 +80,7 @@ public class UniqueIdRepository extends BaseRepository {
         long count = 0;
         Cursor cursor = null;
         try {
-            cursor = getPathRepository().getWritableDatabase().rawQuery("SELECT COUNT (*) FROM " + UniqueIds_TABLE_NAME + " WHERE " + STATUS_COLUMN + "=?",
+            cursor = getWritableDatabase().rawQuery("SELECT COUNT (*) FROM " + UniqueIds_TABLE_NAME + " WHERE " + STATUS_COLUMN + "=?",
                     new String[]{String.valueOf(STATUS_NOT_USED)});
             if (null != cursor)
                 if (cursor.getCount() > 0) {
@@ -105,7 +106,7 @@ public class UniqueIdRepository extends BaseRepository {
         UniqueId uniqueId = null;
         Cursor cursor = null;
         try {
-            cursor = getPathRepository().getReadableDatabase().query(UniqueIds_TABLE_NAME, UniqueIds_TABLE_COLUMNS, STATUS_COLUMN + " = ?", new String[]{STATUS_NOT_USED}, null, null, CREATED_AT_COLUMN + " ASC", "1");
+            cursor = getReadableDatabase().query(UniqueIds_TABLE_NAME, UniqueIds_TABLE_COLUMNS, STATUS_COLUMN + " = ?", new String[]{STATUS_NOT_USED}, null, null, CREATED_AT_COLUMN + " ASC", "1");
             List<UniqueId> ids = readAll(cursor);
             uniqueId = ids.isEmpty() ? null : ids.get(0);
         } catch (Exception e) {
@@ -132,7 +133,7 @@ public class UniqueIdRepository extends BaseRepository {
             ContentValues values = new ContentValues();
             values.put(STATUS_COLUMN, STATUS_USED);
             values.put(USED_BY_COLUMN, userName);
-            getPathRepository().getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{openmrsId});
+            getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{openmrsId});
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -152,7 +153,7 @@ public class UniqueIdRepository extends BaseRepository {
             ContentValues values = new ContentValues();
             values.put(STATUS_COLUMN, STATUS_NOT_USED);
             values.put(USED_BY_COLUMN, "");
-            getPathRepository().getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{openmrsId});
+            getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{openmrsId});
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

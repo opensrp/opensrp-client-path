@@ -39,15 +39,15 @@ import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.domain.VaccineSchedule;
 import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
-import org.smartregister.path.fragment.GrowthDialogFragment;
-import org.smartregister.path.fragment.RecordWeightDialogFragment;
+import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
+import org.smartregister.growthmonitoring.fragment.RecordWeightDialogFragment;
 import org.smartregister.path.fragment.ServiceDialogFragment;
 import org.smartregister.path.fragment.UndoServiceDialogFragment;
 import org.smartregister.path.fragment.UndoVaccinationDialogFragment;
 import org.smartregister.path.fragment.VaccinationDialogFragment;
 import org.smartregister.path.listener.ServiceActionListener;
 import org.smartregister.path.listener.VaccinationActionListener;
-import org.smartregister.path.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.VaccineRepository;
@@ -81,7 +81,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import util.DateUtils;
+import org.smartregister.util.DateUtil;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
@@ -291,7 +291,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtils.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff);
                 }
             }
         }
@@ -528,7 +528,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
         if (StringUtils.isNotBlank(dobString)) {
             DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", false));
-            duration = DateUtils.getDuration(dateTime);
+            duration = DateUtil.getDuration(dateTime);
         }
 
         Photo photo = ImageUtils.profilePhotoByClient(childDetails);

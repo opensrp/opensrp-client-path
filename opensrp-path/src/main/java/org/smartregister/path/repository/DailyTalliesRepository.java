@@ -13,6 +13,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
 import org.smartregister.path.service.HIA2Service;
+import org.smartregister.repository.BaseRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -85,7 +86,7 @@ public class DailyTalliesRepository extends BaseRepository {
      *                   the inner most map will always hold one value
      */
     public void save(String day, Map<String, Object> hia2Report) {
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         try {
             database.beginTransaction();
             String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
@@ -144,7 +145,7 @@ public class DailyTalliesRepository extends BaseRepository {
                 selectionArgs = selectionArgs + COLUMN_DAY + " <= " + endDate.getTime();
             }
 
-            cursor = getPathRepository().getReadableDatabase().query(true, TABLE_NAME,
+            cursor = getReadableDatabase().query(true, TABLE_NAME,
                     new String[]{COLUMN_DAY},
                     selectionArgs, null, null, null, null, null);
 
@@ -207,7 +208,7 @@ public class DailyTalliesRepository extends BaseRepository {
             endDate.set(Calendar.MILLISECOND, 999);
             endDate.add(Calendar.DATE, -1);
 
-            cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
                     getDayBetweenDatesSelection(startDate.getTime(), endDate.getTime()),
                     null, null, null, null, null);
             if (cursor != null && cursor.getCount() > 0) {
@@ -243,7 +244,7 @@ public class DailyTalliesRepository extends BaseRepository {
     public List<DailyTally> findByProviderIdAndDay(String providerId, String date) {
         List<DailyTally> tallies = new ArrayList<>();
         try {
-            Cursor cursor = getPathRepository().getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
+            Cursor cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
                     COLUMN_DAY + " = Datetime(?) AND " + COLUMN_PROVIDER_ID + " = ? COLLATE NOCASE ",
                     new String[]{date, providerId}, null, null, null, null);
             tallies = readAllDataElements(cursor);
@@ -259,7 +260,7 @@ public class DailyTalliesRepository extends BaseRepository {
         try {
             HashMap<Long, Hia2Indicator> indicatorMap = VaccinatorApplication.getInstance()
                     .hIA2IndicatorsRepository().findAll();
-            cursor = getPathRepository().getReadableDatabase()
+            cursor = getReadableDatabase()
                     .query(TABLE_NAME, TABLE_COLUMNS,
                             getDayBetweenDatesSelection(minDate, maxDate),
                             null, null, null, COLUMN_DAY + " DESC", null);
@@ -348,7 +349,7 @@ public class DailyTalliesRepository extends BaseRepository {
             String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_NAME +
                     " WHERE " + COLUMN_INDICATOR_ID + " = " + String.valueOf(indicatorId) + " COLLATE NOCASE "
                     + " AND " + COLUMN_DAY + "='" + day + "'";
-            mCursor = getPathRepository().getWritableDatabase().rawQuery(query, null);
+            mCursor = getWritableDatabase().rawQuery(query, null);
             if (mCursor != null && mCursor.moveToFirst()) {
                 return mCursor.getLong(0);
             }

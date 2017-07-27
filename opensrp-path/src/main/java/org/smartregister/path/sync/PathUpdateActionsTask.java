@@ -6,20 +6,23 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.DownloadStatus;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.Response;
+import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
-import org.smartregister.path.repository.BaseRepository;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.FormSubmissionSyncService;
@@ -29,9 +32,6 @@ import org.smartregister.sync.AdditionalSyncService;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
@@ -63,7 +63,6 @@ public class PathUpdateActionsTask {
     private AllFormVersionSyncService allFormVersionSyncService;
     private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
-    private PathRepository db;
     HTTPAgent httpAgent;
 
 
@@ -75,7 +74,6 @@ public class PathUpdateActionsTask {
         this.allFormVersionSyncService = allFormVersionSyncService;
         this.additionalSyncService = null;
         task = new LockingBackgroundTask(progressIndicator);
-        this.db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
         this.httpAgent = org.smartregister.Context.getInstance().getHttpAgent();
 
     }
@@ -190,6 +188,7 @@ public class PathUpdateActionsTask {
     }
 
     public void pushECToServer() {
+        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         boolean keepSyncing = true;
         int limit = 50;
         try {
@@ -271,7 +270,7 @@ public class PathUpdateActionsTask {
             if (Stock_arrayList.isEmpty()) {
                 return;
             } else {
-                StockRepository stockRepository = new StockRepository(db, VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().alertService());
+                StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
                 for (int j = 0; j < Stock_arrayList.size(); j++) {
                     Stock fromServer = Stock_arrayList.get(j);
                     List<Stock> existingStock = stockRepository.findUniqueStock(fromServer.getVaccine_type_id(), fromServer.getTransaction_type(), fromServer.getProviderid(),
@@ -342,7 +341,7 @@ public class PathUpdateActionsTask {
         try {
 
             while (keepSyncing) {
-                StockRepository stockRepository = new StockRepository(db, VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().alertService());
+                StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
                 ArrayList<Stock> stocks = (ArrayList<Stock>) stockRepository.findUnSyncedWithLimit(limit);
                 JSONArray stocksarray = createJsonArrayFromStockArray(stocks);
                 if (stocks.isEmpty()) {
@@ -397,6 +396,7 @@ public class PathUpdateActionsTask {
     }
 
     private void pushReportsToServer() {
+        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         try {
             boolean keepSyncing = true;
             int limit = 50;

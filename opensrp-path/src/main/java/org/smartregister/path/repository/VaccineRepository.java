@@ -12,6 +12,7 @@ import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.domain.Alert;
 import org.smartregister.path.domain.Vaccine;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class VaccineRepository extends BaseRepository {
                 vaccine.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
             }
 
-            SQLiteDatabase database = getPathRepository().getWritableDatabase();
+            SQLiteDatabase database = getWritableDatabase();
             if (vaccine.getId() == null) {
                 Vaccine sameVaccine = findUnique(database, vaccine);
                 if (sameVaccine != null) {
@@ -131,7 +132,7 @@ public class VaccineRepository extends BaseRepository {
         }
 
         vaccine.setHia2Status(hai2Status);
-        SQLiteDatabase database = getPathRepository().getWritableDatabase();
+        SQLiteDatabase database = getWritableDatabase();
         update(database, vaccine);
     }
 
@@ -144,7 +145,7 @@ public class VaccineRepository extends BaseRepository {
 
             Long time = calendar.getTimeInMillis();
 
-            cursor = getPathRepository().getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, UPDATED_AT_COLUMN + " < ? AND " + SYNC_STATUS + " = ? ", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
+            cursor = getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, UPDATED_AT_COLUMN + " < ? AND " + SYNC_STATUS + " = ? ", new String[]{time.toString(), TYPE_Unsynced}, null, null, null, null);
             vaccines = readAllVaccines(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -158,7 +159,7 @@ public class VaccineRepository extends BaseRepository {
 
 
     public List<Vaccine> findByEntityId(String entityId) {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, BASE_ENTITY_ID + " = ? " + COLLATE_NOCASE + " ORDER BY " + UPDATED_AT_COLUMN, new String[]{entityId}, null, null, null, null);
         return readAllVaccines(cursor);
     }
@@ -167,7 +168,7 @@ public class VaccineRepository extends BaseRepository {
         Vaccine vaccine = null;
         Cursor cursor = null;
         try {
-            cursor = getPathRepository().getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
+            cursor = getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
             List<Vaccine> vaccines = readAllVaccines(cursor);
             if (!vaccines.isEmpty()) {
                 vaccine = vaccines.get(0);
@@ -189,7 +190,7 @@ public class VaccineRepository extends BaseRepository {
 
         try {
             if (database == null) {
-                database = getPathRepository().getReadableDatabase();
+                database = getReadableDatabase();
             }
 
             String selection = null;
@@ -222,7 +223,7 @@ public class VaccineRepository extends BaseRepository {
         Cursor cursor = null;
         try {
 
-            cursor = getPathRepository().getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, HIA2_STATUS + " is null", null, null, null, null, null);
+            cursor = getReadableDatabase().query(VACCINE_TABLE_NAME, VACCINE_TABLE_COLUMNS, HIA2_STATUS + " is null", null, null, null, null, null);
             vaccines = readAllVaccines(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -238,7 +239,7 @@ public class VaccineRepository extends BaseRepository {
         try {
             Vaccine vaccine = find(caseId);
             if (vaccine != null) {
-                getPathRepository().getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
+                getWritableDatabase().delete(VACCINE_TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
 
                 updateFtsSearch(vaccine.getBaseEntityId(), vaccine.getName());
             }
@@ -251,7 +252,7 @@ public class VaccineRepository extends BaseRepository {
         try {
             ContentValues values = new ContentValues();
             values.put(SYNC_STATUS, TYPE_Synced);
-            getPathRepository().getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
+            getWritableDatabase().update(VACCINE_TABLE_NAME, values, ID_COLUMN + " = ?", new String[]{caseId.toString()});
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }

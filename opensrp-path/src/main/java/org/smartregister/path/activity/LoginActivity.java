@@ -106,8 +106,10 @@ public class LoginActivity extends Activity {
 
         setContentView(org.smartregister.R.layout.login);
 
-        getActionBar().setDisplayShowTitleEnabled(false);
-        getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.black)));
+        if(getActionBar() != null) {
+            getActionBar().setDisplayShowTitleEnabled(false);
+            getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.black)));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
         }

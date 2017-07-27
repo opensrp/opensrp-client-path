@@ -124,7 +124,6 @@ dependencies {
     compile 'id.zelory:compressor:1.0.4'
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
-    compile 'com.github.lecho:hellocharts-android:v1.5.8'
     compile 'junit:junit:4.12'
 
     // opensrp-app dependencies -- TO REMOVE
@@ -151,6 +150,10 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
         exclude group: 'com.android.support', module: 'support-annotations'
     }
+
+    //opensrp-growth-monitoring library -- TO REMOVE
+    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
+    compile 'com.github.lecho:hellocharts-android:v1.5.8'
 
 
     testCompile('org.robolectric:robolectric:3.4-rc3') {
