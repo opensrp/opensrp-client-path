@@ -14,9 +14,8 @@ buildscript {
 
 allprojects {
     repositories {
-        flatDir {
-            dirs 'aars'
-        }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        mavenLocal()
     }
 }
 
@@ -103,8 +102,8 @@ android {
 }
 
 dependencies {
-    compile(name: 'android-json-form-wizard-debug', ext: 'aar')
-    compile(name: 'opensrp-app-debug', ext: 'aar') {
+    compile 'org.smartregister:opensrp-client-native-form:1.0.0-SNAPSHOT@aar'
+    compile('org.smartregister:opensrp-client-core:1.0.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.johnkil.print', module: 'print'
         exclude group: 'com.github.bmelnychuk', module: 'atv'
