@@ -27,22 +27,12 @@ public class ImmunizationRowAdapterShadow implements ShadowsAdapter {
     }
 
     @Override
-    public ShadowActivityAdapter getShadowActivityAdapter(Activity component) {
-        return null;
-    }
-
-    @Override
     public ShadowLooperAdapter getMainLooper() {
         return null;
     }
 
     @Override
     public String getShadowActivityThreadClassName() {
-        return null;
-    }
-
-    @Override
-    public ShadowApplicationAdapter getApplicationAdapter(Activity component) {
         return null;
     }
 
