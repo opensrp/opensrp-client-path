@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.VaccineRepository;
 import org.json.JSONArray;

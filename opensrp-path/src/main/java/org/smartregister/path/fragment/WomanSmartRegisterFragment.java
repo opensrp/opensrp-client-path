@@ -16,7 +16,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.activity.WomanDetailActivity;
 import org.smartregister.path.activity.WomanSmartRegisterActivity;
-import org.smartregister.path.db.Client;
+import org.smartregister.domain.db.Client;
 import org.smartregister.path.option.BasicSearchOption;
 import org.smartregister.path.option.DateSort;
 import org.smartregister.path.option.StatusSort;
@@ -40,8 +40,8 @@ import java.util.Map;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static util.Utils.getValue;
-import static util.Utils.nonEmptyValue;
+import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.nonEmptyValue;
 import static util.VaccinatorUtils.providerDetails;
 
 public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursorAdapterFragment {

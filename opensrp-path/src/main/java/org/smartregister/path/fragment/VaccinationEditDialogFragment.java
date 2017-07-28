@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.vijay.jsonwizard.utils.DatePickerUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.R;
 import org.smartregister.path.db.VaccineRepo;
 import org.smartregister.path.domain.VaccineSchedule;

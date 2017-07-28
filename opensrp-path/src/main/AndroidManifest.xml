@@ -20,6 +20,7 @@
             android:name=".activity.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
+            android:theme="@style/PathAppTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -89,7 +90,7 @@
         <receiver android:name=".receiver.VaccinatorAlarmReceiver" />
         <receiver android:name=".receiver.OnBootReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
@@ -105,10 +106,12 @@
             android:name=".activity.HIA2ReportsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
-        <activity android:name=".activity.ReportSummaryActivity"
+        <activity
+            android:name=".activity.ReportSummaryActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
-        <activity android:name=".activity.StockActivity"
+        <activity
+            android:name=".activity.StockActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
@@ -118,9 +121,9 @@
 
         <service android:name=".service.intent.PathReplicationIntentService" />
         <service android:name=".service.intent.PullUniqueIdsIntentService" />
-        <service android:name=".service.intent.WeightIntentService" />
+        <service android:name="org.smartregister.growthmonitoring.service.intent.WeightIntentService" />
         <service android:name=".service.intent.VaccineIntentService" />
-        <service android:name=".service.intent.ZScoreRefreshIntentService" />
+        <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />
         <service android:name=".service.intent.RecurringIntentService" />
         <service android:name=".service.intent.HIA2IntentService" />
 

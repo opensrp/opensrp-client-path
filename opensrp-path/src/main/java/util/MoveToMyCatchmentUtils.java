@@ -5,19 +5,19 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.event.Listener;
-import org.smartregister.path.db.Event;
-import org.smartregister.path.db.Obs;
-import org.smartregister.path.repository.BaseRepository;
+import org.smartregister.domain.db.Event;
+import org.smartregister.domain.db.Obs;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.smartregister.repository.BaseRepository;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -33,7 +33,7 @@ public class MoveToMyCatchmentUtils {
 
     public static void moveToMyCatchment(final List<String> ids, final Listener<JSONObject> listener, final ProgressDialog progressDialog) {
 
-        Utils.startAsyncTask(new AsyncTask<Void, Void, JSONObject>() {
+        org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONObject>() {
             @Override
             protected JSONObject doInBackground(Void... params) {
                 publishProgress();

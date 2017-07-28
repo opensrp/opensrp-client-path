@@ -111,6 +111,8 @@ dependencies {
 
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
+    compile(name: 'opensrp-growth-monitoring-debug', ext: 'aar')
+
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile ('com.android.support:design:22.2.1'){
         exclude group: 'com.android.support', module: 'recyclerview-v7'
@@ -127,10 +129,11 @@ dependencies {
     compile 'id.zelory:compressor:1.0.4'
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
-    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
-    compile 'com.github.lecho:hellocharts-android:v1.5.8'
     compile 'junit:junit:4.12'
 
+    //opensrp-growth-monitoring library -- TO REMOVE
+    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
+    compile 'com.github.lecho:hellocharts-android:v1.5.8'
 
     testCompile('org.robolectric:robolectric:3.4') {
 

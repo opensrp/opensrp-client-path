@@ -1,7 +1,7 @@
 package org.smartregister.path.domain;
 
 import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.Vaccine;
 import org.json.JSONException;
 import org.json.JSONObject;
 

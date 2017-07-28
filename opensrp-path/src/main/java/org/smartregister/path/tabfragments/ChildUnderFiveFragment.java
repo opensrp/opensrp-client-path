@@ -13,35 +13,36 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
-import org.smartregister.domain.Vaccine;
-import org.smartregister.domain.Weight;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.domain.ServiceWrapper;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.path.domain.VaccineWrapper;
 import org.smartregister.path.fragment.ServiceEditDialogFragment;
 import org.smartregister.path.fragment.VaccinationEditDialogFragment;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.path.repository.WeightRepository;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.view.ImmunizationRowGroup;
 import org.smartregister.path.view.ServiceRowGroup;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
+import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,8 +56,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.DateUtils;
-import util.Utils;
+import org.smartregister.util.DateUtil;
 import util.VaccinateActionUtils;
 
 
@@ -139,7 +139,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 long timeDiff = weighttaken.getTime() - birth.getTime();
                 Log.v("timeDiff is ", timeDiff + "");
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtils.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff);
                     Log.v("age is ", formattedAge);
                 }
             }
@@ -149,12 +149,12 @@ public class ChildUnderFiveFragment extends Fragment {
                 ////////////////////////check 3 months///////////////////////////////
                 boolean less_than_three_months_event_created = false;
 
-                org.smartregister.path.db.Event event = null;
-                PathRepository db = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+                org.smartregister.domain.db.Event event = null;
+                EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
                 if (weight.getEventId() != null) {
-                    event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.path.db.Event.class);
+                    event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
                 } else if (weight.getFormSubmissionId() != null) {
-                    event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.path.db.Event.class);
+                    event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
                 }
                 if (event != null) {
                     Date weight_create_date = event.getDateCreated().toDate();
@@ -184,7 +184,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         }
         if (weightmap.size() < 5) {
-            weightmap.put(0l, Pair.create(DateUtils.getDuration(0), Utils.getValue(Detailsmap, "Birth_Weight", true) + " kg"));
+            weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(Detailsmap, "Birth_Weight", true) + " kg"));
             weighteditmode.add(false);
             listeners.add(null);
         }

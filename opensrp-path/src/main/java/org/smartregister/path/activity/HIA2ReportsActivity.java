@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import util.JsonFormUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 /**
  * Created by coder on 6/7/17.

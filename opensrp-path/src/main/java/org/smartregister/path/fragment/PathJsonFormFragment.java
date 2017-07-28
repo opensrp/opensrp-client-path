@@ -40,6 +40,7 @@ import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.viewstates.PathJsonFormFragmentViewState;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ import java.util.Map;
 
 import util.MotherLookUpUtils;
 
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by keyman on 11/04/2017.
@@ -157,7 +158,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
                 motherLookUpSmartClientsProvider.getView(commonPersonObject, children, v);
 
                 v.setOnClickListener(lookUpRecordOnClickLister);
-                v.setTag(MotherLookUpSmartClientsProvider.convert(commonPersonObject));
+                v.setTag(Utils.convert(commonPersonObject));
 
                 return v;
             }

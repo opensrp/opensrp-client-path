@@ -29,17 +29,18 @@ import java.util.List;
 import java.util.Map;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static util.Utils.convertDateFormat;
-import static util.Utils.fillValue;
-import static util.Utils.getValue;
-import static util.Utils.nonEmptyValue;
+import static org.smartregister.util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.fillValue;
+import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.nonEmptyValue;
 import static util.Utils.setProfiePic;
-import static util.Utils.toDate;
+import static org.smartregister.util.Utils.toDate;
 import static util.VaccinatorUtils.generateSchedule;
 import static util.VaccinatorUtils.nextVaccineDue;
 
 /**
  * Created by Ahmed on 19-Oct-15.
+ *
  * @author Maimoona
  */
 public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderForCursorAdapter {
@@ -52,7 +53,7 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
     private final AbsListView.LayoutParams clientViewLayoutParams;
 
     public WomanSmartClientsProvider(Context context, View.OnClickListener onClickListener,
-             AlertService alertService) {
+                                     AlertService alertService) {
         this.onClickListener = onClickListener;
         this.context = context;
         this.alertService = alertService;
@@ -66,23 +67,23 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
     public void getView(SmartRegisterClient client, View convertView) {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
-        fillValue((TextView)convertView.findViewById(R.id.woman_id), pc.getColumnmaps(), "zeir_id", false);
+        fillValue((TextView) convertView.findViewById(R.id.woman_id), pc.getColumnmaps(), "zeir_id", false);
 
         fillValue((TextView) convertView.findViewById(R.id.woman_name), getValue(pc.getColumnmaps(), "first_name", true));
         fillValue((TextView) convertView.findViewById(R.id.woman_husbandname), getValue(pc.getColumnmaps(), "husband_name", true));
         fillValue((TextView) convertView.findViewById(R.id.woman_fathername), getValue(pc.getColumnmaps(), "father_name", true));
 
         int age = -1;
-        try{
+        try {
             age = Years.yearsBetween(new DateTime(getValue(pc.getColumnmaps(), "dob", false)), DateTime.now()).getYears();
+        } catch (Exception e) {
         }
-        catch (Exception e){}
-        fillValue((TextView) convertView.findViewById(R.id.woman_age),  age<0?"No DoB":(age+ " years"));
+        fillValue((TextView) convertView.findViewById(R.id.woman_age), age < 0 ? "No DoB" : (age + " years"));
         fillValue((TextView) convertView.findViewById(R.id.woman_epi_number), pc.getColumnmaps(), "epi_card_number", false);
-        String edd = convertDateFormat(getValue(pc.getColumnmaps(), "final_edd", false),true);
-        fillValue((TextView) convertView.findViewById(R.id.woman_edd), edd == ""?"N/A":edd);
+        String edd = convertDateFormat(getValue(pc.getColumnmaps(), "final_edd", false), true);
+        fillValue((TextView) convertView.findViewById(R.id.woman_edd), edd == "" ? "N/A" : edd);
         String ga = getValue(pc.getColumnmaps(), "final_ga", false);
-        ga = ga==""?"N/A":(ga+" weeks");
+        ga = ga == "" ? "N/A" : (ga + " weeks");
         fillValue((TextView) convertView.findViewById(R.id.woman_ga), ga);
 
         fillValue((TextView) convertView.findViewById(R.id.woman_contact_number), getValue(pc.getColumnmaps(), "contact_phone_number", true));
@@ -99,38 +100,30 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         List<Alert> alertlist_for_client = alertService.findByEntityIdAndAlertNames(pc.entityId(), "TT 1", "TT 2", "TT 3", "TT 4", "TT 5", "tt1", "tt2", "tt3", "tt4", "tt5");
 
-        if(age < 0){
+        if (age < 0) {
             deactivateNextVaccine("Invalid DoB", "", R.color.alert_na, convertView);
-        }
-        else if(StringUtils.isNotBlank(getValue(pc.getColumnmaps(), "tt5", false))){
+        } else if (StringUtils.isNotBlank(getValue(pc.getColumnmaps(), "tt5", false))) {
             deactivateNextVaccine("Fully Immunized", "", R.color.alert_na, convertView);
-        }
-        else if(age > 49 && StringUtils.isBlank(getValue(pc.getColumnmaps(), "tt5", false))){
+        } else if (age > 49 && StringUtils.isBlank(getValue(pc.getColumnmaps(), "tt5", false))) {
             deactivateNextVaccine("Partially Immunized", "", R.color.alert_na, convertView);
-        }
-        else {
+        } else {
             List<Map<String, Object>> sch = generateSchedule("woman", null, pc.getColumnmaps(), alertlist_for_client);
             Map<String, Object> nv = nextVaccineDue(sch, toDate(lastVaccine, true));
-            if(nv != null){
-                DateTime dueDate = (DateTime)nv.get("date");
+            if (nv != null) {
+                DateTime dueDate = (DateTime) nv.get("date");
                 VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get("vaccine");
-                if(nv.get("alert") == null){
-                    activateNextVaccine(dueDate, (VaccineRepo.Vaccine)nv.get("vaccine"), Color.BLACK, R.color.alert_na, onClickListener, client, convertView);
-                }
-                else if (((Alert)nv.get("alert")).status().value().equalsIgnoreCase("normal")) {
+                if (nv.get("alert") == null) {
+                    activateNextVaccine(dueDate, (VaccineRepo.Vaccine) nv.get("vaccine"), Color.BLACK, R.color.alert_na, onClickListener, client, convertView);
+                } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("normal")) {
                     activateNextVaccine(dueDate, vaccine, Color.WHITE, R.color.alert_normal, onClickListener, client, convertView);
-                }
-                else if (((Alert)nv.get("alert")).status().value().equalsIgnoreCase("upcoming")) {
+                } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("upcoming")) {
                     activateNextVaccine(dueDate, vaccine, Color.BLACK, R.color.alert_upcoming, onClickListener, client, convertView);
-                }
-                else if (((Alert)nv.get("alert")).status().value().equalsIgnoreCase("urgent")) {
+                } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("urgent")) {
                     activateNextVaccine(dueDate, vaccine, Color.WHITE, R.color.alert_urgent, onClickListener, client, convertView);
-                }
-                else if (((Alert)nv.get("alert")).status().value().equalsIgnoreCase("expired")) {
+                } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("expired")) {
                     deactivateNextVaccine(vaccine + " Expired", "", R.color.alert_expired, convertView);
                 }
-            }
-            else {
+            } else {
                 fillValue((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine), "Waiting");
                 deactivateNextVaccine("Waiting", "", R.color.alert_na, convertView);
             }
@@ -145,7 +138,7 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
     }
 
-    private void deactivateNextVaccine(String vaccineViewText, String vaccineDateText, int color, View convertView){
+    private void deactivateNextVaccine(String vaccineViewText, String vaccineDateText, int color, View convertView) {
         fillValue((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine), vaccineViewText);
         ((TextView) convertView.findViewById(R.id.woman_next_visit_date)).setText(convertDateFormat(vaccineDateText, true));
         ((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine)).setTextColor(Color.BLACK);
@@ -156,8 +149,8 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
     }
 
     private void activateNextVaccine(String dueDate, String vaccine, int foreColor, int backColor, View.OnClickListener onClickListener,
-                                     SmartRegisterClient client, View convertView){
-        fillValue((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine), vaccine==null?"":vaccine.replaceAll(" ", ""));
+                                     SmartRegisterClient client, View convertView) {
+        fillValue((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine), vaccine == null ? "" : vaccine.replaceAll(" ", ""));
         fillValue((TextView) convertView.findViewById(R.id.woman_next_visit_date), convertDateFormat(dueDate, true));
         ((TextView) convertView.findViewById(R.id.woman_next_visit_vaccine)).setTextColor(foreColor);
         ((TextView) convertView.findViewById(R.id.woman_next_visit_date)).setTextColor(foreColor);
@@ -168,8 +161,8 @@ public class WomanSmartClientsProvider implements SmartRegisterCLientsProviderFo
     }
 
     private void activateNextVaccine(DateTime dueDate, VaccineRepo.Vaccine vaccine, int foreColor, int backColor, View.OnClickListener onClickListener,
-                                     SmartRegisterClient client, View convertView){
-        activateNextVaccine(dueDate==null?"":dueDate.toString("yyyy-MM-dd"), vaccine==null?"":StringUtil.humanize(vaccine.display().replaceAll(" ", "")), foreColor, backColor, onClickListener, client, convertView);
+                                     SmartRegisterClient client, View convertView) {
+        activateNextVaccine(dueDate == null ? "" : dueDate.toString("yyyy-MM-dd"), vaccine == null ? "" : StringUtil.humanize(vaccine.display().replaceAll(" ", "")), foreColor, backColor, onClickListener, client, convertView);
     }
 
     @Override

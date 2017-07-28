@@ -19,7 +19,6 @@ import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.DetailsRepository;
@@ -32,7 +31,7 @@ import java.util.Map;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
-import util.Utils;
+import org.smartregister.util.Utils;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 09/05/2017.
@@ -77,7 +76,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
                     .commonrepository(PathConstants.CHILD_TABLE_NAME).findByBaseEntityId(baseEntityId);
             if (rawDetails != null) {
                 // Get extra child details
-                CommonPersonObjectClient childDetails = MotherLookUpSmartClientsProvider.convert(rawDetails);
+                CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
                 childDetails.getColumnmaps().putAll(detailsRepository.getAllDetailsForClient(baseEntityId));
 
                 // Check if child has a profile pic

@@ -39,8 +39,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.R;
 import org.smartregister.path.db.VaccineRepo;
 import org.smartregister.path.db.VaccineRepo.Vaccine;
@@ -68,12 +68,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static util.Utils.addToList;
-import static util.Utils.addToRow;
-import static util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.addToList;
+import static org.smartregister.util.Utils.addToRow;
+import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.getColorValue;
-import static util.Utils.getPreference;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getPreference;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Class containing some static utility methods.
@@ -677,12 +677,12 @@ public class VaccinatorUtils {
      * @return JSON String with the supported vaccines or NULL if unable to obtain the list
      */
     public static String getSupportedVaccines(Context context) {
-        String supportedVaccinesString = Utils.readAssetContents(context, "vaccines.json");
+        String supportedVaccinesString = org.smartregister.util.Utils.readAssetContents(context, "vaccines.json");
         return supportedVaccinesString;
     }
 
     public static String getSpecialVaccines(Context context) {
-        String specialVaccinesString = Utils.readAssetContents(context, "special_vaccines.json");
+        String specialVaccinesString = org.smartregister.util.Utils.readAssetContents(context, "special_vaccines.json");
         return specialVaccinesString;
     }
 
@@ -693,7 +693,7 @@ public class VaccinatorUtils {
      * @return JSON String with the supported vaccines or NULL if unable to obtain the list
      */
     public static String getSupportedRecurringServices(Context context) {
-        String supportedServicesString = Utils.readAssetContents(context, "recurring_service_types.json");
+        String supportedServicesString = org.smartregister.util.Utils.readAssetContents(context, "recurring_service_types.json");
         return supportedServicesString;
     }
 
@@ -712,10 +712,10 @@ public class VaccinatorUtils {
         return -1;
     }
 
-    public static Map<String, Date> receivedVaccines(List<org.smartregister.domain.Vaccine> vaccines) {
+    public static Map<String, Date> receivedVaccines(List<org.smartregister.path.domain.Vaccine> vaccines) {
         Map<String, Date> map = new LinkedHashMap<>();
         if (vaccines != null) {
-            for (org.smartregister.domain.Vaccine vaccine : vaccines) {
+            for (org.smartregister.path.domain.Vaccine vaccine : vaccines) {
                 if (vaccine.getDate() != null) {
                     map.put(vaccine.getName(), vaccine.getDate());
                 }
@@ -725,10 +725,10 @@ public class VaccinatorUtils {
 
     }
 
-    public static Map<String, Date> receivedServices(List<org.smartregister.domain.ServiceRecord> serviceRecordList) {
+    public static Map<String, Date> receivedServices(List<org.smartregister.path.domain.ServiceRecord> serviceRecordList) {
         Map<String, Date> map = new LinkedHashMap<>();
         if (serviceRecordList != null) {
-            for (org.smartregister.domain.ServiceRecord serviceRecord : serviceRecordList) {
+            for (org.smartregister.path.domain.ServiceRecord serviceRecord : serviceRecordList) {
                 if (serviceRecord.getDate() != null) {
                     map.put(serviceRecord.getName(), serviceRecord.getDate());
                 }

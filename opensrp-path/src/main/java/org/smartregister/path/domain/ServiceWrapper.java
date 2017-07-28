@@ -1,8 +1,8 @@
 package org.smartregister.path.domain;
 
-import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceType;
 import org.joda.time.DateTime;
+import org.smartregister.domain.Alert;
+import org.smartregister.domain.Photo;
 
 import java.io.Serializable;
 

@@ -7,7 +7,8 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceType;
+import org.smartregister.repository.BaseRepository;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -65,7 +66,7 @@ public class RecurringServiceTypeRepository extends BaseRepository {
             }
 
             if (database == null) {
-                database = getPathRepository().getWritableDatabase();
+                database = getWritableDatabase();
             }
             if (currentServiceType == null) {
                 serviceType.setId(database.insert(TABLE_NAME, null, createValuesFor(serviceType)));
@@ -88,7 +89,7 @@ public class RecurringServiceTypeRepository extends BaseRepository {
         }
         type = addHyphen(type);
 
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, TABLE_COLUMNS, TYPE + " = ? " + COLLATE_NOCASE + " ORDER BY " + UPDATED_AT_COLUMN, new String[]{type}, null, null, null, null);
         return readAllServiceTypes(cursor);
     }
@@ -100,7 +101,7 @@ public class RecurringServiceTypeRepository extends BaseRepository {
         name = addHyphen(name);
 
 
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, TABLE_COLUMNS, NAME + " LIKE ? " + COLLATE_NOCASE + " ORDER BY " + UPDATED_AT_COLUMN, new String[]{"%" + name + "%"}, null, null, null, null);
         return readAllServiceTypes(cursor);
     }
@@ -110,7 +111,7 @@ public class RecurringServiceTypeRepository extends BaseRepository {
         Cursor cursor = null;
         try {
             if (database == null) {
-                database = getPathRepository().getReadableDatabase();
+                database = getReadableDatabase();
             }
             cursor = database.query(TABLE_NAME, TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{caseId.toString()}, null, null, null, null);
             List<ServiceType> serviceTypes = readAllServiceTypes(cursor);
@@ -134,19 +135,19 @@ public class RecurringServiceTypeRepository extends BaseRepository {
     public void deleteServiceType(Long caseId) {
         ServiceType serviceType = find(caseId, null);
         if (serviceType != null) {
-            getPathRepository().getWritableDatabase().delete(TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
+            getWritableDatabase().delete(TABLE_NAME, ID_COLUMN + "= ?", new String[]{caseId.toString()});
         }
     }
 
     public List<ServiceType> fetchAll() {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, UPDATED_AT_COLUMN);
         return readAllServiceTypes(cursor);
     }
 
     public List<String> fetchTypes() {
         String sql = " SELECT " + TYPE + " FROM " + TABLE_NAME + " GROUP BY " + TYPE + " ORDER BY " + UPDATED_AT_COLUMN;
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.rawQuery(sql, null);
 
         List<String> types = new ArrayList<String>();

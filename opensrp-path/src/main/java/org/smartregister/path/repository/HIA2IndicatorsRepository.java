@@ -8,6 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.smartregister.path.domain.Hia2Indicator;
+import org.smartregister.repository.BaseRepository;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
         Cursor cursor = null;
 
         try {
-            cursor = getPathRepository().getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, null, null, null, null, null, null);
             List<Hia2Indicator> hia2Indicators = readAllDataElements(cursor);
             for (Hia2Indicator curIndicator : hia2Indicators) {
                 response.put(curIndicator.getId(), curIndicator);
@@ -93,7 +94,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
         Cursor cursor = null;
 
         try {
-            cursor = getPathRepository().getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, INDICATOR_CODE + " = ? COLLATE NOCASE ", new String[]{indicatorCode}, null, null, null, null);
+            cursor = getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, INDICATOR_CODE + " = ? COLLATE NOCASE ", new String[]{indicatorCode}, null, null, null, null);
             List<Hia2Indicator> hia2Indicators = readAllDataElements(cursor);
             if (hia2Indicators.size() == 1) {
                 return hia2Indicators.get(0);
@@ -113,7 +114,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
         Cursor cursor = null;
 
         try {
-            cursor = getPathRepository().getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
+            cursor = getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
             List<Hia2Indicator> hia2Indicators = readAllDataElements(cursor);
             if (hia2Indicators.size() == 1) {
                 return hia2Indicators.get(0);
@@ -212,7 +213,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
      * @return
      */
     public List<Hia2Indicator> fetchAll() {
-        SQLiteDatabase database = getPathRepository().getReadableDatabase();
+        SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, null, null, null, null, ID_COLUMN + " asc ");
         return readAllDataElements(cursor);
     }

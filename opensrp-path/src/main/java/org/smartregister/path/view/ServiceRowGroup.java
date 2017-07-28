@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ServiceRowAdapter;
 import org.smartregister.path.domain.ServiceWrapper;
@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import util.Utils;
+import org.smartregister.util.Utils;
 
 import static util.VaccinatorUtils.generateScheduleList;
 import static util.VaccinatorUtils.receivedServices;

@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.view.View;
 
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceRecord;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;

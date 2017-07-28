@@ -16,10 +16,10 @@ import java.util.HashMap;
 
 import util.VaccinatorUtils;
 
-import static util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.getDataRow;
-import static util.Utils.getValue;
-import static util.Utils.nonEmptyValue;
+import static org.smartregister.util.Utils.getValue;
+import static org.smartregister.util.Utils.nonEmptyValue;
 
 public class ProviderProfileActivity extends Activity {
 
@@ -29,7 +29,7 @@ public class ProviderProfileActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         if (context().IsUserLoggedOut()) {
-            DrishtiApplication application = (DrishtiApplication)getApplication();
+            DrishtiApplication application = (DrishtiApplication) getApplication();
             application.logoutCurrentUser();
             return;
         }
@@ -38,12 +38,12 @@ public class ProviderProfileActivity extends Activity {
 
         HashMap<String, String> providerdt = VaccinatorUtils.providerDetails();
 
-        ((TextView)findViewById(R.id.detail_heading)).setText("Provider Details");
+        ((TextView) findViewById(R.id.detail_heading)).setText("Provider Details");
 
         String programId = nonEmptyValue(providerdt, true, false, "provider_id");
-        ((TextView)findViewById(R.id.details_id_label)).setText(programId);
+        ((TextView) findViewById(R.id.details_id_label)).setText(programId);
 
-        ((TextView)findViewById(R.id.detail_today)).setText(convertDateFormat(new SimpleDateFormat("yyyy-MM-dd").format(new Date()), true));
+        ((TextView) findViewById(R.id.detail_today)).setText(convertDateFormat(new SimpleDateFormat("yyyy-MM-dd").format(new Date()), true));
 
         //BASIC INFORMATION
         TableLayout dt = (TableLayout) findViewById(R.id.report_detail_info_table1);
@@ -64,7 +64,7 @@ public class ProviderProfileActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (context().IsUserLoggedOut()) {
-            DrishtiApplication application = (DrishtiApplication)getApplication();
+            DrishtiApplication application = (DrishtiApplication) getApplication();
             application.logoutCurrentUser();
             return;
         }

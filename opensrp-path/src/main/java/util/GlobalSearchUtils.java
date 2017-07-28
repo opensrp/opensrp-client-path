@@ -5,12 +5,12 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.smartregister.Context;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.domain.Response;
 import org.smartregister.event.Listener;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
-import org.json.JSONArray;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -23,7 +23,7 @@ public class GlobalSearchUtils {
 
     public static void backgroundSearch(final Map<String, String> map, final Listener<JSONArray> listener, final ProgressDialog progressDialog) {
 
-        Utils.startAsyncTask(new AsyncTask<Void, Void, JSONArray>() {
+        org.smartregister.util.Utils.startAsyncTask(new AsyncTask<Void, Void, JSONArray>() {
             @Override
             protected JSONArray doInBackground(Void... params) {
                 publishProgress();

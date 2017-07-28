@@ -25,33 +25,33 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.ServiceRecord;
-import org.smartregister.domain.ServiceType;
-import org.smartregister.domain.Vaccine;
-import org.smartregister.domain.Weight;
+import org.smartregister.path.domain.ServiceRecord;
+import org.smartregister.path.domain.ServiceType;
+import org.smartregister.path.domain.Vaccine;
+import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.path.domain.Photo;
+import org.smartregister.domain.Photo;
 import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.domain.ServiceSchedule;
 import org.smartregister.path.domain.ServiceWrapper;
 import org.smartregister.path.domain.VaccineSchedule;
 import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.domain.WeightWrapper;
-import org.smartregister.path.fragment.GrowthDialogFragment;
-import org.smartregister.path.fragment.RecordWeightDialogFragment;
+import org.smartregister.growthmonitoring.domain.WeightWrapper;
+import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
+import org.smartregister.growthmonitoring.fragment.RecordWeightDialogFragment;
 import org.smartregister.path.fragment.ServiceDialogFragment;
 import org.smartregister.path.fragment.UndoServiceDialogFragment;
 import org.smartregister.path.fragment.UndoVaccinationDialogFragment;
 import org.smartregister.path.fragment.VaccinationDialogFragment;
 import org.smartregister.path.listener.ServiceActionListener;
 import org.smartregister.path.listener.VaccinationActionListener;
-import org.smartregister.path.listener.WeightActionListener;
+import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.path.repository.RecurringServiceRecordRepository;
 import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.path.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.path.view.ServiceGroup;
 import org.smartregister.path.view.SiblingPicturesGroup;
@@ -81,17 +81,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import util.DateUtils;
+import org.smartregister.util.DateUtil;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
 import util.RecurringServiceUtils;
-import util.Utils;
+import org.smartregister.util.Utils;
 import util.VaccinateActionUtils;
 import util.VaccinatorUtils;
 
-import static util.Utils.getName;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getName;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
@@ -291,7 +291,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
-                    formattedAge = DateUtils.getDuration(timeDiff);
+                    formattedAge = DateUtil.getDuration(timeDiff);
                 }
             }
         }
@@ -528,7 +528,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
         if (StringUtils.isNotBlank(dobString)) {
             DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", false));
-            duration = DateUtils.getDuration(dateTime);
+            duration = DateUtil.getDuration(dateTime);
         }
 
         Photo photo = ImageUtils.profilePhotoByClient(childDetails);

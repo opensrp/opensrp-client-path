@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.domain.Photo;
+import org.smartregister.domain.Photo;
 
 
 /**

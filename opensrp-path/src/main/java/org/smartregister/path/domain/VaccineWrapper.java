@@ -1,6 +1,7 @@
 package org.smartregister.path.domain;
 
 import org.smartregister.domain.Alert;
+import org.smartregister.domain.Photo;
 import org.smartregister.path.db.VaccineRepo.Vaccine;
 import org.joda.time.DateTime;
 

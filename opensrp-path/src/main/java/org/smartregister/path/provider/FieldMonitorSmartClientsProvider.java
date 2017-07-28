@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static util.Utils.addAsInts;
-import static util.Utils.fillValue;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.addAsInts;
+import static org.smartregister.util.Utils.fillValue;
+import static org.smartregister.util.Utils.getValue;
 
 public class FieldMonitorSmartClientsProvider implements SmartRegisterCLientsProviderForCursorAdapter {
 

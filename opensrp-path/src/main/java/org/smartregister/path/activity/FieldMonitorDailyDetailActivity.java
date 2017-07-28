@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 
-import static util.Utils.addToRow;
+import static org.smartregister.util.Utils.addToRow;
 import static util.Utils.getDataRow;
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 import static util.VaccinatorUtils.getTotalUsed;
 import static util.VaccinatorUtils.providerDetails;
 
@@ -43,10 +43,16 @@ public class FieldMonitorDailyDetailActivity extends DetailActivity {
     }
 
     @Override
-    protected Integer profilePicContainerId() { return null; }
+    protected Integer profilePicContainerId() {
+        return null;
+    }
 
     @Override
-    protected Integer defaultProfilePicResId(CommonPersonObjectClient client){ return null; };
+    protected Integer defaultProfilePicResId(CommonPersonObjectClient client) {
+        return null;
+    }
+
+    ;
 
     @Override
     protected String bindType() {
@@ -59,8 +65,8 @@ public class FieldMonitorDailyDetailActivity extends DetailActivity {
     }
 
     @Override
-    protected void  generateView(CommonPersonObjectClient client) {
-        HashMap<String, String> provider =  providerDetails();
+    protected void generateView(CommonPersonObjectClient client) {
+        HashMap<String, String> provider = providerDetails();
 
         TableLayout dt = (TableLayout) findViewById(R.id.field_detail_info_table1);
 
@@ -86,19 +92,19 @@ public class FieldMonitorDailyDetailActivity extends DetailActivity {
 
         List<CommonPersonObject> cl = Context.getInstance().allCommonsRepositoryobjects("stock").customQueryForCompleteRow("SELECT * FROM stock WHERE date LIKE '" + date.toString("yyyy-MM") + "%' AND report='monthly' ", null, "stock");
         CommonPersonObject mr = cl.size() == 0 ? null : cl.get(0);
-        
-        TableRow tr2 = getDataRow(this, "Monthly Target", mr==null?"No monthly report submitted":getValue(mr.getDetails(), "Target_assigned_for_vaccination_at_each_month", false), null);
+
+        TableRow tr2 = getDataRow(this, "Monthly Target", mr == null ? "No monthly report submitted" : getValue(mr.getDetails(), "Target_assigned_for_vaccination_at_each_month", false), null);
         dt2.addView(tr2);
-        tr2 = getDataRow(this, "Yearly Target", mr==null?"No monthly report submitted":getValue(mr.getDetails(), "Target_assigned_for_vaccination_for_the_year", false), null);
+        tr2 = getDataRow(this, "Yearly Target", mr == null ? "No monthly report submitted" : getValue(mr.getDetails(), "Target_assigned_for_vaccination_for_the_year", false), null);
         dt2.addView(tr2);
-        
+
         String startDate = date.toString("yyyy-MM-dd");
         String endDate = date.toString("yyyy-MM-dd");
 
         String childTable = "ec_child";
         String womanTable = "ec_mother";
 
-        ((TextView)findViewById(R.id.reporting_period)).setText(date.toString("dd/MM/yyyy"));
+        ((TextView) findViewById(R.id.reporting_period)).setText(date.toString("dd/MM/yyyy"));
 
         TableLayout tb = (TableLayout) findViewById(R.id.stock_vaccine_table);
         tr = getDataRow(this);
@@ -158,7 +164,7 @@ public class FieldMonitorDailyDetailActivity extends DetailActivity {
         tr = getDataRow(this);
         addToRow(this, "SAFETY BOXES", tr, true);
         addToRow(this, "N/A", tr, true);
-        addToRow(this, getValue(client.getColumnmaps(), "safety_boxes_wasted", "0" , false), tr, true);
+        addToRow(this, getValue(client.getColumnmaps(), "safety_boxes_wasted", "0", false), tr, true);
         tb.addView(tr);
     }
 }

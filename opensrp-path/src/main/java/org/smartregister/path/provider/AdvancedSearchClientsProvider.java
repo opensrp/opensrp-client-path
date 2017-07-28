@@ -12,14 +12,14 @@ import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.path.repository.WeightRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static util.Utils.getValue;
+import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by Keyman on 06-Apr-17.

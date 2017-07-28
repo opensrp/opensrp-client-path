@@ -21,8 +21,8 @@ import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.AlertStatus;
-import org.smartregister.domain.ServiceType;
-import org.smartregister.domain.Vaccine;
+import org.smartregister.path.domain.ServiceType;
+import org.smartregister.path.domain.Vaccine;
 import org.smartregister.domain.form.FormSubmission;
 import org.smartregister.path.R;
 import org.smartregister.path.db.VaccineRepo;
@@ -52,7 +52,7 @@ import static org.smartregister.AllConstants.SYNC_STATUS;
 import static org.smartregister.AllConstants.VERSION_PARAM;
 import static org.smartregister.domain.SyncStatus.PENDING;
 import static org.smartregister.util.EasyMap.create;
-import static util.Utils.convertDateFormat;
+import static org.smartregister.util.Utils.convertDateFormat;
 
 /**
  * Created by keyman on 17/11/2016.
