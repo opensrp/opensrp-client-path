@@ -16,20 +16,11 @@
 
 package util;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -37,42 +28,15 @@ import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
-import org.smartregister.domain.AlertStatus;
-import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.domain.EditWrapper;
 import org.smartregister.repository.ImageRepository;
-import org.smartregister.util.StringUtil;
-import org.joda.time.DateTime;
-import org.opensrp.api.domain.Location;
-import org.opensrp.api.util.TreeNode;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -88,22 +52,6 @@ public class Utils {
     private static final SimpleDateFormat DB_DTF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Utils() {
-    }
-
-
-
-    public static String getColorValue(Context cxt, AlertStatus alertStatus) {
-        if (alertStatus.equals(AlertStatus.upcoming)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_upcoming)).substring(2);
-        }
-        if (alertStatus.equals(AlertStatus.normal)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_normal)).substring(2);
-        }
-        if (alertStatus.equals(AlertStatus.urgent)) {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_urgent)).substring(2);
-        } else {
-            return "#" + Integer.toHexString(cxt.getResources().getColor(org.smartregister.path.R.color.alert_na)).substring(2);
-        }
     }
 
     public static TableRow getDataRow(Context context, String label, String value, TableRow row) {
@@ -252,7 +200,6 @@ public class Utils {
                     .into(mImageView);
         }
     }
-
 
 
 }

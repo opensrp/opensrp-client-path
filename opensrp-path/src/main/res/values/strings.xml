@@ -71,7 +71,6 @@
     <string name="passwordText">Password</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="done_today">Done Today</string>
     <string name="undo">Undo</string>
     <string name="unauthorized">Please check the credentials</string>
     <string name="unauthorized_group">Your user group is not allowed to access this device</string>
@@ -102,12 +101,6 @@
     <string name="str_search_hint">Search name or ID</string>
     <string name="scan_qr_code">Scan QR code</string>
     <string name="zeir">ZEIR</string>
-    <string name="record_all">Record all</string>
-    <string name="record_">Record %1$s</string>
-    <string name="record_due_">Record %1$s - due %2$s</string>
-    <string name="mr_due_">%1$s - due %2$s</string>
-    <string name="due_">%1$s: due %2$s</string>
-    <string name="today">today</string>
     <string name="select_location">Select Location</string>
     <string name="no_openmrs_id">No unique ids found. Click on the sync button to get more and if this error persists contact the system admin.</string>
     <string name="edit_registration_data">Edit registration data</string>
@@ -170,24 +163,8 @@
     <string name="dismiss">Cancel</string>
     <string name="change_status">Change status</string>
     <string name="title_activity_stock_control">StockControlActivity</string>
-    <string name="recurring_services">Recurring Services</string>
-    <string name="given_today">%1$s given today</string>
-    <string name="given_earlier">%1$s given earlier</string>
-    <string name="itn_given">Has the child been\ngiven an ITN?</string>
-    <string name="itn_date">Date that the ITN\nwas provided:</string>
-    <string name="itn_under_net">Is the child sleeping\nunder a net?</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="record_itn">Record ITN provided</string>
-    <string name="go_back">Go back</string>
-    <string name="undo_service">Undo Service?</string>
-    <string name="yes_undo_service">Yes, undo service</string>
-    <string name="cannot_record_vaccine">Cannot record %1$s</string>
     <string name="device_timezone_changed">"The device's timezone changed. Please login again."</string>
     <string name="device_time_changed">"The device's time has changed. Please login again."</string>
-    <string name="problem_applying_vaccine_constraints">Could not apply vaccine constraints.</string>
-    <string name="immunizations">IMMUNIZATIONS</string>
-    <string name="recurring">RECURRING SERVICES</string>
     <string name="side_nav_hia2">HIA 2 Reports</string>
     <string name="hia2_daily_tallies">Daily Tallies</string>
     <string name="hia2_draft_monthly">Draft Monthly</string>
