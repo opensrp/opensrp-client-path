@@ -46,11 +46,9 @@ script:
   - echo "Travis branch is in pull request $TRAVIS_PULL+REQUEST"
   - chmod 755 gradlew
   - ls -la
-  # Enable the line below once we get all the test passing, currently most of the tests are failing 
-  # so we'll just if the project compiles 
   #- ./gradlew connectedAndroidTest
   #Run All tests Unit and Instrumentation
-  - travis_wait ./gradlew opensrp-path:jacocoTestReport coveralls -i --stacktrace
+  - travis_wait ./gradlew opensrp-path:clean opensrp-path:jacocoTestReport coveralls --stacktrace
 
 after_failure:
  - pandoc opensrp-path/build/reports/tests/index.html -t plain
