@@ -42,6 +42,7 @@ import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.immunization.repository.VaccineTypeRepository;
+import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
@@ -407,7 +408,7 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(this, ChildSmartRegisterActivity.class);
         intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, remote);
         startActivity(intent);
-        accessAssetsAndFillDataBaseForVaccineTypes();
+        IMDatabaseUtils.accessAssetsAndFillDataBaseForVaccineTypes(this, null);
 
         finish();
     }
@@ -486,23 +487,6 @@ public class LoginActivity extends Activity {
                 canvasRL.setMinimumHeight(windowHeight);
             }
         });
-    }
-
-    private void accessAssetsAndFillDataBaseForVaccineTypes() {
-        VaccineTypeRepository vaccineTypeRepository = VaccinatorApplication.getInstance().vaccineTypeRepository();
-        if (!(vaccineTypeRepository.getAllVaccineTypes().size() > 0)) {
-            String vaccinetype = Utils.readAssetContents(context.applicationContext(), "vaccine_type.json");
-            try {
-                JSONArray vaccinetypeArray = new JSONArray(vaccinetype);
-                for (int i = 0; i < vaccinetypeArray.length(); i++) {
-                    JSONObject vaccinrtypeObject = vaccinetypeArray.getJSONObject(i);
-                    VaccineType vtObject = new VaccineType(null, vaccinrtypeObject.getInt("doses"), vaccinrtypeObject.getString("name"), vaccinrtypeObject.getString("openmrs_parent_entity_id"), vaccinrtypeObject.getString("openmrs_date_concept_id"), vaccinrtypeObject.getString("openmrs_dose_concept_id"));
-                    vaccineTypeRepository.add(vtObject);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
 }

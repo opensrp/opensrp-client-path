@@ -269,10 +269,7 @@ public class VaccinatorApplication extends DrishtiApplication
 
 
     public WeightRepository weightRepository() {
-        if (weightRepository == null) {
-            weightRepository = new WeightRepository((PathRepository) getRepository());
-        }
-        return weightRepository;
+        return GrowthMonitoringLibrary.getInstance().weightRepository();
     }
 
     public Context context() {
@@ -280,18 +277,11 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public VaccineRepository vaccineRepository() {
-        if (vaccineRepository == null) {
-            vaccineRepository = new VaccineRepository(getRepository(), createCommonFtsObject(), context.alertService());
-        }
-        return vaccineRepository;
+        return ImmunizationLibrary.getInstance().vaccineRepository();
     }
 
     public ZScoreRepository zScoreRepository() {
-        if (zScoreRepository == null) {
-            zScoreRepository = new ZScoreRepository(getRepository());
-        }
-
-        return zScoreRepository;
+        return GrowthMonitoringLibrary.getInstance().zScoreRepository();
     }
 
     public UniqueIdRepository uniqueIdRepository() {
@@ -324,17 +314,11 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public RecurringServiceTypeRepository recurringServiceTypeRepository() {
-        if (recurringServiceTypeRepository == null) {
-            recurringServiceTypeRepository = new RecurringServiceTypeRepository(getRepository());
-        }
-        return recurringServiceTypeRepository;
+        return ImmunizationLibrary.getInstance().recurringServiceTypeRepository();
     }
 
     public RecurringServiceRecordRepository recurringServiceRecordRepository() {
-        if (recurringServiceRecordRepository == null) {
-            recurringServiceRecordRepository = new RecurringServiceRecordRepository(getRepository());
-        }
-        return recurringServiceRecordRepository;
+        return ImmunizationLibrary.getInstance().recurringServiceRecordRepository();
     }
 
     public EventClientRepository eventClientRepository() {
@@ -352,18 +336,11 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public VaccineTypeRepository vaccineTypeRepository() {
-        if (vaccineTypeRepository == null) {
-            vaccineTypeRepository = new VaccineTypeRepository(getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
-            ;
-        }
-        return vaccineTypeRepository;
+        return ImmunizationLibrary.getInstance().vaccineTypeRepository();
     }
 
     public VaccineNameRepository vaccineNameRepository() {
-        if (vaccineNameRepository == null) {
-            vaccineNameRepository = new VaccineNameRepository(getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
-        }
-        return vaccineNameRepository;
+        return ImmunizationLibrary.getInstance().vaccineNameRepository();
     }
 
     public boolean isLastModified() {

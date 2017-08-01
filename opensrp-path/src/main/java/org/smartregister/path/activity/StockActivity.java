@@ -96,7 +96,7 @@ public class StockActivity extends BaseActivity {
     }
 
     private void refreshadapter() {
-        ArrayList<VaccineType> allVaccineTypes = (ArrayList) VaccinatorApplication.getInstance().vaccineTypeRepository().getAllVaccineTypes();
+        ArrayList<VaccineType> allVaccineTypes = (ArrayList) VaccinatorApplication.getInstance().vaccineTypeRepository().getAllVaccineTypes(null);
         VaccineType[] allVaccineTypesarray = allVaccineTypes.toArray(new VaccineType[allVaccineTypes.size()]);
         stockGridAdapter adapter = new stockGridAdapter(this, allVaccineTypesarray);
         stockGrid.setAdapter(adapter);
