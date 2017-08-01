@@ -13,12 +13,12 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.form.FieldOverrides;
 import org.smartregister.path.R;
-import org.smartregister.path.db.VaccineRepo;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.domain.EditFormSubmissionWrapper;
 import org.smartregister.domain.Photo;
-import org.smartregister.path.domain.VaccinateFormSubmissionWrapper;
-import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.listener.VaccinationActionListener;
+import org.smartregister.immunization.domain.VaccinateFormSubmissionWrapper;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.joda.time.DateTime;
 import org.joda.time.Months;
 import org.joda.time.Years;
@@ -32,16 +32,16 @@ import java.util.Map;
 import java.util.Set;
 
 import util.ImageUtils;
-import util.VaccinateActionUtils;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 
 import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.getDataRow;
 import static org.smartregister.util.Utils.getValue;
 import static org.smartregister.util.Utils.hasAnyEmptyValue;
 import static org.smartregister.util.Utils.nonEmptyValue;
-import static util.VaccinatorUtils.addStatusTag;
-import static util.VaccinatorUtils.addVaccineDetail;
-import static util.VaccinatorUtils.generateSchedule;
+import static org.smartregister.immunization.util.VaccinatorUtils.addStatusTag;
+import static org.smartregister.immunization.util.VaccinatorUtils.addVaccineDetail;
+import static org.smartregister.immunization.util.VaccinatorUtils.generateSchedule;
 
 public class ChildDetailActivity extends DetailActivity implements VaccinationActionListener {
 

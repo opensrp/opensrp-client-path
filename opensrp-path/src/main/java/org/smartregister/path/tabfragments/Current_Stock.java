@@ -59,14 +59,14 @@ import static java.util.Arrays.asList;
  * create an instance of this fragment.
  */
 public class Current_Stock extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>{
+        LoaderManager.LoaderCallbacks<Cursor> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String KEY = "key";
-    private static final String VALUE ="value" ;
+    private static final String VALUE = "value";
     public static final String STEP1 = "step1";
     public static final String FIELDS = "fields";
     public static final SimpleDateFormat dd_MM_yyyy = new SimpleDateFormat("dd-MM-yyyy");
@@ -87,7 +87,7 @@ public class Current_Stock extends Fragment implements
     private String currentquery;
     public String tablename;
     public String countSelect;
-    public String joinTable="";
+    public String joinTable = "";
 
     protected static final int LOADER_ID = 0;
     private static final String INIT_LOADER = "init";
@@ -117,11 +117,9 @@ public class Current_Stock extends Fragment implements
     public View mView;
 
 
-
     private final PaginationViewHandler paginationViewHandler = new PaginationViewHandler();
 
     ///////////////////////////////////////////////////////////////////////
-
 
 
     // TODO: Rename and change types of parameters
@@ -170,16 +168,15 @@ public class Current_Stock extends Fragment implements
         clientsView = (ListView) view.findViewById(R.id.list);
         paginationViewHandler.addPagination(clientsView);
 
-        stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context().alertService());
+        stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
 
 
+        Button received = (Button) view.findViewById(R.id.received);
+        Button issued = (Button) view.findViewById(R.id.issued);
+        Button adjustment = (Button) view.findViewById(R.id.loss_adj);
 
-        Button received = (Button)view.findViewById(R.id.received);
-        Button issued = (Button)view.findViewById(R.id.issued);
-        Button adjustment = (Button)view.findViewById(R.id.loss_adj);
-
-        TextView vaccine_name = (TextView)view.findViewById(R.id.name);
-        vaccine_name.setText(((StockControlActivity)getActivity()).vaccine_type.getName() + " Stock: ");
+        TextView vaccine_name = (TextView) view.findViewById(R.id.name);
+        vaccine_name.setText(((StockControlActivity) getActivity()).vaccineType.getName() + " Stock: ");
 
         received.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,9 +201,10 @@ public class Current_Stock extends Fragment implements
         refresh();
         return view;
     }
+
     private void getValueForStock(View view) {
-        TextView stockvalue = (TextView)view.findViewById(R.id.vials);
-        stockvalue.setText(""+((StockControlActivity)getActivity()).getcurrentVialNumber()+ " vials");
+        TextView stockvalue = (TextView) view.findViewById(R.id.vials);
+        stockvalue.setText("" + ((StockControlActivity) getActivity()).getcurrentVialNumber() + " vials");
 
     }
 
@@ -222,19 +220,19 @@ public class Current_Stock extends Fragment implements
                     public void onClick(View v) {
 
                     }
-                }, context().alertService(),stockRepository );
+                }, context().alertService(), stockRepository);
         clientAdapter = new StockPaginatedCursorAdapter(getActivity(), null, hhscp, stockRepository);
         clientsView.setAdapter(clientAdapter);
         clientAdapter.notifyDataSetChanged();
         setTablename(tableName);
         SmartRegisterQueryBuilder countqueryBUilder = new SmartRegisterQueryBuilder();
         countqueryBUilder.SelectInitiateMainTableCounts(tableName);
-        countSelect = countqueryBUilder.mainCondition("Stocks."+StockRepository.VACCINE_TYPE_ID+" = "+ ((StockControlActivity)getActivity()).vaccine_type.getId());
+        countSelect = countqueryBUilder.mainCondition("Stocks." + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId());
         mainCondition = "";
         CountExecute();
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.setSelectquery("Select * FROM Stocks Where Stocks."+StockRepository.VACCINE_TYPE_ID+" = "+ ((StockControlActivity)getActivity()).vaccine_type.getId());
-        queryBUilder.orderbyCondition(stockRepository.DATE_CREATED + " DESC, "+stockRepository.DATE_UPDATED + " DESC");
+        queryBUilder.setSelectquery("Select * FROM Stocks Where Stocks." + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId());
+        queryBUilder.orderbyCondition(stockRepository.DATE_CREATED + " DESC, " + stockRepository.DATE_UPDATED + " DESC");
 //        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
 //                tableName + "._id",
 //                tableName + ".vaccine_type_id",
@@ -262,34 +260,36 @@ public class Current_Stock extends Fragment implements
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_received_form");
-            String vaccine_name = ((StockControlActivity)getActivity()).vaccine_type.getName();
-            String formmetadata = form.toString().replace("[vaccine]",vaccine_name);
+            String vaccine_name = ((StockControlActivity) getActivity()).vaccineType.getName();
+            String formmetadata = form.toString().replace("[vaccine]", vaccine_name);
             intent.putExtra("json", formmetadata);
             startActivityForResult(intent, REQUEST_CODE_GET_JSON);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void launchAdjustmentForm() {
         Context context = Context.getInstance();
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_adjustment_form");
-            String vaccine_name = ((StockControlActivity)getActivity()).vaccine_type.getName();
-            String formmetadata = form.toString().replace("[vaccine]",vaccine_name);
+            String vaccine_name = ((StockControlActivity) getActivity()).vaccineType.getName();
+            String formmetadata = form.toString().replace("[vaccine]", vaccine_name);
             intent.putExtra("json", formmetadata);
             startActivityForResult(intent, REQUEST_CODE_GET_JSON);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     private void launchIssuedForm() {
         Context context = Context.getInstance();
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_issued_form");
-            String vaccine_name = ((StockControlActivity)getActivity()).vaccine_type.getName();
-            String formmetadata = form.toString().replace("[vaccine]",vaccine_name);
+            String vaccine_name = ((StockControlActivity) getActivity()).vaccineType.getName();
+            String formmetadata = form.toString().replace("[vaccine]", vaccine_name);
             intent.putExtra("json", formmetadata);
             startActivityForResult(intent, REQUEST_CODE_GET_JSON);
         } catch (Exception e) {
@@ -305,9 +305,11 @@ public class Current_Stock extends Fragment implements
         refresh();
         getValueForStock(mView);
     }
-    public void returnfromform(){
-        ((StockControlActivity)getActivity()).planning_stock_fragment.loatDataView(((StockControlActivity)getActivity()).planning_stock_fragment.mainview);
+
+    public void returnfromform() {
+        ((StockControlActivity) getActivity()).planning_stock_fragment.loatDataView(((StockControlActivity) getActivity()).planning_stock_fragment.mainview);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -320,13 +322,13 @@ public class Current_Stock extends Fragment implements
                     JSONObject jsonForm = new JSONObject(jsonString);
                     JSONObject step = jsonForm.getJSONObject("step1");
                     String FormTitle = step.getString("title");
-                    if(FormTitle.contains("Stock Issued")){
+                    if (FormTitle.contains("Stock Issued")) {
                         processStockIssued(jsonString);
                     }
-                    if(FormTitle.contains("Stock Received")) {
+                    if (FormTitle.contains("Stock Received")) {
                         processStockReceived(jsonString);
                     }
-                    if(FormTitle.contains("Stock Loss/Adjustment")) {
+                    if (FormTitle.contains("Stock Loss/Adjustment")) {
                         processStockLossAdjustment(jsonString);
                     }
 
@@ -346,13 +348,13 @@ public class Current_Stock extends Fragment implements
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_loss_adjustment");
             String Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Reason_for_adjustment");
             String vials_received = JsonFormUtils.getFieldValue(fields, "Vials_Adjustment");
-            if(Received_Stock_From.equalsIgnoreCase("Other")){
+            if (Received_Stock_From.equalsIgnoreCase("Other")) {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "adjusted_Stock_TO_Other");
-            }else{
+            } else {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Reason_for_adjustment");
             }
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context.alertService());
+            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
@@ -363,7 +365,7 @@ public class Current_Stock extends Fragment implements
                     encounterDate = dateTime;
                 }
             }
-            Stock stock = new Stock(null,Stock.loss_adjustment,allSharedPreferences.fetchRegisteredANM(),Integer.parseInt(vials_received),encounterDate.getTime(),Received_Stock_From,StockRepository.TYPE_Unsynced,System.currentTimeMillis(),""+((StockControlActivity)(getActivity())).vaccine_type.getId());
+            Stock stock = new Stock(null, Stock.loss_adjustment, allSharedPreferences.fetchRegisteredANM(), Integer.parseInt(vials_received), encounterDate.getTime(), Received_Stock_From, StockRepository.TYPE_Unsynced, System.currentTimeMillis(), "" + ((StockControlActivity) (getActivity())).vaccineType.getId());
             str.add(stock);
             returnfromform();
         } catch (JSONException e) {
@@ -379,14 +381,14 @@ public class Current_Stock extends Fragment implements
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_Received");
             String Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Received_Stock_From");
-            if(Received_Stock_From.equalsIgnoreCase("DHO")){
+            if (Received_Stock_From.equalsIgnoreCase("DHO")) {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Received_Stock_From");
-            }else{
+            } else {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Received_Stock_From_Other");
             }
             String vials_received = JsonFormUtils.getFieldValue(fields, "Vials_Received");
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context.alertService());
+            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
@@ -397,13 +399,14 @@ public class Current_Stock extends Fragment implements
                     encounterDate = dateTime;
                 }
             }
-            Stock stock = new Stock(null,Stock.received,allSharedPreferences.fetchRegisteredANM(),Integer.parseInt(vials_received),encounterDate.getTime(),Received_Stock_From,StockRepository.TYPE_Unsynced,System.currentTimeMillis(),""+((StockControlActivity)(getActivity())).vaccine_type.getId());
+            Stock stock = new Stock(null, Stock.received, allSharedPreferences.fetchRegisteredANM(), Integer.parseInt(vials_received), encounterDate.getTime(), Received_Stock_From, StockRepository.TYPE_Unsynced, System.currentTimeMillis(), "" + ((StockControlActivity) (getActivity())).vaccineType.getId());
             str.add(stock);
             returnfromform();
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
     private void processStockIssued(String jsonString) {
         JSONObject jsonForm = null;
         try {
@@ -412,18 +415,18 @@ public class Current_Stock extends Fragment implements
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_Issued");
             String Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Issued_Stock_To");
-            if(Received_Stock_From.equalsIgnoreCase("Other")){
+            if (Received_Stock_From.equalsIgnoreCase("Other")) {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Issued_Stock_TO_Other");
-            }else{
+            } else {
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Issued_Stock_To");
             }
             String vials_received = JsonFormUtils.getFieldValue(fields, "Vials_Issued");
             String vials_wasted = JsonFormUtils.getFieldValue(fields, "Vials_Wasted");
-            if(StringUtils.isNotBlank(vials_wasted)){
-                vials_received = ""+(Integer.parseInt(vials_received)+Integer.parseInt(vials_wasted));
+            if (StringUtils.isNotBlank(vials_wasted)) {
+                vials_received = "" + (Integer.parseInt(vials_received) + Integer.parseInt(vials_wasted));
             }
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context.alertService());
+            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
@@ -434,19 +437,19 @@ public class Current_Stock extends Fragment implements
                     encounterDate = dateTime;
                 }
             }
-            Stock stock = new Stock(null,Stock.issued,allSharedPreferences.fetchRegisteredANM(),-1*Integer.parseInt(vials_received),encounterDate.getTime(),Received_Stock_From,StockRepository.TYPE_Unsynced,System.currentTimeMillis(),""+((StockControlActivity)(getActivity())).vaccine_type.getId());
+            Stock stock = new Stock(null, Stock.issued, allSharedPreferences.fetchRegisteredANM(), -1 * Integer.parseInt(vials_received), encounterDate.getTime(), Received_Stock_From, StockRepository.TYPE_Unsynced, System.currentTimeMillis(), "" + ((StockControlActivity) (getActivity())).vaccineType.getId());
             str.add(stock);
             returnfromform();
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
     private TextView pageInfoView;
     private Button nextPageView;
     private Button previousPageView;
 
     private class PaginationViewHandler implements View.OnClickListener {
-
 
 
         private void addPagination(ListView clientsView) {
@@ -468,7 +471,7 @@ public class Current_Stock extends Fragment implements
 
             LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            toaddNote.addView((ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null),p);
+            toaddNote.addView((ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null), p);
 
             clientsView.addFooterView(toaddNote);
             refresh();
@@ -479,14 +482,10 @@ public class Current_Stock extends Fragment implements
             return (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.smart_register_pagination, null);
         }
 
-        public void refreshListView(){
+        public void refreshListView() {
             setRefreshList(true);
             setRefreshList(false);
         }
-
-
-
-
 
 
         @Override
@@ -502,24 +501,27 @@ public class Current_Stock extends Fragment implements
         }
 
     }
+
     private int getCurrentPageCount() {
-        if(currentoffset != 0) {
-            if((currentoffset/currentlimit) != 0) {
-                return  ((currentoffset / currentlimit)+1);
-            }else {
+        if (currentoffset != 0) {
+            if ((currentoffset / currentlimit) != 0) {
+                return ((currentoffset / currentlimit) + 1);
+            } else {
                 return 1;
             }
-        }else{
+        } else {
             return 1;
         }
     }
-    private int getTotalcount(){
-        if(totalcount%currentlimit == 0){
-            return (totalcount/currentlimit);
-        }else {
-            return ((totalcount / currentlimit)+1);
+
+    private int getTotalcount() {
+        if (totalcount % currentlimit == 0) {
+            return (totalcount / currentlimit);
+        } else {
+            return ((totalcount / currentlimit) + 1);
         }
     }
+
     public void refresh() {
         pageInfoView.setText(
                 format(getResources().getString(R.string.str_page_info),
@@ -533,29 +535,29 @@ public class Current_Stock extends Fragment implements
 
     private boolean hasNextPage() {
 
-        return ((totalcount>(currentoffset+currentlimit)));
+        return ((totalcount > (currentoffset + currentlimit)));
     }
 
     private boolean hasPreviousPage() {
-        return currentoffset!=0;
+        return currentoffset != 0;
     }
 
     public void gotoNextPage() {
-        if(!(currentoffset+currentlimit>totalcount)){
-            currentoffset = currentoffset+currentlimit;
+        if (!(currentoffset + currentlimit > totalcount)) {
+            currentoffset = currentoffset + currentlimit;
             filterandSortExecute();
         }
     }
 
     public void goBackToPreviousPage() {
-        if(currentoffset>0){
-            currentoffset = currentoffset-currentlimit;
+        if (currentoffset > 0) {
+            currentoffset = currentoffset - currentlimit;
             filterandSortExecute();
         }
     }
 
-    public void filterandSortInInitializeQueries(){
-        if(isPausedOrRefreshList()){
+    public void filterandSortInInitializeQueries() {
+        if (isPausedOrRefreshList()) {
             this.showProgressView();
             this.filterandSortExecute();
         } else {
@@ -567,9 +569,9 @@ public class Current_Stock extends Fragment implements
     public void initialFilterandSortExecute() {
         Loader<Cursor> loader = getLoaderManager().getLoader(LOADER_ID);
         showProgressView();
-        if(loader != null) {
+        if (loader != null) {
             filterandSortExecute();
-        }else {
+        } else {
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
     }
@@ -580,31 +582,31 @@ public class Current_Stock extends Fragment implements
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
-    public void showProgressView(){
-        if(clientsProgressView.getVisibility() == INVISIBLE) {
+    public void showProgressView() {
+        if (clientsProgressView.getVisibility() == INVISIBLE) {
             clientsProgressView.setVisibility(View.VISIBLE);
         }
 
-        if(clientsView.getVisibility() == VISIBLE) {
+        if (clientsView.getVisibility() == VISIBLE) {
             clientsView.setVisibility(View.INVISIBLE);
         }
     }
 
-    public void hideProgressView(){
-        if(clientsProgressView.getVisibility() == VISIBLE) {
+    public void hideProgressView() {
+        if (clientsProgressView.getVisibility() == VISIBLE) {
             clientsProgressView.setVisibility(INVISIBLE);
         }
-        if(clientsView.getVisibility() == INVISIBLE) {
+        if (clientsView.getVisibility() == INVISIBLE) {
             clientsView.setVisibility(VISIBLE);
         }
     }
 
-    private String filterandSortQuery(){
+    private String filterandSortQuery() {
         SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
 
         String query = "";
-        try{
-            if(isValidFilterForFts(commonRepository())){
+        try {
+            if (isValidFilterForFts(commonRepository())) {
                 String sql = sqb.searchQueryFts(tablename, joinTable, mainCondition, filters, Sortqueries, currentlimit, currentoffset);
                 List<String> ids = commonRepository().findSearchIds(sql);
                 query = sqb.toStringFts(ids, tablename + "." + CommonRepository.ID_COLUMN, Sortqueries);
@@ -612,17 +614,17 @@ public class Current_Stock extends Fragment implements
             } else {
                 sqb.addCondition(filters);
                 query = sqb.orderbyCondition(Sortqueries);
-                query = sqb.Endquery(sqb.addlimitandOffset(query,currentlimit,currentoffset));
+                query = sqb.Endquery(sqb.addlimitandOffset(query, currentlimit, currentoffset));
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         }
 
         return query;
     }
 
-    public void CountExecute(){
+    public void CountExecute() {
         Cursor c = null;
 
         try {
@@ -648,16 +650,16 @@ public class Current_Stock extends Fragment implements
             currentlimit = 20;
             currentoffset = 0;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         } finally {
-            if(c != null) {
+            if (c != null) {
                 c.close();
             }
         }
     }
 
-    protected boolean isValidFilterForFts(CommonRepository commonRepository){
+    protected boolean isValidFilterForFts(CommonRepository commonRepository) {
         return false;
 //        return commonRepository.isFts() && filters != null
 //                && !StringUtils.containsIgnoreCase(filters, "like")
@@ -665,24 +667,23 @@ public class Current_Stock extends Fragment implements
     }
 
 
-
-
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
         switch (id) {
             case LOADER_ID:
                 // Returns a new CursorLoader
-                return new CursorLoader(getActivity()){
+                return new CursorLoader(getActivity()) {
                     @Override
                     public Cursor loadInBackground() {
                         String query = filterandSortQuery();
-                        Cursor cursor = VaccinatorApplication.getInstance().getRepository().getReadableDatabase().rawQuery(query,null);
+                        Cursor cursor = VaccinatorApplication.getInstance().getRepository().getReadableDatabase().rawQuery(query, null);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 hideProgressView();
-                            };
+                            }
+
+                            ;
                         });
 
                         return cursor;
@@ -706,29 +707,31 @@ public class Current_Stock extends Fragment implements
         clientAdapter.swapCursor(null);
     }
 
-    public CommonRepository commonRepository(){
-        return new CommonRepository(VaccinatorApplication.createCommonFtsObject(),StockRepository.stock_TABLE_NAME,StockRepository.stock_TABLE_COLUMNS);
+    public CommonRepository commonRepository() {
+        return new CommonRepository(VaccinatorApplication.createCommonFtsObject(), StockRepository.stock_TABLE_NAME, StockRepository.stock_TABLE_COLUMNS);
     }
 
-    public boolean isPausedOrRefreshList(){
+    public boolean isPausedOrRefreshList() {
         return isPaused() || isRefreshList();
     }
+
     public boolean isRefreshList() {
         return refreshList;
     }
+
     protected Context context() {
         return Context.getInstance().updateApplicationContext(this.getActivity().getApplicationContext());
     }
+
     public void setRefreshList(boolean refreshList) {
         this.refreshList = refreshList;
     }
+
     public boolean isPaused() {
         return isPaused;
     }
+
     private boolean isPaused;
-
-
-
 
 
 }

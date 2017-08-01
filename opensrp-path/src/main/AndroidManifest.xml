@@ -122,9 +122,9 @@
         <service android:name=".service.intent.PathReplicationIntentService" />
         <service android:name=".service.intent.PullUniqueIdsIntentService" />
         <service android:name="org.smartregister.growthmonitoring.service.intent.WeightIntentService" />
-        <service android:name=".service.intent.VaccineIntentService" />
+        <service android:name="org.smartregister.immunization.service.intent.VaccineIntentService" />
         <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />
-        <service android:name=".service.intent.RecurringIntentService" />
+        <service android:name="org.smartregister.immunization.service.intent.RecurringIntentService" />
         <service android:name=".service.intent.HIA2IntentService" />
 
         <provider

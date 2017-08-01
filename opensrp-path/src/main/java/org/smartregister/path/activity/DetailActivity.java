@@ -28,10 +28,11 @@ import android.widget.TextView;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
+import org.smartregister.immunization.domain.VaccinateFormSubmissionWrapper;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.domain.EditFormSubmissionWrapper;
 import org.smartregister.path.domain.EditWrapper;
-import org.smartregister.path.domain.VaccinateFormSubmissionWrapper;
 import org.smartregister.repository.ImageRepository;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -45,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import util.VaccinateActionUtils;
 
 import static org.smartregister.util.Utils.convertDateFormat;
 import static util.Utils.setProfiePic;

@@ -23,15 +23,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.tabfragments.Current_Stock;
 import org.smartregister.path.tabfragments.Planning_Stock_fragment;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.activity.DrishtiApplication;
-import org.joda.time.DateTime;
 
 public class StockControlActivity extends AppCompatActivity {
 
@@ -50,7 +50,7 @@ public class StockControlActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private TabLayout tabLayout;
-    public Vaccine_types vaccine_type;
+    public VaccineType vaccineType;
     public Current_Stock current_stock_fragment;
     public Planning_Stock_fragment planning_stock_fragment;
 
@@ -58,14 +58,14 @@ public class StockControlActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_control);
-        vaccine_type = (Vaccine_types) getIntent().getSerializableExtra("vaccine_type");
+        vaccineType = (VaccineType) getIntent().getSerializableExtra("vaccine_type");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         toolbar.setTitle("");
         setTitle("");
 
-        ((TextView)toolbar.findViewById(R.id.title)).setText("Stock Control > "+vaccine_type.getName());
+        ((TextView) toolbar.findViewById(R.id.title)).setText("Stock Control > " + vaccineType.getName());
 
 
         // Create the adapter that will return a fragment for each of the three
@@ -77,11 +77,11 @@ public class StockControlActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         tabLayout.setupWithViewPager(mViewPager);
-        TextView nameInitials = (TextView)findViewById(R.id.name_inits);
+        TextView nameInitials = (TextView) findViewById(R.id.name_inits);
         nameInitials.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 if (!drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.openDrawer(GravityCompat.START);
                 }
@@ -105,7 +105,8 @@ public class StockControlActivity extends AppCompatActivity {
         initializeCustomNavbarLIsteners();
 
     }
-    public void initializeCustomNavbarLIsteners(){
+
+    public void initializeCustomNavbarLIsteners() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
@@ -147,7 +148,6 @@ public class StockControlActivity extends AppCompatActivity {
 
         TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
         nameTV.setText(preferredName);
-
 
 
         LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
@@ -229,14 +229,14 @@ public class StockControlActivity extends AppCompatActivity {
 
     public int getcurrentVialNumber() {
         net.sqlcipher.database.SQLiteDatabase db = VaccinatorApplication.getInstance().getRepository().getReadableDatabase();
-        Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " <= " + new DateTime(System.currentTimeMillis()).toDate().getTime()+" and "+StockRepository.VACCINE_TYPE_ID + " = "+ vaccine_type.getId(), null);
+        Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " <= " + new DateTime(System.currentTimeMillis()).toDate().getTime() + " and " + StockRepository.VACCINE_TYPE_ID + " = " + vaccineType.getId(), null);
         String stockvalue = "0";
-        if(c.getCount()>0) {
+        if (c.getCount() > 0) {
             c.moveToFirst();
-            if(c.getString(0)!=null && !StringUtils.isBlank(c.getString(0)))
+            if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0)))
                 stockvalue = c.getString(0);
             c.close();
-        }else{
+        } else {
             c.close();
         }
         return Integer.parseInt(stockvalue);
@@ -293,10 +293,10 @@ public class StockControlActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    current_stock_fragment = Current_Stock.newInstance("","");
-                return current_stock_fragment;
+                    current_stock_fragment = Current_Stock.newInstance("", "");
+                    return current_stock_fragment;
                 case 1:
-                    planning_stock_fragment = Planning_Stock_fragment.newInstance("","");
+                    planning_stock_fragment = Planning_Stock_fragment.newInstance("", "");
                     return planning_stock_fragment;
             }
             return null;

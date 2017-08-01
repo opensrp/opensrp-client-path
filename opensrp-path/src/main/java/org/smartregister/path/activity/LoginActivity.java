@@ -29,6 +29,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.domain.LoginResponse;
 import org.smartregister.domain.Response;
@@ -36,22 +40,18 @@ import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
+import org.smartregister.immunization.domain.VaccineType;
+import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Vaccine_types;
-import org.smartregister.path.repository.PathRepository;
-import org.smartregister.path.repository.Vaccine_typesRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.util.Log;
+import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -60,7 +60,6 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.smartregister.util.Utils;
 import util.PathConstants;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
@@ -106,7 +105,7 @@ public class LoginActivity extends Activity {
 
         setContentView(org.smartregister.R.layout.login);
 
-        if(getActionBar() != null) {
+        if (getActionBar() != null) {
             getActionBar().setDisplayShowTitleEnabled(false);
             getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.black)));
         }
@@ -221,7 +220,6 @@ public class LoginActivity extends Activity {
             login(findViewById(org.smartregister.R.id.login_loginButton), false);
         }
     }
-
 
 
     private void remoteLogin(final View view, final String userName, final String password) {
@@ -489,16 +487,17 @@ public class LoginActivity extends Activity {
             }
         });
     }
+
     private void accessAssetsAndFillDataBaseForVaccineTypes() {
-        Vaccine_typesRepository VTR = new Vaccine_typesRepository((PathRepository)VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context.alertService());
-        if(!(VTR.getAllVaccineTypes().size()>0)) {
+        VaccineTypeRepository vaccineTypeRepository = VaccinatorApplication.getInstance().vaccineTypeRepository();
+        if (!(vaccineTypeRepository.getAllVaccineTypes().size() > 0)) {
             String vaccinetype = Utils.readAssetContents(context.applicationContext(), "vaccine_type.json");
             try {
                 JSONArray vaccinetypeArray = new JSONArray(vaccinetype);
                 for (int i = 0; i < vaccinetypeArray.length(); i++) {
                     JSONObject vaccinrtypeObject = vaccinetypeArray.getJSONObject(i);
-                    Vaccine_types vtObject = new Vaccine_types(null, vaccinrtypeObject.getInt("doses"), vaccinrtypeObject.getString("name"), vaccinrtypeObject.getString("openmrs_parent_entity_id"), vaccinrtypeObject.getString("openmrs_date_concept_id"), vaccinrtypeObject.getString("openmrs_dose_concept_id"));
-                    VTR.add(vtObject);
+                    VaccineType vtObject = new VaccineType(null, vaccinrtypeObject.getInt("doses"), vaccinrtypeObject.getString("name"), vaccinrtypeObject.getString("openmrs_parent_entity_id"), vaccinrtypeObject.getString("openmrs_date_concept_id"), vaccinrtypeObject.getString("openmrs_dose_concept_id"));
+                    vaccineTypeRepository.add(vtObject);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

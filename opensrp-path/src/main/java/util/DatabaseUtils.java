@@ -6,13 +6,14 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.path.domain.ServiceType;
-import org.smartregister.path.domain.ServiceSchedule;
-import org.smartregister.path.domain.ServiceTrigger;
-import org.smartregister.path.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.ServiceSchedule;
+import org.smartregister.immunization.domain.ServiceTrigger;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.immunization.util.VaccinatorUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

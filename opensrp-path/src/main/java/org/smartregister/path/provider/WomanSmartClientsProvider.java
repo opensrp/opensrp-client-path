@@ -9,11 +9,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Years;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
 import org.smartregister.domain.Alert;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
-import org.smartregister.path.db.VaccineRepo;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.StringUtil;
 import org.smartregister.view.contract.SmartRegisterClient;
@@ -22,21 +24,19 @@ import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 import org.smartregister.view.viewholder.OnClickFormLauncher;
-import org.joda.time.DateTime;
-import org.joda.time.Years;
 
 import java.util.List;
 import java.util.Map;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static org.smartregister.immunization.util.VaccinatorUtils.generateSchedule;
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 import static org.smartregister.util.Utils.convertDateFormat;
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getValue;
 import static org.smartregister.util.Utils.nonEmptyValue;
-import static util.Utils.setProfiePic;
 import static org.smartregister.util.Utils.toDate;
-import static util.VaccinatorUtils.generateSchedule;
-import static util.VaccinatorUtils.nextVaccineDue;
+import static util.Utils.setProfiePic;
 
 /**
  * Created by Ahmed on 19-Oct-15.

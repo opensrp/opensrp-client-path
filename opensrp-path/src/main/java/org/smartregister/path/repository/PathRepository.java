@@ -9,6 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineNameRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.AlertRepository;
 import org.smartregister.repository.EventClientRepository;
@@ -92,8 +97,8 @@ public class PathRepository extends Repository {
         try {
 //            db.execSQL("DROP TABLE IF EXISTS  ");
             StockRepository.createTable(db);
-            Vaccine_NamesRepository.createTable(db);
-            Vaccine_typesRepository.createTable(db);
+            VaccineNameRepository.createTable(db);
+            VaccineTypeRepository.createTable(db);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion7Stock " + e.getMessage());
         }

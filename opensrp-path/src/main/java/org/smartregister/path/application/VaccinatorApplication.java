@@ -17,11 +17,20 @@ import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.growthmonitoring.GrowthMonitoringLibrary;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.immunization.ImmunizationLibrary;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.domain.VaccineType;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineNameRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.repository.VaccineTypeRepository;
+import org.smartregister.immunization.util.VaccinateActionUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
-import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.path.domain.VaccineSchedule;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -29,11 +38,8 @@ import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
-import org.smartregister.path.repository.RecurringServiceRecordRepository;
-import org.smartregister.path.repository.RecurringServiceTypeRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
-import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.path.sync.PathUpdateActionsTask;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
@@ -49,8 +55,6 @@ import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
 import util.PathConstants;
-import util.VaccinateActionUtils;
-import util.VaccinatorUtils;
 
 import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logInfo;
@@ -76,6 +80,8 @@ public class VaccinatorApplication extends DrishtiApplication
     private RecurringServiceTypeRepository recurringServiceTypeRepository;
     private EventClientRepository eventClientRepository;
     private StockRepository stockRepository;
+    private VaccineTypeRepository vaccineTypeRepository;
+    private VaccineNameRepository vaccineNameRepository;
     private boolean lastModified;
 
     @Override
@@ -105,6 +111,7 @@ public class VaccinatorApplication extends DrishtiApplication
 
         //Initialize Modules
         GrowthMonitoringLibrary.init(context(), getRepository());
+        ImmunizationLibrary.init(context(), getRepository(), createCommonFtsObject());
 
     }
 
@@ -274,14 +281,14 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public VaccineRepository vaccineRepository() {
         if (vaccineRepository == null) {
-            vaccineRepository = new VaccineRepository((PathRepository) getRepository(), createCommonFtsObject(), context.alertService());
+            vaccineRepository = new VaccineRepository(getRepository(), createCommonFtsObject(), context.alertService());
         }
         return vaccineRepository;
     }
 
     public ZScoreRepository zScoreRepository() {
         if (zScoreRepository == null) {
-            zScoreRepository = new ZScoreRepository((PathRepository) getRepository());
+            zScoreRepository = new ZScoreRepository(getRepository());
         }
 
         return zScoreRepository;
@@ -318,14 +325,14 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public RecurringServiceTypeRepository recurringServiceTypeRepository() {
         if (recurringServiceTypeRepository == null) {
-            recurringServiceTypeRepository = new RecurringServiceTypeRepository((PathRepository) getRepository());
+            recurringServiceTypeRepository = new RecurringServiceTypeRepository(getRepository());
         }
         return recurringServiceTypeRepository;
     }
 
     public RecurringServiceRecordRepository recurringServiceRecordRepository() {
         if (recurringServiceRecordRepository == null) {
-            recurringServiceRecordRepository = new RecurringServiceRecordRepository((PathRepository) getRepository());
+            recurringServiceRecordRepository = new RecurringServiceRecordRepository(getRepository());
         }
         return recurringServiceRecordRepository;
     }
@@ -342,6 +349,21 @@ public class VaccinatorApplication extends DrishtiApplication
             stockRepository = new StockRepository((PathRepository) getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
         }
         return stockRepository;
+    }
+
+    public VaccineTypeRepository vaccineTypeRepository() {
+        if (vaccineTypeRepository == null) {
+            vaccineTypeRepository = new VaccineTypeRepository(getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
+            ;
+        }
+        return vaccineTypeRepository;
+    }
+
+    public VaccineNameRepository vaccineNameRepository() {
+        if (vaccineNameRepository == null) {
+            vaccineNameRepository = new VaccineNameRepository(getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
+        }
+        return vaccineNameRepository;
     }
 
     public boolean isLastModified() {

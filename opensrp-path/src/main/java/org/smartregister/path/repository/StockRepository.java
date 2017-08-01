@@ -8,11 +8,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.immunization.domain.VaccineType;
+import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
-import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.service.AlertService;
 
@@ -45,7 +45,7 @@ public class StockRepository extends BaseRepository {
     public static final String TO_FROM = "to_from";
     public static final String SYNC_STATUS = "sync_status";
     public static final String DATE_UPDATED = "date_updated";
-    public static final String[] stock_TABLE_COLUMNS = {ID_COLUMN, VACCINE_TYPE_ID,TRANSACTION_TYPE,PROVIDER_ID, VALUE, DATE_CREATED, TO_FROM, SYNC_STATUS, DATE_UPDATED};
+    public static final String[] stock_TABLE_COLUMNS = {ID_COLUMN, VACCINE_TYPE_ID, TRANSACTION_TYPE, PROVIDER_ID, VALUE, DATE_CREATED, TO_FROM, SYNC_STATUS, DATE_UPDATED};
 
 
     public static String TYPE_Unsynced = "Unsynced";
@@ -98,7 +98,7 @@ public class StockRepository extends BaseRepository {
         values.put(TO_FROM, stock.getTo_from());
         values.put(SYNC_STATUS, stock.getSyncStatus());
         values.put(DATE_UPDATED, stock.getUpdatedAt() != null ? stock.getUpdatedAt() : null);
-       return values;
+        return values;
     }
 
     public List<Stock> findUnSyncedBeforeTime(int hours) {
@@ -121,13 +121,14 @@ public class StockRepository extends BaseRepository {
         }
         return stocks;
     }
+
     public List<Stock> findUnSyncedWithLimit(int limit) {
         List<Stock> stocks = new ArrayList<Stock>();
         Cursor cursor = null;
         try {
 
 
-            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS,  SYNC_STATUS + " = ?", new String[]{ TYPE_Unsynced}, null, null, null, ""+limit);
+            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, SYNC_STATUS + " = ?", new String[]{TYPE_Unsynced}, null, null, null, "" + limit);
             stocks = readAllstocks(cursor);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -143,7 +144,7 @@ public class StockRepository extends BaseRepository {
         List<Stock> stocks = new ArrayList<>();
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, VACCINE_TYPE_ID+ " = ? AND " + TRANSACTION_TYPE + " = ? AND " + PROVIDER_ID + " = ? AND " + VALUE + " = ? AND " + DATE_CREATED + " = ? AND " + TO_FROM + " = ?", new String[]{vaccine_type_id, transaction_type, providerid, value, date_created, to_from}, null, null, null, null);
+            cursor = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, VACCINE_TYPE_ID + " = ? AND " + TRANSACTION_TYPE + " = ? AND " + PROVIDER_ID + " = ? AND " + VALUE + " = ? AND " + DATE_CREATED + " = ? AND " + TO_FROM + " = ?", new String[]{vaccine_type_id, transaction_type, providerid, value, date_created, to_from}, null, null, null, null);
             stocks = readAllstocks(cursor);
 
         } catch (Exception e) {
@@ -159,7 +160,7 @@ public class StockRepository extends BaseRepository {
     public Stock readAllStockforCursorAdapter(Cursor cursor) {
 
 
-         return new Stock(cursor.getLong(cursor.getColumnIndex(ID_COLUMN)),
+        return new Stock(cursor.getLong(cursor.getColumnIndex(ID_COLUMN)),
                 cursor.getString(cursor.getColumnIndex(TRANSACTION_TYPE)),
                 cursor.getString(cursor.getColumnIndex(PROVIDER_ID)),
                 cursor.getInt(cursor.getColumnIndex(VALUE)),
@@ -229,7 +230,7 @@ public class StockRepository extends BaseRepository {
                                     cursor.getString(cursor.getColumnIndex(TO_FROM)),
                                     cursor.getString(cursor.getColumnIndex(SYNC_STATUS)),
                                     cursor.getLong(cursor.getColumnIndex(DATE_UPDATED)),
-                            cursor.getString(cursor.getColumnIndex(VACCINE_TYPE_ID))
+                                    cursor.getString(cursor.getColumnIndex(VACCINE_TYPE_ID))
                             ));
 
                     cursor.moveToNext();
@@ -242,30 +243,32 @@ public class StockRepository extends BaseRepository {
         }
         return stocks;
     }
-    public int getVaccineUsedToday(Long date, String vaccineName){
+
+    public int getVaccineUsedToday(Long date, String vaccineName) {
         int vaccineUsed = 0;
         DateTime thedate = new DateTime(date);
         DateTime startofday = thedate.withTimeAtStartOfDay();
         DateTime endofday = thedate.plusDays(1).withTimeAtStartOfDay();
         SQLiteDatabase database = getReadableDatabase();
-        Cursor c = database.rawQuery("Select count(*) from vaccines where date >= "+startofday.getMillis()+" and date < "+endofday.getMillis()+" and name like '%"+vaccineName+"%'",null);
+        Cursor c = database.rawQuery("Select count(*) from vaccines where date >= " + startofday.getMillis() + " and date < " + endofday.getMillis() + " and name like '%" + vaccineName + "%'", null);
         c.moveToFirst();
-        if(c.getCount()>0){
-            if(!StringUtils.isBlank(c.getString(0))){
+        if (c.getCount() > 0) {
+            if (!StringUtils.isBlank(c.getString(0))) {
                 vaccineUsed = Integer.parseInt(c.getString(0));
             }
         }
         c.close();
         return vaccineUsed;
     }
-    public int getVaccineUsedUntildate(Long date, String vaccineName){
+
+    public int getVaccineUsedUntildate(Long date, String vaccineName) {
         int vaccineUsed = 0;
         DateTime thedate = new DateTime(date);
         SQLiteDatabase database = getReadableDatabase();
-        Cursor c = database.rawQuery("Select count(*) from vaccines where date <= "+thedate.getMillis()+" and name like '%"+vaccineName+"%'",null);
+        Cursor c = database.rawQuery("Select count(*) from vaccines where date <= " + thedate.getMillis() + " and name like '%" + vaccineName + "%'", null);
         c.moveToFirst();
-        if(c.getCount()>0){
-            if(!StringUtils.isBlank(c.getString(0))){
+        if (c.getCount() > 0) {
+            if (!StringUtils.isBlank(c.getString(0))) {
                 vaccineUsed = Integer.parseInt(c.getString(0));
             }
         }
@@ -277,17 +280,17 @@ public class StockRepository extends BaseRepository {
     public int getBalanceBefore(Stock stock) {
         SQLiteDatabase database = getReadableDatabase();
 //        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
-        Cursor c =database.rawQuery("Select sum(value) from Stocks Where date_updated <" +stock.getUpdatedAt()+ " and date_created <=" +new DateTime(stock.getDate_created()).toDate().getTime()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
-        if(c.getCount() == 0) {
+        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_updated <" + stock.getUpdatedAt() + " and date_created <=" + new DateTime(stock.getDate_created()).toDate().getTime() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
+        if (c.getCount() == 0) {
             c.close();
             return 0;
-        }else{
+        } else {
             c.moveToFirst();
-            if(c.getString(0) != null) {
+            if (c.getString(0) != null) {
                 int toreturn = Integer.parseInt(c.getString(0));
                 c.close();
                 return toreturn;
-            }else{
+            } else {
                 c.close();
                 return 0;
             }
@@ -298,55 +301,56 @@ public class StockRepository extends BaseRepository {
         int sum = 0;
         SQLiteDatabase database = getReadableDatabase();
 
-        Cursor c =database.rawQuery("Select sum(value) from Stocks Where date_created = " +stock.getDate_created()+ " and date_updated <" +stock.getUpdatedAt()+" and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
+        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_created = " + stock.getDate_created() + " and date_updated <" + stock.getUpdatedAt() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
 
 //        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
 //      c =database.rawQuery("Select sum(value) from Stocks Where date_updated <" +stock.getUpdatedAt()+ " and date_created <=" +new DateTime(stock.getDate_created()).toDate().getTime()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
-        if(c.getCount() == 0) {
+        if (c.getCount() == 0) {
             sum = 0;
-        }else{
+        } else {
             c.moveToFirst();
-            if(c.getString(0) != null) {
+            if (c.getString(0) != null) {
                 sum = Integer.parseInt(c.getString(0));
-            }else{
+            } else {
                 sum = 0;
             }
         }
         c.close();
-        c =database.rawQuery("Select sum(value) from Stocks Where date_created <" + stock.getDate_created()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
-        if(c.getCount() == 0) {
+        c = database.rawQuery("Select sum(value) from Stocks Where date_created <" + stock.getDate_created() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
+        if (c.getCount() == 0) {
             sum = sum + 0;
-        }else{
+        } else {
             c.moveToFirst();
-            if(c.getString(0) != null) {
-                sum = sum +Integer.parseInt(c.getString(0));
-            }else{
-                sum = sum +0;
+            if (c.getString(0) != null) {
+                sum = sum + Integer.parseInt(c.getString(0));
+            } else {
+                sum = sum + 0;
             }
         }
         c.close();
         return sum;
     }
-    public int getBalanceFromNameAndDate(String Name,Long updatedat) {
+
+    public int getBalanceFromNameAndDate(String Name, Long updatedat) {
         SQLiteDatabase database = getReadableDatabase();
-//        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
-        Vaccine_typesRepository vtr = new Vaccine_typesRepository((PathRepository) getRepository(), VaccinatorApplication.createCommonFtsObject(),Context.getInstance().alertService());
-        ArrayList<Vaccine_types> allvaccinetypes = (ArrayList)vtr.findIDByName(Name);
+//      Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
+        VaccineTypeRepository vtr = VaccinatorApplication.getInstance().vaccineTypeRepository();
+        ArrayList<VaccineType> allvaccinetypes = (ArrayList) vtr.findIDByName(Name);
         String id_for_vaccine = "";
-        if(allvaccinetypes.size()>0){
-            id_for_vaccine = ""+allvaccinetypes.get(0).getId();
+        if (allvaccinetypes.size() > 0) {
+            id_for_vaccine = "" + allvaccinetypes.get(0).getId();
         }
-        Cursor c =database.rawQuery("Select sum(value) from Stocks Where date_created <=" +updatedat+ " and "+ VACCINE_TYPE_ID + " = "+id_for_vaccine,null);
-        if(c.getCount() == 0) {
+        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_created <=" + updatedat + " and " + VACCINE_TYPE_ID + " = " + id_for_vaccine, null);
+        if (c.getCount() == 0) {
             c.close();
             return 0;
-        }else{
+        } else {
             c.moveToFirst();
-            if(c.getString(0) != null) {
+            if (c.getString(0) != null) {
                 int toreturn = Integer.parseInt(c.getString(0));
                 c.close();
                 return toreturn;
-            }else{
+            } else {
                 c.close();
                 return 0;
             }
@@ -354,7 +358,7 @@ public class StockRepository extends BaseRepository {
     }
 
     public void markEventsAsSynced(ArrayList<Stock> stocks) {
-        for(int i = 0 ;i < stocks.size();i++){
+        for (int i = 0; i < stocks.size(); i++) {
             Stock stockToAdd = stocks.get(i);
             stockToAdd.setSyncStatus(TYPE_Synced);
             add(stockToAdd);

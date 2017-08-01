@@ -37,7 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import util.VaccinatorUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,6 +60,7 @@ public class Planning_Stock_fragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     public View mainview;
+
     public Planning_Stock_fragment() {
         // Required empty public constructor
     }
@@ -106,40 +107,40 @@ public class Planning_Stock_fragment extends Fragment {
         DateTime now = new DateTime(System.currentTimeMillis());
         DateTime threemonthEarlierIterator = now.minusMonths(3);
 
-        GraphView graph = (GraphView)view.findViewById(R.id.graph);
-        ViewGroup graphparent = (ViewGroup)graph.getParent();
+        GraphView graph = (GraphView) view.findViewById(R.id.graph);
+        ViewGroup graphparent = (ViewGroup) graph.getParent();
         final int index = graphparent.indexOfChild(graph);
         graphparent.removeView(graph);
         graph = new GraphView(getActivity());
         graph.setId(R.id.graph);
 
-        graphparent.addView(graph,index);
+        graphparent.addView(graph, index);
 
 
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        String [] montharry;
+        String[] montharry;
         int arraymonthslabelsize = 0;
-        if(now.minusMonths(1).monthOfYear() != now.monthOfYear()){
+        if (now.minusMonths(1).monthOfYear() != now.monthOfYear()) {
             arraymonthslabelsize = 4;
 //            montharry = new String [arraymonthslabelsize];
-            montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(2).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(1).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(0).monthOfYear().getAsShortText()+" "+now.year().getAsShortText()
+            montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(2).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(1).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(0).monthOfYear().getAsShortText() + " " + now.year().getAsShortText()
             };
-        }else{
+        } else {
             arraymonthslabelsize = 3;
-            montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(2).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(1).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
-                    now.minusMonths(0).monthOfYear().getAsShortText()+" "+now.year().getAsShortText(),
+            montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(2).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(1).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
+                    now.minusMonths(0).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
 
             };
         }
         staticLabelsFormatter.setHorizontalLabels(montharry);
 //        graph.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
         DateFormat month_date = new SimpleDateFormat("MMM yyyy");
-        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity(),month_date));
+        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity(), month_date));
         graph.getGridLabelRenderer().setNumHorizontalLabels(4); // only 4 because of the space
         graph.removeAllSeries();
         graph.getViewport().setMinX(now.minusMonths(3).toDate().getTime());
@@ -150,7 +151,7 @@ public class Planning_Stock_fragment extends Fragment {
         graph.getGridLabelRenderer().setHumanRounding(false);
     }
 
-    public void loatDataView (View view){
+    public void loatDataView(View view) {
         createTitle(view);
         createActiveChildrenStatsView(view);
         creatgraphview(view);
@@ -163,36 +164,33 @@ public class Planning_Stock_fragment extends Fragment {
     }
 
     private void VaccinesDueNextMonth(View view) {
-        int dosespervial = ((StockControlActivity)getActivity()).vaccine_type.getDoses();
-        ((TextView)view.findViewById(R.id.due_vacc_next_month_value)).setText(""+(int) Math.ceil((double)processVaccinesDueNextMonth()/dosespervial)+ " vials");
+        int dosespervial = ((StockControlActivity) getActivity()).vaccineType.getDoses();
+        ((TextView) view.findViewById(R.id.due_vacc_next_month_value)).setText("" + (int) Math.ceil((double) processVaccinesDueNextMonth() / dosespervial) + " vials");
     }
 
     private void waste_rate_Calculate(View view) {
         double wastepercent = 0.0;
         StockRepository stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), VaccinatorApplication.getInstance().context().alertService());
-        int vaccinegiven = stockRepository.getVaccineUsedUntildate(System.currentTimeMillis(),((StockControlActivity)getActivity()).vaccine_type.getName().toLowerCase().trim());
-        int vaccineissued = -1*getStockIssuedIntimeFrame(DateTime.now().yearOfEra().withMinimumValue(),DateTime.now())*(((StockControlActivity)getActivity()).vaccine_type.getDoses());
-        if(vaccinegiven == 0 || vaccinegiven>vaccineissued){
+        int vaccinegiven = stockRepository.getVaccineUsedUntildate(System.currentTimeMillis(), ((StockControlActivity) getActivity()).vaccineType.getName().toLowerCase().trim());
+        int vaccineissued = -1 * getStockIssuedIntimeFrame(DateTime.now().yearOfEra().withMinimumValue(), DateTime.now()) * (((StockControlActivity) getActivity()).vaccineType.getDoses());
+        if (vaccinegiven == 0 || vaccinegiven > vaccineissued) {
             wastepercent = 0.0;
-        }else{
-            wastepercent = (1- ((double)vaccinegiven/vaccineissued))*100;
+        } else {
+            wastepercent = (1 - ((double) vaccinegiven / vaccineissued)) * 100;
         }
         DecimalFormat df = new DecimalFormat("####0");
-        ((TextView)view.findViewById(R.id.avg_vacc_waste_rate_value)).setText(""+df.format(Math.ceil(wastepercent))+ "%");
+        ((TextView) view.findViewById(R.id.avg_vacc_waste_rate_value)).setText("" + df.format(Math.ceil(wastepercent)) + "%");
 
     }
 
     private void getLastThreeMonthStockIssued(View view) {
-        TextView lastmonthlabel = (TextView)view.findViewById(R.id.month1);
-        TextView lastmonthvialsUsed = (TextView)view.findViewById(R.id.month1vials);
-        TextView secondlastmonthlabel = (TextView)view.findViewById(R.id.month2);
-        TextView secondlastmonthvialsUsed = (TextView)view.findViewById(R.id.month2vials);
-        TextView thirdmonthlabel = (TextView)view.findViewById(R.id.month3);
-        TextView thirdmonthvialsUsed = (TextView)view.findViewById(R.id.month3vials);
-        TextView threemonthaverage = (TextView)view.findViewById(R.id.month3average);
-
-
-
+        TextView lastmonthlabel = (TextView) view.findViewById(R.id.month1);
+        TextView lastmonthvialsUsed = (TextView) view.findViewById(R.id.month1vials);
+        TextView secondlastmonthlabel = (TextView) view.findViewById(R.id.month2);
+        TextView secondlastmonthvialsUsed = (TextView) view.findViewById(R.id.month2vials);
+        TextView thirdmonthlabel = (TextView) view.findViewById(R.id.month3);
+        TextView thirdmonthvialsUsed = (TextView) view.findViewById(R.id.month3vials);
+        TextView threemonthaverage = (TextView) view.findViewById(R.id.month3average);
 
 
         DateTime today = new DateTime(System.currentTimeMillis());
@@ -203,10 +201,10 @@ public class Planning_Stock_fragment extends Fragment {
         String lastmonth = startofLastMonth.monthOfYear().getAsShortText();
         String lastmonthyear = startofLastMonth.year().getAsShortText();
 
-        int stockissuedlastmonth = -1*getStockIssuedIntimeFrame(startofLastMonth,startofthismonth);
+        int stockissuedlastmonth = -1 * getStockIssuedIntimeFrame(startofLastMonth, startofthismonth);
 
-        lastmonthlabel.setText(lastmonth + " "+ lastmonthyear);
-        lastmonthvialsUsed.setText(""+stockissuedlastmonth + " vials");
+        lastmonthlabel.setText(lastmonth + " " + lastmonthyear);
+        lastmonthvialsUsed.setText("" + stockissuedlastmonth + " vials");
         //////////////////////////////////////////////////////////////////////////////////////////
 
         //////////////////////2nd last month///////////////////////////////////////////////////////////
@@ -214,25 +212,25 @@ public class Planning_Stock_fragment extends Fragment {
         String secondlastmonth = startof2ndLastMonth.monthOfYear().getAsShortText();
         String secondlastmonthyear = startof2ndLastMonth.year().getAsShortText();
 
-        int stockissued2ndlastmonth = -1*getStockIssuedIntimeFrame(startof2ndLastMonth,startofLastMonth);
+        int stockissued2ndlastmonth = -1 * getStockIssuedIntimeFrame(startof2ndLastMonth, startofLastMonth);
 
-        secondlastmonthlabel.setText(secondlastmonth +" "+secondlastmonthyear);
-        secondlastmonthvialsUsed.setText(""+stockissued2ndlastmonth + " vials");
+        secondlastmonthlabel.setText(secondlastmonth + " " + secondlastmonthyear);
+        secondlastmonthvialsUsed.setText("" + stockissued2ndlastmonth + " vials");
         //////////////////////////////////////////////////////////////////////////////////////////
 
         //////////////////////3rd last month///////////////////////////////////////////////////////////
         DateTime startof3rdLastMonth = startof2ndLastMonth.minusDays(1).dayOfMonth().withMinimumValue();
         String thirdlastmonth = startof3rdLastMonth.monthOfYear().getAsShortText();
         String thirdlastmonthyear = startof3rdLastMonth.year().getAsShortText();
-        int stockissued3rdlastmonth = -1*getStockIssuedIntimeFrame(startof3rdLastMonth,startof2ndLastMonth);
+        int stockissued3rdlastmonth = -1 * getStockIssuedIntimeFrame(startof3rdLastMonth, startof2ndLastMonth);
 
-        thirdmonthlabel.setText(thirdlastmonth +" "+thirdlastmonthyear);
-        thirdmonthvialsUsed.setText(""+stockissued3rdlastmonth + " vials");
+        thirdmonthlabel.setText(thirdlastmonth + " " + thirdlastmonthyear);
+        thirdmonthvialsUsed.setText("" + stockissued3rdlastmonth + " vials");
 
         //////////////////////////////////////////////////////////////////////////////////////////
 
-        int threemonthaveragevalue = (int) Math.ceil((double)(stockissuedlastmonth+stockissued2ndlastmonth+stockissued3rdlastmonth)/3);
-        threemonthaverage.setText(threemonthaveragevalue+" vials");
+        int threemonthaveragevalue = (int) Math.ceil((double) (stockissuedlastmonth + stockissued2ndlastmonth + stockissued3rdlastmonth) / 3);
+        threemonthaverage.setText(threemonthaveragevalue + " vials");
 
     }
 
@@ -241,17 +239,17 @@ public class Planning_Stock_fragment extends Fragment {
         PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
         net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
 
-        Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " >= " + startofLastMonth.toDate().getTime()+" and "+
-                StockRepository.DATE_CREATED + " < " + startofthismonth.toDate().getTime()+" and "+
-                StockRepository.TRANSACTION_TYPE + " = '"+ Stock.issued+"' and "+
-                StockRepository.VACCINE_TYPE_ID + " = "+ ((StockControlActivity)getActivity()).vaccine_type.getId(), null);
+        Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " >= " + startofLastMonth.toDate().getTime() + " and " +
+                StockRepository.DATE_CREATED + " < " + startofthismonth.toDate().getTime() + " and " +
+                StockRepository.TRANSACTION_TYPE + " = '" + Stock.issued + "' and " +
+                StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId(), null);
         String stockvalue = "0";
-        if(c.getCount()>0) {
+        if (c.getCount() > 0) {
             c.moveToFirst();
-            if(c.getString(0)!=null && !StringUtils.isBlank(c.getString(0)))
+            if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0)))
                 stockvalue = c.getString(0);
             c.close();
-        }else{
+        } else {
             c.close();
         }
         sum = sum + Integer.parseInt(stockvalue);
@@ -259,31 +257,31 @@ public class Planning_Stock_fragment extends Fragment {
     }
 
     private void getValueForStock(View view) {
-        TextView stockvalue = (TextView)view.findViewById(R.id.vials);
-        stockvalue.setText(""+((StockControlActivity)getActivity()).getcurrentVialNumber()+ " vials");
+        TextView stockvalue = (TextView) view.findViewById(R.id.vials);
+        stockvalue.setText("" + ((StockControlActivity) getActivity()).getcurrentVialNumber() + " vials");
 
     }
 
     private void createTitle(View view) {
-        TextView titleview = (TextView)view.findViewById(R.id.name);
-        TextView graphtitletext = (TextView)view.findViewById(R.id.graph_label_text);
-        TextView current_stock_label = (TextView)view.findViewById(R.id.current_stock);
-        TextView avg_vacc_waste_rate_label = (TextView)view.findViewById(R.id.avg_vacc_waste_rate_label);
-        TextView due_vacc_description = (TextView)view.findViewById(R.id.due_vacc_description);
-        TextView lastthreemonthstocktitle = (TextView)view.findViewById(R.id.last_three_months_stock_title);
+        TextView titleview = (TextView) view.findViewById(R.id.name);
+        TextView graphtitletext = (TextView) view.findViewById(R.id.graph_label_text);
+        TextView current_stock_label = (TextView) view.findViewById(R.id.current_stock);
+        TextView avg_vacc_waste_rate_label = (TextView) view.findViewById(R.id.avg_vacc_waste_rate_label);
+        TextView due_vacc_description = (TextView) view.findViewById(R.id.due_vacc_description);
+        TextView lastthreemonthstocktitle = (TextView) view.findViewById(R.id.last_three_months_stock_title);
 
 
-        String vaccineName = ((StockControlActivity)getActivity()).vaccine_type.getName();
+        String vaccineName = ((StockControlActivity) getActivity()).vaccineType.getName();
 
-        titleview.setText(vaccineName+ " Planning");
-        graphtitletext.setText("3 month "+vaccineName + " stock levels");
-        current_stock_label.setText("Current "+ vaccineName+ " stock: ");
-        avg_vacc_waste_rate_label.setText("Average "+ vaccineName+ " waste rate: ");
-        due_vacc_description.setText("Calculated from current active children that will be due for "+vaccineName+" next month.");
-        lastthreemonthstocktitle.setText("3 month "+vaccineName+" stock used");
+        titleview.setText(vaccineName + " Planning");
+        graphtitletext.setText("3 month " + vaccineName + " stock levels");
+        current_stock_label.setText("Current " + vaccineName + " stock: ");
+        avg_vacc_waste_rate_label.setText("Average " + vaccineName + " waste rate: ");
+        due_vacc_description.setText("Calculated from current active children that will be due for " + vaccineName + " next month.");
+        lastthreemonthstocktitle.setText("3 month " + vaccineName + " stock used");
 
         DateTime NextMonth = new DateTime(System.currentTimeMillis()).plusMonths(1);
-        ((TextView)view.findViewById(R.id.due_vacc_next_month_label)).setText("Due "+vaccineName+" next month "+NextMonth.monthOfYear().getAsShortText()+" "+NextMonth.year().getAsShortText()+": ");
+        ((TextView) view.findViewById(R.id.due_vacc_next_month_label)).setText("Due " + vaccineName + " next month " + NextMonth.monthOfYear().getAsShortText() + " " + NextMonth.year().getAsShortText() + ": ");
 
     }
 
@@ -295,21 +293,21 @@ public class Planning_Stock_fragment extends Fragment {
         DateTime now = new DateTime(System.currentTimeMillis());
         DateTime threemonthEarlierIterator = now.minusMonths(3).withTimeAtStartOfDay();
         ArrayList<DataPoint> datapointsforgraphs = new ArrayList<DataPoint>();
-        while(threemonthEarlierIterator.isBefore(now)){
+        while (threemonthEarlierIterator.isBefore(now)) {
             PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
             net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
 
-            Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " <= " + threemonthEarlierIterator.toDate().getTime()+" and "+StockRepository.VACCINE_TYPE_ID + " = "+ ((StockControlActivity)getActivity()).vaccine_type.getId(), null);
+            Cursor c = db.rawQuery("Select sum(value) from Stocks where " + StockRepository.DATE_CREATED + " <= " + threemonthEarlierIterator.toDate().getTime() + " and " + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId(), null);
             String stockvalue = "0";
-            if(c.getCount()>0) {
+            if (c.getCount() > 0) {
                 c.moveToFirst();
-                if(c.getString(0)!=null && !StringUtils.isBlank(c.getString(0)))
-                stockvalue = c.getString(0);
+                if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0)))
+                    stockvalue = c.getString(0);
                 c.close();
-            }else{
+            } else {
                 c.close();
             }
-            datapointsforgraphs.add(new DataPoint(threemonthEarlierIterator.toDate(),Double.parseDouble(stockvalue)));
+            datapointsforgraphs.add(new DataPoint(threemonthEarlierIterator.toDate(), Double.parseDouble(stockvalue)));
             threemonthEarlierIterator = threemonthEarlierIterator.plusDays(1);
 
         }
@@ -317,7 +315,7 @@ public class Planning_Stock_fragment extends Fragment {
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>(
                 datapointsforgraphs.toArray(new DataPoint[datapointsforgraphs.size()])
         );
-        GraphView graph = (GraphView)view.findViewById(R.id.graph);
+        GraphView graph = (GraphView) view.findViewById(R.id.graph);
 
         graph.removeAllSeries();
         series.setThickness(3);
@@ -329,15 +327,15 @@ public class Planning_Stock_fragment extends Fragment {
 
     }
 
-    public int processVaccinesDueNextMonth(){
+    public int processVaccinesDueNextMonth() {
         int vaccinesDueNextMonth = 0;
-        String vaccinename = ((StockControlActivity)getActivity()).vaccine_type.getName();
-        if(vaccinename.equalsIgnoreCase("M/MR")){
+        String vaccinename = ((StockControlActivity) getActivity()).vaccineType.getName();
+        if (vaccinename.equalsIgnoreCase("M/MR")) {
             vaccinename = "Measles / MR";
         }
-        ArrayList <JSONObject> vaccineArray = readvaccineFileAndReturnVaccinesofSameType(vaccinename);
-        for(int i = 0;i<vaccineArray.size();i++){
-           vaccinesDueNextMonth = vaccinesDueNextMonth+ getVaccinesDueBasedOnSchedule(vaccineArray.get(i));
+        ArrayList<JSONObject> vaccineArray = readvaccineFileAndReturnVaccinesofSameType(vaccinename);
+        for (int i = 0; i < vaccineArray.size(); i++) {
+            vaccinesDueNextMonth = vaccinesDueNextMonth + getVaccinesDueBasedOnSchedule(vaccineArray.get(i));
         }
         return vaccinesDueNextMonth;
     }
@@ -345,29 +343,27 @@ public class Planning_Stock_fragment extends Fragment {
     private int getVaccinesDueBasedOnSchedule(JSONObject vaccineobject) {
         int countofNextMonthVaccineDue = 0;
         try {
-        PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
-        net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
+            PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
+            net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
 
             DateTime today = new DateTime(System.currentTimeMillis());
 
             //////////////////////next month///////////////////////////////////////////////////////////
             DateTime startofNextMonth = today.plusMonths(1).dayOfMonth().withMinimumValue();
 //            DateTime EndofNextMonth = today.plusMonths(1).dayOfMonth().withMaximumValue();
-            DecimalFormat mFormat= new DecimalFormat("00");
+            DecimalFormat mFormat = new DecimalFormat("00");
             String monthstring = mFormat.format(startofNextMonth.getMonthOfYear());
-            mFormat= new DecimalFormat("0000");
+            mFormat = new DecimalFormat("0000");
 
             String yearstring = mFormat.format(startofNextMonth.getYear());
             String nextmonthdateString = yearstring + "-" + monthstring;
 
-        Cursor c =  db.rawQuery("Select count(*) from alerts where scheduleName = '"+vaccineobject.getString("name")+"' and startDate like '%"+nextmonthdateString+"%'",null);
-        c.moveToFirst();
-            if(c.getCount()>0){
-            countofNextMonthVaccineDue = Integer.parseInt(c.getString(0));
+            Cursor c = db.rawQuery("Select count(*) from alerts where scheduleName = '" + vaccineobject.getString("name") + "' and startDate like '%" + nextmonthdateString + "%'", null);
+            c.moveToFirst();
+            if (c.getCount() > 0) {
+                countofNextMonthVaccineDue = Integer.parseInt(c.getString(0));
             }
             c.close();
-
-
 
 
         } catch (Exception e) {
@@ -376,19 +372,19 @@ public class Planning_Stock_fragment extends Fragment {
         return countofNextMonthVaccineDue;
     }
 
-    public  ArrayList <JSONObject> readvaccineFileAndReturnVaccinesofSameType(String vaccinetypename){
-        ArrayList <JSONObject> vaccinesofsametype = new ArrayList<JSONObject>();
+    public ArrayList<JSONObject> readvaccineFileAndReturnVaccinesofSameType(String vaccinetypename) {
+        ArrayList<JSONObject> vaccinesofsametype = new ArrayList<JSONObject>();
         String vaccinejsonstring = VaccinatorUtils.getSupportedVaccines(VaccinatorApplication.getInstance());
         try {
             JSONArray vaccineentry = new JSONArray(vaccinejsonstring);
 
-            for(int i = 0 ;i < vaccineentry.length();i++){
+            for (int i = 0; i < vaccineentry.length(); i++) {
                 JSONObject objectatindex = vaccineentry.getJSONObject(i);
-                if(objectatindex.has("vaccines")){
+                if (objectatindex.has("vaccines")) {
                     JSONArray vaccinearray = objectatindex.getJSONArray("vaccines");
-                    for(int j = 0;j<vaccinearray.length();j++){
-                        if(vaccinearray.getJSONObject(j).has("type")){
-                            if(vaccinearray.getJSONObject(j).getString("type").equalsIgnoreCase(vaccinetypename)){
+                    for (int j = 0; j < vaccinearray.length(); j++) {
+                        if (vaccinearray.getJSONObject(j).has("type")) {
+                            if (vaccinearray.getJSONObject(j).getString("type").equalsIgnoreCase(vaccinetypename)) {
                                 vaccinesofsametype.add(vaccinearray.getJSONObject(j));
                             }
                         }
@@ -404,52 +400,49 @@ public class Planning_Stock_fragment extends Fragment {
     }
 
 
-
-
     private void createActiveChildrenStatsView(View view) {
 
-        TextView zerotoelevenlastmonth = (TextView)view.findViewById(R.id.zerotoelevenlastmonth);
-        TextView zerotoeleventhismonth = (TextView)view.findViewById(R.id.zerotoeleventhismonth);
-        TextView twelvetofiftyninethismonth = (TextView)view.findViewById(R.id.twelvetofiftyninethismonth);
-        TextView twelvetofiftyninelastmont = (TextView)view.findViewById(R.id.twelvetofiftyninelastmont);
-        TextView twelvetofiftyninedifference = (TextView)view.findViewById(R.id.twelvetofiftyninedifference);
-        TextView zerotoelevendifference = (TextView)view.findViewById(R.id.zerotoelevendifference);
-        TextView last_month_total = (TextView)view.findViewById(R.id.last_month_total);
-        TextView this_month_total = (TextView)view.findViewById(R.id.this_month_total);
-        TextView difference_total = (TextView)view.findViewById(R.id.difference_total);
+        TextView zerotoelevenlastmonth = (TextView) view.findViewById(R.id.zerotoelevenlastmonth);
+        TextView zerotoeleventhismonth = (TextView) view.findViewById(R.id.zerotoeleventhismonth);
+        TextView twelvetofiftyninethismonth = (TextView) view.findViewById(R.id.twelvetofiftyninethismonth);
+        TextView twelvetofiftyninelastmont = (TextView) view.findViewById(R.id.twelvetofiftyninelastmont);
+        TextView twelvetofiftyninedifference = (TextView) view.findViewById(R.id.twelvetofiftyninedifference);
+        TextView zerotoelevendifference = (TextView) view.findViewById(R.id.zerotoelevendifference);
+        TextView last_month_total = (TextView) view.findViewById(R.id.last_month_total);
+        TextView this_month_total = (TextView) view.findViewById(R.id.this_month_total);
+        TextView difference_total = (TextView) view.findViewById(R.id.difference_total);
         String stringDifference0to11 = "";
         String stringDifference12to59 = "";
         activeChildrenStats activeChildrenStats = getActivechildrenStat();
 
 
-        zerotoelevenlastmonth.setText(""+activeChildrenStats.getChildrenLastMonthZeroToEleven());
-        zerotoeleventhismonth.setText(""+activeChildrenStats.getChildrenThisMonthZeroToEleven());
-        twelvetofiftyninelastmont.setText(""+activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine());
-        twelvetofiftyninethismonth.setText(""+activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine());
+        zerotoelevenlastmonth.setText("" + activeChildrenStats.getChildrenLastMonthZeroToEleven());
+        zerotoeleventhismonth.setText("" + activeChildrenStats.getChildrenThisMonthZeroToEleven());
+        twelvetofiftyninelastmont.setText("" + activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine());
+        twelvetofiftyninethismonth.setText("" + activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine());
 
-        this_month_total.setText(""+(activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine()+activeChildrenStats.getChildrenThisMonthZeroToEleven()));
-        last_month_total.setText(""+(activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine()+activeChildrenStats.getChildrenLastMonthZeroToEleven()));
+        this_month_total.setText("" + (activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine() + activeChildrenStats.getChildrenThisMonthZeroToEleven()));
+        last_month_total.setText("" + (activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine() + activeChildrenStats.getChildrenLastMonthZeroToEleven()));
 
         Long difference0to11 = activeChildrenStats.getChildrenLastMonthZeroToEleven() - activeChildrenStats.getChildrenThisMonthZeroToEleven();
-        if(difference0to11<0){
-            stringDifference0to11 = ""+ difference0to11;
-        }else{
+        if (difference0to11 < 0) {
+            stringDifference0to11 = "" + difference0to11;
+        } else {
             stringDifference0to11 = "+" + difference0to11;
         }
         Long difference12to59 = activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine() - activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine();
-        if(difference12to59<0){
-            stringDifference12to59 = ""+difference12to59;
-        }else{
-            stringDifference12to59 = "+"+difference12to59;
+        if (difference12to59 < 0) {
+            stringDifference12to59 = "" + difference12to59;
+        } else {
+            stringDifference12to59 = "+" + difference12to59;
         }
-
 
 
         twelvetofiftyninedifference.setText(stringDifference12to59);
         zerotoelevendifference.setText(stringDifference0to11);
-        if((difference0to11+difference12to59)<0) {
+        if ((difference0to11 + difference12to59) < 0) {
             difference_total.setText("" + (difference0to11 + difference12to59));
-        }else{
+        } else {
             difference_total.setText("+" + (difference0to11 + difference12to59));
         }
     }
@@ -492,15 +485,16 @@ public class Planning_Stock_fragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    public activeChildrenStats getActivechildrenStat(){
+
+    public activeChildrenStats getActivechildrenStat() {
         activeChildrenStats activeChildrenStats = new activeChildrenStats();
         PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
         net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
-        Cursor c = db.rawQuery("Select dob,client_reg_date from ec_child where inactive != 'true' and lost_to_follow_up != 'true' ",null);
+        Cursor c = db.rawQuery("Select dob,client_reg_date from ec_child where inactive != 'true' and lost_to_follow_up != 'true' ", null);
         c.moveToFirst();
         boolean thismonth = false;
 
-        while(!c.isAfterLast()){
+        while (!c.isAfterLast()) {
             thismonth = false;
             String dobString = c.getString(0);
             String createdString = c.getString(1);
@@ -510,7 +504,7 @@ public class Planning_Stock_fragment extends Fragment {
                 DateTime dateTime2 = new DateTime(createdString);
                 Date createddate = dateTime.toDate();
                 DateTime now = new DateTime(System.currentTimeMillis());
-                if(now.getMonthOfYear() == dateTime2.getMonthOfYear() && now.getYear() == dateTime2.getYear()){
+                if (now.getMonthOfYear() == dateTime2.getMonthOfYear() && now.getYear() == dateTime2.getYear()) {
                     thismonth = true;
                 }
 
@@ -530,17 +524,17 @@ public class Planning_Stock_fragment extends Fragment {
                         weeks = 0;
                         months++;
                     }
-                    if(months<12){
-                        if(thismonth){
-                            activeChildrenStats.setChildrenThisMonthZeroToEleven(activeChildrenStats.getChildrenThisMonthZeroToEleven()+1);
-                        }else{
-                            activeChildrenStats.setChildrenLastMonthZeroToEleven(activeChildrenStats.getChildrenLastMonthZeroToEleven()+1);
+                    if (months < 12) {
+                        if (thismonth) {
+                            activeChildrenStats.setChildrenThisMonthZeroToEleven(activeChildrenStats.getChildrenThisMonthZeroToEleven() + 1);
+                        } else {
+                            activeChildrenStats.setChildrenLastMonthZeroToEleven(activeChildrenStats.getChildrenLastMonthZeroToEleven() + 1);
                         }
-                    }else if(months>11 && months < 60){
-                        if(thismonth){
-                            activeChildrenStats.setChildrenThisMonthtwelveTofiftyNine(activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine()+1);
-                        }else{
-                            activeChildrenStats.setChildrenLastMonthtwelveTofiftyNine(activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine()+1);
+                    } else if (months > 11 && months < 60) {
+                        if (thismonth) {
+                            activeChildrenStats.setChildrenThisMonthtwelveTofiftyNine(activeChildrenStats.getChildrenThisMonthtwelveTofiftyNine() + 1);
+                        } else {
+                            activeChildrenStats.setChildrenLastMonthtwelveTofiftyNine(activeChildrenStats.getChildrenLastMonthtwelveTofiftyNine() + 1);
                         }
                     }
                 }
@@ -553,7 +547,8 @@ public class Planning_Stock_fragment extends Fragment {
         c.close();
         return activeChildrenStats;
     }
-    class activeChildrenStats{
+
+    class activeChildrenStats {
         Long childrenLastMonthZeroToEleven = 0l;
         Long childrenLastMonthtwelveTofiftyNine = 0l;
         Long childrenThisMonthZeroToEleven = 0l;

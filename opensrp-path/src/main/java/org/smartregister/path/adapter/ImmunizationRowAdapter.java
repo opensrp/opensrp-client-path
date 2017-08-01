@@ -7,15 +7,16 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.path.domain.Vaccine;
-import org.smartregister.domain.Photo;
-import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.view.VaccineCard;
-import org.smartregister.path.view.ImmunizationRowCard;
-import org.smartregister.path.view.ImmunizationRowGroup;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.domain.Photo;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.view.ImmunizationRowCard;
+import org.smartregister.immunization.view.ImmunizationRowGroup;
+import org.smartregister.immunization.view.VaccineCard;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
-import org.smartregister.util.Utils;
 
 import static org.smartregister.util.Utils.getValue;
 

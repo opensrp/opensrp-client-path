@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import util.VaccinatorUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.TEXT_ALIGNMENT_CENTER;
