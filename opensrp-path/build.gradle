@@ -27,13 +27,10 @@ apply plugin: 'io.fabric'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 
-coveralls {
-    jacocoReportPath = "$buildDir/../reports/jacoco/merged.xml"
-}
-
 repositories {
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://jitpack.io' }
+
 }
 
 android {
@@ -52,6 +49,10 @@ android {
     dexOptions {
         incremental true
         javaMaxHeapSize "4g"
+    }
+
+    lintOptions {
+        lintConfig file("lint.xml")
     }
 
     buildTypes {
@@ -109,13 +110,12 @@ dependencies {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    /*compile('org.smartregister:opensrp-client-core:1.0.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.0.0-SNAPSHOT@aar') {
         transitive = true
-
         exclude group: 'com.github.bmelnychuk', module: 'atv'
-    }*/
-    compile(name: 'opensrp-app-debug', ext: 'aar')
-    compile(name: 'opensrp-growth-monitoring-debug', ext: 'aar')
+    }
+
+    compile 'org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar'
 
     compile(name: 'opensrp-immunization-debug', ext: 'aar')
 
@@ -136,23 +136,6 @@ dependencies {
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
-
-    // opensrp-app dependencies -- TO REMOVE
-    compile 'net.zetetic:android-database-sqlcipher:3.5.6@aar'
-    compile 'org.ei.drishti:drishti-interface:0.1-SNAPSHOT'
-    compile 'com.google.code.gson:gson:2.3'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.1.1'
-    compile group: 'com.google.guava', name: 'guava', version:'15.0'
-    compile group: 'commons-io', name: 'commons-io', version:'2.4'
-    compile 'org.apache.commons:commons-lang3:3.2'
-    compile 'joda-time:joda-time:2.3'
-    compile 'com.mcxiaoke.volley:library:1.0.+'
-    compile 'org.mozilla:rhino:1.7R4'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-
-    //opensrp-growth-monitoring library -- TO REMOVE
-    compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
-    compile 'com.github.lecho:hellocharts-android:v1.5.8'
 
     testCompile('org.robolectric:robolectric:3.4') {
 
@@ -183,11 +166,13 @@ dependencies {
     }
 
     testCompile 'org.apache.maven:maven-ant-tasks:2.1.3'
-
-
 }
 
+//Testing and coveralls
 
+coveralls {
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"
+}
 
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebug']) {
 
@@ -196,8 +181,8 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebug']) {
         html.enabled = true
     }
 
-    getReports().getXml().setDestination(file("$buildDir/../reports/jacoco/merged.xml"))
-    getReports().getHtml().setDestination(file("$buildDir/../reports/jacoco/html"))
+    getReports().getXml().setDestination(file("${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"))
+    getReports().getHtml().setDestination(file("${buildDir}/reports/jacoco/jacocoRootReport/html"))
 
     def fileFilter = ['**/R.class', '**/R$*.class', '**/BuildConfig.*', '**/Manifest*.*', '**/*Test*.*', 'android/**/*.*', '**/*$ViewBinder*.*']
     def debugTree = fileTree(dir: "$project.buildDir/intermediates/classes/debug", excludes: fileFilter)
@@ -209,3 +194,5 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebug']) {
             'jacoco/testDebug.exec', 'outputs/code-coverage/connected/*coverage.ec'
     ])
 }
+
+//End testing and coveralls
