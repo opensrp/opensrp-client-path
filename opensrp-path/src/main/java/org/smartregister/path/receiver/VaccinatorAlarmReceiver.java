@@ -7,8 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.smartregister.path.service.intent.HIA2IntentService;
-import org.smartregister.path.service.intent.RecurringIntentService;
-import org.smartregister.path.service.intent.VaccineIntentService;
+import org.smartregister.immunization.service.intent.RecurringIntentService;
+import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.util.Log;
 

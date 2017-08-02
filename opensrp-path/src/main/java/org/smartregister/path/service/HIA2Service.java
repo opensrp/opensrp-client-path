@@ -4,7 +4,7 @@ import android.database.Cursor;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.smartregister.path.repository.VaccineRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.util.Log;
 

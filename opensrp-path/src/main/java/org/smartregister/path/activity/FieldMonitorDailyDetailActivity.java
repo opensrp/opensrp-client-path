@@ -18,8 +18,8 @@ import java.util.List;
 import static org.smartregister.util.Utils.addToRow;
 import static util.Utils.getDataRow;
 import static org.smartregister.util.Utils.getValue;
-import static util.VaccinatorUtils.getTotalUsed;
-import static util.VaccinatorUtils.providerDetails;
+import static org.smartregister.immunization.util.VaccinatorUtils.getTotalUsed;
+import static org.smartregister.immunization.util.VaccinatorUtils.providerDetails;
 
 public class FieldMonitorDailyDetailActivity extends DetailActivity {
     @Override

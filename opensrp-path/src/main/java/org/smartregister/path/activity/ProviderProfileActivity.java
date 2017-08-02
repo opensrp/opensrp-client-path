@@ -7,6 +7,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import org.smartregister.Context;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -14,12 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
-import util.VaccinatorUtils;
-
 import static org.smartregister.util.Utils.convertDateFormat;
-import static util.Utils.getDataRow;
 import static org.smartregister.util.Utils.getValue;
 import static org.smartregister.util.Utils.nonEmptyValue;
+import static util.Utils.getDataRow;
 
 public class ProviderProfileActivity extends Activity {
 

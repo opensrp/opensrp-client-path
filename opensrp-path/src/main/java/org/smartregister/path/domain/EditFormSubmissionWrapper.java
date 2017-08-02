@@ -6,13 +6,12 @@ import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import util.VaccinateActionUtils;
 
 /**
  * Created by keyman on 20/01/2017.
@@ -46,7 +45,7 @@ public class EditFormSubmissionWrapper implements Serializable {
     }
 
     public void addAll(List<EditWrapper> tags) {
-        for(EditWrapper tag: tags) {
+        for (EditWrapper tag : tags) {
             if (tag.getNewValue() != null) {
                 edits().add(tag);
             }
@@ -89,17 +88,17 @@ public class EditFormSubmissionWrapper implements Serializable {
 
             JSONObject encounterJson = VaccinateActionUtils.find(formSubmission, parent);
 
-            for (EditWrapper  editWrapper : edits()) {
-                String field =  editWrapper.getField();
+            for (EditWrapper editWrapper : edits()) {
+                String field = editWrapper.getField();
                 String currentValue = editWrapper.getCurrentValue();
                 String newValue = editWrapper.getNewValue();
 
-                if(field.trim().contains(" ") && currentValue.trim().contains(" ") && newValue.trim().contains(" ")) {
-                    String[] fields  =  field.split("\\s+", 2);
+                if (field.trim().contains(" ") && currentValue.trim().contains(" ") && newValue.trim().contains(" ")) {
+                    String[] fields = field.split("\\s+", 2);
                     String[] currentValues = currentValue.split("\\s+", 2);
                     String[] newValues = newValue.split("\\s+", 2);
 
-                    for(int i = 0; i< fields.length; i++){
+                    for (int i = 0; i < fields.length; i++) {
                         editJson(encounterJson, fields[i], currentValues[i], newValues[i]);
                     }
                 } else {
@@ -126,21 +125,21 @@ public class EditFormSubmissionWrapper implements Serializable {
         return null;
     }
 
-    private void editJson(JSONObject encounterJson, String field, String currentValue, String newValue){
-      try {
-          JSONObject fieldJson = VaccinateActionUtils.find(encounterJson, field);
-          if (fieldJson != null) {
-              if(fieldJson.has("content")) {
-                  if (fieldJson.getString("content").equals(currentValue)) {
-                      VaccinateActionUtils.updateJson(encounterJson, field, newValue);
-                  }
-              } else {
-                  VaccinateActionUtils.updateJson(encounterJson, field, newValue);
-              }
-          }
-      }catch (JSONException e){
-          Log.e(getClass().getName(), "", e);
-      }
+    private void editJson(JSONObject encounterJson, String field, String currentValue, String newValue) {
+        try {
+            JSONObject fieldJson = VaccinateActionUtils.find(encounterJson, field);
+            if (fieldJson != null) {
+                if (fieldJson.has("content")) {
+                    if (fieldJson.getString("content").equals(currentValue)) {
+                        VaccinateActionUtils.updateJson(encounterJson, field, newValue);
+                    }
+                } else {
+                    VaccinateActionUtils.updateJson(encounterJson, field, newValue);
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), "", e);
+        }
     }
 
     public String getEntityId() {

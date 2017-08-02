@@ -1,14 +1,14 @@
 package shared;
 
-import org.smartregister.path.domain.ServiceRecord;
-import org.smartregister.path.domain.Vaccine;
-import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.repository.RecurringServiceRecordRepository;
-import org.smartregister.path.repository.RecurringServiceTypeRepository;
-import org.smartregister.path.repository.VaccineRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.mockito.Mock;
 import org.robolectric.TestLifecycleApplication;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.domain.ServiceRecord;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.path.application.VaccinatorApplication;
 
 import java.lang.reflect.Method;
 import java.util.Collections;

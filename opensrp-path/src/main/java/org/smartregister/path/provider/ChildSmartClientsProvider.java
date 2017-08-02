@@ -18,10 +18,11 @@ import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdap
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
-import org.smartregister.path.db.VaccineRepo;
-import org.smartregister.path.domain.Vaccine;
-import org.smartregister.path.repository.VaccineRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -43,15 +44,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
-import util.VaccinateActionUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
-import static util.VaccinatorUtils.generateScheduleList;
-import static util.VaccinatorUtils.nextVaccineDue;
-import static util.VaccinatorUtils.receivedVaccines;
 
 /**
  * Created by Ahmed on 13-Oct-15.

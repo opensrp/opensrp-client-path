@@ -74,64 +74,12 @@
 
     <style name="AppThemeNoTitle.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-
-    <!-- Client List fonts -->
-    <style name="CustomFontTextViewStyle.ClientList" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">regular</item>
-        <item name="android:textColor">#737373</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Black" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">black</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Bold" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">bold</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.NoPadding" parent="CustomFontTextViewStyle">
-        <item name="android:paddingLeft">0dp</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Medium" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">medium</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Light" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">light</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Light.twoline" parent="CustomFontTextViewStyle.ClientList.Light">
-        <item name="android:singleLine">false</item>
-        <item name="android:maxLines">2</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.ClientList.Thin" parent="CustomFontTextViewStyle">
-        <item name="fontVariant">thin</item>
-    </style>
-
-    <style name="CustomFontTextViewStyle.tabIndicator" parent="CustomFontTextViewStyle.ClientList.Bold">
-        <item name="fontVariant">medium</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/dark_grey</item>
-    </style>
-
     <style name="AppThemeNoActionBarAndTitleWithEditButton" parent="AppThemeNoTitle.NoActionBar">
         <item name="actionOverflowButtonStyle">@style/OverflowMenuButton</item>
     </style>
 
     <style name="OverflowMenuButton" parent="@android:style/Widget.Holo.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/ic_icon_edit</item>
-    </style>
-
-    <style name="Material.Drawable.CheckBox.Dialog" parent="Material.Drawable.CheckBox">
-        <item name="cbd_width">40dp</item>
-        <item name="cbd_height">40dp</item>
-        <item name="cbd_tickColor">@color/light_blue</item>
-        <item name="cbd_strokeColor">@color/vaccinate_popup_light_grey</item>
-        <item name="cbd_cornerRadius">0dp</item>
-        <item name="cbd_strokeSize">3.5dp</item>
-        <item name="cbd_boxSize">25dp</item>
     </style>
 
     <style name="Material.Drawable.RadioButton.AdvancedSearch" parent="Material.Drawable.RadioButton">

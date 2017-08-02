@@ -4,8 +4,8 @@ import android.content.Context;
 import android.widget.Button;
 
 import org.smartregister.domain.Alert;
-import org.smartregister.path.domain.VaccineWrapper;
-import org.smartregister.path.view.ImmunizationRowCard;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.view.ImmunizationRowCard;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowLinearLayout;

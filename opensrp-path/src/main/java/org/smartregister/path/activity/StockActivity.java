@@ -15,12 +15,11 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Vaccine_types;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.repository.Vaccine_typesRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
 
@@ -33,7 +32,6 @@ public class StockActivity extends BaseActivity {
     GridView stockGrid;
     private LocationSwitcherToolbar toolbar;
     public org.smartregister.Context context;
-    public Vaccine_typesRepository VTR;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +62,11 @@ public class StockActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView nameInitials = (TextView)findViewById(R.id.name_inits);
+        TextView nameInitials = (TextView) findViewById(R.id.name_inits);
         nameInitials.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DrawerLayout drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 if (!drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.openDrawer(GravityCompat.START);
                 }
@@ -93,16 +91,14 @@ public class StockActivity extends BaseActivity {
 //
 
 
-
-        stockGrid = (GridView)findViewById(R.id.stockgrid);
+        stockGrid = (GridView) findViewById(R.id.stockgrid);
         context = org.smartregister.Context.getInstance().updateApplicationContext(this.getApplicationContext());
-        VTR = new Vaccine_typesRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(),context.alertService());
     }
 
     private void refreshadapter() {
-        ArrayList<Vaccine_types> allVaccineTypes = (ArrayList) VTR.getAllVaccineTypes();
-        Vaccine_types [] allVaccineTypesarray = allVaccineTypes.toArray(new Vaccine_types[allVaccineTypes.size()]);
-        stockGridAdapter adapter = new stockGridAdapter(this,allVaccineTypesarray);
+        ArrayList<VaccineType> allVaccineTypes = (ArrayList) VaccinatorApplication.getInstance().vaccineTypeRepository().getAllVaccineTypes(null);
+        VaccineType[] allVaccineTypesarray = allVaccineTypes.toArray(new VaccineType[allVaccineTypes.size()]);
+        stockGridAdapter adapter = new stockGridAdapter(this, allVaccineTypesarray);
         stockGrid.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -118,8 +114,9 @@ public class StockActivity extends BaseActivity {
 
     @Override
     protected int getContentView() {
-        return  R.layout.activity_stock;
+        return R.layout.activity_stock;
     }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -142,11 +139,9 @@ public class StockActivity extends BaseActivity {
     }
 
 
-
-
     @Override
     protected int getDrawerLayoutId() {
-        return  R.id.drawer_layout;
+        return R.id.drawer_layout;
     }
 
     @Override
@@ -161,11 +156,11 @@ public class StockActivity extends BaseActivity {
 
     class stockGridAdapter extends BaseAdapter {
         private Context context;
-        private final Vaccine_types[] vaccine_types;
+        private final VaccineType[] vaccineTypes;
 
-        public stockGridAdapter(Context context, Vaccine_types[] vaccine_types) {
+        public stockGridAdapter(Context context, VaccineType[] vaccineTypes) {
             this.context = context;
-            this.vaccine_types = vaccine_types;
+            this.vaccineTypes = vaccineTypes;
         }
 
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -193,20 +188,20 @@ public class StockActivity extends BaseActivity {
                 // set image based on selected text
 
 
-                final Vaccine_types vaccine_type = vaccine_types[position];
-                StockRepository stockRepository = new StockRepository((PathRepository)VaccinatorApplication.getInstance().getRepository(),VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().alertService());
-                int currentvials = stockRepository.getBalanceFromNameAndDate(vaccine_type.getName(),System.currentTimeMillis());
-                name.setText(vaccine_type.getName());
+                final VaccineType vaccineType = vaccineTypes[position];
+                StockRepository stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().alertService());
+                int currentvials = stockRepository.getBalanceFromNameAndDate(vaccineType.getName(), System.currentTimeMillis());
+                name.setText(vaccineType.getName());
 
-                doses.setText(""+currentvials*vaccine_type.getDoses()+ " doses");
+                doses.setText("" + currentvials * vaccineType.getDoses() + " doses");
 
-                vials.setText(""+currentvials+ " vials");
+                vials.setText("" + currentvials + " vials");
 
                 gridView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(StockActivity.this, StockControlActivity.class);
-                        intent.putExtra("vaccine_type",vaccine_type);
+                        intent.putExtra("vaccine_type", vaccineType);
                         startActivity(intent);
                     }
                 });
@@ -220,7 +215,7 @@ public class StockActivity extends BaseActivity {
 
         @Override
         public int getCount() {
-            return vaccine_types.length;
+            return vaccineTypes.length;
         }
 
         @Override

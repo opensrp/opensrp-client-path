@@ -9,11 +9,12 @@ import android.widget.BaseAdapter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONException;
-import org.smartregister.path.domain.ServiceType;
 import org.smartregister.domain.Photo;
-import org.smartregister.path.domain.ServiceWrapper;
-import org.smartregister.path.view.ServiceRowCard;
-import org.smartregister.path.view.ServiceRowGroup;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.ServiceWrapper;
+import org.smartregister.immunization.view.ServiceRowCard;
+import org.smartregister.immunization.view.ServiceRowGroup;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import util.ImageUtils;
-import org.smartregister.util.Utils;
 
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;

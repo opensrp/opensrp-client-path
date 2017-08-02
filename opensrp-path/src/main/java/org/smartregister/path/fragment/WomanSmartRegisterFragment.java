@@ -4,6 +4,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 
+import org.joda.time.DateTime;
+import org.joda.time.Years;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.CursorCommonObjectFilterOption;
@@ -12,11 +14,11 @@ import org.smartregister.cursoradapter.CursorSortOption;
 import org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAdapterFragment;
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.domain.db.Client;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.activity.WomanDetailActivity;
 import org.smartregister.path.activity.WomanSmartRegisterActivity;
-import org.smartregister.domain.db.Client;
 import org.smartregister.path.option.BasicSearchOption;
 import org.smartregister.path.option.DateSort;
 import org.smartregister.path.option.StatusSort;
@@ -31,8 +33,6 @@ import org.smartregister.view.dialog.EditOption;
 import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
-import org.joda.time.DateTime;
-import org.joda.time.Years;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +40,9 @@ import java.util.Map;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.smartregister.immunization.util.VaccinatorUtils.providerDetails;
 import static org.smartregister.util.Utils.getValue;
 import static org.smartregister.util.Utils.nonEmptyValue;
-import static util.VaccinatorUtils.providerDetails;
 
 public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursorAdapterFragment {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
@@ -60,9 +60,9 @@ public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursor
             @Override
             public ServiceModeOption serviceMode() {
                 return new VaccinationServiceModeOption(null, "TT", new int[]{
-                        R.string.woman_profile , R.string.age, R.string.epi_number,
+                        R.string.woman_profile, R.string.age, R.string.epi_number,
                         R.string.woman_edd, R.string.woman_contact_number, R.string.woman_last_vaccine, R.string.woman_next_vaacine
-                }, new int[]{6,2,2,3,3,3,4});
+                }, new int[]{6, 2, 2, 3, 3, 3, 4});
             }
 
             @Override
@@ -307,13 +307,13 @@ public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursor
         return m;
     }
 
-    private Map<String, String> followupOverrides(CommonPersonObjectClient client){
+    private Map<String, String> followupOverrides(CommonPersonObjectClient client) {
         Map<String, String> map = new HashMap<>();
         map.put("existing_full_address", getValue(client.getColumnmaps(), "address1", true)
-                +", UC: "+ getValue(client.getColumnmaps(), "union_council", true)
-                +", Town: "+ getValue(client.getColumnmaps(), "town", true)
-                +", City: "+ getValue(client, "city_village", true)
-                +", Province: "+ getValue(client, "province", true));
+                + ", UC: " + getValue(client.getColumnmaps(), "union_council", true)
+                + ", Town: " + getValue(client.getColumnmaps(), "town", true)
+                + ", City: " + getValue(client, "city_village", true)
+                + ", Province: " + getValue(client, "province", true));
         map.put("existing_zeir_id", getValue(client.getColumnmaps(), "zeir_id", false));
         map.put("zeir_id", getValue(client.getColumnmaps(), "zeir_id", false));
 
@@ -323,12 +323,12 @@ public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursor
         map.put("husband_name", getValue(client.getColumnmaps(), "husband_name", true));
         map.put("existing_birth_date", getValue(client.getColumnmaps(), "dob", false));
         int years = 0;
-        try{
+        try {
             years = Years.yearsBetween(new DateTime(getValue(client.getColumnmaps(), "dob", false)), DateTime.now()).getYears();
+        } catch (Exception e) {
         }
-        catch (Exception e){  }
 
-        map.put("existing_age", years+"");
+        map.put("existing_age", years + "");
         map.put("existing_epi_card_number", getValue(client.getColumnmaps(), "epi_card_number", false));
         map.put("marriage", getValue(client.getColumnmaps(), "marriage", false));
         map.put("reminders_approval", getValue(client.getColumnmaps(), "reminders_approval", false));
@@ -339,13 +339,13 @@ public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursor
         return map;
     }
 
-    private Map<String, String> followupOverrides(Client client){
+    private Map<String, String> followupOverrides(Client client) {
         Map<String, String> map = new HashMap<>();
-        map.put("existing_full_address", client.getAddress("usual_residence").getAddressField("address1")+
-                ", UC: "+client.getAddress("usual_residence").getSubTown()+
-                ", Town: "+client.getAddress("usual_residence").getTown()+
-                ", City: "+client.getAddress("usual_residence").getCityVillage()+
-                " - "+client.getAddress("usual_residence").getAddressField("landmark"));
+        map.put("existing_full_address", client.getAddress("usual_residence").getAddressField("address1") +
+                ", UC: " + client.getAddress("usual_residence").getSubTown() +
+                ", Town: " + client.getAddress("usual_residence").getTown() +
+                ", City: " + client.getAddress("usual_residence").getCityVillage() +
+                " - " + client.getAddress("usual_residence").getAddressField("landmark"));
 
         map.put("existing_zeir_id", client.getIdentifier("Program Client ID"));
         map.put("zeir_id", client.getIdentifier("Program Client ID"));
@@ -353,13 +353,12 @@ public class WomanSmartRegisterFragment extends SecuredNativeSmartRegisterCursor
         map.put("existing_first_name", client.getFirstName());
         map.put("existing_birth_date", client.getBirthdate().toString("yyyy-MM-dd"));
         int years = 0;
-        try{
+        try {
             years = Years.yearsBetween(client.getBirthdate(), DateTime.now()).getYears();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        map.put("existing_age", years+"");
+        map.put("existing_age", years + "");
         Object epi = client.getAttribute("EPI Card Number");
         map.put("existing_epi_card_number", epi == null ? "" : epi.toString());
 

@@ -79,7 +79,6 @@
     <dimen name="menu_item_text_size">16dp</dimen>
     <dimen name="client_profile_pic_dialog_width">100dp</dimen>
     <dimen name="client_profile_pic_dialog_height">100dp</dimen>
-    <dimen name="vaccine_card_width">200dp</dimen>
     <dimen name="login_logo_height">90dp</dimen>
     <dimen name="login_opensrp_logo_height">14dp</dimen>
     <dimen name="login_opensrp_logo_width">80dp</dimen>
@@ -87,7 +86,6 @@
     <dimen name="loc_picker_dialog_width">350dp</dimen>
     <dimen name="loc_picker_text_min_width">130dp</dimen>
     <dimen name="loc_picker_text_max_width">200dp</dimen>
-    <dimen name="vaccine_horizontal_spacing">20dp</dimen>
     <dimen name="advanced_search_text_size">28dp</dimen>
     <dimen name="advanced_search_label_size">20dp</dimen>
     <dimen name="advanced_search_label_small_size">16dp</dimen>

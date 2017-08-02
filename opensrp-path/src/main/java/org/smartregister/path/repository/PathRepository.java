@@ -9,6 +9,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineNameRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.repository.VaccineTypeRepository;
+import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.AlertRepository;
 import org.smartregister.repository.EventClientRepository;
@@ -21,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import util.DatabaseUtils;
 import util.PathConstants;
 
 public class PathRepository extends Repository {
@@ -92,8 +97,8 @@ public class PathRepository extends Repository {
         try {
 //            db.execSQL("DROP TABLE IF EXISTS  ");
             StockRepository.createTable(db);
-            Vaccine_NamesRepository.createTable(db);
-            Vaccine_typesRepository.createTable(db);
+            VaccineNameRepository.createTable(db);
+            VaccineTypeRepository.createTable(db);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion7Stock " + e.getMessage());
         }
@@ -199,7 +204,7 @@ public class PathRepository extends Repository {
             RecurringServiceRecordRepository.createTable(db);
 
             RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-            DatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
+            IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion5 " + Log.getStackTraceString(e));
         }
@@ -239,7 +244,7 @@ public class PathRepository extends Repository {
 
             // Recurring service json changed. update
             RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-            DatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
+            IMDatabaseUtils.populateRecurringServices(context, db, recurringServiceTypeRepository);
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion8RecurringServiceUpdate " + Log.getStackTraceString(e));
