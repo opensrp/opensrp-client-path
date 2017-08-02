@@ -27,13 +27,13 @@ import org.smartregister.cursoradapter.CursorSortOption;
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildImmunizationActivity;
 import org.smartregister.path.activity.ChildSmartRegisterActivity;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.option.BasicSearchOption;
 import org.smartregister.path.option.DateSort;
@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import util.PathConstants;
-import org.smartregister.immunization.util.VaccinateActionUtils;
 
 import static android.view.View.INVISIBLE;
 

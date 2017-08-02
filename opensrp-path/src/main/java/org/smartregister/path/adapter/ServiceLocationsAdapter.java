@@ -8,8 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.github.johnkil.print.PrintView;
-
 import org.smartregister.path.R;
 
 import java.util.ArrayList;

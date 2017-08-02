@@ -20,7 +20,6 @@ import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.ImmunizationLibrary;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.VaccineSchedule;
-import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineNameRepository;
@@ -253,12 +252,12 @@ public class VaccinatorApplication extends DrishtiApplication
         try {
             if (repository == null) {
                 repository = new PathRepository(getInstance().getApplicationContext());
-                weightRepository();
-                vaccineRepository();
                 uniqueIdRepository();
-                recurringServiceTypeRepository();
-                recurringServiceRecordRepository();
+                dailyTalliesRepository();
+                monthlyTalliesRepository();
+                hIA2IndicatorsRepository();
                 eventClientRepository();
+                stockRepository();
             }
         } catch (UnsatisfiedLinkError e) {
             logError("Error on getRepository: " + e);

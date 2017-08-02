@@ -15,6 +15,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.domain.form.FormSubmission;
@@ -26,7 +27,6 @@ import org.smartregister.view.dialog.DialogOptionModel;
 import org.smartregister.view.fragment.DisplayFormFragment;
 import org.smartregister.view.fragment.SecuredNativeSmartRegisterFragment;
 import org.smartregister.view.viewpager.OpenSRPViewPager;
-import org.json.JSONObject;
 
 import static org.smartregister.AllConstants.ENTITY_ID_PARAM;
 import static org.smartregister.AllConstants.FORM_NAME_PARAM;

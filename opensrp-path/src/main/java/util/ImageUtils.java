@@ -1,11 +1,11 @@
 package util;
 
 import org.apache.commons.lang3.StringUtils;
+import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.R;
-import org.smartregister.domain.Photo;
-import org.opensrp.api.constants.Gender;
 
 import static org.smartregister.util.Utils.getValue;
 

@@ -4,13 +4,13 @@ import android.view.View;
 
 import org.smartregister.Context;
 import org.smartregister.path.R;
+import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 import org.smartregister.view.contract.ANCSmartRegisterClient;
 import org.smartregister.view.contract.ChildSmartRegisterClient;
 import org.smartregister.view.contract.FPSmartRegisterClient;
 import org.smartregister.view.contract.pnc.PNCSmartRegisterClient;
 import org.smartregister.view.dialog.ServiceModeOption;
-import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.viewholder.NativeANCSmartRegisterViewHolder;
 import org.smartregister.view.viewholder.NativeChildSmartRegisterViewHolder;
 import org.smartregister.view.viewholder.NativeFPSmartRegisterViewHolder;

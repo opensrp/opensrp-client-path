@@ -1,18 +1,10 @@
 package org.smartregister.path.domain;
 
-import android.util.Log;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 15/06/2017.

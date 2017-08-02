@@ -29,6 +29,10 @@ import com.vijay.jsonwizard.customviews.RadioButton;
 import com.vijay.jsonwizard.utils.DatePickerUtils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
@@ -41,10 +45,7 @@ import org.smartregister.path.adapter.AdvancedSearchPaginatedCursorAdapter;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.provider.AdvancedSearchClientsProvider;
-import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -59,7 +60,6 @@ import util.GlobalSearchUtils;
 import util.JsonFormUtils;
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
-import org.smartregister.util.Utils;
 
 public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private View mView;

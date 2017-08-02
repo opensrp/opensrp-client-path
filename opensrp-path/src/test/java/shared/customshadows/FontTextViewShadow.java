@@ -3,10 +3,10 @@ package shared.customshadows;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import org.smartregister.view.customcontrols.CustomFontTextView;
-import org.smartregister.view.customcontrols.FontVariant;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowTextView;
+import org.smartregister.view.customcontrols.CustomFontTextView;
+import org.smartregister.view.customcontrols.FontVariant;
 
 /**
  * Created by onadev on 15/06/2017.

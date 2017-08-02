@@ -9,10 +9,10 @@ import android.widget.TextView;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
-import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
 

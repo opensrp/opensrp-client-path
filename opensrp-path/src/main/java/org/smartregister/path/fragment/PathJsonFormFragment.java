@@ -1,6 +1,5 @@
 package org.smartregister.path.fragment;
 
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +27,8 @@ import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -38,8 +38,6 @@ import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.interactors.PathJsonFormInteractor;
 import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.viewstates.PathJsonFormFragmentViewState;
-import org.joda.time.DateTime;
-import org.json.JSONObject;
 import org.smartregister.util.Utils;
 
 import java.util.ArrayList;

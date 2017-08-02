@@ -3,14 +3,12 @@ package org.smartregister.path.widgets;
 import android.content.Context;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.vijay.jsonwizard.R;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.interfaces.CommonListener;
 import com.vijay.jsonwizard.interfaces.FormWidgetFactory;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;

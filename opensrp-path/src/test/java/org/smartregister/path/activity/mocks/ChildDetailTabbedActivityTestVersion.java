@@ -2,9 +2,9 @@ package org.smartregister.path.activity.mocks;
 
 import android.os.Bundle;
 
+import org.smartregister.domain.Photo;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.domain.Photo;
 
 
 /**

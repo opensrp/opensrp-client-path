@@ -24,6 +24,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.MonthlyTally;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
+import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 import org.smartregister.view.customcontrols.FontVariant;
 
@@ -33,8 +34,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
-import org.smartregister.util.Utils;
 
 /**
  * Created by coder on 6/7/17.

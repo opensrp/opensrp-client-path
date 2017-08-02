@@ -23,6 +23,7 @@ import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import java.util.Map;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
-import org.smartregister.util.Utils;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 09/05/2017.

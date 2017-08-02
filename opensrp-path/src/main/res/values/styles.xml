@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
 
-    <style name="PathAppTheme" parent="Theme.AppCompat.Light.DarkActionBar"></style>
+    <style name="PathAppTheme" parent="Theme.AppCompat.Light.DarkActionBar" />
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -61,8 +61,10 @@
     </style>
 
     <style name="AppThemeNoTitle.NoActionBar.NavigationDrawerStyle">
-        <item name="android:textSize">20sp</item><!-- text size in menu-->
-        <item name="android:listPreferredItemHeightSmall">70dp</item><!-- item size in menu-->
+        <item name="android:textSize">20sp</item>
+        <!-- text size in menu-->
+        <item name="android:listPreferredItemHeightSmall">70dp</item>
+        <!-- item size in menu-->
     </style>
 
     <style name="MenuTextAppearance" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">

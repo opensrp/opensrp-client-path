@@ -3,20 +3,18 @@ package org.smartregister.path.sync;
 import android.content.Context;
 import android.util.Log;
 
-import org.smartregister.domain.Response;
-import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.repository.PathRepository;
-import org.smartregister.repository.EventClientRepository;
-import org.smartregister.service.HTTPAgent;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.domain.Response;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.repository.EventClientRepository;
+import org.smartregister.service.HTTPAgent;
+import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.smartregister.util.Utils;
 
 import util.MoveToMyCatchmentUtils;
 

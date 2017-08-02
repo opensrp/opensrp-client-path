@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.smartregister.commonregistry.CommonPersonObject;
-import org.smartregister.util.Log;
 import org.smartregister.path.R;
+import org.smartregister.util.Log;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -21,9 +21,6 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.path.R;
-import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
@@ -34,13 +31,18 @@ import org.smartregister.immunization.fragment.VaccinationEditDialogFragment;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
+import org.smartregister.path.R;
+import org.smartregister.path.activity.ChildDetailTabbedActivity;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
@@ -55,10 +57,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.smartregister.util.DateUtil;
-
-import org.smartregister.immunization.util.VaccinateActionUtils;
 
 
 public class ChildUnderFiveFragment extends Fragment {

@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -14,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -30,9 +30,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.domain.LoginResponse;
 import org.smartregister.domain.Response;
@@ -40,8 +37,6 @@ import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
-import org.smartregister.immunization.domain.VaccineType;
-import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -49,7 +44,6 @@ import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.util.Log;
-import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
@@ -72,7 +66,7 @@ import static org.smartregister.domain.LoginResponse.UNKNOWN_RESPONSE;
 import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logVerbose;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
     private Context context;
     private EditText userNameEditText;
     private EditText passwordEditText;
@@ -104,12 +98,11 @@ public class LoginActivity extends Activity {
 
         }
 
-        setContentView(org.smartregister.R.layout.login);
+        setContentView(R.layout.login);
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayShowTitleEnabled(false);
-            getActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.black)));
-        }
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(android.R.color.black)));
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
         }
@@ -120,9 +113,7 @@ public class LoginActivity extends Activity {
         initializeBuildDetails();
         setDoneActionHandlerOnPasswordField();
         initializeProgressDialog();
-        // getActionBar().setTitle("");
-        // getActionBar().setIcon(getResources().getDrawable(org.smartregister.R.drawable.logo));
-        //  getActionBar().setBackgroundDrawable(getResources().getDrawable(R.color.action_bar_background));
+
         setLanguage();
 
     }

@@ -1,11 +1,8 @@
 package org.smartregister.path.domain;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * Created by coder on 6/6/17.

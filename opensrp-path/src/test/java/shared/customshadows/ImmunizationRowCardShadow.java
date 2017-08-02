@@ -3,12 +3,12 @@ package shared.customshadows;
 import android.content.Context;
 import android.widget.Button;
 
-import org.smartregister.domain.Alert;
-import org.smartregister.immunization.domain.VaccineWrapper;
-import org.smartregister.immunization.view.ImmunizationRowCard;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowLinearLayout;
+import org.smartregister.domain.Alert;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.view.ImmunizationRowCard;
 
 import java.util.Date;
 

@@ -3,11 +3,11 @@ package util;
 import android.content.Context;
 import android.util.Log;
 
+import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.smartregister.path.domain.Report;
 import org.smartregister.path.domain.ReportHia2Indicator;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.joda.time.DateTime;
-import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;

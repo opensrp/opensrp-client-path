@@ -19,6 +19,9 @@ import android.widget.TextView;
 
 import com.vijay.jsonwizard.constants.JsonFormConstants;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -35,9 +38,7 @@ import org.smartregister.path.service.HIA2Service;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.util.FormUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.smartregister.util.Utils;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 
 import util.JsonFormUtils;
-import org.smartregister.util.Utils;
 
 /**
  * Created by coder on 6/7/17.

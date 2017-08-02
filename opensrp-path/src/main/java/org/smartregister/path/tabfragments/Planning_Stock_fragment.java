@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.StockControlActivity;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -36,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import org.smartregister.immunization.util.VaccinatorUtils;
 
 /**
  * A simple {@link Fragment} subclass.

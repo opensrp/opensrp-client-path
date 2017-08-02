@@ -8,22 +8,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import org.joda.time.DateTime;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
-import org.joda.time.DateTime;
+import org.smartregister.util.DateUtil;
+import org.smartregister.util.Utils;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import org.smartregister.util.DateUtil;
 import util.JsonFormUtils;
-import org.smartregister.util.Utils;
 
 
 public class ChildRegistrationDataFragment extends Fragment {

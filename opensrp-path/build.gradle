@@ -115,7 +115,9 @@ dependencies {
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
 
-    compile 'org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar'
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar'){
+        transitive = true
+    }
 
     compile(name: 'opensrp-immunization-debug', ext: 'aar')
 

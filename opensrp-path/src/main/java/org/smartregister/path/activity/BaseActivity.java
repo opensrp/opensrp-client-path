@@ -34,6 +34,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
+import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
@@ -47,18 +53,11 @@ import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.SyncProgressIndicator;
 import org.smartregister.view.activity.DrishtiApplication;
-import org.joda.time.DateTime;
-import org.joda.time.Days;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
-import org.opensrp.api.constants.Gender;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import util.JsonFormUtils;
-import util.NetworkUtils;
 
 import static org.smartregister.util.Log.logError;
 

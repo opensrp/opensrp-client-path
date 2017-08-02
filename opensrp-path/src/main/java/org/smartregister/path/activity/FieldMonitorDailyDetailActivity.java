@@ -4,22 +4,22 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.joda.time.DateTime;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
-import org.joda.time.DateTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.smartregister.util.Utils.addToRow;
-import static util.Utils.getDataRow;
-import static org.smartregister.util.Utils.getValue;
 import static org.smartregister.immunization.util.VaccinatorUtils.getTotalUsed;
 import static org.smartregister.immunization.util.VaccinatorUtils.providerDetails;
+import static org.smartregister.util.Utils.addToRow;
+import static org.smartregister.util.Utils.getValue;
+import static util.Utils.getDataRow;
 
 public class FieldMonitorDailyDetailActivity extends DetailActivity {
     @Override

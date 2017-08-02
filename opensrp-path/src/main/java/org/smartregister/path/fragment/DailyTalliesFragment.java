@@ -22,6 +22,7 @@ import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.repository.DailyTalliesRepository;
+import org.smartregister.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,8 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.smartregister.util.Utils;
 
 /**
  * Created by coder on 6/7/17.

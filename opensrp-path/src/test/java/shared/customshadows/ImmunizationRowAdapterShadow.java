@@ -1,17 +1,16 @@
 package shared.customshadows;
 
-import android.app.Activity;
 import android.app.Application;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.smartregister.path.adapter.ImmunizationRowAdapter;
-import org.smartregister.immunization.domain.VaccineWrapper;
 import org.robolectric.ShadowsAdapter;
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.util.Scheduler;
+import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.path.adapter.ImmunizationRowAdapter;
 
 import java.util.ArrayList;
 

@@ -9,11 +9,10 @@ import com.rengwuxian.materialedittext.MaterialEditText;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
-import org.smartregister.path.watchers.LookUpTextWatcher;
 import org.json.JSONObject;
+import org.smartregister.path.watchers.LookUpTextWatcher;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

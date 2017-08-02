@@ -3,13 +3,13 @@ package org.smartregister.path.service;
 import android.content.ContentValues;
 import android.util.Log;
 
+import org.joda.time.LocalDate;
+import org.json.JSONObject;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.domain.TimelineEvent;
 import org.smartregister.domain.form.FormSubmission;
 import org.smartregister.repository.AllTimelineEvents;
 import org.smartregister.service.AlertService;
-import org.joda.time.LocalDate;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 

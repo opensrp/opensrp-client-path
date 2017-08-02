@@ -2,7 +2,6 @@ package org.smartregister.path.viewstates;
 
 import android.os.Parcel;
 
-import com.vijay.jsonwizard.mvp.ViewState;
 import com.vijay.jsonwizard.viewstates.JsonFormFragmentViewState;
 
 /**

@@ -16,6 +16,7 @@ import org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAdapterFr
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.form.FieldOverrides;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.DetailActivity;
 import org.smartregister.path.activity.FieldMonitorDailyDetailActivity;
@@ -36,8 +37,6 @@ import org.smartregister.view.dialog.SortOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.smartregister.immunization.util.VaccinatorUtils;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.TEXT_ALIGNMENT_CENTER;

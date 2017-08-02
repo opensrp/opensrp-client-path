@@ -1,9 +1,5 @@
 package org.smartregister.path.domain;
 
-import org.joda.time.DateTime;
-
-import java.util.Date;
-
 /**
  * Created by raihan@mpower-social.com on 18-May-17.
  */

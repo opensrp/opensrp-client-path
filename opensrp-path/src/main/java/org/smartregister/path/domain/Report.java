@@ -2,7 +2,6 @@ package org.smartregister.path.domain;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.joda.time.DateTime;
-import org.json.JSONObject;
 
 import java.util.List;
 

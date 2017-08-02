@@ -1,13 +1,9 @@
 package org.smartregister.path.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Toast;
 
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;

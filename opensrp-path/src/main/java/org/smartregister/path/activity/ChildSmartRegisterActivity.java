@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.smartregister.adapter.SmartRegisterPaginatedAdapter;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.form.FormSubmission;
@@ -37,7 +38,6 @@ import org.smartregister.service.ZiggyService;
 import org.smartregister.util.FormUtils;
 import org.smartregister.view.dialog.DialogOptionModel;
 import org.smartregister.view.viewpager.OpenSRPViewPager;
-import org.json.JSONObject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

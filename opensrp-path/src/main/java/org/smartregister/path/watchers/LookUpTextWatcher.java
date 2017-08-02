@@ -2,9 +2,7 @@ package org.smartregister.path.watchers;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Pair;
 import android.view.View;
-import android.widget.Toast;
 
 import com.vijay.jsonwizard.R;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
