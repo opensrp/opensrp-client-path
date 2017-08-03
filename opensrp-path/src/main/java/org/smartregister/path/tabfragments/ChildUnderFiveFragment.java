@@ -62,7 +62,6 @@ import java.util.Map;
 public class ChildUnderFiveFragment extends Fragment {
 
     private LayoutInflater inflater;
-    private ViewGroup container;
     private CommonPersonObjectClient childDetails;
     private ArrayList<ImmunizationRowGroup> vaccineGroups;
     private ArrayList<ServiceRowGroup> serviceRowGroups;
@@ -86,7 +85,6 @@ public class ChildUnderFiveFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         this.inflater = inflater;
-        this.container = container;
         if (this.getArguments() != null) {
             Serializable serializable = getArguments().getSerializable(ChildDetailTabbedActivity.EXTRA_CHILD_DETAILS);
             if (serializable != null && serializable instanceof CommonPersonObjectClient) {

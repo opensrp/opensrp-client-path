@@ -169,7 +169,7 @@ public class Planning_Stock_fragment extends Fragment {
 
     private void waste_rate_Calculate(View view) {
         double wastepercent = 0.0;
-        StockRepository stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), VaccinatorApplication.getInstance().context().alertService());
+        StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
         int vaccinegiven = stockRepository.getVaccineUsedUntildate(System.currentTimeMillis(), ((StockControlActivity) getActivity()).vaccineType.getName().toLowerCase().trim());
         int vaccineissued = -1 * getStockIssuedIntimeFrame(DateTime.now().yearOfEra().withMinimumValue(), DateTime.now()) * (((StockControlActivity) getActivity()).vaccineType.getDoses());
         if (vaccinegiven == 0 || vaccinegiven > vaccineissued) {

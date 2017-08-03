@@ -22,12 +22,9 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
  */
 
 public class LocationSwitcherToolbar extends BaseToolbar {
-    private static final String TAG = "LocationSwitcherToolbar";
     public static final int TOOLBAR_ID = R.id.location_switching_toolbar;
     private BaseActivity baseActivity;
     private OnLocationChangeListener onLocationChangeListener;
-    //private LocationPickerDialogFragment locationPickerDialogFragment;
-    private static final String LOCATION_DIALOG_TAG = "locationDialogTAG";
     private String title;
     private int separatorResourceId;
 
@@ -95,9 +92,6 @@ public class LocationSwitcherToolbar extends BaseToolbar {
 
     @Override
     public MenuItem onMenuItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.location_switcher) {
-            //showLocationPickerDialog();
-        }
         return menuItem;
     }
 

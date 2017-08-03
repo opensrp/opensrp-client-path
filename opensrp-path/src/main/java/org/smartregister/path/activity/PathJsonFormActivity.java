@@ -12,11 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.smartregister.Context;
 import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.PathJsonFormFragment;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 
 import java.util.ArrayList;
@@ -71,7 +69,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
         JSONObject object = getStep("step1");
         try {
             if (object.getString("title").contains("Stock Issued")) {
-                StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Date_Stock_Issued") && value != null && !value.equalsIgnoreCase("")) {
                     if (balancetextview == null) {
                         ArrayList<View> views = getFormDataViews();
@@ -171,7 +169,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
         JSONObject object = getStep("step1");
         try {
             if (object.getString("title").contains("Stock Issued")) {
-                StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Vials_Issued")) {
                     if (balancetextview == null) {
                         ArrayList<View> views = getFormDataViews();
@@ -271,7 +269,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
         JSONObject object = getStep("step1");
         try {
             if (object.getString("title").contains("Stock Issued")) {
-                StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Vials_Wasted")) {
                     if (balancetextview == null) {
                         ArrayList<View> views = getFormDataViews();
@@ -405,7 +403,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
                                     String vaccineName = object.getString("title").replace("Stock Received", "").trim();
-                                    StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                                    StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
@@ -471,7 +469,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
                                     String vaccineName = object.getString("title").replace("Stock Received", "").trim();
-                                    StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                                    StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
@@ -534,7 +532,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
                                     String vaccineName = object.getString("title").replace("Stock Loss/Adjustment", "").trim();
-                                    StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                                    StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
@@ -601,7 +599,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     }
                                     String vaccineName = object.getString("title").replace("Stock Loss/Adjustment", "").trim();
                                     vaccineName = checkifmeasles(vaccineName);
-                                    StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), Context.getInstance().alertService());
+                                    StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }

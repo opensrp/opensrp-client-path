@@ -92,7 +92,6 @@ public class FieldStockVaccineTable extends Fragment {
         TextView pcvBalanceTextView = (TextView) rootView.findViewById(R.id.field_table_pcvbalance);
         TextView pcvReceivedTextView = (TextView) rootView.findViewById(R.id.field_table_pcvreceived);
         TextView pcvUsedTextView = (TextView) rootView.findViewById(R.id.field_table_pcvused);
-        TextView pcvWastedTextView = (TextView) rootView.findViewById(R.id.field_table_pcvwasted);
         if (fieldObject != null) {
             pcvBalanceTextView.setText(fieldObject.getDetails().get("pcv_balance_in_hand") != null ? fieldObject.getDetails().get("pcv_balance_in_hand") : "N/A");
             pcvReceivedTextView.setText(fieldObject.getDetails().get("pcv_received") != null ? fieldObject.getDetails().get("pcv_received") : "N/A");

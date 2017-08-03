@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import org.smartregister.path.R;
@@ -22,62 +21,54 @@ import java.util.Date;
 
 import util.JsonFormUtils;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 /**
  * Created by Raihan  on 29-05-17.
  */
 public class StockRowSmartClientsProvider implements StockProviderForCursorAdapter {
     private final LayoutInflater inflater;
     private final Context context;
-    private final View.OnClickListener onClickListener;
     private final StockRepository stockRepository;
     AlertService alertService;
-    private final AbsListView.LayoutParams clientViewLayoutParams;
 
-    public StockRowSmartClientsProvider(Context context, View.OnClickListener onClickListener,
+    public StockRowSmartClientsProvider(Context context,
                                         AlertService alertService, StockRepository stockRepository) {
-        this.onClickListener = onClickListener;
         this.context = context;
         this.alertService = alertService;
         this.stockRepository = stockRepository;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        clientViewLayoutParams = new AbsListView.LayoutParams(MATCH_PARENT, (int) context.getResources().getDimension(org.smartregister.R.dimen.list_item_height));
     }
 
     @Override
     public void getView(Stock stock, View convertView) {
 
-        TextView date = (TextView)convertView.findViewById(R.id.date);
-        TextView to_from = (TextView)convertView.findViewById(R.id.to_from);
-        TextView received = (TextView)convertView.findViewById(R.id.received);
-        TextView issued = (TextView)convertView.findViewById(R.id.issued);
-        TextView loss_adj = (TextView)convertView.findViewById(R.id.loss_adj);
-        TextView balance = (TextView)convertView.findViewById(R.id.balance);
+        TextView date = (TextView) convertView.findViewById(R.id.date);
+        TextView to_from = (TextView) convertView.findViewById(R.id.to_from);
+        TextView received = (TextView) convertView.findViewById(R.id.received);
+        TextView issued = (TextView) convertView.findViewById(R.id.issued);
+        TextView loss_adj = (TextView) convertView.findViewById(R.id.loss_adj);
+        TextView balance = (TextView) convertView.findViewById(R.id.balance);
 
 
-        if(stock.getTransaction_type().equalsIgnoreCase(Stock.received)){
-            received.setText(""+stock.getValue());
+        if (stock.getTransaction_type().equalsIgnoreCase(Stock.received)) {
+            received.setText("" + stock.getValue());
             issued.setText("");
             loss_adj.setText("");
         }
-        if(stock.getTransaction_type().equalsIgnoreCase(Stock.issued)){
+        if (stock.getTransaction_type().equalsIgnoreCase(Stock.issued)) {
             received.setText("");
-            issued.setText(""+(-1*stock.getValue()));
+            issued.setText("" + (-1 * stock.getValue()));
             loss_adj.setText("");
         }
-        if(stock.getTransaction_type().equalsIgnoreCase(Stock.loss_adjustment)){
+        if (stock.getTransaction_type().equalsIgnoreCase(Stock.loss_adjustment)) {
             received.setText("");
             issued.setText("");
-            loss_adj.setText(""+stock.getValue());
+            loss_adj.setText("" + stock.getValue());
         }
 
         date.setText(JsonFormUtils.dd_MM_yyyy.format(new Date(stock.getDate_created())));
-        to_from.setText(stock.getTo_from().replace("_"," "));
+        to_from.setText(stock.getTo_from().replace("_", " "));
 
-        balance.setText(""+(stock.getValue()+stockRepository.getBalanceBeforeCheck(stock)));
-
+        balance.setText("" + (stock.getValue() + stockRepository.getBalanceBeforeCheck(stock)));
 
 
     }

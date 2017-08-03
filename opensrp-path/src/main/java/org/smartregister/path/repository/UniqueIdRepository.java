@@ -146,7 +146,6 @@ public class UniqueIdRepository extends BaseRepository {
      */
     public void open(String openmrsId) {
         try {
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
             if (!openmrsId.contains("-")) {
                 openmrsId = formatId(openmrsId);
             }

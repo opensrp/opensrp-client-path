@@ -35,7 +35,6 @@ import org.smartregister.path.adapter.StockPaginatedCursorAdapter;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.provider.StockRowSmartClientsProvider;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.FormUtils;
@@ -168,8 +167,7 @@ public class Current_Stock extends Fragment implements
         clientsView = (ListView) view.findViewById(R.id.list);
         paginationViewHandler.addPagination(clientsView);
 
-        stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
-
+        stockRepository = VaccinatorApplication.getInstance().stockRepository();
 
         Button received = (Button) view.findViewById(R.id.received);
         Button issued = (Button) view.findViewById(R.id.issued);
@@ -215,12 +213,7 @@ public class Current_Stock extends Fragment implements
 
 
         StockRowSmartClientsProvider hhscp = new StockRowSmartClientsProvider(getActivity(),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                }, context().alertService(), stockRepository);
+                context().alertService(), stockRepository);
         clientAdapter = new StockPaginatedCursorAdapter(getActivity(), null, hhscp, stockRepository);
         clientsView.setAdapter(clientAdapter);
         clientAdapter.notifyDataSetChanged();
@@ -354,7 +347,7 @@ public class Current_Stock extends Fragment implements
                 Received_Stock_From = JsonFormUtils.getFieldValue(fields, "Reason_for_adjustment");
             }
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
+            StockRepository str = VaccinatorApplication.getInstance().stockRepository();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
@@ -388,7 +381,7 @@ public class Current_Stock extends Fragment implements
             }
             String vials_received = JsonFormUtils.getFieldValue(fields, "Vials_Received");
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
+            StockRepository str = VaccinatorApplication.getInstance().stockRepository();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
@@ -426,7 +419,7 @@ public class Current_Stock extends Fragment implements
                 vials_received = "" + (Integer.parseInt(vials_received) + Integer.parseInt(vials_wasted));
             }
 
-            StockRepository str = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), context.alertService());
+            StockRepository str = VaccinatorApplication.getInstance().stockRepository();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 

@@ -12,9 +12,9 @@ import org.smartregister.view.customcontrols.FontVariant;
  * Created by onadev on 15/06/2017.
  */
 @Implements(CustomFontTextView.class)
-public class FontTextViewShadow extends ShadowTextView{
+public class FontTextViewShadow extends ShadowTextView {
 
-    public void CustomFontTextView(Context context, AttributeSet attrs, int defStyle) {
+    public void customFontTextView(Context context, AttributeSet attrs, int defStyle) {
 
     }
 

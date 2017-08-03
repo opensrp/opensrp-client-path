@@ -104,7 +104,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
     @Override
     public void showProgressView() {
         if (clientsProgressView.getVisibility() == INVISIBLE) {
-            clientsProgressView.setVisibility(View.VISIBLE);
+            clientsProgressView.setVisibility(VISIBLE);
         }
     }
 

@@ -61,7 +61,7 @@ public class DraftMonthlyFragment extends Fragment
         final View fragmentview = inflater.inflate(R.layout.sent_monthly_fragment, container, false);
 
         listView = (ListView) fragmentview.findViewById(R.id.list);
-        noDraftsView =  fragmentview.findViewById(R.id.empty_view);
+        noDraftsView = fragmentview.findViewById(R.id.empty_view);
         startNewReportEnabled = (Button) fragmentview.findViewById(R.id.start_new_report_enabled);
         startNewReportDisabled = (Button) fragmentview.findViewById(R.id.start_new_report_disabled);
 
@@ -243,7 +243,7 @@ public class DraftMonthlyFragment extends Fragment
 
     }
 
-    View.OnClickListener monthClickListener = new View.OnClickListener() {
+    private View.OnClickListener monthClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             alertDialog.dismiss();
@@ -255,7 +255,8 @@ public class DraftMonthlyFragment extends Fragment
 
         }
     };
-    View.OnClickListener monthDraftsClickListener = new View.OnClickListener() {
+
+    private View.OnClickListener monthDraftsClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Object tag = v.getTag();

@@ -18,7 +18,6 @@ import android.widget.TextView;
 import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
@@ -189,7 +188,7 @@ public class StockActivity extends BaseActivity {
 
 
                 final VaccineType vaccineType = vaccineTypes[position];
-                StockRepository stockRepository = new StockRepository((PathRepository) VaccinatorApplication.getInstance().getRepository(), VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().alertService());
+                StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
                 int currentvials = stockRepository.getBalanceFromNameAndDate(vaccineType.getName(), System.currentTimeMillis());
                 name.setText(vaccineType.getName());
 

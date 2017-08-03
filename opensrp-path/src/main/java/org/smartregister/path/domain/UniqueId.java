@@ -6,12 +6,12 @@ import java.util.Date;
  * Created by coder on 2/15/17.
  */
 public class UniqueId {
-    String id;
-    String openmrsId;
-    String status;
-    String usedBy;
-    Date createdAt;
-    Date updatedAt;
+    private String id;
+    private String openmrsId;
+    private String status;
+    private String usedBy;
+    private Date createdAt;
+    private Date updatedAt;
 
     public UniqueId() {
     }

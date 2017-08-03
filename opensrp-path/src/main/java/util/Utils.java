@@ -36,7 +36,6 @@ import org.smartregister.path.domain.EditWrapper;
 import org.smartregister.repository.ImageRepository;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 
 
 /**
@@ -45,11 +44,6 @@ import java.text.SimpleDateFormat;
  */
 public class Utils {
     private static final String TAG = "Utils";
-    private static final SimpleDateFormat UI_DF = new SimpleDateFormat("dd-MM-yyyy");
-    private static final SimpleDateFormat UI_DTF = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-
-    private static final SimpleDateFormat DB_DF = new SimpleDateFormat("yyyy-MM-dd");
-    private static final SimpleDateFormat DB_DTF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Utils() {
     }

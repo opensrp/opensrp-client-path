@@ -68,19 +68,12 @@ public class VaccinatorApplication extends DrishtiApplication
     private Locale locale = null;
     private Context context;
     private static CommonFtsObject commonFtsObject;
-    private WeightRepository weightRepository;
     private UniqueIdRepository uniqueIdRepository;
     private DailyTalliesRepository dailyTalliesRepository;
     private MonthlyTalliesRepository monthlyTalliesRepository;
     private HIA2IndicatorsRepository hIA2IndicatorsRepository;
-    private VaccineRepository vaccineRepository;
-    private ZScoreRepository zScoreRepository;
-    private RecurringServiceRecordRepository recurringServiceRecordRepository;
-    private RecurringServiceTypeRepository recurringServiceTypeRepository;
     private EventClientRepository eventClientRepository;
     private StockRepository stockRepository;
-    private VaccineTypeRepository vaccineTypeRepository;
-    private VaccineNameRepository vaccineNameRepository;
     private boolean lastModified;
 
     @Override
@@ -329,7 +322,7 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public StockRepository stockRepository() {
         if (stockRepository == null) {
-            stockRepository = new StockRepository((PathRepository) getRepository(), VaccinatorApplication.createCommonFtsObject(), context().alertService());
+            stockRepository = new StockRepository((PathRepository) getRepository());
         }
         return stockRepository;
     }

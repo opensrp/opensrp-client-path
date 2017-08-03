@@ -267,7 +267,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String childId = "";
         if (isDataOk()) {
             name = constructChildName();
-            childId = Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false);
+            childId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
         }
 
         TextView nameTV = (TextView) findViewById(R.id.name_tv);
@@ -283,7 +283,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String formattedAge = "";
         String formattedDob = "";
         if (isDataOk()) {
-            dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
+            dobString = getValue(childDetails.getColumnmaps(), "dob", false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 Date dob = dateTime.toDate();
@@ -304,10 +304,10 @@ public class ChildImmunizationActivity extends BaseActivity
     private void updateGenderViews() {
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = Utils.getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals("female")) {
+            String genderString = getValue(childDetails, "gender", false);
+            if (genderString != null && genderString.equalsIgnoreCase("female")) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals("male")) {
+            } else if (genderString != null && genderString.equalsIgnoreCase("male")) {
                 gender = Gender.MALE;
             }
         }
@@ -701,7 +701,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Gender gender = Gender.UNKNOWN;
-            String genderString = Utils.getValue(childDetails, "gender", false);
+            String genderString = getValue(childDetails, "gender", false);
             if (genderString != null && genderString.toLowerCase().equals("female")) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.toLowerCase().equals("male")) {
@@ -709,7 +709,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Date dob = null;
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
+            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 dob = dateTime.toDate();
@@ -758,7 +758,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
+        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
         Date dob = Calendar.getInstance().getTime();
         if (!TextUtils.isEmpty(dobString)) {
             DateTime dateTime = new DateTime(dobString);
@@ -1019,7 +1019,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair = new Pair<>(list, vaccineList);
-            String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
+            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, "child");
@@ -1033,8 +1033,8 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private String constructChildName() {
-        String firstName = Utils.getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = Utils.getValue(childDetails.getColumnmaps(), "last_name", true);
+        String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
+        String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
         return getName(firstName, lastName).trim();
     }
 
@@ -1567,11 +1567,11 @@ public class ChildImmunizationActivity extends BaseActivity
             WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
             List<Weight> allWeights = weightRepository.findByEntityId(childDetails.entityId());
             try {
-                String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
-                if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), "Birth_Weight", false))
+                String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
+                if (!TextUtils.isEmpty(getValue(childDetails.getColumnmaps(), "Birth_Weight", false))
                         && !TextUtils.isEmpty(dobString)) {
                     DateTime dateTime = new DateTime(dobString);
-                    Double birthWeight = Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), "Birth_Weight", false));
+                    Double birthWeight = Double.valueOf(getValue(childDetails.getColumnmaps(), "Birth_Weight", false));
 
                     Weight weight = new Weight(-1l, null, (float) birthWeight.doubleValue(), dateTime.toDate(), null, null, null, Calendar.getInstance().getTimeInMillis(), null, null, 0);
                     allWeights.add(weight);

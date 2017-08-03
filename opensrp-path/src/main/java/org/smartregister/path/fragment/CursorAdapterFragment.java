@@ -65,16 +65,20 @@ public abstract class CursorAdapterFragment extends Fragment implements
     private String currentquery;
     public String tablename;
     public String countSelect;
-    public String joinTable="";
+    public String joinTable = "";
 
     protected static final int LOADER_ID = 0;
     private static final String INIT_LOADER = "init";
 
+    private boolean isPaused;
+
+    private TextView pageInfoView;
+    private Button nextPageView;
+    private Button previousPageView;
+
     public CursorAdapterFragment() {
         // Required empty public constructor
     }
-
-
 
     public String getTablename() {
         return tablename;
@@ -99,7 +103,6 @@ public abstract class CursorAdapterFragment extends Fragment implements
     public View mView;
 
 
-
     private final PaginationViewHandler paginationViewHandler = new PaginationViewHandler();
 
     @Override
@@ -118,7 +121,7 @@ public abstract class CursorAdapterFragment extends Fragment implements
 
     protected void setupViews(View view) {
         setupNavBarViews(view);
-        if(getDefaultOptionsProvider() != null) {
+        if (getDefaultOptionsProvider() != null) {
             populateClientListHeaderView(getDefaultOptionsProvider().serviceMode().getHeaderProvider(), view);
         }
 
@@ -129,7 +132,7 @@ public abstract class CursorAdapterFragment extends Fragment implements
 
     }
 
-    public void refreshListView(){
+    public void refreshListView() {
         setRefreshList(true);
         this.onResumption();
         setRefreshList(false);
@@ -181,9 +184,6 @@ public abstract class CursorAdapterFragment extends Fragment implements
 
     }
 
-
-
-
     private void populateClientListHeaderView(SecuredNativeSmartRegisterActivity.ClientsHeaderProvider headerProvider, View view) {
         LinearLayout clientsHeaderLayout = (LinearLayout) view.findViewById(R.id.clients_header_layout);
         clientsHeaderLayout.removeAllViewsInLayout();
@@ -214,8 +214,6 @@ public abstract class CursorAdapterFragment extends Fragment implements
     }
 
 
-
-
     protected void onEditSelection(EditOption editOption, SmartRegisterClient client) {
         editOption.doEdit(client);
     }
@@ -230,7 +228,7 @@ public abstract class CursorAdapterFragment extends Fragment implements
     }
 
     protected void showFragmentDialog(DialogOptionModel dialogOptionModel, Object tag) {
-        ((SecuredNativeSmartRegisterActivity)getActivity()).showFragmentDialog(dialogOptionModel, tag);
+        ((SecuredNativeSmartRegisterActivity) getActivity()).showFragmentDialog(dialogOptionModel, tag);
     }
 
     protected abstract SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider();
@@ -242,30 +240,28 @@ public abstract class CursorAdapterFragment extends Fragment implements
 
     protected abstract void startRegistration();
 
-    public boolean isPausedOrRefreshList(){
+    public boolean isPausedOrRefreshList() {
         return isPaused() || isRefreshList();
     }
+
     public boolean isRefreshList() {
         return refreshList;
     }
+
     protected Context context() {
         return Context.getInstance().updateApplicationContext(this.getActivity().getApplicationContext());
     }
+
     public void setRefreshList(boolean refreshList) {
         this.refreshList = refreshList;
     }
+
     public boolean isPaused() {
         return isPaused;
     }
-    private boolean isPaused;
 
-
-    private TextView pageInfoView;
-    private Button nextPageView;
-    private Button previousPageView;
 
     private class PaginationViewHandler implements View.OnClickListener {
-
 
 
         private void addPagination(ListView clientsView) {
@@ -291,9 +287,6 @@ public abstract class CursorAdapterFragment extends Fragment implements
         }
 
 
-
-
-
         @Override
         public void onClick(View view) {
             int i = view.getId();
@@ -307,24 +300,27 @@ public abstract class CursorAdapterFragment extends Fragment implements
         }
 
     }
+
     private int getCurrentPageCount() {
-        if(currentoffset != 0) {
-            if((currentoffset/currentlimit) != 0) {
-                return  ((currentoffset / currentlimit)+1);
-            }else {
+        if (currentoffset != 0) {
+            if ((currentoffset / currentlimit) != 0) {
+                return ((currentoffset / currentlimit) + 1);
+            } else {
                 return 1;
             }
-        }else{
+        } else {
             return 1;
         }
     }
-    private int getTotalcount(){
-        if(totalcount%currentlimit == 0){
-           return (totalcount/currentlimit);
-        }else {
-            return ((totalcount / currentlimit)+1);
+
+    private int getTotalcount() {
+        if (totalcount % currentlimit == 0) {
+            return (totalcount / currentlimit);
+        } else {
+            return ((totalcount / currentlimit) + 1);
         }
     }
+
     public void refresh() {
         pageInfoView.setText(
                 format(getResources().getString(R.string.str_page_info),
@@ -336,29 +332,29 @@ public abstract class CursorAdapterFragment extends Fragment implements
 
     private boolean hasNextPage() {
 
-        return ((totalcount>(currentoffset+currentlimit)));
+        return ((totalcount > (currentoffset + currentlimit)));
     }
 
     private boolean hasPreviousPage() {
-        return currentoffset!=0;
+        return currentoffset != 0;
     }
 
     public void gotoNextPage() {
-        if(!(currentoffset+currentlimit>totalcount)){
-            currentoffset = currentoffset+currentlimit;
+        if (!(currentoffset + currentlimit > totalcount)) {
+            currentoffset = currentoffset + currentlimit;
             filterandSortExecute();
         }
     }
 
     public void goBackToPreviousPage() {
-        if(currentoffset>0){
-            currentoffset = currentoffset-currentlimit;
+        if (currentoffset > 0) {
+            currentoffset = currentoffset - currentlimit;
             filterandSortExecute();
         }
     }
 
-    public void filterandSortInInitializeQueries(){
-        if(isPausedOrRefreshList()){
+    public void filterandSortInInitializeQueries() {
+        if (isPausedOrRefreshList()) {
             this.showProgressView();
             this.filterandSortExecute();
         } else {
@@ -370,9 +366,9 @@ public abstract class CursorAdapterFragment extends Fragment implements
     public void initialFilterandSortExecute() {
         Loader<Cursor> loader = getLoaderManager().getLoader(LOADER_ID);
         showProgressView();
-        if(loader != null) {
+        if (loader != null) {
             filterandSortExecute();
-        }else {
+        } else {
             getLoaderManager().initLoader(LOADER_ID, null, this);
         }
     }
@@ -383,31 +379,31 @@ public abstract class CursorAdapterFragment extends Fragment implements
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
-    public void showProgressView(){
-        if(clientsProgressView.getVisibility() == INVISIBLE) {
+    public void showProgressView() {
+        if (clientsProgressView.getVisibility() == INVISIBLE) {
             clientsProgressView.setVisibility(View.VISIBLE);
         }
 
-        if(clientsView.getVisibility() == VISIBLE) {
+        if (clientsView.getVisibility() == VISIBLE) {
             clientsView.setVisibility(View.INVISIBLE);
         }
     }
 
-    public void hideProgressView(){
-        if(clientsProgressView.getVisibility() == VISIBLE) {
+    public void hideProgressView() {
+        if (clientsProgressView.getVisibility() == VISIBLE) {
             clientsProgressView.setVisibility(INVISIBLE);
         }
-        if(clientsView.getVisibility() == INVISIBLE) {
+        if (clientsView.getVisibility() == INVISIBLE) {
             clientsView.setVisibility(VISIBLE);
         }
     }
 
-    private String filterandSortQuery(){
+    private String filterandSortQuery() {
         SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
 
         String query = "";
-        try{
-            if(isValidFilterForFts(commonRepository())){
+        try {
+            if (isValidFilterForFts(commonRepository())) {
                 String sql = sqb.searchQueryFts(tablename, joinTable, mainCondition, filters, Sortqueries, currentlimit, currentoffset);
                 List<String> ids = commonRepository().findSearchIds(sql);
                 query = sqb.toStringFts(ids, tablename + "." + CommonRepository.ID_COLUMN, Sortqueries);
@@ -415,17 +411,17 @@ public abstract class CursorAdapterFragment extends Fragment implements
             } else {
                 sqb.addCondition(filters);
                 query = sqb.orderbyCondition(Sortqueries);
-                query = sqb.Endquery(sqb.addlimitandOffset(query,currentlimit,currentoffset));
+                query = sqb.Endquery(sqb.addlimitandOffset(query, currentlimit, currentoffset));
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         }
 
         return query;
     }
 
-    public void CountExecute(){
+    public void CountExecute() {
         Cursor c = null;
 
         try {
@@ -450,23 +446,20 @@ public abstract class CursorAdapterFragment extends Fragment implements
             currentlimit = 20;
             currentoffset = 0;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         } finally {
-            if(c != null) {
+            if (c != null) {
                 c.close();
             }
         }
     }
 
-    protected boolean isValidFilterForFts(CommonRepository commonRepository){
+    protected boolean isValidFilterForFts(CommonRepository commonRepository) {
         return commonRepository.isFts() && filters != null
                 && !StringUtils.containsIgnoreCase(filters, "like")
                 && !StringUtils.startsWithIgnoreCase(filters.trim(), "and ");
     }
-
-
-
 
 
     @Override
@@ -474,7 +467,7 @@ public abstract class CursorAdapterFragment extends Fragment implements
         switch (id) {
             case LOADER_ID:
                 // Returns a new CursorLoader
-                return new CursorLoader(getActivity()){
+                return new CursorLoader(getActivity()) {
                     @Override
                     public Cursor loadInBackground() {
                         String query = filterandSortQuery();
@@ -483,10 +476,12 @@ public abstract class CursorAdapterFragment extends Fragment implements
                             @Override
                             public void run() {
                                 hideProgressView();
-                            };
+                            }
+
+                            ;
                         });
 
-                         return cursor;
+                        return cursor;
                     }
                 };
             default:
@@ -507,7 +502,7 @@ public abstract class CursorAdapterFragment extends Fragment implements
         clientAdapter.swapCursor(null);
     }
 
-    public CommonRepository commonRepository(){
+    public CommonRepository commonRepository() {
         return context().commonrepository(tablename);
     }
 

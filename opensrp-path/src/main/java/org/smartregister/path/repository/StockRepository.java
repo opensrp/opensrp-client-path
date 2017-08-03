@@ -8,13 +8,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.smartregister.commonregistry.CommonFtsObject;
 import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.repository.BaseRepository;
-import org.smartregister.service.AlertService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,17 +45,11 @@ public class StockRepository extends BaseRepository {
     public static final String DATE_UPDATED = "date_updated";
     public static final String[] stock_TABLE_COLUMNS = {ID_COLUMN, VACCINE_TYPE_ID, TRANSACTION_TYPE, PROVIDER_ID, VALUE, DATE_CREATED, TO_FROM, SYNC_STATUS, DATE_UPDATED};
 
-
     public static String TYPE_Unsynced = "Unsynced";
     public static String TYPE_Synced = "Synced";
 
-    private CommonFtsObject commonFtsObject;
-    private AlertService alertService;
-
-    public StockRepository(PathRepository pathRepository, CommonFtsObject commonFtsObject, AlertService alertService) {
+    public StockRepository(PathRepository pathRepository) {
         super(pathRepository);
-        this.commonFtsObject = commonFtsObject;
-        this.alertService = alertService;
     }
 
     protected static void createTable(SQLiteDatabase database) {

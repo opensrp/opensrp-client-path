@@ -82,11 +82,6 @@ public class FieldMonitorSmartRegisterActivity extends SecuredNativeSmartRegiste
     @Override
     protected DefaultOptionsProvider getDefaultOptionsProvider() {return null;}
 
-    @Override
-    protected void setupViews() {}
-
-    @Override
-    protected void onResumption(){}
 
     @Override
     protected NavBarOptionsProvider getNavBarOptionsProvider() {return null;}
@@ -95,7 +90,7 @@ public class FieldMonitorSmartRegisterActivity extends SecuredNativeSmartRegiste
     protected SmartRegisterClientsProvider clientsProvider() {return null;}
 
     @Override
-    protected void onInitialization() {}
+    public void onInitialization() {}
 
     @Override
     public void startRegistration() {

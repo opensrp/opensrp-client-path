@@ -52,10 +52,10 @@ import static util.Utils.setProfiePic;
 import static util.Utils.setProfiePicFromPath;
 
 public abstract class DetailActivity extends Activity {
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static String mCurrentPhotoPath;
-    static File currentPhoto;
-    static ImageView mImageView;
+    private static final int REQUEST_TAKE_PHOTO = 1;
+    private static String mCurrentPhotoPath;
+    private static File currentPhoto;
+    private static ImageView mImageView;
     public static final String EXTRA_VACCINATE_OBJECT = "extraVaccinateObject";
     public static final String EXTRA_EDIT_OBJECT = "extraEditObject";
     public static final String EXTRA_CLIENT = "extraClient";

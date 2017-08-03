@@ -151,6 +151,8 @@ public class HIA2ReportsActivity extends BaseActivity {
                     return DraftMonthlyFragment.newInstance();
                 case 2:
                     return SentMonthlyFragment.newInstance();
+                default:
+                    break;
             }
             return null;
         }
@@ -169,7 +171,8 @@ public class HIA2ReportsActivity extends BaseActivity {
                     return getString(R.string.hia2_draft_monthly);
                 case 2:
                     return getString(R.string.hia2_sent_monthly);
-
+                default:
+                    break;
             }
             return null;
         }
@@ -233,9 +236,6 @@ public class HIA2ReportsActivity extends BaseActivity {
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
-        if (showFragment) {
-            //sendReport("");
-        }
         showFragment = false;
     }
 

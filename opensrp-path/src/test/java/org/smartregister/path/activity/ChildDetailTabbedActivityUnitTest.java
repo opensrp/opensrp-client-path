@@ -177,7 +177,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Age",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -192,7 +192,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s home health facility",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -201,7 +201,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s ZEIR ID",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -210,7 +210,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s register card number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -219,7 +219,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s birth certificate number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -228,7 +228,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "First Name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -237,7 +237,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Last Name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -246,7 +246,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Sex",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -255,7 +255,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s DOB",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -264,7 +264,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Age",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -273,7 +273,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Date first seen",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -282,7 +282,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Birth Weight",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -291,7 +291,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Mother/guardian first name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -300,7 +300,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Mother/guardian last name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -309,7 +309,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Mother/guardian DOB",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -318,7 +318,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Mother/guardian NRC number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -327,7 +327,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Mother/guardian phone number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -336,7 +336,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Father/guardian full name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -345,7 +345,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Father/guardian NRC number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -354,7 +354,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Place of birth",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -363,7 +363,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Health facility the child was born in",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -372,7 +372,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Child\'s residential area",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -381,7 +381,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Home Address",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -397,7 +397,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "Landmark",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -406,7 +406,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "CHW name",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -415,7 +415,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "CHW phone number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -424,7 +424,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         final ArrayList<View> outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.rowholder).findViewsWithText(outViews, "HIV exposure",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
     }
 
@@ -440,22 +440,22 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.scrollView2).findViewsWithText(outViews, "Child's home health facility",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
         outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.scrollView2).findViewsWithText(outViews, "Child's ZEIR ID",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
         outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.scrollView2).findViewsWithText(outViews, "Child's register card number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
         outViews = new ArrayList<>();
         activity.getViewPagerAdapter().getItem(0).getView().findViewById(R.id.scrollView2).findViewsWithText(outViews, "Child's birth certificate number",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
 
     }
@@ -472,7 +472,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         activity.findViewById(R.id.immunizations).findViewsWithText(outViews, "IMMUNIZATIONS",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
 
     }
@@ -490,12 +490,12 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         activity.findViewById(R.id.scrollView).findViewsWithText(outViews, "PMTCT",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
 
         outViews = new ArrayList<>();
         activity.findViewById(R.id.scrollView).findViewsWithText(outViews, "LAST 5 WEIGHTS",
                 View.FIND_VIEWS_WITH_TEXT);
-        assertTrue(!outViews.isEmpty());
+        assertFalse(outViews.isEmpty());
         assertTrue(outViews.get(0).getVisibility() == View.VISIBLE);
 
 

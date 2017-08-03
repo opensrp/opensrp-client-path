@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.domain.TimelineEvent;
 import org.smartregister.domain.form.FormSubmission;
-import org.smartregister.repository.AllBeneficiaries;
 import org.smartregister.repository.AllTimelineEvents;
 import org.smartregister.service.AlertService;
 
@@ -19,14 +18,12 @@ import java.util.HashMap;
  */
 public class ChildService {
 
-    private AllBeneficiaries allBeneficiaries;
     private AllTimelineEvents allTimelines;
     private AllCommonsRepository allCommonsRepository;
     private AlertService alertService;
 
-    public ChildService(AllBeneficiaries allBeneficiaries,
-                        AllTimelineEvents allTimelines, AllCommonsRepository allCommonsRepository, AlertService alertService) {
-        this.allBeneficiaries = allBeneficiaries;
+    public ChildService(
+            AllTimelineEvents allTimelines, AllCommonsRepository allCommonsRepository, AlertService alertService) {
         this.alertService = alertService;
         this.allTimelines = allTimelines;
         this.allCommonsRepository = allCommonsRepository;

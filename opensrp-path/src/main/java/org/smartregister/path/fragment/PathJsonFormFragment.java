@@ -342,7 +342,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
         }
     }
 
-    final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener = new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
+    private final Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>> motherLookUpListener = new Listener<HashMap<CommonPersonObject, List<CommonPersonObject>>>() {
         @Override
         public void onEvent(HashMap<CommonPersonObject, List<CommonPersonObject>> data) {
             if (!lookedUp) {
@@ -351,7 +351,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
         }
     };
 
-    final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
+    private final View.OnClickListener lookUpRecordOnClickLister = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             if (alertDialog != null && alertDialog.isShowing()) {

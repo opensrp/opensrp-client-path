@@ -22,11 +22,11 @@ import static org.powermock.api.mockito.PowerMockito.when;
  */
 public class VaccinatorApplicationTestVersion extends VaccinatorApplication implements TestLifecycleApplication {
     @Mock
-    VaccineRepository vaccineRepository;
+    private VaccineRepository vaccineRepository;
     @Mock
-    RecurringServiceRecordRepository recurringServiceRecordRepository;
+    private RecurringServiceRecordRepository recurringServiceRecordRepository;
     @Mock
-    RecurringServiceTypeRepository recurringServiceTypeRepository;
+    private RecurringServiceTypeRepository recurringServiceTypeRepository;
 
     @Override
     public void onCreate() {

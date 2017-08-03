@@ -182,7 +182,7 @@ public class FieldMonitorRegisterFragment extends SecuredNativeSmartRegisterCurs
         add2ndColumnHeaderView();
     }//end of method
 
-    private List<String> customColumnsDaily = new ArrayList<String>() {{
+    private static final List<String> customColumnsDaily = new ArrayList<String>() {{
         add("(select count(*) c from ec_mother where tt1 between t.date and t.date) tt1");
         add("(select count(*) c from ec_mother where tt2 between t.date and t.date) tt2");
         add("(select count(*) c from ec_mother where tt3 between t.date and t.date) tt3");
@@ -204,7 +204,7 @@ public class FieldMonitorRegisterFragment extends SecuredNativeSmartRegisterCurs
         add("(select count(*) c from ec_child where penta3 between t.date and t.date) penta3");
     }};
 
-    private List<String> customColumnsMonthly = new ArrayList<String>() {{
+    private static final List<String> customColumnsMonthly = new ArrayList<String>() {{
         add("(select count(*) c from ec_mother where SUBSTR(tt1,1,7) = SUBSTR(t.date,1,7)) tt1");
         add("(select count(*) c from ec_mother where SUBSTR(tt2,1,7) = SUBSTR(t.date,1,7)) tt2");
         add("(select count(*) c from ec_mother where SUBSTR(tt3,1,7) = SUBSTR(t.date,1,7)) tt3");
@@ -291,6 +291,8 @@ public class FieldMonitorRegisterFragment extends SecuredNativeSmartRegisterCurs
 
                     getActivity().finish();
 
+                    break;
+                default:
                     break;
             }
         }
