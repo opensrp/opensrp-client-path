@@ -73,8 +73,8 @@ public class HIA2ReportsActivity extends BaseActivity {
      */
     private ViewPager mViewPager;
     private TabLayout tabLayout;
-    private LocationSwitcherToolbar toolbar;
     private ProgressDialog progressDialog;
+    private boolean showFragment = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +83,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         toggle.setDrawerIndicatorEnabled(false);
         toggle.setHomeAsUpIndicator(null);
 
-        toolbar = (LocationSwitcherToolbar) getToolbar();
+        LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
         toolbar.setTitle(getString(R.string.side_nav_hia2));
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -199,36 +199,33 @@ public class HIA2ReportsActivity extends BaseActivity {
 
     }
 
-    boolean showFragment = false;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_GET_JSON) {
-            if (resultCode == RESULT_OK) {
-                try {
-                    showFragment = true;
-                    String jsonString = data.getStringExtra("json");
-                    JSONObject form = new JSONObject(jsonString);
-                    String monthString = form.getString("report_month");
-                    Date month = HIA2Service.dfyymmdd.parse(monthString);
+        if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+            try {
+                showFragment = true;
+                String jsonString = data.getStringExtra("json");
+                JSONObject form = new JSONObject(jsonString);
+                String monthString = form.getString("report_month");
+                Date month = HIA2Service.dfyymmdd.parse(monthString);
 
-                    JSONObject monthlyDraftForm = new JSONObject(jsonString);
-                    Map<String, String> result = JsonFormUtils.sectionFields(monthlyDraftForm);
-                    boolean saveClicked = false;
-                    if (result.containsKey(FORM_KEY_CONFIRM)) {
-                        saveClicked = Boolean.valueOf(result.get(FORM_KEY_CONFIRM));
-                        result.remove(FORM_KEY_CONFIRM);
-                    }
-                    VaccinatorApplication.getInstance().monthlyTalliesRepository()
-                            .save(result, month);
-                    if (saveClicked) {
-                        sendReport(month);
-                    }
-                } catch (JSONException e) {
-                    Log.e(TAG, e.getMessage());
-                } catch (ParseException e) {
-                    Log.e(TAG, e.getMessage());
+                JSONObject monthlyDraftForm = new JSONObject(jsonString);
+                Map<String, String> result = JsonFormUtils.sectionFields(monthlyDraftForm);
+                boolean saveClicked = false;
+                if (result.containsKey(FORM_KEY_CONFIRM)) {
+                    saveClicked = Boolean.valueOf(result.get(FORM_KEY_CONFIRM));
+                    result.remove(FORM_KEY_CONFIRM);
                 }
+                VaccinatorApplication.getInstance().monthlyTalliesRepository()
+                        .save(result, month);
+                if (saveClicked) {
+                    sendReport(month);
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (ParseException e) {
+                Log.e(TAG, e.getMessage());
             }
         }
     }
@@ -292,11 +289,6 @@ public class HIA2ReportsActivity extends BaseActivity {
     public void refreshDraftMonthlyTitle() {
         Utils.startAsyncTask(new FetchEditedMonthlyTalliesTask(new FetchEditedMonthlyTalliesTask.TaskListener() {
             @Override
-            public void onPreExecute() {
-
-            }
-
-            @Override
             public void onPostExecute(final List<MonthlyTally> monthlyTallies) {
                 tabLayout.post(new Runnable() {
                     @Override
@@ -323,11 +315,9 @@ public class HIA2ReportsActivity extends BaseActivity {
         }
 
         for (MonthlyTally monthlyTally : monthlyTallies) {
-            if (monthlyTally.getIndicator() != null) {
-                if (monthlyTally.getIndicator().getIndicatorCode()
-                        .equalsIgnoreCase(hia2Indicator.getIndicatorCode())) {
-                    return monthlyTally.getValue();
-                }
+            if (monthlyTally.getIndicator() != null && monthlyTally.getIndicator().getIndicatorCode()
+                    .equalsIgnoreCase(hia2Indicator.getIndicatorCode())) {
+                return monthlyTally.getValue();
             }
         }
 
@@ -344,7 +334,6 @@ public class HIA2ReportsActivity extends BaseActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            taskListener.onPreExecute();
         }
 
         @Override
@@ -368,9 +357,7 @@ public class HIA2ReportsActivity extends BaseActivity {
             taskListener.onPostExecute(monthlyTallies);
         }
 
-        public static interface TaskListener {
-            void onPreExecute();
-
+        public interface TaskListener {
             void onPostExecute(List<MonthlyTally> monthlyTallies);
         }
     }

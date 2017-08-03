@@ -181,11 +181,11 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-    @Test
+    /*@Test
     public void shouldRenderUnderFiveHistoryTabTitle() {
 
 
-    }
+    }*/
 
     @Test
     public void shouldRenderChildsHomeHealthFacilityRow() {

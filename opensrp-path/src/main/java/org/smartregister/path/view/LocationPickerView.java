@@ -37,7 +37,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     private final Context context;
     private org.smartregister.Context openSrpContext;
     private Dialog locationPickerDialog;
-    ServiceLocationsAdapter serviceLocationsAdapter;
+    private ServiceLocationsAdapter serviceLocationsAdapter;
     private OnLocationChangeListener onLocationChangeListener;
 
     private static final ArrayList<String> ALLOWED_LEVELS;

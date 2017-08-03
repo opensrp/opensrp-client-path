@@ -77,7 +77,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
             // FIXME path_conflict
             //@Override
             public FilterOption searchFilterOption() {
-                return new BasicSearchOption("", BasicSearchOption.Type.getByRegisterName(getDefaultOptionsProvider().nameInShortFormForTitle()));
+                return new BasicSearchOption("");
             }
 
             @Override

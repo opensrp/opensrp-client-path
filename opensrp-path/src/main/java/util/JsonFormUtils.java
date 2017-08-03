@@ -150,9 +150,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             // Replace values for location questions with their corresponding location IDs
             for (int i = 0; i < fields.length(); i++) {
                 String key = fields.getJSONObject(i).getString("key");
-                if (key.equals("Home_Facility")
-                        || key.equals("Birth_Facility_Name")
-                        || key.equals("Residential_Area")) {
+                if ("Home_Facility".equals(key)
+                        || "Birth_Facility_Name".equals(key)
+                        || "Residential_Area".equals(key)) {
                     try {
                         String rawValue = fields.getJSONObject(i).getString("value");
                         JSONArray valueArray = new JSONArray(rawValue);

@@ -173,13 +173,13 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
     }
 
     protected void updateLocationText() {
-        if(clinicSelection != null) {
+        if (clinicSelection != null) {
             clinicSelection.setText(JsonFormUtils.getOpenMrsReadableName(
                     clinicSelection.getSelectedItem()));
             try {
 
                 String locationId = JsonFormUtils.getOpenMrsLocationId(context(), clinicSelection.getSelectedItem());
-                Context.getInstance().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID,locationId);
+                Context.getInstance().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -190,7 +190,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
         return clinicSelection;
     }
 
-    public boolean onBackPressed(){
+    public boolean onBackPressed() {
         return false;
     }
 }

@@ -82,11 +82,10 @@ public class UniqueIdRepository extends BaseRepository {
         try {
             cursor = getWritableDatabase().rawQuery("SELECT COUNT (*) FROM " + UniqueIds_TABLE_NAME + " WHERE " + STATUS_COLUMN + "=?",
                     new String[]{String.valueOf(STATUS_NOT_USED)});
-            if (null != cursor)
-                if (cursor.getCount() > 0) {
-                    cursor.moveToFirst();
-                    count = cursor.getInt(0);
-                }
+            if (null != cursor && cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                count = cursor.getInt(0);
+            }
 
         } catch (SQLException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -126,14 +125,17 @@ public class UniqueIdRepository extends BaseRepository {
      */
     public void close(String openmrsId) {
         try {
+            String id;
             String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
             if (!openmrsId.contains("-")) {
-                openmrsId = formatId(openmrsId);
+                id = formatId(openmrsId);
+            } else {
+                id = openmrsId;
             }
             ContentValues values = new ContentValues();
             values.put(STATUS_COLUMN, STATUS_USED);
             values.put(USED_BY_COLUMN, userName);
-            getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{openmrsId});
+            getWritableDatabase().update(UniqueIds_TABLE_NAME, values, OPENMRS_ID_COLUMN + " = ?", new String[]{id});
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

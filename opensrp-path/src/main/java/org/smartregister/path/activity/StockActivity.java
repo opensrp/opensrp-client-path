@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Created by raihan on 5/23/17.
  */
 public class StockActivity extends BaseActivity {
-    GridView stockGrid;
+    private GridView stockGrid;
     private LocationSwitcherToolbar toolbar;
     public org.smartregister.Context context;
 

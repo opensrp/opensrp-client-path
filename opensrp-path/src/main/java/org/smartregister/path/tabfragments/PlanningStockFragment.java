@@ -51,7 +51,6 @@ public class PlanningStockFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -59,10 +58,6 @@ public class PlanningStockFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     public View mainview;
-
-    public PlanningStockFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of
@@ -155,7 +150,7 @@ public class PlanningStockFragment extends Fragment {
         createActiveChildrenStatsView(view);
         creatgraphview(view);
         createGraphDataAndView(view);
-        createStockInfoForlastThreeMonths(view);
+        //createStockInfoForlastThreeMonths(view);
         getValueForStock(view);
         getLastThreeMonthStockIssued(view);
         waste_rate_Calculate(view);
@@ -284,10 +279,6 @@ public class PlanningStockFragment extends Fragment {
 
     }
 
-    private void createStockInfoForlastThreeMonths(View view) {
-
-    }
-
     private LineGraphSeries<DataPoint> createGraphDataAndView(View view) {
         DateTime now = new DateTime(System.currentTimeMillis());
         DateTime threemonthEarlierIterator = now.minusMonths(3).withTimeAtStartOfDay();
@@ -382,10 +373,8 @@ public class PlanningStockFragment extends Fragment {
                 if (objectatindex.has("vaccines")) {
                     JSONArray vaccinearray = objectatindex.getJSONArray("vaccines");
                     for (int j = 0; j < vaccinearray.length(); j++) {
-                        if (vaccinearray.getJSONObject(j).has("type")) {
-                            if (vaccinearray.getJSONObject(j).getString("type").equalsIgnoreCase(vaccinetypename)) {
-                                vaccinesofsametype.add(vaccinearray.getJSONObject(j));
-                            }
+                        if (vaccinearray.getJSONObject(j).has("type") && vaccinearray.getJSONObject(j).getString("type").equalsIgnoreCase(vaccinetypename)) {
+                            vaccinesofsametype.add(vaccinearray.getJSONObject(j));
                         }
                     }
                 }
@@ -412,7 +401,7 @@ public class PlanningStockFragment extends Fragment {
         TextView difference_total = (TextView) view.findViewById(R.id.difference_total);
         String stringDifference0to11 = "";
         String stringDifference12to59 = "";
-        activeChildrenStats activeChildrenStats = getActivechildrenStat();
+        ActiveChildrenStats activeChildrenStats = getActivechildrenStat();
 
 
         zerotoelevenlastmonth.setText("" + activeChildrenStats.getChildrenLastMonthZeroToEleven());
@@ -485,8 +474,8 @@ public class PlanningStockFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public activeChildrenStats getActivechildrenStat() {
-        activeChildrenStats activeChildrenStats = new activeChildrenStats();
+    public ActiveChildrenStats getActivechildrenStat() {
+        ActiveChildrenStats activeChildrenStats = new ActiveChildrenStats();
         PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
         net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
         Cursor c = db.rawQuery("Select dob,client_reg_date from ec_child where inactive != 'true' and lost_to_follow_up != 'true' ", null);
@@ -547,11 +536,11 @@ public class PlanningStockFragment extends Fragment {
         return activeChildrenStats;
     }
 
-    class activeChildrenStats {
-        Long childrenLastMonthZeroToEleven = 0l;
-        Long childrenLastMonthtwelveTofiftyNine = 0l;
-        Long childrenThisMonthZeroToEleven = 0l;
-        Long childrenThisMonthtwelveTofiftyNine = 0l;
+    private class ActiveChildrenStats {
+        private Long childrenLastMonthZeroToEleven = 0l;
+        private Long childrenLastMonthtwelveTofiftyNine = 0l;
+        private Long childrenThisMonthZeroToEleven = 0l;
+        private Long childrenThisMonthtwelveTofiftyNine = 0l;
 
         public Long getChildrenLastMonthZeroToEleven() {
             return childrenLastMonthZeroToEleven;

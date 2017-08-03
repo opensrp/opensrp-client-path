@@ -57,7 +57,7 @@ public class PullUniqueIdsIntentService extends IntentService {
             String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
             String password = Context.getInstance().allSettings().fetchANMPassword();
 
-            String localUrlString = PathConstants.openmrsUrl() +  PathConstants.OPENMRS_IDGEN_URL + "?source="+PathConstants.OPENMRS_UNIQUE_ID_SOURCE+"&numberToGenerate=" + numberToGenerate + "&username=" + userName + "&password=" + password;
+            String localUrlString = PathConstants.openmrsUrl() + PathConstants.OPENMRS_IDGEN_URL + "?source=" + PathConstants.OPENMRS_UNIQUE_ID_SOURCE + "&numberToGenerate=" + numberToGenerate + "&username=" + userName + "&password=" + password;
 //           // Convert the incoming data string to a URL.
 
             localURL = new URL(localUrlString);
@@ -91,7 +91,7 @@ public class PullUniqueIdsIntentService extends IntentService {
                         break;
                     default:
                         Log.e(TAG, "Error when fetching unique ids from openmrs server " + localUrlString + " Response code" + responseCode);
-
+                        break;
                 }
 
                 // Reports that the feed retrieval is complete.

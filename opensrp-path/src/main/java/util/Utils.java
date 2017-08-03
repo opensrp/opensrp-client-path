@@ -21,21 +21,13 @@ import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.domain.EditWrapper;
-import org.smartregister.repository.ImageRepository;
-
-import java.io.File;
 
 
 /**
@@ -164,36 +156,5 @@ public class Utils {
 
         return row;
     }
-
-
-    public static void setProfiePic(Context context, ImageView mImageView, String entityId, Object watermark) {
-        ProfileImage photo = ((ImageRepository) org.smartregister.Context.getInstance().imageRepository()).findByEntityId(entityId);
-        if (photo != null) {
-            setProfiePicFromPath(context, mImageView, photo.getFilepath(), watermark);
-        }
-    }
-
-    public static void setProfiePicFromPath(Context context, ImageView mImageView, String photoPath, Object watermark) {
-        mImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        if (watermark == null) {
-            Picasso.with(context).load(new File(photoPath)).into(mImageView);
-        } else {
-            Picasso.with(context).load(new File(photoPath))
-                    .transform(new WatermarkTransformation(watermark))
-                    .into(mImageView);
-        }
-    }
-
-    public static void setProfiePic(Context context, ImageView mImageView, int photoResId, Object watermark) {
-        mImageView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        if (watermark == null) {
-            Picasso.with(context).load(photoResId).into(mImageView);
-        } else {
-            Picasso.with(context).load(photoResId)
-                    .transform(new WatermarkTransformation(watermark))
-                    .into(mImageView);
-        }
-    }
-
 
 }

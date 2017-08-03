@@ -44,50 +44,49 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
         //TODO check if record exists ...
-        if (cursor instanceof AdvancedSearchFragment.AdvancedMatrixCursor) {
-            if (commonRepository != null) {
-                CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
+        if (cursor instanceof AdvancedSearchFragment.AdvancedMatrixCursor && commonRepository != null) {
+            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
 
-                View recordVaccination = convertView.findViewById(R.id.record_vaccination);
-                recordVaccination.setVisibility(View.VISIBLE);
+            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
+            recordVaccination.setVisibility(View.VISIBLE);
 
-                View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
-                moveToCatchment.setVisibility(View.GONE);
+            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
+            moveToCatchment.setVisibility(View.GONE);
 
-                if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
-                    recordWeightText.setText("Record\nservice");
+            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+                TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
+                recordWeightText.setText("Record\nservice");
 
-                    String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
+                String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
 
-                    View recordWeight = convertView.findViewById(R.id.record_weight);
-                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    recordWeight.setTag(zeirId);
-                    recordWeight.setClickable(true);
-                    recordWeight.setEnabled(true);
-                    recordWeight.setOnClickListener(onClickListener);
+                View recordWeight = convertView.findViewById(R.id.record_weight);
+                recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                recordWeight.setTag(zeirId);
+                recordWeight.setClickable(true);
+                recordWeight.setEnabled(true);
+                recordWeight.setOnClickListener(onClickListener);
 
 
-                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
-                    moveToCatchmentText.setText("Move to my\ncatchment");
+                TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
+                moveToCatchmentText.setText("Move to my\ncatchment");
 
-                    String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
-                    String entityId = pc.entityId();
+                String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
+                String entityId = pc.entityId();
 
-                    List<String> ids = new ArrayList<>();
-                    ids.add(motherBaseEntityId);
-                    ids.add(entityId);
+                List<String> ids = new ArrayList<>();
+                ids.add(motherBaseEntityId);
+                ids.add(entityId);
 
-                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    moveToCatchment.setTag(ids);
-                    moveToCatchment.setClickable(true);
-                    moveToCatchment.setEnabled(true);
-                    moveToCatchment.setOnClickListener(onClickListener);
+                moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                moveToCatchment.setTag(ids);
+                moveToCatchment.setClickable(true);
+                moveToCatchment.setEnabled(true);
+                moveToCatchment.setOnClickListener(onClickListener);
 
-                    moveToCatchment.setVisibility(View.VISIBLE);
-                    recordVaccination.setVisibility(View.GONE);
-                }
+                moveToCatchment.setVisibility(View.VISIBLE);
+                recordVaccination.setVisibility(View.GONE);
             }
+
         }
 
     }

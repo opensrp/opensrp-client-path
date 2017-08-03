@@ -65,7 +65,6 @@ android {
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '1'
-            buildConfigField "int", "VACCINE_SYNC_TIME", '12'
             buildConfigField "int", "DATABASE_VERSION", '8'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "true"
@@ -78,7 +77,6 @@ android {
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '2'
-            buildConfigField "int", "VACCINE_SYNC_TIME", '0'
             buildConfigField "int", "DATABASE_VERSION", '8'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
@@ -115,13 +113,12 @@ dependencies {
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
 
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar'){
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar') {
         transitive = true
     }
 
     compile(name: 'opensrp-immunization-debug', ext: 'aar')
 
-    compile 'com.squareup.picasso:picasso:2.5.2'
     compile('com.android.support:design:22.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
 

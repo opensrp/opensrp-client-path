@@ -17,9 +17,6 @@ public class MonthlyTally extends Tally implements Serializable {
     @JsonProperty
     private boolean edited;
 
-    public MonthlyTally() {
-    }
-
     public Date getDateSent() {
         return dateSent;
     }

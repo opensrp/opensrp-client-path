@@ -18,8 +18,8 @@ import org.smartregister.path.R;
  * Created by coder on 6/28/17.
  */
 public class SendMonthlyDraftDialogFragment extends DialogFragment {
-    String date;
-    View.OnClickListener onSendClickedListener;
+    private String date;
+    private View.OnClickListener onSendClickedListener;
 
     public static SendMonthlyDraftDialogFragment newInstance(String month, View.OnClickListener onSendClickedListener) {
         SendMonthlyDraftDialogFragment f = new SendMonthlyDraftDialogFragment();

@@ -54,17 +54,14 @@ import static org.smartregister.util.Utils.getValue;
  */
 public class PathJsonFormFragment extends JsonFormFragment {
 
-    static String stepName;
-
-    Snackbar snackbar = null;
-    AlertDialog alertDialog = null;
-    boolean lookedUp = false;
+    private Snackbar snackbar = null;
+    private AlertDialog alertDialog = null;
+    private boolean lookedUp = false;
 
     public static PathJsonFormFragment getFormFragment(String stepName) {
         PathJsonFormFragment jsonFormFragment = new PathJsonFormFragment();
         Bundle bundle = new Bundle();
         bundle.putString("stepName", stepName);
-        PathJsonFormFragment.stepName = stepName;
         jsonFormFragment.setArguments(bundle);
         return jsonFormFragment;
     }
@@ -72,8 +69,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = super.onCreateView(inflater, container, savedInstanceState);
-        return rootView;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -100,7 +96,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
         if (!map.isEmpty()) {
             tapToView(map);
         } else {
-            if(snackbar != null) {
+            if (snackbar != null) {
                 snackbar.dismiss();
             }
         }
@@ -124,7 +120,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
             mothers.add(entry.getKey());
         }
 
-        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider = new MotherLookUpSmartClientsProvider(getActivity(), lookUpRecordOnClickLister);
+        final MotherLookUpSmartClientsProvider motherLookUpSmartClientsProvider = new MotherLookUpSmartClientsProvider(getActivity());
         BaseAdapter baseAdapter = new BaseAdapter() {
             @Override
             public int getCount() {
@@ -368,14 +364,15 @@ public class PathJsonFormFragment extends JsonFormFragment {
         }
     };
 
-    public void getLabelViewFromTag(String labeltext,String todisplay){
+    public void getLabelViewFromTag(String labeltext, String todisplay) {
 //        super.getMainView();
-        updateRelevantTextView(getMainView(),todisplay,labeltext);
+        updateRelevantTextView(getMainView(), todisplay, labeltext);
 
 //                findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
+
     public void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
-        if(mMainView != null) {
+        if (mMainView != null) {
             int childCount = mMainView.getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View view = mMainView.getChildAt(i);
@@ -392,9 +389,10 @@ public class PathJsonFormFragment extends JsonFormFragment {
             }
         }
     }
-    public String getRelevantTextViewString( String currentKey) {
+
+    public String getRelevantTextViewString(String currentKey) {
         String toreturn = "";
-        if(getMainView() != null) {
+        if (getMainView() != null) {
             int childCount = getMainView().getChildCount();
             for (int i = 0; i < childCount; i++) {
                 View view = getMainView().getChildAt(i);
@@ -412,6 +410,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
         }
         return toreturn;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean balancecheck = true;
@@ -420,15 +419,15 @@ public class PathJsonFormFragment extends JsonFormFragment {
             JSONObject object = getStep("step1");
             try {
                 if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
-                    balancecheck = ((PathJsonFormActivity)getActivity()).checkIfBalanceNegative();
+                    balancecheck = ((PathJsonFormActivity) getActivity()).checkIfBalanceNegative();
                 }
-            }catch (Exception e){
-
+            } catch (Exception e) {
+                Log.e(getClass().getName(), e.toString(), e);
             }
         }
-        if(balancecheck) {
+        if (balancecheck) {
             return super.onOptionsItemSelected(item);
-        }else{
+        } else {
             final Snackbar snackbar = Snackbar
                     .make(getMainView(), "Please make sure the balance is not less than zero.", Snackbar.LENGTH_LONG);
             snackbar.setAction("Close", new View.OnClickListener() {

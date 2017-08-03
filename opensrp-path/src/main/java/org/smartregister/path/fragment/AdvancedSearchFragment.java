@@ -62,9 +62,7 @@ import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
 
 public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
-    private View mView;
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
-    private Button search;
     private RadioButton outsideInside;
     private RadioButton myCatchment;
     private CheckBox active;
@@ -115,7 +113,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private static final String START_DATE = "start_date";
     private static final String END_DATE = "end_date";
 
-    AdvancedSearchPaginatedCursorAdapter clientAdapter;
+    private AdvancedSearchPaginatedCursorAdapter clientAdapter;
 
     @Override
 
@@ -124,18 +122,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         View view = inflater.inflate(R.layout.smart_register_activity_advanced_search, container, false);
-        mView = view;
         setupViews(view);
         onResumption();
         return view;
-    }
-
-    @Override
-    protected void onCreation() {
-    }
-
-    @Override
-    protected void onResumption() {
     }
 
     @Override
@@ -224,11 +213,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                     ChildImmunizationActivity.launchActivity(getActivity(), client, null);
                     break;
                 case R.id.record_weight:
-                    if (client == null) {
-                        if (view.getTag() != null && view.getTag() instanceof String) {
-                            String zeirId = view.getTag().toString();
-                            ((ChildSmartRegisterActivity) getActivity()).startFormActivity("out_of_catchment_service", zeirId, null);
-                        }
+                    if (client == null && view.getTag() != null && view.getTag() instanceof String) {
+                        String zeirId = view.getTag().toString();
+                        ((ChildSmartRegisterActivity) getActivity()).startFormActivity("out_of_catchment_service", zeirId, null);
                     } else {
                         registerClickables.setRecordWeight(true);
                         ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
@@ -242,11 +229,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                     }
                     break;
                 case R.id.move_to_catchment:
-                    if (client == null) {
-                        if (view.getTag() != null && view.getTag() instanceof List) {
-                            List<String> ids = (List<String>) view.getTag();
-                            moveToMyCatchmentArea(ids);
-                        }
+                    if (client == null && view.getTag() != null && view.getTag() instanceof List) {
+                        List<String> ids = (List<String>) view.getTag();
+                        moveToMyCatchmentArea(ids);
                     }
                     break;
             }
@@ -256,7 +241,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private void populateFormViews(View view) {
         searchCriteria = (TextView) view.findViewById(R.id.search_criteria);
         matchingResults = (TextView) view.findViewById(R.id.matching_results);
-        search = (Button) view.findViewById(R.id.search);
+        Button search = (Button) view.findViewById(R.id.search);
 
         outsideInside = (RadioButton) view.findViewById(R.id.out_and_inside);
         myCatchment = (RadioButton) view.findViewById(R.id.my_catchment);
@@ -863,10 +848,13 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     }
 
     private String removeLastComma(String str) {
+        String s;
         if (str != null && str.length() > 0 && str.charAt(str.length() - 1) == ',') {
-            str = str.substring(0, str.length() - 1);
+            s = str.substring(0, str.length() - 1);
+        } else {
+            s = str;
         }
-        return str;
+        return s;
     }
 
     @Override
@@ -1029,12 +1017,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                 .setMessage(R.string.move_to_catchment_confirm_dialog_message)
                 .setTitle(R.string.move_to_catchment_confirm_dialog_title)
                 .setCancelable(false)
-                .setPositiveButton(org.smartregister.path.R.string.no_button_label,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-
-                            }
-                        })
+                .setPositiveButton(org.smartregister.path.R.string.no_button_label, null)
                 .setNegativeButton(org.smartregister.path.R.string.yes_button_label,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -1051,7 +1034,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         return "<b>" + textToBold + "</b>";
     }
 
-    final Listener<JSONArray> listener = new Listener<JSONArray>() {
+    private final Listener<JSONArray> listener = new Listener<JSONArray>() {
         public void onEvent(final JSONArray jsonArray) {
 
 
@@ -1182,7 +1165,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     };
 
 
-    final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
+    private final Listener<JSONObject> moveToMyCatchmentListener = new Listener<JSONObject>() {
         public void onEvent(final JSONObject jsonObject) {
             if (jsonObject != null) {
                 if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {

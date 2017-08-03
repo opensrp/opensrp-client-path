@@ -60,11 +60,10 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     private final LayoutInflater inflater;
     private final Context context;
     private final View.OnClickListener onClickListener;
-    AlertService alertService;
-    VaccineRepository vaccineRepository;
-    WeightRepository weightRepository;
+    private AlertService alertService;
+    private VaccineRepository vaccineRepository;
+    private WeightRepository weightRepository;
     private final AbsListView.LayoutParams clientViewLayoutParams;
-    private static final String VACCINES_FILE = "vaccines.json";
 
     public ChildSmartClientsProvider(Context context, View.OnClickListener onClickListener,
                                      AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository) {

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
@@ -30,14 +29,10 @@ import static org.smartregister.util.Utils.getValue;
  */
 public class MotherLookUpSmartClientsProvider {
     private final LayoutInflater inflater;
-    private final Context context;
-    private final View.OnClickListener onClickListener;
     private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
 
-    public MotherLookUpSmartClientsProvider(Context context, View.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
-        this.context = context;
+    public MotherLookUpSmartClientsProvider(Context context) {
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -83,8 +78,7 @@ public class MotherLookUpSmartClientsProvider {
 
 
     public View inflatelayoutForCursorAdapter() {
-        ViewGroup view = (ViewGroup) inflater().inflate(R.layout.mother_child_lookup_client, null);
-        return view;
+        return inflater().inflate(R.layout.mother_child_lookup_client, null);
     }
 
     public LayoutInflater inflater() {

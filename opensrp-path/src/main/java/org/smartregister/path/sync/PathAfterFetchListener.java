@@ -11,7 +11,7 @@ public class PathAfterFetchListener implements AfterFetchListener {
     public void afterFetch(FetchStatus fetchStatus) {
     }
 
-    void partialFetch(FetchStatus fetchStatus) {
+    public void partialFetch(FetchStatus fetchStatus) {
         ON_DATA_FETCHED.notifyListeners(fetchStatus);
     }
 }

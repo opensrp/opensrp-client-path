@@ -152,10 +152,6 @@ public class DraftMonthlyFragment extends Fragment
 
         Utils.startAsyncTask(new HIA2ReportsActivity.FetchEditedMonthlyTalliesTask(new HIA2ReportsActivity.FetchEditedMonthlyTalliesTask.TaskListener() {
             @Override
-            public void onPreExecute() {
-            }
-
-            @Override
             public void onPostExecute(List<MonthlyTally> monthlyTallies) {
                 updateDraftsReportListView(monthlyTallies);
             }
@@ -218,23 +214,26 @@ public class DraftMonthlyFragment extends Fragment
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
+                View view;
                 if (convertView == null) {
                     LayoutInflater inflater = (LayoutInflater)
                             getActivity().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
-                    convertView = inflater.inflate(R.layout.month_item, null);
+                    view = inflater.inflate(R.layout.month_item, null);
+                } else {
+                    view = convertView;
                 }
 
-                TextView tv = (TextView) convertView.findViewById(R.id.tv);
+                TextView tv = (TextView) view.findViewById(R.id.tv);
                 Date date = list.get(position);
                 String text = MonthlyTalliesRepository.DF_YYYYMM.format(date);
                 tv.setText(text);
                 tv.setTag(date);
 
-                convertView.setOnClickListener(clickListener);
-                convertView.setTag(list.get(position));
+                view.setOnClickListener(clickListener);
+                view.setTag(list.get(position));
 
-                return convertView;
+                return view;
             }
         };
 

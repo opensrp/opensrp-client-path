@@ -63,8 +63,6 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
-    private ArrayList<ImmunizationRowGroup> vaccineGroups;
-    private ArrayList<ServiceRowGroup> serviceRowGroups;
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     private static final String VACCINES_FILE = "vaccines.json";
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
@@ -202,7 +200,6 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void updateVaccinationViews(LinearLayout fragmentContainer, boolean editmode) {
-        vaccineGroups = new ArrayList<>();
         VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
         List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) fragmentContainer.findViewById(R.id.immunizations);
@@ -236,7 +233,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 });
 
                 vaccineGroupCanvasLL.addView(curGroup);
-                vaccineGroups.add(curGroup);
             }
         } catch (JSONException e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));
@@ -245,8 +241,6 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void updateServiceViews(LinearLayout fragmentContainer, boolean editmode) {
-        serviceRowGroups = new ArrayList<>();
-
         List<ServiceRecord> serviceRecords = new ArrayList<>();
 
         RecurringServiceTypeRepository recurringServiceTypeRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceTypeRepository();
@@ -293,7 +287,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 });
 
                 serviceGroupCanvasLL.addView(curGroup);
-                serviceRowGroups.add(curGroup);
             }
         } catch (Exception e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));

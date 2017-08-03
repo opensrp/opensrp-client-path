@@ -19,9 +19,7 @@ import java.util.ArrayList;
  */
 
 public class SiblingPicturesGroup extends LinearLayout {
-    private Context context;
     private HorizontalGridView siblingsGV;
-    private SiblingPictureAdapter siblingPictureAdapter;
 
     public SiblingPicturesGroup(Context context) {
         super(context);
@@ -45,7 +43,6 @@ public class SiblingPicturesGroup extends LinearLayout {
     }
 
     private void init(Context context) {
-        this.context = context;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         layoutInflater.inflate(R.layout.view_sibling_group, this, true);
         siblingsGV = (HorizontalGridView) findViewById(R.id.siblings_gv);
@@ -54,7 +51,7 @@ public class SiblingPicturesGroup extends LinearLayout {
     }
 
     public void setSiblingBaseEntityIds(BaseActivity baseActivity, ArrayList<String> baseEntityIds) {
-        siblingPictureAdapter = new SiblingPictureAdapter(baseActivity, baseEntityIds);
+        SiblingPictureAdapter siblingPictureAdapter = new SiblingPictureAdapter(baseActivity, baseEntityIds);
         siblingsGV.setAdapter(siblingPictureAdapter);
     }
 }

@@ -38,10 +38,7 @@ import org.smartregister.path.provider.StockRowSmartClientsProvider;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.FormUtils;
-import org.smartregister.view.dialog.AllClientsFilter;
-import org.smartregister.view.dialog.DialogOption;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +47,6 @@ import util.JsonFormUtils;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.text.MessageFormat.format;
-import static java.util.Arrays.asList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,16 +60,10 @@ public class CurrentStock extends Fragment implements
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private static final String KEY = "key";
-    private static final String VALUE = "value";
-    public static final String STEP1 = "step1";
-    public static final String FIELDS = "fields";
-    public static final SimpleDateFormat dd_MM_yyyy = new SimpleDateFormat("dd-MM-yyyy");
 
     ///////////////////////////////////////block for list///////////////////
     public static final String DIALOG_TAG = "dialog";
     private boolean refreshList;
-    public static final List<? extends DialogOption> DEFAULT_FILTER_OPTIONS = asList(new AllClientsFilter());
     public ListView clientsView;
     public ProgressBar clientsProgressView;
     public static int totalcount = 0;
@@ -83,18 +73,22 @@ public class CurrentStock extends Fragment implements
     public String filters = "";
     public String mainCondition = "";
     public String Sortqueries;
-    private String currentquery;
     public String tablename;
     public String countSelect;
     public String joinTable = "";
 
     protected static final int LOADER_ID = 0;
-    private static final String INIT_LOADER = "init";
     private StockRepository stockRepository;
 
     public StockPaginatedCursorAdapter clientAdapter;
 
     public View mView;
+
+    private boolean isPaused;
+
+    private TextView pageInfoView;
+    private Button nextPageView;
+    private Button previousPageView;
 
     ///////////////////////////////////////////////////////////////////////
     // TODO: Rename and change types of parameters
@@ -207,7 +201,7 @@ public class CurrentStock extends Fragment implements
 
 
         StockRowSmartClientsProvider hhscp = new StockRowSmartClientsProvider(getActivity(),
-                context().alertService(), stockRepository);
+                stockRepository);
         clientAdapter = new StockPaginatedCursorAdapter(getActivity(), null, hhscp, stockRepository);
         clientsView.setAdapter(clientAdapter);
         clientAdapter.notifyDataSetChanged();
@@ -329,7 +323,6 @@ public class CurrentStock extends Fragment implements
     private void processStockLossAdjustment(String jsonString) {
         JSONObject jsonForm = null;
         try {
-            Context context = Context.getInstance();
             jsonForm = new JSONObject(jsonString);
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_loss_adjustment");
@@ -363,7 +356,6 @@ public class CurrentStock extends Fragment implements
     private void processStockReceived(String jsonString) {
         JSONObject jsonForm = null;
         try {
-            Context context = Context.getInstance();
             jsonForm = new JSONObject(jsonString);
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_Received");
@@ -432,9 +424,6 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-    private TextView pageInfoView;
-    private Button nextPageView;
-    private Button previousPageView;
 
     private class PaginationViewHandler implements View.OnClickListener {
 
@@ -717,8 +706,6 @@ public class CurrentStock extends Fragment implements
     public boolean isPaused() {
         return isPaused;
     }
-
-    private boolean isPaused;
 
 
 }

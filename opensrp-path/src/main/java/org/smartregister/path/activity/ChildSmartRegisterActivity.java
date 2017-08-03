@@ -29,7 +29,6 @@ import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.fragment.BaseSmartRegisterFragment;
 import org.smartregister.path.fragment.ChildSmartRegisterFragment;
-import org.smartregister.path.receiver.ServiceReceiver;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
@@ -58,14 +57,10 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
     OpenSRPViewPager mPager;
     private FragmentPagerAdapter mPagerAdapter;
     private static final int REQUEST_CODE_GET_JSON = 3432;
-    private static final int REQUEST_CODE_RECORD_OUT_OF_CATCHMENT = 1131;
     private int currentPage;
     public static final int ADVANCED_SEARCH_POSITION = 1;
 
     private android.support.v4.app.Fragment mBaseFragment = null;
-    private AdvancedSearchFragment advancedSearchFragment;
-
-    private ServiceReceiver receiver;
 
 
     @Override
@@ -77,7 +72,6 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mBaseFragment = new ChildSmartRegisterFragment();
-        advancedSearchFragment = new AdvancedSearchFragment();
         Fragment[] otherFragments = {new AdvancedSearchFragment()};
 
         // Instantiate a ViewPager and a PagerAdapter.
@@ -177,7 +171,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
 
     public void updateAdvancedSearchFilterCount(int count) {
         AdvancedSearchFragment advancedSearchFragment = (AdvancedSearchFragment) findFragmentByPosition(ADVANCED_SEARCH_POSITION);
-        if(advancedSearchFragment != null){
+        if (advancedSearchFragment != null) {
             advancedSearchFragment.updateFilterCount(count);
         }
     }
@@ -288,11 +282,11 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
     }
 
     public void filterSelection() {
-        if(currentPage != 0){
+        if (currentPage != 0) {
             switchToBaseFragment(null);
             BaseSmartRegisterFragment registerFragment = (BaseSmartRegisterFragment) findFragmentByPosition(0);
             if (registerFragment != null && registerFragment instanceof ChildSmartRegisterFragment) {
-                ((ChildSmartRegisterFragment)registerFragment).triggerFilterSelection();
+                ((ChildSmartRegisterFragment) registerFragment).triggerFilterSelection();
             }
         }
     }

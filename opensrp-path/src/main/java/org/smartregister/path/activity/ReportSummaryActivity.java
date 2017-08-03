@@ -19,13 +19,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 
 public class ReportSummaryActivity extends BaseActivity {
-    private static final String TAG = ReportSummaryActivity.class.getName();
     public static final String EXTRA_TALLIES = "tallies";
     public static final String EXTRA_SUB_TITLE = "sub_title";
     public static final String EXTRA_TITLE = "title";
     private LinkedHashMap<String, ArrayList<Tally>> tallies;
     private String subTitle;
-    private SimpleToolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +31,7 @@ public class ReportSummaryActivity extends BaseActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        toolbar = (SimpleToolbar) getToolbar();
+        SimpleToolbar toolbar = (SimpleToolbar) getToolbar();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -10,7 +10,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.adapter.StockProviderForCursorAdapter;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClients;
 import org.smartregister.view.dialog.FilterOption;
 import org.smartregister.view.dialog.ServiceModeOption;
@@ -26,14 +25,10 @@ import util.JsonFormUtils;
  */
 public class StockRowSmartClientsProvider implements StockProviderForCursorAdapter {
     private final LayoutInflater inflater;
-    private final Context context;
     private final StockRepository stockRepository;
-    AlertService alertService;
 
     public StockRowSmartClientsProvider(Context context,
-                                        AlertService alertService, StockRepository stockRepository) {
-        this.context = context;
-        this.alertService = alertService;
+                                        StockRepository stockRepository) {
         this.stockRepository = stockRepository;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }

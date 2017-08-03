@@ -97,12 +97,10 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             if (questions.getString("key").equalsIgnoreCase("Date_Stock_Issued")) {
                                 if (questions.has("value")) {
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
 
@@ -198,12 +196,10 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             if (questions.getString("key").equalsIgnoreCase("Date_Stock_Issued")) {
                                 if (questions.has("value")) {
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
                                     existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
@@ -295,21 +291,17 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
                         if (questions.has("key")) {
-                            if (questions.getString("key").equalsIgnoreCase("Date_Stock_Issued")) {
-                                if (questions.has("value")) {
-                                    label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
-                                        }
+                            if (questions.getString("key").equalsIgnoreCase("Date_Stock_Issued") && questions.has("value")) {
+                                label = questions.getString("value");
+                                if (label != null && StringUtils.isNotBlank(label)) {
+                                    Date dateTime = JsonFormUtils.formatDate(label, false);
+                                    if (dateTime != null) {
+                                        encounterDate = dateTime;
                                     }
-                                    existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
-                                    currentBalanceVaccineUsed = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
-
                                 }
+
+                                existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
+                                currentBalanceVaccineUsed = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
                             }
 
                             if (questions.getString("key").equalsIgnoreCase("Vials_Issued")) {
@@ -322,10 +314,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     vialsvalue = "0";
                                 }
                             }
-
-
-                            ;
-
                         }
                     }
                     pathJsonFormFragment.getLabelViewFromTag("Balance", "");
@@ -394,14 +382,13 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 if (questions.has("value")) {
                                     Date encounterDate = new Date();
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
+
                                     String vaccineName = object.getString("title").replace("Stock Received", "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
@@ -429,9 +416,14 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (
+                JSONException e
+                )
+
+        {
             e.printStackTrace();
         }
+
     }
 
     private void stockVialsenteredinReceivedForm(String key, String value) {
@@ -460,14 +452,13 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 if (questions.has("value")) {
                                     Date encounterDate = new Date();
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
+
                                     String vaccineName = object.getString("title").replace("Stock Received", "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
@@ -491,9 +482,14 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     pathJsonFormFragment.getLabelViewFromTag("Balance", "");
                 }
             }
-        } catch (JSONException e) {
+        } catch (
+                JSONException e
+                )
+
+        {
             e.printStackTrace();
         }
+
     }
 
     private void stockDateEnteredinAdjustmentForm(String key, String value) {
@@ -523,14 +519,13 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 if (questions.has("value")) {
                                     Date encounterDate = new Date();
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
+
                                     String vaccineName = object.getString("title").replace("Stock Loss/Adjustment", "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
@@ -589,14 +584,13 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 if (questions.has("value")) {
                                     Date encounterDate = new Date();
                                     label = questions.getString("value");
-                                    if (label != null) {
-                                        if (StringUtils.isNotBlank(label)) {
-                                            Date dateTime = JsonFormUtils.formatDate(label, false);
-                                            if (dateTime != null) {
-                                                encounterDate = dateTime;
-                                            }
+                                    if (label != null && StringUtils.isNotBlank(label)) {
+                                        Date dateTime = JsonFormUtils.formatDate(label, false);
+                                        if (dateTime != null) {
+                                            encounterDate = dateTime;
                                         }
                                     }
+
                                     String vaccineName = object.getString("title").replace("Stock Loss/Adjustment", "").trim();
                                     vaccineName = checkifmeasles(vaccineName);
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();

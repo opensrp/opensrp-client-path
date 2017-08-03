@@ -108,21 +108,20 @@ public class DailyTalliesFragment extends Fragment
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 Object tag = v.getTag(R.id.item_data);
-                if (tag != null) {
-                    if (tag instanceof Date) {
-                        Date date = (Date) tag;
-                        String dayString = DAY_FORMAT.format(date);
-                        if (dailyTallies.containsKey(dayString)) {
-                            ArrayList<DailyTally> indicators = new ArrayList(dailyTallies.get(dayString));
-                            addIgnoredIndicators(date, indicators);
-                            String title = String.format(getString(R.string.daily_tally_), dayString);
-                            Intent intent = new Intent(getActivity(), ReportSummaryActivity.class);
-                            intent.putExtra(ReportSummaryActivity.EXTRA_TALLIES, indicators);
-                            intent.putExtra(ReportSummaryActivity.EXTRA_TITLE, title);
-                            startActivity(intent);
-                        }
+                if (tag != null && tag instanceof Date) {
+                    Date date = (Date) tag;
+                    String dayString = DAY_FORMAT.format(date);
+                    if (dailyTallies.containsKey(dayString)) {
+                        ArrayList<DailyTally> indicators = new ArrayList(dailyTallies.get(dayString));
+                        addIgnoredIndicators(date, indicators);
+                        String title = String.format(getString(R.string.daily_tally_), dayString);
+                        Intent intent = new Intent(getActivity(), ReportSummaryActivity.class);
+                        intent.putExtra(ReportSummaryActivity.EXTRA_TALLIES, indicators);
+                        intent.putExtra(ReportSummaryActivity.EXTRA_TITLE, title);
+                        startActivity(intent);
                     }
                 }
+
                 return true;
             }
         });

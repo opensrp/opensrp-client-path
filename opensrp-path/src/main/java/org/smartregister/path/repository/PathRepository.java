@@ -78,6 +78,7 @@ public class PathRepository extends Repository {
                     break;
                 case 6:
                     upgradeToVersion6(db);
+                    break;
                 case 7:
                     upgradeToVersion7Stock(db);
                     upgradeToVersion7Hia2(db);

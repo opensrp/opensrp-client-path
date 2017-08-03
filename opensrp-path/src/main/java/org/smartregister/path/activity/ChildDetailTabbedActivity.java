@@ -120,7 +120,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private ViewPager viewPager;
     private TextView saveButton;
     private static final int REQUEST_CODE_GET_JSON = 3432;
-    static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int REQUEST_TAKE_PHOTO = 1;
     public static Gender gender;
     //////////////////////////////////////////////////
     private static final String TAG = "ChildDetails";
@@ -134,7 +134,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private File currentfile;
     public String location_name = "";
-    private LinearLayout statusview;
 
     private ViewPagerAdapter adapter;
 
@@ -236,7 +235,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         });
         detailtoolbar.setTitle(updateActivityTitle());
 
-        statusview = (LinearLayout) findViewById(R.id.statusview);
+        LinearLayout statusview = (LinearLayout) findViewById(R.id.statusview);
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -638,31 +637,32 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_GET_JSON) {
-            if (resultCode == RESULT_OK) {
-                try {
-                    String jsonString = data.getStringExtra("json");
-                    Log.d("JSONResult", jsonString);
+        if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
+            try {
+                String jsonString = data.getStringExtra("json");
+                Log.d("JSONResult", jsonString);
 
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
-                    JSONObject form = new JSONObject(jsonString);
-                    if (form.getString("encounter_type").equals("Death")) {
-                        confirmReportDeceased(jsonString, allSharedPreferences);
-                    } else if (form.getString("encounter_type").equals("Birth Registration")) {
-                        JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", "child", "mother");
-                    } else if (form.getString("encounter_type").equals("AEFI")) {
-                        JsonFormUtils.saveAdverseEvent(jsonString, location_name,
-                                childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
-                    }
-                    childDataFragment.childDetails = childDetails;
-                    childDataFragment.loadData();
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage());
+                JSONObject form = new JSONObject(jsonString);
+                if (form.getString("encounter_type").equals("Death")) {
+                    confirmReportDeceased(jsonString, allSharedPreferences);
+                } else if (form.getString("encounter_type").equals("Birth Registration")) {
+                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", "child", "mother");
+                } else if (form.getString("encounter_type").equals("AEFI")) {
+                    JsonFormUtils.saveAdverseEvent(jsonString, location_name,
+                            childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
+                childDataFragment.childDetails = childDetails;
+                childDataFragment.loadData();
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
             }
-        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+
+        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK)
+
+        {
             String imageLocation = currentfile.getAbsolutePath();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
@@ -972,25 +972,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public void onUndoVaccination(VaccineWrapper tag, View view) {
-        if (tag != null) {
+        if (tag != null && tag.getDbKey() != null) {
+            final VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+            Long dbKey = tag.getDbKey();
+            vaccineRepository.deleteVaccine(dbKey);
 
-            if (tag.getDbKey() != null) {
-                final VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-                Long dbKey = tag.getDbKey();
-                vaccineRepository.deleteVaccine(dbKey);
-
-                tag.setUpdatedVaccineDate(null, false);
-                tag.setDbKey(null);
+            tag.setUpdatedVaccineDate(null, false);
+            tag.setDbKey(null);
 
 
-                List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
-                ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
-                wrappers.add(tag);
-                updateVaccineGroupViews(view, wrappers, vaccineList, true);
+            ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
+            wrappers.add(tag);
+            updateVaccineGroupViews(view, wrappers, vaccineList, true);
 
-                Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
-            }
+            Utils.startAsyncTask(new UpdateOfflineAlertsTask(), null);
         }
     }
 

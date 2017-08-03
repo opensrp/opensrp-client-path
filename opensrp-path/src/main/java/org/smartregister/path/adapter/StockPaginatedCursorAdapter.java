@@ -14,19 +14,17 @@ import org.smartregister.path.repository.StockRepository;
  */
 public class StockPaginatedCursorAdapter extends CursorAdapter {
     private final StockProviderForCursorAdapter listItemProvider;
-    Context context;
-    StockRepository stockRepository;
+    private StockRepository stockRepository;
 
     public StockPaginatedCursorAdapter(Context context, Cursor c, StockProviderForCursorAdapter listItemProvider, StockRepository stockRepository) {
         super(context, c);
         this.listItemProvider = listItemProvider;
-        this.context= context;
         this.stockRepository = stockRepository;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-      return  listItemProvider.inflatelayoutForCursorAdapter();
+        return listItemProvider.inflatelayoutForCursorAdapter();
 //        return null;
     }
 
@@ -34,7 +32,7 @@ public class StockPaginatedCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         Stock personinlist = stockRepository.readAllStockforCursorAdapter(cursor);
 
-       listItemProvider.getView(personinlist,view);
+        listItemProvider.getView(personinlist, view);
 
     }
 
