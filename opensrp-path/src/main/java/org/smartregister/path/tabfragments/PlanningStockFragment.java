@@ -41,12 +41,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Planning_Stock_fragment.OnFragmentInteractionListener} interface
+ * {@link PlanningStockFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Planning_Stock_fragment#newInstance} factory method to
+ * Use the {@link PlanningStockFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Planning_Stock_fragment extends Fragment {
+public class PlanningStockFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -60,7 +60,7 @@ public class Planning_Stock_fragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     public View mainview;
 
-    public Planning_Stock_fragment() {
+    public PlanningStockFragment() {
         // Required empty public constructor
     }
 
@@ -70,11 +70,11 @@ public class Planning_Stock_fragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Planning_Stock_fragment.
+     * @return A new instance of fragment PlanningStockFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Planning_Stock_fragment newInstance(String param1, String param2) {
-        Planning_Stock_fragment fragment = new Planning_Stock_fragment();
+    public static PlanningStockFragment newInstance(String param1, String param2) {
+        PlanningStockFragment fragment = new PlanningStockFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

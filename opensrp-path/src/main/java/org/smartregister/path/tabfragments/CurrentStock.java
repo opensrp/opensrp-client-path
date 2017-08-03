@@ -54,10 +54,10 @@ import static java.util.Arrays.asList;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link Current_Stock#newInstance} factory method to
+ * Use the {@link CurrentStock#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Current_Stock extends Fragment implements
+public class CurrentStock extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -92,6 +92,16 @@ public class Current_Stock extends Fragment implements
     private static final String INIT_LOADER = "init";
     private StockRepository stockRepository;
 
+    public StockPaginatedCursorAdapter clientAdapter;
+
+    public View mView;
+
+    ///////////////////////////////////////////////////////////////////////
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
+    private final PaginationViewHandler paginationViewHandler = new PaginationViewHandler();
 
     public String getTablename() {
         return tablename;
@@ -110,23 +120,7 @@ public class Current_Stock extends Fragment implements
         this.clientAdapter = clientsAdapter;
     }
 
-    public StockPaginatedCursorAdapter clientAdapter;
-
-
-    public View mView;
-
-
-    private final PaginationViewHandler paginationViewHandler = new PaginationViewHandler();
-
-    ///////////////////////////////////////////////////////////////////////
-
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-
-    public Current_Stock() {
+    public CurrentStock() {
         // Required empty public constructor
     }
 
@@ -136,11 +130,11 @@ public class Current_Stock extends Fragment implements
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Current_Stock.
+     * @return A new instance of fragment CurrentStock.
      */
     // TODO: Rename and change types and number of parameters
-    public static Current_Stock newInstance(String param1, String param2) {
-        Current_Stock fragment = new Current_Stock();
+    public static CurrentStock newInstance(String param1, String param2) {
+        CurrentStock fragment = new CurrentStock();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

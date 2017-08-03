@@ -244,11 +244,10 @@ public class StockRepository extends BaseRepository {
         SQLiteDatabase database = getReadableDatabase();
         Cursor c = database.rawQuery("Select count(*) from vaccines where date >= " + startofday.getMillis() + " and date < " + endofday.getMillis() + " and name like '%" + vaccineName + "%'", null);
         c.moveToFirst();
-        if (c.getCount() > 0) {
-            if (!StringUtils.isBlank(c.getString(0))) {
-                vaccineUsed = Integer.parseInt(c.getString(0));
-            }
+        if (c.getCount() > 0 && !StringUtils.isBlank(c.getString(0))) {
+            vaccineUsed = Integer.parseInt(c.getString(0));
         }
+
         c.close();
         return vaccineUsed;
     }
@@ -259,11 +258,10 @@ public class StockRepository extends BaseRepository {
         SQLiteDatabase database = getReadableDatabase();
         Cursor c = database.rawQuery("Select count(*) from vaccines where date <= " + thedate.getMillis() + " and name like '%" + vaccineName + "%'", null);
         c.moveToFirst();
-        if (c.getCount() > 0) {
-            if (!StringUtils.isBlank(c.getString(0))) {
-                vaccineUsed = Integer.parseInt(c.getString(0));
-            }
+        if (c.getCount() > 0 && !StringUtils.isBlank(c.getString(0))) {
+            vaccineUsed = Integer.parseInt(c.getString(0));
         }
+
         c.close();
         return vaccineUsed;
     }

@@ -138,10 +138,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private ViewPagerAdapter adapter;
 
-    public ViewPagerAdapter getViewPagerAdapter() {
-        return adapter;
-    }
-
     // Data
     private CommonPersonObjectClient childDetails;
     private Map<String, String> detailmaps;
@@ -149,17 +145,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     ////////////////////////////////////////////////
     public DetailsRepository detailsRepository;
 
-    public DetailsRepository getDetailsRepository() {
-        return detailsRepository;
-    }
-
     private Map<String, String> details;
     public static final String inactive = "inactive";
     public static final String lostToFollowUp = "lost_to_follow_up";
 
-    public CommonPersonObjectClient getChildDetails() {
-        return childDetails;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -673,15 +662,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     Log.e(TAG, e.getMessage());
                 }
             }
-        } else if (requestCode == REQUEST_TAKE_PHOTO) {
-            if (resultCode == RESULT_OK) {
-                String imageLocation = currentfile.getAbsolutePath();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            String imageLocation = currentfile.getAbsolutePath();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
-                JsonFormUtils.saveImage(this, allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
-                updateProfilePicture(gender);
-            }
+            JsonFormUtils.saveImage(this, allSharedPreferences.fetchRegisteredANM(), childDetails.entityId(), imageLocation);
+            updateProfilePicture(gender);
         }
     }
 
@@ -1571,6 +1558,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
             return null;
         }
+
     }
 
     private boolean showVaccineListCheck(String eventId, String formSubmissionId) {
@@ -1600,4 +1588,15 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return VaccinatorApplication.getInstance();
     }
 
+    public CommonPersonObjectClient getChildDetails() {
+        return childDetails;
+    }
+
+    public ViewPagerAdapter getViewPagerAdapter() {
+        return adapter;
+    }
+
+    public DetailsRepository getDetailsRepository() {
+        return detailsRepository;
+    }
 }

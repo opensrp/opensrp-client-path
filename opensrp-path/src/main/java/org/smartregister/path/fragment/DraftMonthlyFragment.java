@@ -255,7 +255,6 @@ public class DraftMonthlyFragment extends Fragment
 
         }
     };
-
     private View.OnClickListener monthDraftsClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -332,16 +331,19 @@ public class DraftMonthlyFragment extends Fragment
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
             SimpleDateFormat df = new SimpleDateFormat("MMM yyyy");
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater)
                         getActivity().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
-                convertView = inflater.inflate(R.layout.month_draft_item, null);
+                view = inflater.inflate(R.layout.month_draft_item, null);
+            } else {
+                view = convertView;
             }
 
-            TextView tv = (TextView) convertView.findViewById(R.id.tv);
-            TextView startedAt = (TextView) convertView.findViewById(R.id.month_draft_started_at);
+            TextView tv = (TextView) view.findViewById(R.id.tv);
+            TextView startedAt = (TextView) view.findViewById(R.id.month_draft_started_at);
             MonthlyTally date = list.get(position);
             String text = df.format(date.getMonth());
             String startedat = MonthlyTalliesRepository.DF_DDMMYY.format(date.getCreatedAt());
@@ -351,10 +353,10 @@ public class DraftMonthlyFragment extends Fragment
             tv.setTag(text);
             startedAt.setText(started + " " + startedat);
 
-            convertView.setOnClickListener(monthDraftsClickListener);
-            convertView.setTag(date.getMonth());
+            view.setOnClickListener(monthDraftsClickListener);
+            view.setTag(date.getMonth());
 
-            return convertView;
+            return view;
         }
     }
 }

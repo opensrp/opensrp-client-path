@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String ENGLISH_LANGUAGE = "English";
     public static final String KANNADA_LANGUAGE = "Kannada";
     public static final String URDU_LANGUAGE = "Urdu";
-    android.content.Context appContext;
+    private android.content.Context appContext;
     private RemoteLoginTask remoteLoginTask;
 
     @Override

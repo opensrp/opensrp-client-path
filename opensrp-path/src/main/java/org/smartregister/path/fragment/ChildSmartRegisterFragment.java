@@ -390,7 +390,8 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
                 case R.id.scan_qr_code:
                     ((ChildSmartRegisterActivity) getActivity()).startQrCodeScanner();
                     break;
-
+                default:
+                    break;
             }
         }
     }

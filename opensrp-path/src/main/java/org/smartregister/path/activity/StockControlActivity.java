@@ -28,8 +28,8 @@ import org.smartregister.immunization.domain.VaccineType;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.tabfragments.Current_Stock;
-import org.smartregister.path.tabfragments.Planning_Stock_fragment;
+import org.smartregister.path.tabfragments.CurrentStock;
+import org.smartregister.path.tabfragments.PlanningStockFragment;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -51,8 +51,8 @@ public class StockControlActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private TabLayout tabLayout;
     public VaccineType vaccineType;
-    public Current_Stock current_stock_fragment;
-    public Planning_Stock_fragment planning_stock_fragment;
+    public CurrentStock current_stock_fragment;
+    public PlanningStockFragment planning_stock_fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,10 +293,10 @@ public class StockControlActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    current_stock_fragment = Current_Stock.newInstance("", "");
+                    current_stock_fragment = CurrentStock.newInstance("", "");
                     return current_stock_fragment;
                 case 1:
-                    planning_stock_fragment = Planning_Stock_fragment.newInstance("", "");
+                    planning_stock_fragment = PlanningStockFragment.newInstance("", "");
                     return planning_stock_fragment;
             }
             return null;

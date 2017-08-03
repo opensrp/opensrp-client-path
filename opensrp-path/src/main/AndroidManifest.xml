@@ -29,18 +29,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.VaccinatorHomeActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="portrait"
-            android:theme="@style/PathAppTheme" />
-        <activity
             android:name=".activity.ChildSmartRegisterActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.ChildDetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoActionBarAndTitle" />
         <activity
@@ -48,33 +39,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoActionBarAndTitleWithEditButton" />
         <activity
-            android:name=".activity.FieldMonitorSmartRegisterActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.FieldMonitorDailyDetailActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.FieldMonitorMonthlyDetailActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.WomanSmartRegisterActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.WomanDetailActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppThemeNoActionBarAndTitle" />
-        <activity
-            android:name=".activity.VaccineReportActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-
             android:name="com.vijay.jsonwizard.activities.JsonFormActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
