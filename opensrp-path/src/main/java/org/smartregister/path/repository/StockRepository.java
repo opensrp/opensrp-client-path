@@ -82,12 +82,12 @@ public class StockRepository extends BaseRepository {
     private ContentValues createValuesFor(Stock stock) {
         ContentValues values = new ContentValues();
         values.put(ID_COLUMN, stock.getId());
-        values.put(VACCINE_TYPE_ID, stock.getVaccine_type_id());
-        values.put(TRANSACTION_TYPE, stock.getTransaction_type());
+        values.put(VACCINE_TYPE_ID, stock.getVaccineTypeId());
+        values.put(TRANSACTION_TYPE, stock.getTransactionType());
         values.put(PROVIDER_ID, stock.getProviderid());
         values.put(VALUE, stock.getValue());
-        values.put(DATE_CREATED, stock.getDate_created() != null ? stock.getDate_created() : null);
-        values.put(TO_FROM, stock.getTo_from());
+        values.put(DATE_CREATED, stock.getDateCreated() != null ? stock.getDateCreated() : null);
+        values.put(TO_FROM, stock.getToFrom());
         values.put(SYNC_STATUS, stock.getSyncStatus());
         values.put(DATE_UPDATED, stock.getUpdatedAt() != null ? stock.getUpdatedAt() : null);
         return values;
@@ -270,7 +270,7 @@ public class StockRepository extends BaseRepository {
     public int getBalanceBefore(Stock stock) {
         SQLiteDatabase database = getReadableDatabase();
 //        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
-        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_updated <" + stock.getUpdatedAt() + " and date_created <=" + new DateTime(stock.getDate_created()).toDate().getTime() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
+        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_updated <" + stock.getUpdatedAt() + " and date_created <=" + new DateTime(stock.getDateCreated()).toDate().getTime() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccineTypeId(), null);
         if (c.getCount() == 0) {
             c.close();
             return 0;
@@ -291,7 +291,7 @@ public class StockRepository extends BaseRepository {
         int sum = 0;
         SQLiteDatabase database = getReadableDatabase();
 
-        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_created = " + stock.getDate_created() + " and date_updated <" + stock.getUpdatedAt() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
+        Cursor c = database.rawQuery("Select sum(value) from Stocks Where date_created = " + stock.getDateCreated() + " and date_updated <" + stock.getUpdatedAt() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccineTypeId(), null);
 
 //        Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);
 //      c =database.rawQuery("Select sum(value) from Stocks Where date_updated <" +stock.getUpdatedAt()+ " and date_created <=" +new DateTime(stock.getDate_created()).toDate().getTime()+ " and "+VACCINE_TYPE_ID+ " = "+stock.getVaccine_type_id(),null);
@@ -306,7 +306,7 @@ public class StockRepository extends BaseRepository {
             }
         }
         c.close();
-        c = database.rawQuery("Select sum(value) from Stocks Where date_created <" + stock.getDate_created() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccine_type_id(), null);
+        c = database.rawQuery("Select sum(value) from Stocks Where date_created <" + stock.getDateCreated() + " and " + VACCINE_TYPE_ID + " = " + stock.getVaccineTypeId(), null);
         if (c.getCount() == 0) {
             sum = sum + 0;
         } else {

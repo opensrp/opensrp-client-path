@@ -44,24 +44,24 @@ public class StockRowSmartClientsProvider implements StockProviderForCursorAdapt
         TextView balance = (TextView) convertView.findViewById(R.id.balance);
 
 
-        if (stock.getTransaction_type().equalsIgnoreCase(Stock.received)) {
+        if (stock.getTransactionType().equalsIgnoreCase(Stock.received)) {
             received.setText("" + stock.getValue());
             issued.setText("");
             loss_adj.setText("");
         }
-        if (stock.getTransaction_type().equalsIgnoreCase(Stock.issued)) {
+        if (stock.getTransactionType().equalsIgnoreCase(Stock.issued)) {
             received.setText("");
             issued.setText("" + (-1 * stock.getValue()));
             loss_adj.setText("");
         }
-        if (stock.getTransaction_type().equalsIgnoreCase(Stock.loss_adjustment)) {
+        if (stock.getTransactionType().equalsIgnoreCase(Stock.loss_adjustment)) {
             received.setText("");
             issued.setText("");
             loss_adj.setText("" + stock.getValue());
         }
 
-        date.setText(JsonFormUtils.dd_MM_yyyy.format(new Date(stock.getDate_created())));
-        to_from.setText(stock.getTo_from().replace("_", " "));
+        date.setText(JsonFormUtils.dd_MM_yyyy.format(new Date(stock.getDateCreated())));
+        to_from.setText(stock.getToFrom().replace("_", " "));
 
         balance.setText("" + (stock.getValue() + stockRepository.getBalanceBeforeCheck(stock)));
 

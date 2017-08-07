@@ -869,9 +869,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 JSONObject rObject = jsonArray.getJSONObject(i);
                 if (rObject.has("field") && getString(rObject, "field").equals(ENTITY_ID)) {
                     child.addRelationship(rObject.getString("client_relationship"), parent.getBaseEntityId());
-                } else {
+                } /* else {
                     //TODO how to add other kind of relationships
-                }
+                  } */
             }
         } catch (Exception e) {
             Log.e(TAG, e.toString(), e);

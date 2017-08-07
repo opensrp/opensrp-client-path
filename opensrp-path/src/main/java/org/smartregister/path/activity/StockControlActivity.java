@@ -221,8 +221,9 @@ public class StockControlActivity extends AppCompatActivity {
         String stockvalue = "0";
         if (c.getCount() > 0) {
             c.moveToFirst();
-            if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0)))
+            if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0))) {
                 stockvalue = c.getString(0);
+            }
             c.close();
         } else {
             c.close();

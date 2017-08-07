@@ -4,30 +4,30 @@ package org.smartregister.path.domain;
  * Created by raihan@mpower-social.com on 18-May-17.
  */
 public class Stock {
-    private Long id ;
-    private String vaccine_type_id;
-    private String transaction_type ;
-    private String providerid ;
+    private Long id;
+    private String vaccineTypeId;
+    private String transactionType;
+    private String providerid;
     private int value;
-    private Long  date_created;
-    private String to_from;
-    private String sync_status ;
-    private Long date_updated ;
+    private Long dateCreated;
+    private String toFrom;
+    private String syncStatus;
+    private Long dateUpdated;
 
     public static String issued = "issued";
     public static String received = "received";
     public static String loss_adjustment = "loss_adjustment";
 
-    public Stock(Long id, String transaction_type, String providerid, int value, Long date_created, String to_from, String sync_status, Long date_updated, String vaccine_type_id) {
+    public Stock(Long id, String transactionType, String providerid, int value, Long dateCreated, String toFrom, String syncStatus, Long dateUpdated, String vaccineTypeId) {
         this.id = id;
-        this.transaction_type = transaction_type;
+        this.transactionType = transactionType;
         this.providerid = providerid;
         this.value = value;
-        this.date_created = date_created;
-        this.to_from = to_from;
-        this.sync_status = sync_status;
-        this.date_updated = date_updated;
-        this.vaccine_type_id = vaccine_type_id;
+        this.dateCreated = dateCreated;
+        this.toFrom = toFrom;
+        this.syncStatus = syncStatus;
+        this.dateUpdated = dateUpdated;
+        this.vaccineTypeId = vaccineTypeId;
     }
 
     public Long getId() {
@@ -38,20 +38,20 @@ public class Stock {
         this.id = id;
     }
 
-    public String getVaccine_type_id() {
-        return vaccine_type_id;
+    public String getVaccineTypeId() {
+        return vaccineTypeId;
     }
 
-    public void setVaccine_type_id(String vaccine_type_id) {
-        this.vaccine_type_id = vaccine_type_id;
+    public void setVaccineTypeId(String vaccineTypeId) {
+        this.vaccineTypeId = vaccineTypeId;
     }
 
-    public String getTransaction_type() {
-        return transaction_type;
+    public String getTransactionType() {
+        return transactionType;
     }
 
-    public void setTransaction_type(String transaction_type) {
-        this.transaction_type = transaction_type;
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
     }
 
     public int getValue() {
@@ -62,36 +62,36 @@ public class Stock {
         this.value = value;
     }
 
-    public Long  getDate_created() {
-        return date_created;
+    public Long getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDate_created(Long date_created) {
-        this.date_created = date_created;
+    public void setDateCreated(Long dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
-    public String getTo_from() {
-        return to_from;
+    public String getToFrom() {
+        return toFrom;
     }
 
-    public void setTo_from(String to_from) {
-        this.to_from = to_from;
+    public void setToFrom(String toFrom) {
+        this.toFrom = toFrom;
     }
 
     public Long getUpdatedAt() {
-        return date_updated;
+        return dateUpdated;
     }
 
-    public void setUpdatedAt(Long date_updated) {
-        this.date_updated = date_updated;
+    public void setUpdatedAt(Long dateUpdated) {
+        this.dateUpdated = dateUpdated;
     }
 
     public String getSyncStatus() {
-        return sync_status;
+        return syncStatus;
     }
 
     public void setSyncStatus(String sync_status) {
-        this.sync_status = sync_status;
+        this.syncStatus = sync_status;
     }
 
     public String getProviderid() {

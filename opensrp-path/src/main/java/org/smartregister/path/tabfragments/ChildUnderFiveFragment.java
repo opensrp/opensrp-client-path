@@ -153,7 +153,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 }
                 if (event != null) {
                     Date weight_create_date = event.getDateCreated().toDate();
-                    if (!ChildDetailTabbedActivity.check_if_date_three_months_older(weight_create_date)) {
+                    if (!DateUtil.checkIfDateThreeMonthsOlder(weight_create_date)) {
                         less_than_three_months_event_created = true;
                     }
                 } else {

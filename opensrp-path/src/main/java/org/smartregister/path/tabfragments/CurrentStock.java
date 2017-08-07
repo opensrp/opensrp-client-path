@@ -210,7 +210,7 @@ public class CurrentStock extends Fragment implements
         countqueryBUilder.SelectInitiateMainTableCounts(tableName);
         countSelect = countqueryBUilder.mainCondition("Stocks." + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId());
         mainCondition = "";
-        CountExecute();
+        countExecute();
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.setSelectquery("Select * FROM Stocks Where Stocks." + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId());
         queryBUilder.orderbyCondition(stockRepository.DATE_CREATED + " DESC, " + stockRepository.DATE_UPDATED + " DESC");
@@ -281,7 +281,7 @@ public class CurrentStock extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        CountExecute();
+        countExecute();
         filterandSortInInitializeQueries();
         refresh();
         getValueForStock(mView);
@@ -600,7 +600,7 @@ public class CurrentStock extends Fragment implements
         return query;
     }
 
-    public void CountExecute() {
+    public void countExecute() {
         Cursor c = null;
 
         try {

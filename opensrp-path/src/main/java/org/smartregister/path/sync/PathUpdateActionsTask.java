@@ -273,8 +273,8 @@ public class PathUpdateActionsTask {
                 StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
                 for (int j = 0; j < Stock_arrayList.size(); j++) {
                     Stock fromServer = Stock_arrayList.get(j);
-                    List<Stock> existingStock = stockRepository.findUniqueStock(fromServer.getVaccine_type_id(), fromServer.getTransaction_type(), fromServer.getProviderid(),
-                    String.valueOf(fromServer.getValue()), String.valueOf(fromServer.getDate_created()), fromServer.getTo_from());
+                    List<Stock> existingStock = stockRepository.findUniqueStock(fromServer.getVaccineTypeId(), fromServer.getTransactionType(), fromServer.getProviderid(),
+                            String.valueOf(fromServer.getValue()), String.valueOf(fromServer.getDateCreated()), fromServer.getToFrom());
                     if (!existingStock.isEmpty()) {
                         for (Stock stock : existingStock) {
                             fromServer.setId(stock.getId());
@@ -380,12 +380,12 @@ public class PathUpdateActionsTask {
             JSONObject stock = new JSONObject();
             try {
                 stock.put("identifier", stocks.get(i).getId());
-                stock.put("vaccine_type_id", stocks.get(i).getVaccine_type_id());
-                stock.put("transaction_type", stocks.get(i).getTransaction_type());
+                stock.put("vaccine_type_id", stocks.get(i).getVaccineTypeId());
+                stock.put("transaction_type", stocks.get(i).getTransactionType());
                 stock.put("providerid", stocks.get(i).getProviderid());
-                stock.put("date_created", stocks.get(i).getDate_created());
+                stock.put("date_created", stocks.get(i).getDateCreated());
                 stock.put("value", stocks.get(i).getValue());
-                stock.put("to_from", stocks.get(i).getTo_from());
+                stock.put("to_from", stocks.get(i).getToFrom());
                 stock.put("date_updated", stocks.get(i).getUpdatedAt());
                 array.put(stock);
             } catch (JSONException e) {

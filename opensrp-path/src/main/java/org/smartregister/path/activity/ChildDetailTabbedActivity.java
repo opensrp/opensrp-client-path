@@ -319,7 +319,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
             if (event != null) {
                 Date weight_create_date = event.getDateCreated().toDate();
-                if (!check_if_date_three_months_older(weight_create_date)) {
+                if (!DateUtil.checkIfDateThreeMonthsOlder(weight_create_date)) {
                     show_weight_edit = true;
                 }
             } else {
@@ -1403,14 +1403,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         initiallization();
     }
 
-    public static boolean check_if_date_three_months_older(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(cal.getTime());
-        cal.add(Calendar.DATE, -90);
-        Date dateBefore90Days = cal.getTime();
-        return date.before(dateBefore90Days);
-    }
-
     //Recurring Service
     @Override
     public void onGiveToday(ServiceWrapper tag, View view) {
@@ -1570,7 +1562,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         if (event != null) {
             Date vaccine_create_date = event.getDateCreated().toDate();
-            if (!check_if_date_three_months_older(vaccine_create_date)) {
+            if (!DateUtil.checkIfDateThreeMonthsOlder(vaccine_create_date)) {
                 return true;
             }
         } else {

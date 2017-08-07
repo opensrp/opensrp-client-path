@@ -99,7 +99,6 @@ public class PlanningStockFragment extends Fragment {
 
     private void creatgraphview(View view) {
         DateTime now = new DateTime(System.currentTimeMillis());
-        DateTime threemonthEarlierIterator = now.minusMonths(3);
 
         GraphView graph = (GraphView) view.findViewById(R.id.graph);
         ViewGroup graphparent = (ViewGroup) graph.getParent();
@@ -113,17 +112,13 @@ public class PlanningStockFragment extends Fragment {
 
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
         String[] montharry;
-        int arraymonthslabelsize = 0;
         if (now.minusMonths(1).monthOfYear() != now.monthOfYear()) {
-            arraymonthslabelsize = 4;
-//            montharry = new String [arraymonthslabelsize];
             montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
                     now.minusMonths(2).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
                     now.minusMonths(1).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
                     now.minusMonths(0).monthOfYear().getAsShortText() + " " + now.year().getAsShortText()
             };
         } else {
-            arraymonthslabelsize = 3;
             montharry = new String[]{now.minusMonths(3).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
                     now.minusMonths(2).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
                     now.minusMonths(1).monthOfYear().getAsShortText() + " " + now.year().getAsShortText(),
@@ -153,16 +148,16 @@ public class PlanningStockFragment extends Fragment {
         //createStockInfoForlastThreeMonths(view);
         getValueForStock(view);
         getLastThreeMonthStockIssued(view);
-        waste_rate_Calculate(view);
-        VaccinesDueNextMonth(view);
+        wasteRateCalculate(view);
+        vaccinesDueNextMonth(view);
     }
 
-    private void VaccinesDueNextMonth(View view) {
+    private void vaccinesDueNextMonth(View view) {
         int dosespervial = ((StockControlActivity) getActivity()).vaccineType.getDoses();
         ((TextView) view.findViewById(R.id.due_vacc_next_month_value)).setText("" + (int) Math.ceil((double) processVaccinesDueNextMonth() / dosespervial) + " vials");
     }
 
-    private void waste_rate_Calculate(View view) {
+    private void wasteRateCalculate(View view) {
         double wastepercent = 0.0;
         StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
         int vaccinegiven = stockRepository.getVaccineUsedUntildate(System.currentTimeMillis(), ((StockControlActivity) getActivity()).vaccineType.getName().toLowerCase().trim());
