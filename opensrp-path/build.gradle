@@ -16,9 +16,6 @@ allprojects {
     repositories {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
         mavenLocal()
-        flatDir {
-            dirs 'aars'
-        }
     }
 }
 
@@ -112,12 +109,13 @@ dependencies {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.0.0-SNAPSHOT@aar') {
+        transitive = true
+    }
+    compile ('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar') {
         transitive = true
     }
 
-    compile(name: 'opensrp-immunization-debug', ext: 'aar')
 
     compile('com.android.support:design:22.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
