@@ -20,7 +20,7 @@ public class VaccinationServiceModeOption extends ServiceModeOption {
     private int[] headerTextResourceIds;
     private int[] columnWeights;
 
-    public VaccinationServiceModeOption(SmartRegisterClientsProvider provider, String name, int[] headerTextResourceIds, int[] columnWeights){
+    public VaccinationServiceModeOption(SmartRegisterClientsProvider provider, String name, int[] headerTextResourceIds, int[] columnWeights) {
         super(provider);
         this.name = name;
         this.headerTextResourceIds = headerTextResourceIds;
@@ -43,7 +43,7 @@ public class VaccinationServiceModeOption extends ServiceModeOption {
             @Override
             public int weightSum() {
                 int sum = 0;
-                for(int i = 0; i < columnWeights.length; i++){
+                for (int i = 0; i < columnWeights.length; i++) {
                     sum += columnWeights[i];
                 }
                 return sum;

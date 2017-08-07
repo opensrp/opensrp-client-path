@@ -341,7 +341,7 @@ public class HIA2ReportsActivity extends BaseActivity {
             MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication
                     .getInstance().monthlyTalliesRepository();
             Calendar endDate = Calendar.getInstance();
-            endDate.set(Calendar.DAY_OF_MONTH, 1);// Set date to first day of this month
+            endDate.set(Calendar.DAY_OF_MONTH, 1); // Set date to first day of this month
             endDate.set(Calendar.HOUR_OF_DAY, 23);
             endDate.set(Calendar.MINUTE, 59);
             endDate.set(Calendar.SECOND, 59);

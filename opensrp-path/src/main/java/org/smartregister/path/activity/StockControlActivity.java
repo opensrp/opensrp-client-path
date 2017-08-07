@@ -75,7 +75,6 @@ public class StockControlActivity extends AppCompatActivity {
                 }
             }
         });
-        ;
 
         AllSharedPreferences allSharedPreferences = org.smartregister.Context.getInstance().allSharedPreferences();
         String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());

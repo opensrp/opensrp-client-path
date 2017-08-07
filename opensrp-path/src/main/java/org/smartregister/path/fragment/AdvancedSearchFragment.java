@@ -190,54 +190,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         ((ChildSmartRegisterActivity) getActivity()).startFormActivity("child_enrollment", null, null);
     }
 
-    private class ClientActionHandler implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            CommonPersonObjectClient client = null;
-            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-                client = (CommonPersonObjectClient) view.getTag();
-            }
-            RegisterClickables registerClickables = new RegisterClickables();
-            switch (view.getId()) {
-                case R.id.global_search:
-                    goBack();
-                    break;
-                case R.id.filter_selection:
-                    ((ChildSmartRegisterActivity) getActivity()).filterSelection();
-                    break;
-                case R.id.search_layout:
-                case R.id.search:
-                    search(view);
-                    break;
-                case R.id.child_profile_info_layout:
-                    ChildImmunizationActivity.launchActivity(getActivity(), client, null);
-                    break;
-                case R.id.record_weight:
-                    if (client == null && view.getTag() != null && view.getTag() instanceof String) {
-                        String zeirId = view.getTag().toString();
-                        ((ChildSmartRegisterActivity) getActivity()).startFormActivity("out_of_catchment_service", zeirId, null);
-                    } else {
-                        registerClickables.setRecordWeight(true);
-                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    }
-                    break;
-
-                case R.id.record_vaccination:
-                    if (client != null) {
-                        registerClickables.setRecordAll(true);
-                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    }
-                    break;
-                case R.id.move_to_catchment:
-                    if (client == null && view.getTag() != null && view.getTag() instanceof List) {
-                        List<String> ids = (List<String>) view.getTag();
-                        moveToMyCatchmentArea(ids);
-                    }
-                    break;
-            }
-        }
-    }
-
     private void populateFormViews(View view) {
         searchCriteria = (TextView) view.findViewById(R.id.search_criteria);
         matchingResults = (TextView) view.findViewById(R.id.matching_results);
@@ -663,32 +615,29 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         String parentTableName = "ec_mother";
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName, new String[]
-
-                        {
-                                tableName + ".relationalid",
-                                tableName + ".details",
-                                tableName + ".zeir_id",
-                                tableName + ".relational_id",
-                                tableName + ".first_name",
-                                tableName + ".last_name",
-                                tableName + ".gender",
-                                parentTableName + ".first_name as mother_first_name",
-                                parentTableName + ".last_name as mother_last_name",
-                                tableName + ".father_name",
-                                tableName + ".dob",
-                                tableName + ".epi_card_number",
-                                tableName + ".contact_phone_number",
-                                tableName + ".pmtct_status",
-                                tableName + ".provider_uc",
-                                tableName + ".provider_town",
-                                tableName + ".provider_id",
-                                tableName + ".provider_location_id",
-                                tableName + ".client_reg_date",
-                                tableName + ".last_interacted_with",
-                                tableName + ".inactive",
-                                tableName + ".lost_to_follow_up"
-                        }
+        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
+                        tableName + ".relationalid",
+                        tableName + ".details",
+                        tableName + ".zeir_id",
+                        tableName + ".relational_id",
+                        tableName + ".first_name",
+                        tableName + ".last_name",
+                        tableName + ".gender",
+                        parentTableName + ".first_name as mother_first_name",
+                        parentTableName + ".last_name as mother_last_name",
+                        tableName + ".father_name",
+                        tableName + ".dob",
+                        tableName + ".epi_card_number",
+                        tableName + ".contact_phone_number",
+                        tableName + ".pmtct_status",
+                        tableName + ".provider_uc",
+                        tableName + ".provider_town",
+                        tableName + ".provider_id",
+                        tableName + ".provider_location_id",
+                        tableName + ".client_reg_date",
+                        tableName + ".last_interacted_with",
+                        tableName + ".inactive",
+                        tableName + ".lost_to_follow_up"}
 
         );
         queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
@@ -817,34 +766,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
 
     private void setDatePicker(final EditText editText) {
-        editText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //To show current date in the datepicker
-                Calendar mcurrentDate = Calendar.getInstance();
-                int mYear = mcurrentDate.get(Calendar.YEAR);
-                int mMonth = mcurrentDate.get(Calendar.MONTH);
-                int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
-
-                DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), android.app.AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
-                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.YEAR, selectedyear);
-                        calendar.set(Calendar.MONTH, selectedmonth);
-                        calendar.set(Calendar.DAY_OF_MONTH, selectedday);
-
-                        String dateString = DateUtil.yyyyMMdd.format(calendar.getTime());
-                        editText.setText(dateString);
-
-                    }
-                }, mYear, mMonth, mDay);
-                mDatePicker.getDatePicker().setCalendarViewShown(false);
-                mDatePicker.show();
-
-                DatePickerUtils.themeDatePicker(mDatePicker, new char[]{'d', 'm', 'y'});
-            }
-        });
-
+        editText.setOnClickListener(new DatePickerListener(editText));
     }
 
     private String removeLastComma(String str) {
@@ -979,22 +901,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             Log.e(getClass().getName(), "", e);
         }
         return null;
-
-    }
-
-    public class AdvancedMatrixCursor extends net.sqlcipher.MatrixCursor {
-        public AdvancedMatrixCursor(String[] columnNames) {
-            super(columnNames);
-        }
-
-        @Override
-        public long getLong(int column) {
-            try {
-                return super.getLong(column);
-            } catch (NumberFormatException e) {
-                return (new Date()).getTime();
-            }
-        }
 
     }
 
@@ -1196,4 +1102,108 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     public void hideProgressView() {
         progressDialog.hide();
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+    private class ClientActionHandler implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            CommonPersonObjectClient client = null;
+            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
+                client = (CommonPersonObjectClient) view.getTag();
+            }
+            RegisterClickables registerClickables = new RegisterClickables();
+            switch (view.getId()) {
+                case R.id.global_search:
+                    goBack();
+                    break;
+                case R.id.filter_selection:
+                    ((ChildSmartRegisterActivity) getActivity()).filterSelection();
+                    break;
+                case R.id.search_layout:
+                case R.id.search:
+                    search(view);
+                    break;
+                case R.id.child_profile_info_layout:
+                    ChildImmunizationActivity.launchActivity(getActivity(), client, null);
+                    break;
+                case R.id.record_weight:
+                    if (client == null && view.getTag() != null && view.getTag() instanceof String) {
+                        String zeirId = view.getTag().toString();
+                        ((ChildSmartRegisterActivity) getActivity()).startFormActivity("out_of_catchment_service", zeirId, null);
+                    } else {
+                        registerClickables.setRecordWeight(true);
+                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                    }
+                    break;
+
+                case R.id.record_vaccination:
+                    if (client != null) {
+                        registerClickables.setRecordAll(true);
+                        ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                    }
+                    break;
+                case R.id.move_to_catchment:
+                    if (client == null && view.getTag() != null && view.getTag() instanceof List) {
+                        List<String> ids = (List<String>) view.getTag();
+                        moveToMyCatchmentArea(ids);
+                    }
+                    break;
+            }
+        }
+    }
+
+    public class AdvancedMatrixCursor extends net.sqlcipher.MatrixCursor {
+        public AdvancedMatrixCursor(String[] columnNames) {
+            super(columnNames);
+        }
+
+        @Override
+        public long getLong(int column) {
+            try {
+                return super.getLong(column);
+            } catch (NumberFormatException e) {
+                return (new Date()).getTime();
+            }
+        }
+
+    }
+
+    private class DatePickerListener implements View.OnClickListener {
+        private EditText editText;
+
+        public DatePickerListener(EditText editText) {
+            this.editText = editText;
+        }
+
+        @Override
+        public void onClick(View view) {
+            //To show current date in the datepicker
+            Calendar mcurrentDate = Calendar.getInstance();
+            int mYear = mcurrentDate.get(Calendar.YEAR);
+            int mMonth = mcurrentDate.get(Calendar.MONTH);
+            int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), android.app.AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
+                public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.YEAR, selectedyear);
+                    calendar.set(Calendar.MONTH, selectedmonth);
+                    calendar.set(Calendar.DAY_OF_MONTH, selectedday);
+
+                    String dateString = DateUtil.yyyyMMdd.format(calendar.getTime());
+                    editText.setText(dateString);
+
+                }
+            }, mYear, mMonth, mDay);
+            mDatePicker.getDatePicker().setCalendarViewShown(false);
+            mDatePicker.show();
+
+            DatePickerUtils.themeDatePicker(mDatePicker, new char[]{'d', 'm', 'y'});
+        }
+
+    }
+
 }

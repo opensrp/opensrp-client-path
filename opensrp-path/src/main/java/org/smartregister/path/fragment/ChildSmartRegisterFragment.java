@@ -356,45 +356,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         refreshSyncStatusViews();
     }
 
-    private class ClientActionHandler implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            CommonPersonObjectClient client = null;
-            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
-                client = (CommonPersonObjectClient) view.getTag();
-            }
-            RegisterClickables registerClickables = new RegisterClickables();
-
-            switch (view.getId()) {
-                case R.id.child_profile_info_layout:
-
-                    ChildImmunizationActivity.launchActivity(getActivity(), client, null);
-                    break;
-                case R.id.record_weight:
-                    registerClickables.setRecordWeight(true);
-                    ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    break;
-
-                case R.id.record_vaccination:
-                    registerClickables.setRecordAll(true);
-                    ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
-                    break;
-                case R.id.filter_selection:
-                    toggleFilterSelection();
-                    break;
-
-                case R.id.global_search:
-                    ((ChildSmartRegisterActivity) getActivity()).startAdvancedSearch();
-                    break;
-
-                case R.id.scan_qr_code:
-                    ((ChildSmartRegisterActivity) getActivity()).startQrCodeScanner();
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
     public void updateSearchView() {
         getSearchView().removeTextChangedListener(textWatcher);
@@ -584,5 +545,51 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     private boolean filterMode() {
         return filterSection != null && filterSection.getTag() != null;
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+
+    private class ClientActionHandler implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            CommonPersonObjectClient client = null;
+            if (view.getTag() != null && view.getTag() instanceof CommonPersonObjectClient) {
+                client = (CommonPersonObjectClient) view.getTag();
+            }
+            RegisterClickables registerClickables = new RegisterClickables();
+
+            switch (view.getId()) {
+                case R.id.child_profile_info_layout:
+
+                    ChildImmunizationActivity.launchActivity(getActivity(), client, null);
+                    break;
+                case R.id.record_weight:
+                    registerClickables.setRecordWeight(true);
+                    ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                    break;
+
+                case R.id.record_vaccination:
+                    registerClickables.setRecordAll(true);
+                    ChildImmunizationActivity.launchActivity(getActivity(), client, registerClickables);
+                    break;
+                case R.id.filter_selection:
+                    toggleFilterSelection();
+                    break;
+
+                case R.id.global_search:
+                    ((ChildSmartRegisterActivity) getActivity()).startAdvancedSearch();
+                    break;
+
+                case R.id.scan_qr_code:
+                    ((ChildSmartRegisterActivity) getActivity()).startQrCodeScanner();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 
 }

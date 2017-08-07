@@ -53,6 +53,7 @@ public class PathEditTextFactory extends EditTextFactory {
         }
 
     }
+
     @Override
     public List<View> getViewsFromJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, CommonListener listener) throws Exception {
         if (jsonObject.has("number_picker") && jsonObject.get("number_picker").toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
@@ -72,17 +73,17 @@ public class PathEditTextFactory extends EditTextFactory {
             ((JsonApi) context).addFormDataView(editText);
             views.add(rootLayout);
 
-            Button plusbutton = (Button)rootLayout.findViewById(R.id.addbutton);
-            Button minusbutton = (Button)rootLayout.findViewById(R.id.minusbutton);
+            Button plusbutton = (Button) rootLayout.findViewById(R.id.addbutton);
+            Button minusbutton = (Button) rootLayout.findViewById(R.id.minusbutton);
 
             plusbutton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String edittesxtstring = editText.getText().toString();
-                    if(edittesxtstring.equalsIgnoreCase("")){
+                    if (edittesxtstring.equalsIgnoreCase("")) {
                         editText.setText("0");
-                    }else{
-                        edittesxtstring = ""+(Integer.parseInt(edittesxtstring)+1);
+                    } else {
+                        edittesxtstring = "" + (Integer.parseInt(edittesxtstring) + 1);
                         editText.setText(edittesxtstring);
                     }
                 }
@@ -91,10 +92,10 @@ public class PathEditTextFactory extends EditTextFactory {
                 @Override
                 public void onClick(View v) {
                     String edittesxtstring = editText.getText().toString();
-                    if(edittesxtstring.equalsIgnoreCase("")){
+                    if (edittesxtstring.equalsIgnoreCase("")) {
                         editText.setText("0");
-                    }else{
-                        edittesxtstring = ""+(Integer.parseInt(edittesxtstring)-1);
+                    } else {
+                        edittesxtstring = "" + (Integer.parseInt(edittesxtstring) - 1);
                         editText.setText(edittesxtstring);
                     }
                 }
@@ -105,8 +106,8 @@ public class PathEditTextFactory extends EditTextFactory {
 
 
             return views;
-        }else{
-           return super.getViewsFromJson( stepName, context, formFragment, jsonObject, listener);
+        } else {
+            return super.getViewsFromJson(stepName, context, formFragment, jsonObject, listener);
         }
 
 

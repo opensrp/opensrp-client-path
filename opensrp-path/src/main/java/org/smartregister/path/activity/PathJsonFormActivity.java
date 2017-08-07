@@ -187,7 +187,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     String wastedvials = "0";
                     String vaccineName = object.getString("title").replace("Stock Issued", "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
-                    ;
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);

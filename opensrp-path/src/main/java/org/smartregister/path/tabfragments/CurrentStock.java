@@ -424,60 +424,6 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-
-    private class PaginationViewHandler implements View.OnClickListener {
-
-
-        private void addPagination(ListView clientsView) {
-            LinearLayout toaddNote = new LinearLayout(getActivity());
-            toaddNote.setOrientation(LinearLayout.VERTICAL);
-            ViewGroup footerView = getPaginationView();
-            nextPageView = (Button) footerView.findViewById(R.id.btn_next_page);
-            previousPageView = (Button) footerView.findViewById(R.id.btn_previous_page);
-            pageInfoView = (TextView) footerView.findViewById(R.id.txt_page_info);
-
-            nextPageView.setOnClickListener(this);
-            previousPageView.setOnClickListener(this);
-
-            footerView.setLayoutParams(new AbsListView.LayoutParams(
-                    AbsListView.LayoutParams.MATCH_PARENT,
-                    (int) getResources().getDimension(R.dimen.pagination_bar_height)));
-            toaddNote.addView(footerView);
-
-
-            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
-            toaddNote.addView((ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null), p);
-
-            clientsView.addFooterView(toaddNote);
-            refresh();
-        }
-
-        private ViewGroup getPaginationView() {
-
-            return (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.smart_register_pagination, null);
-        }
-
-        public void refreshListView() {
-            setRefreshList(true);
-            setRefreshList(false);
-        }
-
-
-        @Override
-        public void onClick(View view) {
-            int i = view.getId();
-            if (i == R.id.btn_next_page) {
-                gotoNextPage();
-
-            } else if (i == R.id.btn_previous_page) {
-                goBackToPreviousPage();
-
-            }
-        }
-
-    }
-
     private int getCurrentPageCount() {
         if (currentoffset != 0) {
             if ((currentoffset / currentlimit) != 0) {
@@ -707,5 +653,59 @@ public class CurrentStock extends Fragment implements
         return isPaused;
     }
 
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+    private class PaginationViewHandler implements View.OnClickListener {
 
+
+        private void addPagination(ListView clientsView) {
+            LinearLayout toaddNote = new LinearLayout(getActivity());
+            toaddNote.setOrientation(LinearLayout.VERTICAL);
+            ViewGroup footerView = getPaginationView();
+            nextPageView = (Button) footerView.findViewById(R.id.btn_next_page);
+            previousPageView = (Button) footerView.findViewById(R.id.btn_previous_page);
+            pageInfoView = (TextView) footerView.findViewById(R.id.txt_page_info);
+
+            nextPageView.setOnClickListener(this);
+            previousPageView.setOnClickListener(this);
+
+            footerView.setLayoutParams(new AbsListView.LayoutParams(
+                    AbsListView.LayoutParams.MATCH_PARENT,
+                    (int) getResources().getDimension(R.dimen.pagination_bar_height)));
+            toaddNote.addView(footerView);
+
+
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            toaddNote.addView((ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null), p);
+
+            clientsView.addFooterView(toaddNote);
+            refresh();
+        }
+
+        private ViewGroup getPaginationView() {
+
+            return (ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.smart_register_pagination, null);
+        }
+
+        public void refreshListView() {
+            setRefreshList(true);
+            setRefreshList(false);
+        }
+
+
+        @Override
+        public void onClick(View view) {
+            int i = view.getId();
+            if (i == R.id.btn_next_page) {
+                gotoNextPage();
+
+            } else if (i == R.id.btn_previous_page) {
+                goBackToPreviousPage();
+
+            }
+        }
+
+    }
 }

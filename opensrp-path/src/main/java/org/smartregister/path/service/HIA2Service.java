@@ -106,77 +106,77 @@ public class HIA2Service {
     public Map<String, Object> generateIndicators(final SQLiteDatabase _database, String day) {
         database = _database;
         reportDate = day;
-        getCHN1_005();
-        getCHN1_010();
-        getCHN1_011();
-        getCHN1_015();
-        getCHN1_020();
-        getCHN1_021();
-        getCHN1_025();
-        getCHN1_030();
-        getCHN2_005();
-        getCHN2_010();
-        getCHN2_015();
-        getCHN2_020();
-        getCHN2_025();
-        getCHN2_030();
-        getCHN2_035();
-        getCHN2_040();
-        getCHN2_041();
-        getCHN2_045();
-        getCHN2_050();
-        getCHN2_051();
-        getCHN2_055();
-        getCHN2_060();
-        getCHN2_061();
-        getCHN2_065();
-        getCHN2_070();
-        getCHN2_075();
-        getCHN2_080();
-        getCHN3_005();
-        getCHN3_005_O();
-        getCHN3_010();
-        getCHN3_010_O();
-        getCHN3_015();
-        getCHN3_015_O();
-        getCHN3_020();
-        getCHN3_020_O();
-        getCHN3_025();
-        getCHN3_025_O();
-        getCHN3_027();
-        getCHN3_027_O();
-        getCHN3_030();
-        getCHN3_030_O();
-        getCHN3_035();
-        getCHN3_035_O();
-        getCHN3_040();
-        getCHN3_040_O();
-        getCHN3_045();
-        getCHN3_045_O();
-        getCHN3_050();
-        getCHN3_050_O();
-        getCHN3_055();
-        getCHN3_055_O();
-        getCHN3_060();
-        getCHN3_060_O();
-        getCHN3_065();
-        getCHN3_065_O();
-        getCHN3_070();
-        getCHN3_070_O();
-        getCHN3_075();
-        getCHN3_075_O();
-        getCHN3_080();
-        getCHN3_080_O();
-        getCHN3_085();
-        getCHN3_085_O();
-        getCHN3_090();
+        getCHN1005();
+        getCHN1010();
+        getCHN1011();
+        getCHN1015();
+        getCHN1020();
+        getCHN1021();
+        getCHN1025();
+        getCHN1030();
+        getCHN2005();
+        getCHN2010();
+        getCHN2015();
+        getCHN2020();
+        getCHN2025();
+        getCHN2030();
+        getCHN2035();
+        getCHN2040();
+        getCHN2041();
+        getCHN2045();
+        getCHN2050();
+        getCHN2051();
+        getCHN2055();
+        getCHN2060();
+        getCHN2061();
+        getCHN2065();
+        getCHN2070();
+        getCHN2075();
+        getCHN2080();
+        getCHN3005();
+        getCHN3005O();
+        getCHN3010();
+        getCHN3010O();
+        getCHN3015();
+        getCHN3015O();
+        getCHN3020();
+        getCHN3020O();
+        getCHN3025();
+        getCHN3025O();
+        getCHN3027();
+        getCHN3027O();
+        getCHN3030();
+        getCHN3030O();
+        getCHN3035();
+        getCHN3035O();
+        getCHN3040();
+        getCHN3040O();
+        getCHN3045();
+        getCHN3045O();
+        getCHN3050();
+        getCHN3050O();
+        getCHN3055();
+        getCHN3055O();
+        getCHN3060();
+        getCHN3060O();
+        getCHN3065();
+        getCHN3065O();
+        getCHN3070();
+        getCHN3070O();
+        getCHN3075();
+        getCHN3075O();
+        getCHN3080();
+        getCHN3080O();
+        getCHN3085();
+        getCHN3085O();
+        getCHN3090();
         return hia2Report;
     }
 
     /**
      * Number of male children aged < 12 months who attended a clinic this month.
      */
-    private void getCHN1_005() {
+    private void getCHN1005() {
 
         try {
             int count = clinicAttendance("Male", "<12");
@@ -209,7 +209,7 @@ public class HIA2Service {
     /**
      * Number of female children aged < 12 months who attended a clinic this month.
      */
-    private void getCHN1_010() {
+    private void getCHN1010() {
         try {
             int count = clinicAttendance("Female", "<12");
             hia2Report.put(CHN1_010, count);
@@ -224,7 +224,7 @@ public class HIA2Service {
      * Number of total children aged < 12 months who attended a clinic this month.	"[CHN1-005] + [CHN1-010]
      * [Non-editable in the form]"
      */
-    private void getCHN1_011() {
+    private void getCHN1011() {
 
         int totalCount = (Integer) hia2Report.get(CHN1_005) + (Integer) hia2Report.get(CHN1_010);
         hia2Report.put(CHN1_011, totalCount);
@@ -234,7 +234,7 @@ public class HIA2Service {
     /**
      * Number of male children aged 12 to 59 months who attended a clinic this month
      */
-    private void getCHN1_015() {
+    private void getCHN1015() {
 //        gender = gender == null || gender.isEmpty() ? "Male" : gender;
 //        String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join event e on e.baseEntityId=child.base_entity_id where  child.gender='" + gender + "' and strftime('%Y-%m-%d',e.eventDate)='"+reportDate+"'  and age between 12 and 59";
         try {
@@ -250,7 +250,7 @@ public class HIA2Service {
     /**
      * Number of female children aged 12 to 59 months who attended a clinic this month
      */
-    private void getCHN1_020() {
+    private void getCHN1020() {
         try {
             int count = clinicAttendance("Female", "between 12 and 59");
             hia2Report.put(CHN1_020, count);
@@ -265,7 +265,7 @@ public class HIA2Service {
      * [CHN1-015] + [CHN1-020]
      * [Non-editable in the form]
      */
-    private void getCHN1_021() {
+    private void getCHN1021() {
         int totalCount = (Integer) hia2Report.get(CHN1_015) + (Integer) hia2Report.get(CHN1_020);
         hia2Report.put(CHN1_021, totalCount);
 
@@ -276,7 +276,7 @@ public class HIA2Service {
      * "[CHN1-011] + [CHN1-021]
      * [Non-editable in the form]"
      */
-    private void getCHN1_025() {
+    private void getCHN1025() {
         int totalCount = (Integer) hia2Report.get(CHN1_011) + (Integer) hia2Report.get(CHN1_021);
         hia2Report.put(CHN1_025, totalCount);
 
@@ -286,7 +286,7 @@ public class HIA2Service {
      * Number of total children who attended clinic and are not part of clinic's catchment area
      * COUNT Number of total children who attended clinic and are not part of clinic's catchment area (i.e., total number of out of catchment area form submissions that month)
      */
-    private void getCHN1_030() {
+    private void getCHN1030() {
         try {
             String query = "select count(*) as count from ec_child child inner join event e on e.baseEntityId=child.base_entity_id where e.eventType like '%Out of Area Service%' and " + eventDateEqualsCurrentMonthQuery();
             int count = executeQueryAndReturnCount(query);
@@ -300,7 +300,7 @@ public class HIA2Service {
      * Number of total children weighed aged 0-23 months who attended  clinic this month
      * using like for event since this total includes out of area service
      */
-    private void getCHN2_005() {
+    private void getCHN2005() {
         try {
             String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join event e on e.baseEntityId=child.base_entity_id " +
                     "where e.eventType='%Growth Monitoring%' and age <23 and " + eventDateEqualsCurrentMonthQuery();
@@ -314,7 +314,7 @@ public class HIA2Service {
     /**
      * Number of total children weighed aged 24-59 months who attended  clinic this month
      */
-    private void getCHN2_010() {
+    private void getCHN2010() {
         try {
             String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join event e on e.baseEntityId=child.base_entity_id " +
                     "where e.eventType like '%Growth Monitoring%' and age between 24 and 59 and " + eventDateEqualsCurrentMonthQuery();
@@ -329,7 +329,7 @@ public class HIA2Service {
      * Number of total children weighed aged < 5 years who attended  clinic this month	"[CHN2-005] + [CHN2-010]
      * [Non-editable in the form]"
      */
-    private void getCHN2_015() {
+    private void getCHN2015() {
         try {
             int totalCount = (Integer) hia2Report.get(CHN2_005) + (Integer) hia2Report.get(CHN2_010);
             hia2Report.put(CHN2_015, totalCount);
@@ -345,7 +345,7 @@ public class HIA2Service {
      * FIXME
      */
 
-    private void getCHN2_020() {
+    private void getCHN2020() {
 
         try {
             String query = "select count(*) as count, child.base_entity_id as beid,strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) as currentweightdate,(w.kg*1000) as currentweight," +
@@ -366,7 +366,7 @@ public class HIA2Service {
      * COUNT number of children 24-59 months [Date_Birth]  with [weight current visit - weight previous visits < 100g] who had = 2 consecutive weight encounters at this clinic
      * FIXME
      */
-    private void getCHN2_025() {
+    private void getCHN2025() {
         try {
             String query = "select count(*) as count, child.base_entity_id as beid,strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) as currentweightdate,(w.kg*1000) as currentweight," +
                     "(select (pw.kg*1000) from weights pw where pw.base_entity_id=w.base_entity_id  and strftime('%Y-%m-%d',datetime(pw.date/1000, 'unixepoch'))=strftime('%Y-%m-%d',date('now'),'-1 months')  limit 1) as prevweight," +
@@ -386,7 +386,7 @@ public class HIA2Service {
      * "[CHN2-020] + [CHN2-025]
      * [Non-editable in the form]"
      */
-    private void getCHN2_030() {
+    private void getCHN2030() {
         try {
             int totalCount = (Integer) hia2Report.get(CHN2_020) + (Integer) hia2Report.get(CHN2_025);
             hia2Report.put(CHN2_030, totalCount);
@@ -400,7 +400,7 @@ public class HIA2Service {
     /**
      * Number of total children age 0-23 months whose weight is between -2Z and -3Z scores
      */
-    private void getCHN2_035() {
+    private void getCHN2035() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -416,7 +416,7 @@ public class HIA2Service {
     /**
      * Number of total children age 24-59 months whose weight is between -2Z and -3Z scores
      */
-    private void getCHN2_040() {
+    private void getCHN2040() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -434,7 +434,7 @@ public class HIA2Service {
      * "[CHN2-035] + [CHN2-040]
      * [Non-editable in the form]"
      */
-    private void getCHN2_041() {
+    private void getCHN2041() {
         try {
             int totalCount = (Integer) hia2Report.get(CHN2_035) + (Integer) hia2Report.get(CHN2_040);
             hia2Report.put(CHN2_041, totalCount);
@@ -448,7 +448,7 @@ public class HIA2Service {
     /**
      * Number of total children age 0-23 months whose weight is below -3Z scores
      */
-    private void getCHN2_045() {
+    private void getCHN2045() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -463,7 +463,7 @@ public class HIA2Service {
     /**
      * Number of total children age 24-59 months whose weight is below -3Z scores
      */
-    private void getCHN2_050() {
+    private void getCHN2050() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -480,7 +480,7 @@ public class HIA2Service {
      * [CHN2-045] + [CHN2-050]
      * [Non-editable in the form]
      */
-    private void getCHN2_051() {
+    private void getCHN2051() {
         try {
             int totalCount = (Integer) hia2Report.get(CHN2_045) + (Integer) hia2Report.get(CHN2_050);
             hia2Report.put(CHN2_051, totalCount);
@@ -493,7 +493,7 @@ public class HIA2Service {
     /**
      * Number of total children age 0-23 months whose weight is above 2Z scores
      */
-    private void getCHN2_055() {
+    private void getCHN2055() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -509,7 +509,7 @@ public class HIA2Service {
     /**
      * Number of total children age 24-59 months whose weight is above 2Z scores
      */
-    private void getCHN2_060() {
+    private void getCHN2060() {
         try {
             String query = "select count(*) as count," + ageQuery() +
                     "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
@@ -527,7 +527,7 @@ public class HIA2Service {
      * Number of total children age < 5 years whose weight is above 2Z scores
      * [CHN-055] + [CHN-060]
      */
-    private void getCHN2_061() {
+    private void getCHN2061() {
         try {
             int totalCount = (Integer) hia2Report.get(CHN2_055) + (Integer) hia2Report.get(CHN2_060);
             hia2Report.put(CHN2_061, totalCount);
@@ -540,7 +540,7 @@ public class HIA2Service {
     /**
      * Number of children age 6-11 months who received vitamin A at this facility in this month
      */
-    private void getCHN2_065() {
+    private void getCHN2065() {
         try {
             String query = "select count(*) as count, " + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
                     "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 6 and 11";
@@ -556,7 +556,7 @@ public class HIA2Service {
     /**
      * Vitamin A supplement to infant and children 12-59 months
      */
-    private void getCHN2_070() {
+    private void getCHN2070() {
         try {
             String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
                     "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
@@ -570,7 +570,7 @@ public class HIA2Service {
     /**
      * Number of children age 12-59 months who received a deworming dose at this facility in this month
      */
-    private void getCHN2_075() {
+    private void getCHN2075() {
         try {
             String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
                     "where rst.type='deworming' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
@@ -586,7 +586,7 @@ public class HIA2Service {
     /**
      * Number of children who received insecticide treated nets at this facility in this month
      */
-    private void getCHN2_080() {
+    private void getCHN2080() {
         try {
             String query = "select count(*) as count from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
                     "where rst.type='itn' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch'))";
@@ -602,7 +602,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received BCG dose at this facility in this month
      */
-    private void getCHN3_005() {
+    private void getCHN3005() {
         try {
             int count = getVaccineCount("bcg", "<12", false);
             hia2Report.put(CHN3_005, count);
@@ -615,7 +615,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received BCG dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_005_O() {
+    private void getCHN3005O() {
         try {
             int count = getVaccineCount("bcg", "<12", true);
             hia2Report.put(CHN3_005_O, count);
@@ -627,7 +627,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV0 dose at this facility in this month
      */
-    private void getCHN3_010() {
+    private void getCHN3010() {
         try {
             int count = getVaccineCount("opv_0", "<12", false);
             hia2Report.put(CHN3_010, count);
@@ -640,7 +640,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV0 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_010_O() {
+    private void getCHN3010O() {
         try {
             int count = getVaccineCount("opv_0", "<12", true);
             hia2Report.put(CHN3_010_O, count);
@@ -653,7 +653,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV1 dose at this facility in this month
      */
-    private void getCHN3_015() {
+    private void getCHN3015() {
         try {
             int count = getVaccineCount("opv_1", "<12", false);
             hia2Report.put(CHN3_015, count);
@@ -666,7 +666,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV1 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_015_O() {
+    private void getCHN3015O() {
         try {
             int count = getVaccineCount("opv_1", "<12", true);
             hia2Report.put(CHN3_015_O, count);
@@ -678,7 +678,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV2 dose at this facility in this month
      */
-    private void getCHN3_020() {
+    private void getCHN3020() {
         try {
             int count = getVaccineCount("opv_2", "<12", false);
             hia2Report.put(CHN3_020, count);
@@ -690,7 +690,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV2 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_020_O() {
+    private void getCHN3020O() {
         try {
             int count = getVaccineCount("opv_2", "<12", true);
             hia2Report.put(CHN3_020_O, count);
@@ -702,7 +702,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV3 dose at this facility in this month
      */
-    private void getCHN3_025() {
+    private void getCHN3025() {
         try {
             int count = getVaccineCount("opv_3", "<12", true);
             hia2Report.put(CHN3_025, count);
@@ -714,7 +714,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV3 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_025_O() {
+    private void getCHN3025O() {
         try {
             int count = getVaccineCount("opv_3", "<12", false);
             hia2Report.put(CHN3_025_O, count);
@@ -726,7 +726,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received IPV dose at this facility in this month
      */
-    private void getCHN3_027() {
+    private void getCHN3027() {
         try {
             int count = getVaccineCount("ipv", "<12", false);
             hia2Report.put(CHN3_027, count);
@@ -738,7 +738,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received IPV dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_027_O() {
+    private void getCHN3027O() {
         try {
             int count = getVaccineCount("ipv", "<12", true);
             hia2Report.put(CHN3_027_O, count);
@@ -750,7 +750,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV4 dose at this facility in this month
      */
-    private void getCHN3_030() {
+    private void getCHN3030() {
         try {
             int count = getVaccineCount("opv_4", "<12", false);
             hia2Report.put(CHN3_030, count);
@@ -762,7 +762,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received OPV4 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_030_O() {
+    private void getCHN3030O() {
         try {
             int count = getVaccineCount("opv_4", "<12", true);
             hia2Report.put(CHN3_030_O, count);
@@ -774,7 +774,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 1 dose at this facility in this month
      */
-    private void getCHN3_035() {
+    private void getCHN3035() {
         try {
             int count = getVaccineCount("penta_1", "<12", false);
             hia2Report.put(CHN3_035, count);
@@ -786,7 +786,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 1 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_035_O() {
+    private void getCHN3035O() {
         try {
             int count = getVaccineCount("penta_1", "<12", true);
             hia2Report.put(CHN3_035_O, count);
@@ -798,7 +798,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 2 dose at this facility in this month
      */
-    private void getCHN3_040() {
+    private void getCHN3040() {
         try {
             int count = getVaccineCount("penta_2", "<12", false);
             hia2Report.put(CHN3_040, count);
@@ -810,7 +810,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 2 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_040_O() {
+    private void getCHN3040O() {
         try {
             int count = getVaccineCount("penta_2", "<12", true);
             hia2Report.put(CHN3_040_O, count);
@@ -822,7 +822,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 3 dose at this facility in this month
      */
-    private void getCHN3_045() {
+    private void getCHN3045() {
         try {
             int count = getVaccineCount("penta_3", "<12", false);
             hia2Report.put(CHN3_045, count);
@@ -834,7 +834,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received DPT-Hib+HepB 3 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_045_O() {
+    private void getCHN3045O() {
         try {
             int count = getVaccineCount("penta_3", "<12", true);
             hia2Report.put(CHN3_045_O, count);
@@ -846,7 +846,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 1 dose at this facility in this month
      */
-    private void getCHN3_050() {
+    private void getCHN3050() {
         try {
             int count = getVaccineCount("pcv_1", "<12", false);
             hia2Report.put(CHN3_050, count);
@@ -858,7 +858,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 1 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_050_O() {
+    private void getCHN3050O() {
         try {
             int count = getVaccineCount("pcv_1", "<12", true);
             hia2Report.put(CHN3_050_O, count);
@@ -870,7 +870,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 2 dose at this facility in this month
      */
-    private void getCHN3_055() {
+    private void getCHN3055() {
         try {
             int count = getVaccineCount("pcv_2", "<12", false);
             hia2Report.put(CHN3_055, count);
@@ -882,7 +882,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 2 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_055_O() {
+    private void getCHN3055O() {
         try {
             int count = getVaccineCount("pcv_2", "<12", true);
             hia2Report.put(CHN3_055_O, count);
@@ -894,7 +894,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 3 dose at this facility in this month
      */
-    private void getCHN3_060() {
+    private void getCHN3060() {
         try {
             int count = getVaccineCount("pcv_3", "<12", false);
             hia2Report.put(CHN3_060, count);
@@ -906,7 +906,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received PCV 3 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_060_O() {
+    private void getCHN3060O() {
         try {
             int count = getVaccineCount("pcv_3", "<12", true);
             hia2Report.put(CHN3_060_O, count);
@@ -918,7 +918,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received RV 1  dose at this facility in this month
      */
-    private void getCHN3_065() {
+    private void getCHN3065() {
         try {
             int count = getVaccineCount("rota_1", "<12", false);
             hia2Report.put(CHN3_065, count);
@@ -930,7 +930,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received RV 1 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_065_O() {
+    private void getCHN3065O() {
         try {
             int count = getVaccineCount("rota_1", "<12", true);
             hia2Report.put(CHN3_065_O, count);
@@ -942,7 +942,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received RV 2  dose at this facility in this month
      */
-    private void getCHN3_070() {
+    private void getCHN3070() {
         try {
             int count = getVaccineCount("rota_2", "<12", false);
             hia2Report.put(CHN3_070, count);
@@ -954,7 +954,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received RV 2 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_070_O() {
+    private void getCHN3070O() {
         try {
             int count = getVaccineCount("rota_2", "<12", true);
             hia2Report.put(CHN3_070_O, count);
@@ -966,7 +966,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received Measles/ MR 1 dose at this facility in this month
      */
-    private void getCHN3_075() {
+    private void getCHN3075() {
         try {
             int count = getVaccineCount("measles_1", "<12", false);
             hia2Report.put(CHN3_075, count);
@@ -978,7 +978,7 @@ public class HIA2Service {
     /**
      * Number of children < one year who received Measles/ MR dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_075_O() {
+    private void getCHN3075O() {
         try {
             int count = getVaccineCount("measles_1", "<12", true);
             hia2Report.put(CHN3_075_O, count);
@@ -989,9 +989,9 @@ public class HIA2Service {
 
     /**
      * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at this facility
-     * <p/>
+     * <p>
      */
-    private void getCHN3_080() {
+    private void getCHN3080() {
         try {
             int count = getVaccineCountWithH1A2Status("<12", false);
             hia2Report.put(CHN3_080, count);
@@ -1002,9 +1002,9 @@ public class HIA2Service {
 
     /**
      * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at outreach conducyed by this facility
-     * <p/>
+     * <p>
      */
-    private void getCHN3_080_O() {
+    private void getCHN3080O() {
         try {
             int count = getVaccineCountWithH1A2Status("<12", true);
             hia2Report.put(CHN3_080_O, count);
@@ -1016,7 +1016,7 @@ public class HIA2Service {
     /**
      * Number of children at 18 months  who received Measles/ MR 2 dose at this facility in this month
      */
-    private void getCHN3_085() {
+    private void getCHN3085() {
         try {
             int count = getVaccineCount("measles_1", "=18", false);
             hia2Report.put(CHN3_085, count);
@@ -1028,7 +1028,7 @@ public class HIA2Service {
     /**
      * Number of children  at 18 months who received Measles/ MR 2 dose at outreach conducted by this facility in this month
      */
-    private void getCHN3_085_O() {
+    private void getCHN3085O() {
         try {
             int count = getVaccineCount("measles_1", "=18", true);
             hia2Report.put(CHN3_085_O, count);
@@ -1041,7 +1041,7 @@ public class HIA2Service {
      * Number of days during the month that vaccine storage fridge was not functioning
      * FIXME
      */
-    private void getCHN3_090() {
+    private void getCHN3090() {
 
     }
 

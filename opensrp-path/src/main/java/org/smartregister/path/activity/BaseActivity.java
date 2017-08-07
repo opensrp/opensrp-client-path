@@ -766,29 +766,6 @@ public abstract class BaseActivity extends AppCompatActivity
      */
     protected abstract Class onBackActivity();
 
-    private class BaseActivityToggle extends ActionBarDrawerToggle {
-
-        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
-            super(activity, drawerLayout, openDrawerContentDescRes, closeDrawerContentDescRes);
-        }
-
-        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
-            super(activity, drawerLayout, toolbar, openDrawerContentDescRes, closeDrawerContentDescRes);
-        }
-
-        @Override
-        public void onDrawerOpened(View drawerView) {
-            super.onDrawerOpened(drawerView);
-            if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-                updateLastSyncText();
-            }
-        }
-
-        @Override
-        public void onDrawerClosed(View drawerView) {
-            super.onDrawerClosed(drawerView);
-        }
-    }
 
     public void processInThread(Runnable runnable) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -824,6 +801,34 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void hideProgressDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+
+    private class BaseActivityToggle extends ActionBarDrawerToggle {
+
+        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
+            super(activity, drawerLayout, openDrawerContentDescRes, closeDrawerContentDescRes);
+        }
+
+        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
+            super(activity, drawerLayout, toolbar, openDrawerContentDescRes, closeDrawerContentDescRes);
+        }
+
+        @Override
+        public void onDrawerOpened(View drawerView) {
+            super.onDrawerOpened(drawerView);
+            if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+                updateLastSyncText();
+            }
+        }
+
+        @Override
+        public void onDrawerClosed(View drawerView) {
+            super.onDrawerClosed(drawerView);
         }
     }
 

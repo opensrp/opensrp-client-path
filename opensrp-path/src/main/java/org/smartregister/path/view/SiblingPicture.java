@@ -59,76 +59,6 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
         Utils.startAsyncTask(new GetChildDetailsTask(baseActivity, baseEntityId), null);
     }
 
-    private class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjectClient> {
-        private final String baseEntityId;
-        private final BaseActivity baseActivity;
-        private DetailsRepository detailsRepository;
-
-        public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId) {
-            this.baseActivity = baseActivity;
-            this.baseEntityId = baseEntityId;
-            detailsRepository = org.smartregister.Context.getInstance().detailsRepository();
-        }
-
-        @Override
-        protected CommonPersonObjectClient doInBackground(Void... params) {
-            CommonPersonObject rawDetails = baseActivity.getOpenSRPContext()
-                    .commonrepository(PathConstants.CHILD_TABLE_NAME).findByBaseEntityId(baseEntityId);
-            if (rawDetails != null) {
-                // Get extra child details
-                CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
-                childDetails.getColumnmaps().putAll(detailsRepository.getAllDetailsForClient(baseEntityId));
-
-                // Check if child has a profile pic
-                ProfileImage profileImage = baseActivity.getOpenSRPContext()
-                        .imageRepository().findByEntityId(baseEntityId);
-
-                childDetails.getColumnmaps().put("has_profile_image", "true");
-                if (profileImage == null) {
-                    childDetails.getColumnmaps().put("has_profile_image", "false");
-                }
-
-                // Get mother details
-                String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(),
-                        "relational_id", false);
-
-                Map<String, String> motherDetails = new HashMap<>();
-                motherDetails.put("mother_first_name", "");
-                motherDetails.put("mother_last_name", "");
-                motherDetails.put("mother_dob", "");
-                motherDetails.put("mother_nrc_number", "");
-                if (!TextUtils.isEmpty(motherBaseEntityId)) {
-                    CommonPersonObject rawMotherDetails = baseActivity.getOpenSRPContext()
-                            .commonrepository("ec_mother").findByBaseEntityId(motherBaseEntityId);
-                    if (rawMotherDetails != null) {
-                        motherDetails.put("mother_first_name",
-                                Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
-                        motherDetails.put("mother_last_name",
-                                Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
-                        motherDetails.put("mother_dob",
-                                Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
-                        motherDetails.put("mother_nrc_number",
-                                Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
-                    }
-                }
-                childDetails.getColumnmaps().putAll(motherDetails);
-                childDetails.setDetails(childDetails.getColumnmaps());
-
-                return childDetails;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(CommonPersonObjectClient childDetails) {
-            super.onPostExecute(childDetails);
-            if (childDetails != null) {
-                updatePicture(baseActivity, baseEntityId, childDetails);
-            }
-        }
-    }
-
     private void updatePicture(final BaseActivity baseActivity, String baseEntityId,
                                final CommonPersonObjectClient childDetails) {
         Gender gender = Gender.UNKNOWN;
@@ -209,5 +139,79 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
                 baseActivity.startActivity(intent);
             }
         });
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+
+    private class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjectClient> {
+        private final String baseEntityId;
+        private final BaseActivity baseActivity;
+        private DetailsRepository detailsRepository;
+
+        public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId) {
+            this.baseActivity = baseActivity;
+            this.baseEntityId = baseEntityId;
+            detailsRepository = org.smartregister.Context.getInstance().detailsRepository();
+        }
+
+        @Override
+        protected CommonPersonObjectClient doInBackground(Void... params) {
+            CommonPersonObject rawDetails = baseActivity.getOpenSRPContext()
+                    .commonrepository(PathConstants.CHILD_TABLE_NAME).findByBaseEntityId(baseEntityId);
+            if (rawDetails != null) {
+                // Get extra child details
+                CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
+                childDetails.getColumnmaps().putAll(detailsRepository.getAllDetailsForClient(baseEntityId));
+
+                // Check if child has a profile pic
+                ProfileImage profileImage = baseActivity.getOpenSRPContext()
+                        .imageRepository().findByEntityId(baseEntityId);
+
+                childDetails.getColumnmaps().put("has_profile_image", "true");
+                if (profileImage == null) {
+                    childDetails.getColumnmaps().put("has_profile_image", "false");
+                }
+
+                // Get mother details
+                String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(),
+                        "relational_id", false);
+
+                Map<String, String> motherDetails = new HashMap<>();
+                motherDetails.put("mother_first_name", "");
+                motherDetails.put("mother_last_name", "");
+                motherDetails.put("mother_dob", "");
+                motherDetails.put("mother_nrc_number", "");
+                if (!TextUtils.isEmpty(motherBaseEntityId)) {
+                    CommonPersonObject rawMotherDetails = baseActivity.getOpenSRPContext()
+                            .commonrepository("ec_mother").findByBaseEntityId(motherBaseEntityId);
+                    if (rawMotherDetails != null) {
+                        motherDetails.put("mother_first_name",
+                                Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
+                        motherDetails.put("mother_last_name",
+                                Utils.getValue(rawMotherDetails.getColumnmaps(), "last_name", false));
+                        motherDetails.put("mother_dob",
+                                Utils.getValue(rawMotherDetails.getColumnmaps(), "dob", false));
+                        motherDetails.put("mother_nrc_number",
+                                Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
+                    }
+                }
+                childDetails.getColumnmaps().putAll(motherDetails);
+                childDetails.setDetails(childDetails.getColumnmaps());
+
+                return childDetails;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(CommonPersonObjectClient childDetails) {
+            super.onPostExecute(childDetails);
+            if (childDetails != null) {
+                updatePicture(baseActivity, baseEntityId, childDetails);
+            }
+        }
     }
 }

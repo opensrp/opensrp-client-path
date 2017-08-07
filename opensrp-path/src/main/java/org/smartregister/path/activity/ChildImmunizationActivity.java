@@ -953,85 +953,6 @@ public class ChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private class MarkAlertAsDoneTask extends AsyncTask<Alert, Void, Void> {
-        private final AlertService alertService;
-
-        public MarkAlertAsDoneTask(AlertService alertService) {
-            this.alertService = alertService;
-        }
-
-        @Override
-        protected Void doInBackground(Alert... params) {
-            for (int i = 0; i < params.length; i++) {
-                alertService.changeAlertStatusToComplete(params[i].caseId(), params[i].visitCode());
-            }
-            return null;
-        }
-    }
-
-    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Pair<ArrayList<VaccineWrapper>, List<Vaccine>>> {
-
-        private View view;
-        private VaccineRepository vaccineRepository;
-        private AlertService alertService;
-        private List<String> affectedVaccines;
-        private List<Vaccine> vaccineList;
-        private List<Alert> alertList;
-
-        public void setView(View view) {
-            this.view = view;
-        }
-
-        public void setVaccineRepository(VaccineRepository vaccineRepository) {
-            this.vaccineRepository = vaccineRepository;
-            alertService = getOpenSRPContext().alertService();
-            affectedVaccines = new ArrayList<>();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair) {
-            hideProgressDialog();
-            updateVaccineGroupViews(view, pair.first, pair.second);
-            View recordWeight = findViewById(R.id.record_weight);
-            WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
-            if (weightWrapper == null || weightWrapper.getWeight() == null) {
-                showRecordWeightNotification();
-            }
-
-            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
-            showVaccineNotifications(vaccineList, alertList);
-        }
-
-        @Override
-        protected Pair<ArrayList<VaccineWrapper>, List<Vaccine>> doInBackground(VaccineWrapper... vaccineWrappers) {
-
-            ArrayList<VaccineWrapper> list = new ArrayList<>();
-            if (vaccineRepository != null) {
-                for (VaccineWrapper tag : vaccineWrappers) {
-                    saveVaccine(vaccineRepository, tag);
-                    list.add(tag);
-                }
-            }
-
-            Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair = new Pair<>(list, vaccineList);
-            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, "child");
-            }
-            vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                    VaccinateActionUtils.allAlertNames("child"));
-
-            return pair;
-        }
-    }
-
     private String constructChildName() {
         String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
         String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
@@ -1076,6 +997,111 @@ public class ChildImmunizationActivity extends BaseActivity
 
         return null;
     }
+
+    private void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList, List<Alert> alerts) {
+        if (affectedVaccines != null && vaccineList != null) {
+            // Update all other affected vaccine groups
+            HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups = new HashMap<>();
+            for (String curAffectedVaccineName : affectedVaccines) {
+                boolean viewFound = false;
+                // Check what group it is in
+                for (VaccineGroup curGroup : vaccineGroups) {
+                    ArrayList<VaccineWrapper> groupWrappers = curGroup.getAllVaccineWrappers();
+                    if (groupWrappers == null) groupWrappers = new ArrayList<>();
+                    for (VaccineWrapper curWrapper : groupWrappers) {
+                        String curWrapperName = curWrapper.getName();
+
+                        // Check if current wrapper is one of the combined vaccines
+                        if (COMBINED_VACCINES.contains(curWrapperName)) {
+                            // Check if any of the sister vaccines is currAffectedVaccineName
+                            String[] allSisters = COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
+                            for (int i = 0; i < allSisters.length; i++) {
+                                if (allSisters[i].replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
+                                    curWrapperName = allSisters[i];
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (curWrapperName.replace(" ", "").toLowerCase()
+                                .contains(curAffectedVaccineName.replace(" ", "").toLowerCase())) {
+                            if (!affectedGroups.containsKey(curGroup)) {
+                                affectedGroups.put(curGroup, new ArrayList<VaccineWrapper>());
+                            }
+
+                            affectedGroups.get(curGroup).add(curWrapper);
+                            viewFound = true;
+                        }
+
+                        if (viewFound) break;
+                    }
+
+                    if (viewFound) break;
+                }
+            }
+
+            for (VaccineGroup curGroup : affectedGroups.keySet()) {
+                try {
+                    vaccineGroups.remove(curGroup);
+                    addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
+                            new JSONObject((String) curGroup.getTag(R.id.vaccine_group_vaccine_data)),
+                            vaccineList, alerts);
+                } catch (Exception e) {
+                    Log.e(TAG, Log.getStackTraceString(e));
+                }
+            }
+        }
+    }
+
+    //Recurring Service
+    @Override
+    public void onGiveToday(ServiceWrapper tag, View v) {
+        if (tag != null) {
+            View view = RecurringServiceUtils.getLastOpenedServiceView(serviceGroups);
+            saveService(tag, view);
+        }
+    }
+
+    @Override
+    public void onGiveEarlier(ServiceWrapper tag, View v) {
+        if (tag != null) {
+            View view = RecurringServiceUtils.getLastOpenedServiceView(serviceGroups);
+            saveService(tag, view);
+        }
+    }
+
+    @Override
+    public void onUndoService(ServiceWrapper tag, View v) {
+        Utils.startAsyncTask(new UndoServiceTask(tag), null);
+    }
+
+    public void saveService(ServiceWrapper tag, final View view) {
+        if (tag == null) {
+            return;
+        }
+
+        ServiceWrapper[] arrayTags = {tag};
+        SaveServiceTask backgroundTask = new SaveServiceTask();
+        String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
+        String locationId = null;
+
+        try {
+            locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
+                    toolbar.getCurrentLocation());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        backgroundTask.setProviderId(providerId);
+        backgroundTask.setLocationId(locationId);
+        backgroundTask.setView(view);
+        Utils.startAsyncTask(backgroundTask, arrayTags);
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
 
     private class UpdateViewTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
@@ -1229,217 +1255,6 @@ public class ChildImmunizationActivity extends BaseActivity
             return map;
         }
     }
-
-    private class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
-
-        private VaccineWrapper tag;
-        private View v;
-        private final VaccineRepository vaccineRepository;
-        private final AlertService alertService;
-        private List<Vaccine> vaccineList;
-        private List<Alert> alertList;
-        private List<String> affectedVaccines;
-
-        public UndoVaccineTask(VaccineWrapper tag, View v) {
-            this.tag = tag;
-            this.v = v;
-            vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-            alertService = getOpenSRPContext().alertService();
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (tag != null) {
-
-                if (tag.getDbKey() != null) {
-                    Long dbKey = tag.getDbKey();
-                    vaccineRepository.deleteVaccine(dbKey);
-                    String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
-                    if (!TextUtils.isEmpty(dobString)) {
-                        DateTime dateTime = new DateTime(dobString);
-                        affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, "child");
-                        vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-                        alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                                VaccinateActionUtils.allAlertNames("child"));
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void params) {
-            super.onPostExecute(params);
-
-            // Refresh the vaccine group with the updated vaccine
-            tag.setUpdatedVaccineDate(null, false);
-            tag.setDbKey(null);
-
-            View view = getLastOpenedView();
-
-            ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
-            wrappers.add(tag);
-            updateVaccineGroupViews(view, wrappers, vaccineList, true);
-            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
-            showVaccineNotifications(vaccineList, alertList);
-        }
-    }
-
-    private void updateVaccineGroupsUsingAlerts(List<String> affectedVaccines, List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (affectedVaccines != null && vaccineList != null) {
-            // Update all other affected vaccine groups
-            HashMap<VaccineGroup, ArrayList<VaccineWrapper>> affectedGroups = new HashMap<>();
-            for (String curAffectedVaccineName : affectedVaccines) {
-                boolean viewFound = false;
-                // Check what group it is in
-                for (VaccineGroup curGroup : vaccineGroups) {
-                    ArrayList<VaccineWrapper> groupWrappers = curGroup.getAllVaccineWrappers();
-                    if (groupWrappers == null) groupWrappers = new ArrayList<>();
-                    for (VaccineWrapper curWrapper : groupWrappers) {
-                        String curWrapperName = curWrapper.getName();
-
-                        // Check if current wrapper is one of the combined vaccines
-                        if (COMBINED_VACCINES.contains(curWrapperName)) {
-                            // Check if any of the sister vaccines is currAffectedVaccineName
-                            String[] allSisters = COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
-                            for (int i = 0; i < allSisters.length; i++) {
-                                if (allSisters[i].replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
-                                    curWrapperName = allSisters[i];
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (curWrapperName.replace(" ", "").toLowerCase()
-                                .contains(curAffectedVaccineName.replace(" ", "").toLowerCase())) {
-                            if (!affectedGroups.containsKey(curGroup)) {
-                                affectedGroups.put(curGroup, new ArrayList<VaccineWrapper>());
-                            }
-
-                            affectedGroups.get(curGroup).add(curWrapper);
-                            viewFound = true;
-                        }
-
-                        if (viewFound) break;
-                    }
-
-                    if (viewFound) break;
-                }
-            }
-
-            for (VaccineGroup curGroup : affectedGroups.keySet()) {
-                try {
-                    vaccineGroups.remove(curGroup);
-                    addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            new JSONObject((String) curGroup.getTag(R.id.vaccine_group_vaccine_data)),
-                            vaccineList, alerts);
-                } catch (Exception e) {
-                    Log.e(TAG, Log.getStackTraceString(e));
-                }
-            }
-        }
-    }
-
-    private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
-
-        @Override
-        protected ArrayList<String> doInBackground(Void... params) {
-            String baseEntityId = Utils.getValue(childDetails.getColumnmaps(), "base_entity_id", false);
-            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
-            if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
-                List<CommonPersonObject> children = getOpenSRPContext().commonrepository(PathConstants.CHILD_TABLE_NAME)
-                        .findByRelational_IDs(motherBaseEntityId);
-
-                if (children != null) {
-                    ArrayList<String> baseEntityIds = new ArrayList<>();
-                    for (CommonPersonObject curChild : children) {
-                        if (!baseEntityId.equals(Utils.getValue(curChild.getColumnmaps(),
-                                "base_entity_id", false))) {
-                            baseEntityIds.add(Utils.getValue(curChild.getColumnmaps(),
-                                    "base_entity_id", false));
-                        }
-                    }
-
-                    return baseEntityIds;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> baseEntityIds) {
-            super.onPostExecute(baseEntityIds);
-            if (baseEntityIds == null) {
-                baseEntityIds = new ArrayList<>();
-            }
-
-            Collections.reverse(baseEntityIds);
-
-            SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
-            siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, baseEntityIds);
-        }
-    }
-
-    private class NamedObject<T> {
-        public final String name;
-        public final T object;
-
-        public NamedObject(String name, T object) {
-            this.name = name;
-            this.object = object;
-        }
-    }
-
-    //Recurring Service
-    @Override
-    public void onGiveToday(ServiceWrapper tag, View v) {
-        if (tag != null) {
-            View view = RecurringServiceUtils.getLastOpenedServiceView(serviceGroups);
-            saveService(tag, view);
-        }
-    }
-
-    @Override
-    public void onGiveEarlier(ServiceWrapper tag, View v) {
-        if (tag != null) {
-            View view = RecurringServiceUtils.getLastOpenedServiceView(serviceGroups);
-            saveService(tag, view);
-        }
-    }
-
-    @Override
-    public void onUndoService(ServiceWrapper tag, View v) {
-        Utils.startAsyncTask(new UndoServiceTask(tag), null);
-    }
-
-    public void saveService(ServiceWrapper tag, final View view) {
-        if (tag == null) {
-            return;
-        }
-
-        ServiceWrapper[] arrayTags = {tag};
-        SaveServiceTask backgroundTask = new SaveServiceTask();
-        String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = null;
-
-        try {
-            locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                    toolbar.getCurrentLocation());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        backgroundTask.setProviderId(providerId);
-        backgroundTask.setLocationId(locationId);
-        backgroundTask.setView(view);
-        Utils.startAsyncTask(backgroundTask, arrayTags);
-    }
-
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
 
@@ -1599,4 +1414,196 @@ public class ChildImmunizationActivity extends BaseActivity
             growthDialogFragment.show(ft, DIALOG_TAG);
         }
     }
+
+    private class MarkAlertAsDoneTask extends AsyncTask<Alert, Void, Void> {
+        private final AlertService alertService;
+
+        public MarkAlertAsDoneTask(AlertService alertService) {
+            this.alertService = alertService;
+        }
+
+        @Override
+        protected Void doInBackground(Alert... params) {
+            for (int i = 0; i < params.length; i++) {
+                alertService.changeAlertStatusToComplete(params[i].caseId(), params[i].visitCode());
+            }
+            return null;
+        }
+    }
+
+    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Pair<ArrayList<VaccineWrapper>, List<Vaccine>>> {
+
+        private View view;
+        private VaccineRepository vaccineRepository;
+        private AlertService alertService;
+        private List<String> affectedVaccines;
+        private List<Vaccine> vaccineList;
+        private List<Alert> alertList;
+
+        public void setView(View view) {
+            this.view = view;
+        }
+
+        public void setVaccineRepository(VaccineRepository vaccineRepository) {
+            this.vaccineRepository = vaccineRepository;
+            alertService = getOpenSRPContext().alertService();
+            affectedVaccines = new ArrayList<>();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog();
+        }
+
+        @Override
+        protected void onPostExecute(Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair) {
+            hideProgressDialog();
+            updateVaccineGroupViews(view, pair.first, pair.second);
+            View recordWeight = findViewById(R.id.record_weight);
+            WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
+            if (weightWrapper == null || weightWrapper.getWeight() == null) {
+                showRecordWeightNotification();
+            }
+
+            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
+            showVaccineNotifications(vaccineList, alertList);
+        }
+
+        @Override
+        protected Pair<ArrayList<VaccineWrapper>, List<Vaccine>> doInBackground(VaccineWrapper... vaccineWrappers) {
+
+            ArrayList<VaccineWrapper> list = new ArrayList<>();
+            if (vaccineRepository != null) {
+                for (VaccineWrapper tag : vaccineWrappers) {
+                    saveVaccine(vaccineRepository, tag);
+                    list.add(tag);
+                }
+            }
+
+            Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair = new Pair<>(list, vaccineList);
+            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
+            if (!TextUtils.isEmpty(dobString)) {
+                DateTime dateTime = new DateTime(dobString);
+                affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, "child");
+            }
+            vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
+                    VaccinateActionUtils.allAlertNames("child"));
+
+            return pair;
+        }
+    }
+
+
+    private class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
+
+        private VaccineWrapper tag;
+        private View v;
+        private final VaccineRepository vaccineRepository;
+        private final AlertService alertService;
+        private List<Vaccine> vaccineList;
+        private List<Alert> alertList;
+        private List<String> affectedVaccines;
+
+        public UndoVaccineTask(VaccineWrapper tag, View v) {
+            this.tag = tag;
+            this.v = v;
+            vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+            alertService = getOpenSRPContext().alertService();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (tag != null) {
+
+                if (tag.getDbKey() != null) {
+                    Long dbKey = tag.getDbKey();
+                    vaccineRepository.deleteVaccine(dbKey);
+                    String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
+                    if (!TextUtils.isEmpty(dobString)) {
+                        DateTime dateTime = new DateTime(dobString);
+                        affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, "child");
+                        vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+                        alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
+                                VaccinateActionUtils.allAlertNames("child"));
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void params) {
+            super.onPostExecute(params);
+
+            // Refresh the vaccine group with the updated vaccine
+            tag.setUpdatedVaccineDate(null, false);
+            tag.setDbKey(null);
+
+            View view = getLastOpenedView();
+
+            ArrayList<VaccineWrapper> wrappers = new ArrayList<>();
+            wrappers.add(tag);
+            updateVaccineGroupViews(view, wrappers, vaccineList, true);
+            updateVaccineGroupsUsingAlerts(affectedVaccines, vaccineList, alertList);
+            showVaccineNotifications(vaccineList, alertList);
+        }
+    }
+
+    private class GetSiblingsTask extends AsyncTask<Void, Void, ArrayList<String>> {
+
+        @Override
+        protected ArrayList<String> doInBackground(Void... params) {
+            String baseEntityId = Utils.getValue(childDetails.getColumnmaps(), "base_entity_id", false);
+            String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
+            if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
+                List<CommonPersonObject> children = getOpenSRPContext().commonrepository(PathConstants.CHILD_TABLE_NAME)
+                        .findByRelational_IDs(motherBaseEntityId);
+
+                if (children != null) {
+                    ArrayList<String> baseEntityIds = new ArrayList<>();
+                    for (CommonPersonObject curChild : children) {
+                        if (!baseEntityId.equals(Utils.getValue(curChild.getColumnmaps(),
+                                "base_entity_id", false))) {
+                            baseEntityIds.add(Utils.getValue(curChild.getColumnmaps(),
+                                    "base_entity_id", false));
+                        }
+                    }
+
+                    return baseEntityIds;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<String> baseEntityIds) {
+            super.onPostExecute(baseEntityIds);
+            if (baseEntityIds == null) {
+                baseEntityIds = new ArrayList<>();
+            }
+
+            Collections.reverse(baseEntityIds);
+
+            SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
+            siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, baseEntityIds);
+        }
+    }
+
+
+    private class NamedObject<T> {
+        public final String name;
+        public final T object;
+
+        public NamedObject(String name, T object) {
+            this.name = name;
+            this.object = object;
+        }
+    }
+
 }

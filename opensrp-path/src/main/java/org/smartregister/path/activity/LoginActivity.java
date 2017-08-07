@@ -326,36 +326,6 @@ public class LoginActivity extends AppCompatActivity {
         remoteLoginTask.execute();
     }
 
-    private class RemoteLoginTask extends AsyncTask<Void, Void, LoginResponse> {
-        private final String userName;
-        private final String password;
-        private final Listener<LoginResponse> afterLoginCheck;
-
-        public RemoteLoginTask(String userName, String password, Listener<LoginResponse> afterLoginCheck) {
-            this.userName = userName;
-            this.password = password;
-            this.afterLoginCheck = afterLoginCheck;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog.show();
-        }
-
-        @Override
-        protected LoginResponse doInBackground(Void... params) {
-            return context.userService().isValidRemoteLogin(userName, password);
-        }
-
-        @Override
-        protected void onPostExecute(LoginResponse loginResponse) {
-            super.onPostExecute(loginResponse);
-            progressDialog.dismiss();
-            afterLoginCheck.onEvent(loginResponse);
-        }
-    }
-
     private void fillUserIfExists() {
         if (context.userService().hasARegisteredUser()) {
             userNameEditText.setText(context.allSharedPreferences().fetchRegisteredANM());
@@ -480,4 +450,37 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+    private class RemoteLoginTask extends AsyncTask<Void, Void, LoginResponse> {
+        private final String userName;
+        private final String password;
+        private final Listener<LoginResponse> afterLoginCheck;
+
+        public RemoteLoginTask(String userName, String password, Listener<LoginResponse> afterLoginCheck) {
+            this.userName = userName;
+            this.password = password;
+            this.afterLoginCheck = afterLoginCheck;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected LoginResponse doInBackground(Void... params) {
+            return context.userService().isValidRemoteLogin(userName, password);
+        }
+
+        @Override
+        protected void onPostExecute(LoginResponse loginResponse) {
+            super.onPostExecute(loginResponse);
+            progressDialog.dismiss();
+            afterLoginCheck.onEvent(loginResponse);
+        }
+    }
 }

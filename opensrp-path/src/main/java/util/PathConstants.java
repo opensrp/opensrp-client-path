@@ -21,6 +21,15 @@ public class PathConstants extends AllConstants {
     public static final String MOTHER_TABLE_NAME = "ec_mother";
     public static final String CURRENT_LOCATION_ID = "CURRENT_LOCATION_ID";
 
+    public static final String DEFAULT_DATE_STRING = "1970-1-1";
+
+    public static String openmrsUrl() {
+        String baseUrl = org.smartregister.Context.getInstance().allSharedPreferences().fetchBaseURL("");
+        int lastIndex = baseUrl.lastIndexOf("/");
+        baseUrl = baseUrl.substring(0, lastIndex) + "/openmrs";
+        return OPENMRS_URL.isEmpty() || OPENMRS_URL == null ? baseUrl : OPENMRS_URL;
+    }
+
     public static final class ServiceType {
 
         public static final int DATA_SYNCHRONIZATION = 1;
@@ -47,14 +56,4 @@ public class PathConstants extends AllConstants {
 
         public static final String DOD = "dod";
     }
-
-    public static final String DEFAULT_DATE_STRING = "1970-1-1";
-
-    public static String openmrsUrl() {
-        String baseUrl = org.smartregister.Context.getInstance().allSharedPreferences().fetchBaseURL("");
-        int lastIndex = baseUrl.lastIndexOf("/");
-        baseUrl = baseUrl.substring(0, lastIndex) + "/openmrs";
-        return OPENMRS_URL.isEmpty() || OPENMRS_URL == null ? baseUrl : OPENMRS_URL;
-    }
-
 }

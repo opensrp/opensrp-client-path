@@ -115,6 +115,34 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
         }
     }
 
+
+    protected void updateLocationText() {
+        if (clinicSelection != null) {
+            clinicSelection.setText(JsonFormUtils.getOpenMrsReadableName(
+                    clinicSelection.getSelectedItem()));
+            try {
+
+                String locationId = JsonFormUtils.getOpenMrsLocationId(context(), clinicSelection.getSelectedItem());
+                Context.getInstance().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public LocationPickerView getClinicSelection() {
+        return clinicSelection;
+    }
+
+    public boolean onBackPressed() {
+        return false;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+
     private class FilterForClientTask extends AsyncTask<String, Integer, CommonPersonObjectClient> {
         private String searchQuery;
 
@@ -170,27 +198,5 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
                         DIALOG_TAG, searchQuery);
             }
         }
-    }
-
-    protected void updateLocationText() {
-        if (clinicSelection != null) {
-            clinicSelection.setText(JsonFormUtils.getOpenMrsReadableName(
-                    clinicSelection.getSelectedItem()));
-            try {
-
-                String locationId = JsonFormUtils.getOpenMrsLocationId(context(), clinicSelection.getSelectedItem());
-                Context.getInstance().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public LocationPickerView getClinicSelection() {
-        return clinicSelection;
-    }
-
-    public boolean onBackPressed() {
-        return false;
     }
 }

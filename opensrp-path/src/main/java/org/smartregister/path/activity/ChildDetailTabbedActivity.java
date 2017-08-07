@@ -475,11 +475,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "Child_Birth_Certificate", true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_First_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, (getValue(childDetails.getColumnmaps(), "mother_first_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_first_name", true) : getValue(childDetails.getColumnmaps(), "mother_first_name", true)));
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_first_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_first_name", true) : getValue(childDetails.getColumnmaps(), "mother_first_name", true));
 
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Last_Name")) {
-                        jsonObject.put(JsonFormUtils.VALUE, (getValue(childDetails.getColumnmaps(), "mother_last_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_last_name", true) : getValue(childDetails.getColumnmaps(), "mother_last_name", true)));
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(childDetails.getColumnmaps(), "mother_last_name", true).isEmpty() ? getValue(childDetails.getDetails(), "mother_last_name", true) : getValue(childDetails.getColumnmaps(), "mother_last_name", true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Mother_Guardian_Date_Birth")) {
 
@@ -1095,36 +1095,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return getName(firstName, lastName).trim();
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
-
     private void saveVaccine(List<VaccineWrapper> tags, final View view) {
         if (tags.isEmpty()) {
             return;
@@ -1137,73 +1107,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             backgroundTask.setView(view);
             backgroundTask.execute(arrayTags);
         }
-    }
-
-    private class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
-
-        @Override
-        protected String doInBackground(Void... params) {
-            try {
-                JSONObject form = FormUtils.getInstance(getApplicationContext())
-                        .getFormJson("adverse_event");
-                if (form != null) {
-                    JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
-                    for (int i = 0; i < fields.length(); i++) {
-                        if (fields.getJSONObject(i).getString("key").equals("Reaction_Vaccine")) {
-                            boolean result = insertVaccinesGivenAsOptions(fields.getJSONObject(i));
-                            if (!result) {
-                                return null;
-                            }
-                        }
-                    }
-                    return form.toString();
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String metaData) {
-            super.onPostExecute(metaData);
-            if (metaData != null) {
-                startFormActivity("adverse_event", childDetails.entityId(), metaData);
-            } else {
-                Toast.makeText(ChildDetailTabbedActivity.this, R.string.no_vaccine_record_found,
-                        Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Void> {
-
-        private View view;
-
-        public void setView(View view) {
-            this.view = view;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showProgressDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            hideProgressDialog();
-            updateVaccineGroupViews(view);
-        }
-
-        @Override
-        protected Void doInBackground(VaccineWrapper... vaccineWrappers) {
-            for (VaccineWrapper tag : vaccineWrappers) {
-                saveVaccine(tag);
-            }
-            return null;
-        }
-
     }
 
     private void updateVaccineGroupViews(View view) {
@@ -1435,7 +1338,49 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
 
+    private boolean showVaccineListCheck(String eventId, String formSubmissionId) {
+        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(ChildDetailTabbedActivity.this);
 
+        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
+        org.smartregister.domain.db.Event event = null;
+        if (eventId != null) {
+            event = ecUpdater.convert(db.getEventsByEventId(eventId), org.smartregister.domain.db.Event.class);
+        } else if (formSubmissionId != null) {
+            event = ecUpdater.convert(db.getEventsByFormSubmissionId(formSubmissionId), org.smartregister.domain.db.Event.class);
+        }
+        if (event != null) {
+            Date vaccine_create_date = event.getDateCreated().toDate();
+            if (!DateUtil.checkIfDateThreeMonthsOlder(vaccine_create_date)) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public VaccinatorApplication getVaccinatorApplicationInstance() {
+        return VaccinatorApplication.getInstance();
+    }
+
+    public CommonPersonObjectClient getChildDetails() {
+        return childDetails;
+    }
+
+    public ViewPagerAdapter getViewPagerAdapter() {
+        return adapter;
+    }
+
+    public DetailsRepository getDetailsRepository() {
+        return detailsRepository;
+    }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
 
         private View view;
@@ -1480,6 +1425,47 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             return Triple.of(list, serviceRecordList, alertList);
 
         }
+    }
+
+    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Void> {
+
+        private View view;
+
+        public void setView(View view) {
+            this.view = view;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            hideProgressDialog();
+            updateVaccineGroupViews(view);
+        }
+
+        @Override
+        protected Void doInBackground(VaccineWrapper... vaccineWrappers) {
+            for (VaccineWrapper tag : vaccineWrappers) {
+                saveVaccine(tag);
+            }
+            return null;
+        }
+
+    }
+
+    private class UpdateOfflineAlertsTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            DateTime birthDateTime = Utils.dobToDateTime(childDetails);
+            if (birthDateTime != null) {
+                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, "child");
+            }
+            return null;
+        }
+
     }
 
     private class UndoServiceTask extends AsyncTask<Void, Void, Void> {
@@ -1538,54 +1524,71 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
     }
 
-    private class UpdateOfflineAlertsTask extends AsyncTask<Void, Void, Void> {
+    private class LaunchAdverseEventFormTask extends AsyncTask<Void, Void, String> {
+
         @Override
-        protected Void doInBackground(Void... params) {
-            DateTime birthDateTime = Utils.dobToDateTime(childDetails);
-            if (birthDateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, "child");
+        protected String doInBackground(Void... params) {
+            try {
+                JSONObject form = FormUtils.getInstance(getApplicationContext())
+                        .getFormJson("adverse_event");
+                if (form != null) {
+                    JSONArray fields = form.getJSONObject("step1").getJSONArray("fields");
+                    for (int i = 0; i < fields.length(); i++) {
+                        if (fields.getJSONObject(i).getString("key").equals("Reaction_Vaccine")) {
+                            boolean result = insertVaccinesGivenAsOptions(fields.getJSONObject(i));
+                            if (!result) {
+                                return null;
+                            }
+                        }
+                    }
+                    return form.toString();
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
             }
             return null;
         }
 
-    }
-
-    private boolean showVaccineListCheck(String eventId, String formSubmissionId) {
-        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(ChildDetailTabbedActivity.this);
-
-        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-        org.smartregister.domain.db.Event event = null;
-        if (eventId != null) {
-            event = ecUpdater.convert(db.getEventsByEventId(eventId), org.smartregister.domain.db.Event.class);
-        } else if (formSubmissionId != null) {
-            event = ecUpdater.convert(db.getEventsByFormSubmissionId(formSubmissionId), org.smartregister.domain.db.Event.class);
-        }
-        if (event != null) {
-            Date vaccine_create_date = event.getDateCreated().toDate();
-            if (!DateUtil.checkIfDateThreeMonthsOlder(vaccine_create_date)) {
-                return true;
+        @Override
+        protected void onPostExecute(String metaData) {
+            super.onPostExecute(metaData);
+            if (metaData != null) {
+                startFormActivity("adverse_event", childDetails.entityId(), metaData);
+            } else {
+                Toast.makeText(ChildDetailTabbedActivity.this, R.string.no_vaccine_record_found,
+                        Toast.LENGTH_LONG).show();
             }
-        } else {
-            return true;
+        }
+    }
+
+    public class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
         }
 
-        return false;
-    }
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
 
 
-    public VaccinatorApplication getVaccinatorApplicationInstance() {
-        return VaccinatorApplication.getInstance();
-    }
-
-    public CommonPersonObjectClient getChildDetails() {
-        return childDetails;
-    }
-
-    public ViewPagerAdapter getViewPagerAdapter() {
-        return adapter;
-    }
-
-    public DetailsRepository getDetailsRepository() {
-        return detailsRepository;
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
     }
 }

@@ -351,7 +351,7 @@ public class PathClientProcessor extends ClientProcessor {
                 serviceObj.setLocationId(contentValues.getAsString(RecurringServiceRecordRepository.LOCATIONID));
                 serviceObj.setSyncStatus(RecurringServiceRecordRepository.TYPE_Synced);
                 serviceObj.setFormSubmissionId(service.has(RecurringServiceRecordRepository.FORMSUBMISSION_ID) ? service.getString(RecurringServiceRecordRepository.FORMSUBMISSION_ID) : null);
-                serviceObj.setEventId(service.getString("id"));//FIXME hard coded id
+                serviceObj.setEventId(service.getString("id")); //FIXME hard coded id
                 serviceObj.setValue(value);
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
 
