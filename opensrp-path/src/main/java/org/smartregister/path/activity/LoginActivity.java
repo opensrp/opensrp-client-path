@@ -179,8 +179,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeLoginFields() {
-        userNameEditText = ((EditText) findViewById(org.smartregister.R.id.login_userNameText));
-        passwordEditText = ((EditText) findViewById(org.smartregister.R.id.login_passwordText));
+        userNameEditText = (EditText) findViewById(org.smartregister.R.id.login_userNameText);
+        passwordEditText = (EditText) findViewById(org.smartregister.R.id.login_passwordText);
     }
 
     private void setDoneActionHandlerOnPasswordField() {
@@ -459,7 +459,7 @@ public class LoginActivity extends AppCompatActivity {
         private final String password;
         private final Listener<LoginResponse> afterLoginCheck;
 
-        public RemoteLoginTask(String userName, String password, Listener<LoginResponse> afterLoginCheck) {
+        private RemoteLoginTask(String userName, String password, Listener<LoginResponse> afterLoginCheck) {
             this.userName = userName;
             this.password = password;
             this.afterLoginCheck = afterLoginCheck;

@@ -217,9 +217,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 }
                             }
 
-
-                            ;
-
                         }
                     }
                     pathJsonFormFragment.getLabelViewFromTag("Balance", "");
@@ -414,11 +411,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     }
                 }
             }
-        } catch (
-                JSONException e
-                )
-
-        {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

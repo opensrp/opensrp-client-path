@@ -146,7 +146,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
     private class FilterForClientTask extends AsyncTask<String, Integer, CommonPersonObjectClient> {
         private String searchQuery;
 
-        public FilterForClientTask() {
+        private FilterForClientTask() {
             this.searchQuery = null;
         }
 

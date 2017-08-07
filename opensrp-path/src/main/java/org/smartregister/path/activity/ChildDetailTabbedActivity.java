@@ -489,7 +489,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                                 Date dob = dateTime.toDate();
                                 Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
                                 long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
-                                if (timeDiff > 86400000) {// Mother's date of birth occurs more than a day from the default date
+                                if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
                                     jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
                                 }
                             } catch (Exception e) {
@@ -848,7 +848,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         if (isDataOk()) {
             ImageView profileImageIV = (ImageView) findViewById(R.id.profile_image_iv);
 
-            if (childDetails.entityId() != null) {//image already in local storage most likey ):
+            if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener((ImageView) profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
@@ -934,7 +934,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             Class<?> c = Class.forName("android.support.design.widget.TabLayout$SlidingTabStrip");
             Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
             method.setAccessible(true);
-            method.invoke(ob, getResources().getColor(normalShade));//now its ok
+            method.invoke(ob, getResources().getColor(normalShade)); //now its ok
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
@@ -1476,7 +1476,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         private ArrayList<ServiceWrapper> wrappers;
         private List<Alert> alertList;
 
-        public UndoServiceTask(ServiceWrapper tag, View view) {
+        private UndoServiceTask(ServiceWrapper tag, View view) {
             this.tag = tag;
             this.view = view;
         }

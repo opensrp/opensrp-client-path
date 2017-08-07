@@ -601,7 +601,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
                 View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
 
         assertFalse(outViews.isEmpty());
-        assertTrue(outViews.size() == 1);//only one
+        assertTrue(outViews.size() == 1); //only one
         outViews.get(0).performClick();
         assertTrue(activity.isFinishing());
 
@@ -618,12 +618,12 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         ArrayList<View> outViews = new ArrayList<>();
         View view = activity.getFragmentManager().findFragmentByTag(ChildDetailTabbedActivityTestVersion.DIALOG_TAG).getView();
-        assertNotNull(view);//make sure view exists
+        assertNotNull(view); //make sure view exists
         view.findViewsWithText(outViews, "Child Status",
                 View.FIND_VIEWS_WITH_TEXT);
 
         assertFalse(outViews.isEmpty());
-        assertTrue(outViews.size() == 1);//only one
+        assertTrue(outViews.size() == 1); //only one
         assertTrue(outViews.get(0).getVisibility() == View.VISIBLE);
     }
 
@@ -670,7 +670,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.inactive, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
-        details = columnMap;//save for later call to getAllDetailsForClient method
+        details = columnMap; //save for later call to getAllDetailsForClient method
         bundle.putSerializable(ChildDetailTabbedActivityTestVersion.EXTRA_CHILD_DETAILS, newChildDetails);
         intent.putExtras(bundle);
 
@@ -748,7 +748,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.lostToFollowUp, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
-        details = columnMap;//save for later call to getAllDetailsForClient method
+        details = columnMap; //save for later call to getAllDetailsForClient method
         bundle.putSerializable(ChildDetailTabbedActivityTestVersion.EXTRA_CHILD_DETAILS, newChildDetails);
         intent.putExtras(bundle);
 

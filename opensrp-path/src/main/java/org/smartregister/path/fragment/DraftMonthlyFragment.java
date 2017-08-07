@@ -297,7 +297,7 @@ public class DraftMonthlyFragment extends Fragment
     private class DraftsAdapter extends BaseAdapter {
         private List<MonthlyTally> list;
 
-        public DraftsAdapter(List<MonthlyTally> list) {
+        private DraftsAdapter(List<MonthlyTally> list) {
             setList(list);
         }
 

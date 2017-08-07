@@ -12,11 +12,10 @@ import java.util.List;
 /**
  * Listens for broadcast responses from {@link org.smartregister.path.service.intent.HIA2IntentService}
  * service
- *
  * Created by Jason Rogena - jrogena@ona.io on 10/07/2017.
  */
 
-public class Hia2ServiceBroadcastReceiver  extends BroadcastReceiver {
+public class Hia2ServiceBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = Hia2ServiceListener.class.getCanonicalName();
     public static final String TYPE = "TYPE";
     public static final String ACTION_SERVICE_DONE = "HIA2_SERVICE_DONE";

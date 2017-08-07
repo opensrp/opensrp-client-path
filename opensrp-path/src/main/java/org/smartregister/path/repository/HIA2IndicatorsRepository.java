@@ -50,7 +50,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
         CSV_COLUMN_MAPPING.put(2, HIA2IndicatorsRepository.LABEL);
         CSV_COLUMN_MAPPING.put(3, HIA2IndicatorsRepository.DHIS_ID);
         CSV_COLUMN_MAPPING.put(4, HIA2IndicatorsRepository.DESCRIPTION);
-        CSV_COLUMN_MAPPING.put(999, HIA2IndicatorsRepository.CATEGORY);//999 means nothing really, just to hold the column name for categories since category is a row in the hia2 csv
+        CSV_COLUMN_MAPPING.put(999, HIA2IndicatorsRepository.CATEGORY); //999 means nothing really, just to hold the column name for categories since category is a row in the hia2 csv
     }
 
     public HIA2IndicatorsRepository(PathRepository pathRepository) {

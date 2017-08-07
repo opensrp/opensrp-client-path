@@ -68,7 +68,7 @@ public class PullUniqueIdsIntentService extends IntentService {
             URLConnection localURLConnection = localURL.openConnection();
 
             // If the connection is an HTTP connection, continue
-            if ((localURLConnection instanceof HttpURLConnection)) {
+            if (localURLConnection instanceof HttpURLConnection) {
 
 
                 // Casts the connection to a HTTP connection
@@ -109,8 +109,7 @@ public class PullUniqueIdsIntentService extends IntentService {
      * @param connection object; note: before calling this function,
      *                   ensure that the connection is already be open, and any writes to
      *                   the connection's output stream should have already been completed.
-     * @return String containing the body of the connection response or
-     * null if the input stream could not be read correctly
+     * @return String containing the body of the connection response or null if the input stream could not be read correctly
      */
     private String readInputStreamToString(HttpURLConnection connection) {
         String result = null;

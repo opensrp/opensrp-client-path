@@ -398,7 +398,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         private String inactive;
         private Weight weight;
 
-        public WeightAsyncTask(View convertView,
+        private WeightAsyncTask(View convertView,
                                String entityId,
                                String lostToFollowUp,
                                String inactive) {
@@ -431,11 +431,11 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         private List<Vaccine> vaccines = new ArrayList<>();
         private List<Alert> alerts = new ArrayList<>();
 
-        public VaccinationAsyncTask(View convertView,
-                                    String entityId,
-                                    String dobString,
-                                    String lostToFollowUp,
-                                    String inactive) {
+        private VaccinationAsyncTask(View convertView,
+                                     String entityId,
+                                     String dobString,
+                                     String lostToFollowUp,
+                                     String inactive) {
             this.convertView = convertView;
             this.entityId = entityId;
             this.dobString = dobString;

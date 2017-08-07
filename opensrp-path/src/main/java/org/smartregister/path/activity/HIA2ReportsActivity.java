@@ -130,54 +130,6 @@ public class HIA2ReportsActivity extends BaseActivity {
         super.onSyncComplete(fetchStatus);
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            switch (position) {
-                case 0:
-                    return DailyTalliesFragment.newInstance();
-                case 1:
-                    return DraftMonthlyFragment.newInstance();
-                case 2:
-                    return SentMonthlyFragment.newInstance();
-                default:
-                    break;
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.hia2_daily_tallies);
-                case 1:
-                    return getString(R.string.hia2_draft_monthly);
-                case 2:
-                    return getString(R.string.hia2_sent_monthly);
-                default:
-                    break;
-            }
-            return null;
-        }
-    }
-
     private Fragment currentFragment() {
         if (mViewPager == null || mSectionsPagerAdapter == null) {
             return null;
@@ -324,43 +276,32 @@ public class HIA2ReportsActivity extends BaseActivity {
         return defaultValue;
     }
 
-    public static class FetchEditedMonthlyTalliesTask extends AsyncTask<Void, Void, List<MonthlyTally>> {
-        private final TaskListener taskListener;
 
-        public FetchEditedMonthlyTalliesTask(TaskListener taskListener) {
-            this.taskListener = taskListener;
+    private void initializeProgressDialog() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(getString(R.string.loading));
+        progressDialog.setMessage(getString(R.string.please_wait_message));
+    }
+
+    public void showProgressDialog() {
+        if (progressDialog == null) {
+            initializeProgressDialog();
         }
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
+        progressDialog.show();
+    }
 
-        @Override
-        protected List<MonthlyTally> doInBackground(Void... params) {
-            MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication
-                    .getInstance().monthlyTalliesRepository();
-            Calendar endDate = Calendar.getInstance();
-            endDate.set(Calendar.DAY_OF_MONTH, 1); // Set date to first day of this month
-            endDate.set(Calendar.HOUR_OF_DAY, 23);
-            endDate.set(Calendar.MINUTE, 59);
-            endDate.set(Calendar.SECOND, 59);
-            endDate.set(Calendar.MILLISECOND, 999);
-            endDate.add(Calendar.DATE, -1);// Move the date to last day of last month
-
-            return monthlyTalliesRepository.findEditedDraftMonths(null, endDate.getTime());
-        }
-
-        @Override
-        protected void onPostExecute(List<MonthlyTally> monthlyTallies) {
-            super.onPostExecute(monthlyTallies);
-            taskListener.onPostExecute(monthlyTallies);
-        }
-
-        public interface TaskListener {
-            void onPostExecute(List<MonthlyTally> monthlyTallies);
+    public void hideProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
+
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
 
     public static class StartDraftMonthlyFormTask extends AsyncTask<Void, Void, Intent> {
         private HIA2ReportsActivity baseActivity;
@@ -496,24 +437,89 @@ public class HIA2ReportsActivity extends BaseActivity {
         }
     }
 
-    private void initializeProgressDialog() {
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setCancelable(false);
-        progressDialog.setTitle(getString(R.string.loading));
-        progressDialog.setMessage(getString(R.string.please_wait_message));
-    }
+    public static class FetchEditedMonthlyTalliesTask extends AsyncTask<Void, Void, List<MonthlyTally>> {
+        private final TaskListener taskListener;
 
-    public void showProgressDialog() {
-        if (progressDialog == null) {
-            initializeProgressDialog();
+        public FetchEditedMonthlyTalliesTask(TaskListener taskListener) {
+            this.taskListener = taskListener;
         }
 
-        progressDialog.show();
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected List<MonthlyTally> doInBackground(Void... params) {
+            MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication
+                    .getInstance().monthlyTalliesRepository();
+            Calendar endDate = Calendar.getInstance();
+            endDate.set(Calendar.DAY_OF_MONTH, 1); // Set date to first day of this month
+            endDate.set(Calendar.HOUR_OF_DAY, 23);
+            endDate.set(Calendar.MINUTE, 59);
+            endDate.set(Calendar.SECOND, 59);
+            endDate.set(Calendar.MILLISECOND, 999);
+            endDate.add(Calendar.DATE, -1); // Move the date to last day of last month
+
+            return monthlyTalliesRepository.findEditedDraftMonths(null, endDate.getTime());
+        }
+
+        @Override
+        protected void onPostExecute(List<MonthlyTally> monthlyTallies) {
+            super.onPostExecute(monthlyTallies);
+            taskListener.onPostExecute(monthlyTallies);
+        }
+
+        public interface TaskListener {
+            void onPostExecute(List<MonthlyTally> monthlyTallies);
+        }
     }
 
-    public void hideProgressDialog() {
-        if (progressDialog != null) {
-            progressDialog.dismiss();
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            switch (position) {
+                case 0:
+                    return DailyTalliesFragment.newInstance();
+                case 1:
+                    return DraftMonthlyFragment.newInstance();
+                case 2:
+                    return SentMonthlyFragment.newInstance();
+                default:
+                    break;
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return getString(R.string.hia2_daily_tallies);
+                case 1:
+                    return getString(R.string.hia2_draft_monthly);
+                case 2:
+                    return getString(R.string.hia2_sent_monthly);
+                default:
+                    break;
+            }
+            return null;
         }
     }
 }

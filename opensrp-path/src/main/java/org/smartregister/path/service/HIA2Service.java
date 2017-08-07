@@ -989,7 +989,6 @@ public class HIA2Service {
 
     /**
      * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at this facility
-     * <p>
      */
     private void getCHN3080() {
         try {
@@ -1002,7 +1001,6 @@ public class HIA2Service {
 
     /**
      * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at outreach conducyed by this facility
-     * <p>
      */
     private void getCHN3080O() {
         try {

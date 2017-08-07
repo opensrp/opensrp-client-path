@@ -99,7 +99,7 @@ public class LocationSwitcherToolbar extends BaseToolbar {
         separatorResourceId = newView;
     }
 
-    public static interface OnLocationChangeListener {
-        void onLocationChanged(final String newLocation);
+    public interface OnLocationChangeListener {
+        void onLocationChanged(String newLocation);
     }
 }

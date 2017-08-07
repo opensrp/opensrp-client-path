@@ -14,11 +14,16 @@ import org.smartregister.view.viewholder.OnClickFormLauncher;
  * Created by raihan on 3/9/16.
  */
 public interface StockProviderForCursorAdapter {
-    public void getView(Stock stock, View view);
+    void getView(Stock stock, View view);
+
     SmartRegisterClients updateClients(FilterOption villageFilter, ServiceModeOption serviceModeOption,
                                        FilterOption searchFilter, SortOption sortOption);
+
     void onServiceModeSelected(ServiceModeOption serviceModeOption);
-    public OnClickFormLauncher newFormLauncher(String formName, String entityId, String metaData);
-    public LayoutInflater inflater();
-    public View inflatelayoutForCursorAdapter();
+
+    OnClickFormLauncher newFormLauncher(String formName, String entityId, String metaData);
+
+    LayoutInflater inflater();
+
+    View inflatelayoutForCursorAdapter();
 }

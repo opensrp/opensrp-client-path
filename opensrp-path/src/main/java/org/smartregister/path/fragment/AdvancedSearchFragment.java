@@ -795,8 +795,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                                 public void run() {
                                     hideProgressView();
                                 }
-
-                                ;
                             });
 
                             return cursor;
@@ -1174,7 +1172,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private class DatePickerListener implements View.OnClickListener {
         private EditText editText;
 
-        public DatePickerListener(EditText editText) {
+        private DatePickerListener(EditText editText) {
             this.editText = editText;
         }
 

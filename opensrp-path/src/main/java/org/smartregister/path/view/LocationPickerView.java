@@ -193,13 +193,14 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
         locationPickerDialog.show();
     }
 
-    public interface OnLocationChangeListener {
-        void onLocationChange(String newLocation);
-    }
-
     private int convertDpToPx(int dp) {
         Resources r = context.getResources();
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
     }
+
+    public interface OnLocationChangeListener {
+        void onLocationChange(String newLocation);
+    }
+
 }

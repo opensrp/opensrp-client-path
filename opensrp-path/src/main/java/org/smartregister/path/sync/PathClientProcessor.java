@@ -215,7 +215,7 @@ public class PathClientProcessor extends ClientProcessor {
                 vaccineObj.setLocationId(contentValues.getAsString(VaccineRepository.LOCATIONID));
                 vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
                 vaccineObj.setFormSubmissionId(vaccine.has(VaccineRepository.FORMSUBMISSION_ID) ? vaccine.getString(VaccineRepository.FORMSUBMISSION_ID) : null);
-                vaccineObj.setEventId(vaccine.getString("id"));//FIXME hard coded id
+                vaccineObj.setEventId(vaccine.getString("id")); //FIXME hard coded id
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
                 vaccineRepository.add(vaccineObj);
@@ -266,7 +266,7 @@ public class PathClientProcessor extends ClientProcessor {
                 weightObj.setLocationId(contentValues.getAsString(WeightRepository.LOCATIONID));
                 weightObj.setSyncStatus(WeightRepository.TYPE_Synced);
                 weightObj.setFormSubmissionId(weight.has(WeightRepository.FORMSUBMISSION_ID) ? weight.getString(WeightRepository.FORMSUBMISSION_ID) : null);
-                weightObj.setEventId(weight.getString("id"));//FIXME hard coded id
+                weightObj.setEventId(weight.getString("id")); //FIXME hard coded id
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
 

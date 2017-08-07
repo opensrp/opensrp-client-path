@@ -1263,8 +1263,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      *
      * @param context
      * @param locationId The ID for the location we want the hierarchy for
-     * @return The name hierarchy (starting with the top-most parent) for the location or {@code NULL}
-     * if location id is not found
+     * @return The name hierarchy (starting with the top-most parent) for the location or {@code NULL} if location id is not found
      */
     public static JSONArray getOpenMrsLocationHierarchy(org.smartregister.Context context,
                                                         String locationId) {
@@ -1415,7 +1414,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
 
             Event event = (Event) new Event()
-                    .withBaseEntityId(entityId)//should be different for main and subform
+                    .withBaseEntityId(entityId) //should be different for main and subform
                     .withEventDate(encounterDate)
                     .withEventType(encounterType)
                     .withLocationId(locationId)
@@ -1489,7 +1488,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 JsonFormUtils.addMetaData(context, updateChildDetailsEvent, new Date());
                 JSONObject eventJsonUpdateChildEvent = new JSONObject(JsonFormUtils.gson.toJson(updateChildDetailsEvent));
 
-                db.addEvent(entityId, eventJsonUpdateChildEvent);//Add event to flag server update
+                db.addEvent(entityId, eventJsonUpdateChildEvent); //Add event to flag server update
 
                 //Update REGISTER and FTS Tables
                 String tableName = PathConstants.CHILD_TABLE_NAME;
@@ -1506,147 +1505,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             Log.e(TAG, "", e);
         }
     }
-
-    private static class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
-
-        private final Context context;
-        private final org.smartregister.Context openSrpContext;
-        private final String formString;
-
-        public SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString) {
-            this.context = context;
-            this.openSrpContext = openSrpContext;
-            this.formString = formString;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                JSONObject form = new JSONObject(formString);
-
-                // Create a weight object if weight was recorded
-                Weight weight = getWeightObject(openSrpContext, form);
-                if (weight != null) {
-                    WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
-                    weightRepository.add(weight);
-                }
-
-                // Create a vaccine object for all recorded vaccines
-                ArrayList<Vaccine> vaccines = getVaccineObjects(context, openSrpContext, form);
-                if (vaccines.size() > 0) {
-                    VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-                    for (Vaccine curVaccine : vaccines) {
-                        vaccineRepository.add(curVaccine);
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-            return null;
-        }
-    }
-
-    private static class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
-        private final String jsonString;
-        private final String locationId;
-        private final String baseEntityId;
-        private final String providerId;
-
-        public SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId,
-                                    String providerId) {
-            this.jsonString = jsonString;
-            this.locationId = locationId;
-            this.baseEntityId = baseEntityId;
-            this.providerId = providerId;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-
-                JSONObject jsonForm = new JSONObject(jsonString);
-
-                JSONArray fields = fields(jsonForm);
-                if (fields == null) {
-                    return null;
-                }
-
-                String bindType = "child";
-                String encounterDateField = getFieldValue(fields, "Date_Reaction");
-
-                String encounterType = getString(jsonForm, ENCOUNTER_TYPE);
-                JSONObject metadata = getJSONObject(jsonForm, METADATA);
-
-                Date encounterDate = new Date();
-                if (StringUtils.isNotBlank(encounterDateField)) {
-                    Date dateTime = formatDate(encounterDateField, false);
-                    if (dateTime != null) {
-                        encounterDate = dateTime;
-                    }
-                }
-
-                Event event = (Event) new Event()
-                        .withBaseEntityId(baseEntityId)//should be different for main and subform
-                        .withEventDate(encounterDate)
-                        .withEventType(encounterType)
-                        .withLocationId(locationId)
-                        .withProviderId(providerId)
-                        .withEntityType(bindType)
-                        .withFormSubmissionId(generateRandomUUIDString())
-                        .withDateCreated(new Date());
-
-                for (int i = 0; i < fields.length(); i++) {
-                    JSONObject jsonObject = getJSONObject(fields, i);
-                    String value = getString(jsonObject, VALUE);
-                    if (StringUtils.isNotBlank(value)) {
-                        addObservation(event, jsonObject);
-                    }
-                }
-
-                if (metadata != null) {
-                    Iterator<?> keys = metadata.keys();
-
-                    while (keys.hasNext()) {
-                        String key = (String) keys.next();
-                        JSONObject jsonObject = getJSONObject(metadata, key);
-                        String value = getString(jsonObject, VALUE);
-                        if (StringUtils.isNotBlank(value)) {
-                            String entityVal = getString(jsonObject, OPENMRS_ENTITY);
-                            if (entityVal != null) {
-                                if (entityVal.equals(CONCEPT)) {
-                                    addToJSONObject(jsonObject, KEY, key);
-                                    addObservation(event, jsonObject);
-                                } else if (entityVal.equals(ENCOUNTER)) {
-                                    String entityIdVal = getString(jsonObject, OPENMRS_ENTITY_ID);
-                                    if (entityIdVal.equals(
-                                            FormEntityConstants.Encounter.encounter_date.name())) {
-                                        Date eDate = formatDate(value, false);
-                                        if (eDate != null) {
-                                            event.setEventDate(eDate);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-                if (event != null) {
-                    JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
-                    db.addEvent(event.getBaseEntityId(), eventJson);
-
-                }
-
-            } catch (Exception e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-
-            return null;
-        }
-    }
-
 
     /**
      * Starts an instance of JsonFormActivity with the provided form details
@@ -1846,4 +1704,146 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+    private static class SaveAdverseEventTask extends AsyncTask<Void, Void, Void> {
+        private final String jsonString;
+        private final String locationId;
+        private final String baseEntityId;
+        private final String providerId;
+
+        private SaveAdverseEventTask(String jsonString, String locationId, String baseEntityId,
+                                     String providerId) {
+            this.jsonString = jsonString;
+            this.locationId = locationId;
+            this.baseEntityId = baseEntityId;
+            this.providerId = providerId;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
+
+                JSONObject jsonForm = new JSONObject(jsonString);
+
+                JSONArray fields = fields(jsonForm);
+                if (fields == null) {
+                    return null;
+                }
+
+                String bindType = "child";
+                String encounterDateField = getFieldValue(fields, "Date_Reaction");
+
+                String encounterType = getString(jsonForm, ENCOUNTER_TYPE);
+                JSONObject metadata = getJSONObject(jsonForm, METADATA);
+
+                Date encounterDate = new Date();
+                if (StringUtils.isNotBlank(encounterDateField)) {
+                    Date dateTime = formatDate(encounterDateField, false);
+                    if (dateTime != null) {
+                        encounterDate = dateTime;
+                    }
+                }
+
+                Event event = (Event) new Event()
+                        .withBaseEntityId(baseEntityId) //should be different for main and subform
+                        .withEventDate(encounterDate)
+                        .withEventType(encounterType)
+                        .withLocationId(locationId)
+                        .withProviderId(providerId)
+                        .withEntityType(bindType)
+                        .withFormSubmissionId(generateRandomUUIDString())
+                        .withDateCreated(new Date());
+
+                for (int i = 0; i < fields.length(); i++) {
+                    JSONObject jsonObject = getJSONObject(fields, i);
+                    String value = getString(jsonObject, VALUE);
+                    if (StringUtils.isNotBlank(value)) {
+                        addObservation(event, jsonObject);
+                    }
+                }
+
+                if (metadata != null) {
+                    Iterator<?> keys = metadata.keys();
+
+                    while (keys.hasNext()) {
+                        String key = (String) keys.next();
+                        JSONObject jsonObject = getJSONObject(metadata, key);
+                        String value = getString(jsonObject, VALUE);
+                        if (StringUtils.isNotBlank(value)) {
+                            String entityVal = getString(jsonObject, OPENMRS_ENTITY);
+                            if (entityVal != null) {
+                                if (entityVal.equals(CONCEPT)) {
+                                    addToJSONObject(jsonObject, KEY, key);
+                                    addObservation(event, jsonObject);
+                                } else if (entityVal.equals(ENCOUNTER)) {
+                                    String entityIdVal = getString(jsonObject, OPENMRS_ENTITY_ID);
+                                    if (entityIdVal.equals(
+                                            FormEntityConstants.Encounter.encounter_date.name())) {
+                                        Date eDate = formatDate(value, false);
+                                        if (eDate != null) {
+                                            event.setEventDate(eDate);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                if (event != null) {
+                    JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
+                    db.addEvent(event.getBaseEntityId(), eventJson);
+
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+
+            return null;
+        }
+    }
+
+    private static class SaveOutOfAreaServiceTask extends AsyncTask<Void, Void, Void> {
+
+        private final Context context;
+        private final org.smartregister.Context openSrpContext;
+        private final String formString;
+
+        private SaveOutOfAreaServiceTask(Context context, org.smartregister.Context openSrpContext, String formString) {
+            this.context = context;
+            this.openSrpContext = openSrpContext;
+            this.formString = formString;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                JSONObject form = new JSONObject(formString);
+
+                // Create a weight object if weight was recorded
+                Weight weight = getWeightObject(openSrpContext, form);
+                if (weight != null) {
+                    WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
+                    weightRepository.add(weight);
+                }
+
+                // Create a vaccine object for all recorded vaccines
+                ArrayList<Vaccine> vaccines = getVaccineObjects(context, openSrpContext, form);
+                if (vaccines.size() > 0) {
+                    VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+                    for (Vaccine curVaccine : vaccines) {
+                        vaccineRepository.add(curVaccine);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+            return null;
+        }
+    }
 }

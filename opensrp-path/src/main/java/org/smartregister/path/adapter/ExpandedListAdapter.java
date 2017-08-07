@@ -91,9 +91,9 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
             }
         }
 
-        isLastChild = (getChildrenCount(groupPosition) - 1) == childPosition;
+        boolean lastChild = (getChildrenCount(groupPosition) - 1) == childPosition;
         View dividerBottom = convertView.findViewById(R.id.adapter_divider_bottom);
-        if (isLastChild) {
+        if (lastChild) {
             dividerBottom.setVisibility(View.VISIBLE);
         } else {
             dividerBottom.setVisibility(View.GONE);

@@ -64,16 +64,9 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    public interface SyncStatusListener {
-        void onSyncStart();
-
-        void onSyncComplete(FetchStatus fetchStatus);
-    }
-
     public boolean isSyncing() {
         return isSyncing;
     }
-
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -92,5 +85,11 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
                 }
             }
         }
+    }
+
+    public interface SyncStatusListener {
+        void onSyncStart();
+
+        void onSyncComplete(FetchStatus fetchStatus);
     }
 }

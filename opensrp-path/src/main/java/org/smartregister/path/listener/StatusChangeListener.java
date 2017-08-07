@@ -4,6 +4,7 @@ package org.smartregister.path.listener;
  * Created by raihan on 4/16/17.
  */
 public interface StatusChangeListener {
-    public void updateStatus();
-    public void updateClientAttribute(String attributeName, Object attributeValue);
+    void updateStatus();
+
+    void updateClientAttribute(String attributeName, Object attributeValue);
 }

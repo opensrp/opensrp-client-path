@@ -810,11 +810,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
     private class BaseActivityToggle extends ActionBarDrawerToggle {
 
-        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
-            super(activity, drawerLayout, openDrawerContentDescRes, closeDrawerContentDescRes);
-        }
-
-        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
+        private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
             super(activity, drawerLayout, toolbar, openDrawerContentDescRes, closeDrawerContentDescRes);
         }
 
@@ -841,11 +837,11 @@ public abstract class BaseActivity extends AppCompatActivity
         public final View.OnClickListener negativeButtonOnClick;
         public final Object tag;
 
-        public Notification(String message, Drawable notificationIcon, String positiveButtonText,
-                            View.OnClickListener positiveButtonOnClick,
-                            String negativeButtonText,
-                            View.OnClickListener negativeButtonOnClick,
-                            Object tag) {
+        private Notification(String message, Drawable notificationIcon, String positiveButtonText,
+                             View.OnClickListener positiveButtonOnClick,
+                             String negativeButtonText,
+                             View.OnClickListener negativeButtonOnClick,
+                             Object tag) {
             this.message = message;
             this.notificationIcon = notificationIcon;
             this.positiveButtonText = positiveButtonText;

@@ -192,7 +192,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             startActivity(intent);
         } else if (id == R.id.nav_sync) {
             startSync();
-        }else if (id == R.id.nav_hia2) {
+        } else if (id == R.id.nav_hia2) {
             Intent intent = new Intent(this, HIA2ReportsActivity.class);
             startActivity(intent);
         }
@@ -264,7 +264,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                     syncStatusSnackbar = Snackbar.make(rootView, R.string.syncing,
                             Snackbar.LENGTH_LONG);
                     syncStatusSnackbar.show();
-                    ((TextView)syncMenuItem.findViewById(R.id.nav_synctextview)).setText(R.string.syncing);
+                    ((TextView) syncMenuItem.findViewById(R.id.nav_synctextview)).setText(R.string.syncing);
                 } else {
                     if (fetchStatus != null) {
                         if (syncStatusSnackbar != null) syncStatusSnackbar.dismiss();
@@ -298,7 +298,8 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         }
     }
-    public void initializeCustomNavbarLIsteners(){
+
+    public void initializeCustomNavbarLIsteners() {
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
         syncMenuItem.setOnClickListener(new View.OnClickListener() {
@@ -365,7 +366,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private void updateLastSyncText() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null && navigationView.getMenu() != null) {
-            TextView syncMenuItem = ((TextView)navigationView.findViewById(R.id.nav_synctextview));
+            TextView syncMenuItem = ((TextView) navigationView.findViewById(R.id.nav_synctextview));
             if (syncMenuItem != null) {
                 String lastSync = getLastSyncTime();
 
@@ -402,7 +403,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
     private class BaseActivityToggle extends ActionBarDrawerToggle {
 
-        public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
+        private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
             super(activity, drawerLayout, openDrawerContentDescRes, closeDrawerContentDescRes);
         }
 
@@ -423,7 +424,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             super.onDrawerClosed(drawerView);
         }
     }
-
 
 
 }

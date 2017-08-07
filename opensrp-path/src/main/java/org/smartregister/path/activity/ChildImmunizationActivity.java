@@ -253,7 +253,7 @@ public class ChildImmunizationActivity extends BaseActivity
         if (isDataOk()) {
             ImageView profileImageIV = (ImageView) findViewById(R.id.profile_image_iv);
 
-            if (childDetails.entityId() != null) {//image already in local storage most likey ):
+            if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
                 DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener((ImageView) profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
@@ -472,9 +472,9 @@ public class ChildImmunizationActivity extends BaseActivity
         LinearLayout parent;
         if (canvasId == -1) {
             Random r = new Random();
-            canvasId = r.nextInt(4232 - 213) + 213;
+            int randomId = r.nextInt(4232 - 213) + 213;
             parent = new LinearLayout(this);
-            parent.setId(canvasId);
+            parent.setId(randomId);
             vaccineGroupCanvasLL.addView(parent);
         } else {
             parent = (LinearLayout) findViewById(canvasId);
@@ -1418,7 +1418,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private class MarkAlertAsDoneTask extends AsyncTask<Alert, Void, Void> {
         private final AlertService alertService;
 
-        public MarkAlertAsDoneTask(AlertService alertService) {
+        private MarkAlertAsDoneTask(AlertService alertService) {
             this.alertService = alertService;
         }
 
@@ -1584,14 +1584,15 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected void onPostExecute(ArrayList<String> baseEntityIds) {
             super.onPostExecute(baseEntityIds);
-            if (baseEntityIds == null) {
-                baseEntityIds = new ArrayList<>();
+            ArrayList<String> ids = new ArrayList<>();
+            if (baseEntityIds != null) {
+                ids = baseEntityIds;
             }
 
-            Collections.reverse(baseEntityIds);
+            Collections.reverse(ids);
 
             SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
-            siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, baseEntityIds);
+            siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, ids);
         }
     }
 

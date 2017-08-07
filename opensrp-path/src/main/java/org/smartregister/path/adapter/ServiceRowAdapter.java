@@ -113,11 +113,11 @@ public class ServiceRowAdapter extends BaseAdapter {
 
     public void update(ArrayList<ServiceWrapper> servicesToUpdate) {
         if (serviceRowCards != null) {
-            if (servicesToUpdate == null) {// Update all vaccines
+            if (servicesToUpdate == null) { // Update all vaccines
                 for (ServiceRowCard curCard : serviceRowCards.values()) {
                     if (curCard != null) curCard.updateState();
                 }
-            } else {// Update just the vaccines specified
+            } else { // Update just the vaccines specified
                 for (ServiceWrapper currWrapper : servicesToUpdate) {
                     if (serviceRowCards.containsKey(currWrapper.getName())) {
                         serviceRowCards.get(currWrapper.getName()).updateState();

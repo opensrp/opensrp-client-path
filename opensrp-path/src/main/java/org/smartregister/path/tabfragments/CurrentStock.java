@@ -427,7 +427,7 @@ public class CurrentStock extends Fragment implements
     private int getCurrentPageCount() {
         if (currentoffset != 0) {
             if ((currentoffset / currentlimit) != 0) {
-                return ((currentoffset / currentlimit) + 1);
+                return (currentoffset / currentlimit) + 1;
             } else {
                 return 1;
             }
@@ -438,16 +438,16 @@ public class CurrentStock extends Fragment implements
 
     private int getTotalcount() {
         if (totalcount % currentlimit == 0) {
-            return (totalcount / currentlimit);
+            return totalcount / currentlimit;
         } else {
-            return ((totalcount / currentlimit) + 1);
+            return (totalcount / currentlimit) + 1;
         }
     }
 
     public void refresh() {
         pageInfoView.setText(
                 format(getResources().getString(R.string.str_page_info),
-                        (getCurrentPageCount()),
+                        getCurrentPageCount(),
                         getTotalcount()));
         paginationViewHandler.getPaginationView().setVisibility(hasNextPage() ? VISIBLE : INVISIBLE);
         pageInfoView.setVisibility(hasNextPage() ? VISIBLE : INVISIBLE);
@@ -457,7 +457,7 @@ public class CurrentStock extends Fragment implements
 
     private boolean hasNextPage() {
 
-        return ((totalcount > (currentoffset + currentlimit)));
+        return totalcount > (currentoffset + currentlimit);
     }
 
     private boolean hasPreviousPage() {
@@ -604,8 +604,6 @@ public class CurrentStock extends Fragment implements
                             public void run() {
                                 hideProgressView();
                             }
-
-                            ;
                         });
 
                         return cursor;
