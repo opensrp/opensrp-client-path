@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.github.ybq.android.spinkit.style.Circle;
 
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.CursorCommonObjectFilterOption;
@@ -100,7 +99,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
             @Override
             public String nameInShortFormForTitle() {
-                return Context.getInstance().getStringResource(R.string.zeir);
+                return context().getStringResource(R.string.zeir);
             }
         };
     }
@@ -132,7 +131,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
             @Override
             public String searchHint() {
-                return Context.getInstance().getStringResource(R.string.str_search_hint);
+                return context().getStringResource(R.string.str_search_hint);
             }
         };
     }
@@ -167,7 +166,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         try {
             LoginActivity.setLanguage();
         } catch (Exception e) {
-
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         }
 
         updateLocationText();
@@ -236,7 +235,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         Circle circle = new Circle();
         syncProgressBar.setIndeterminateDrawable(circle);
 
-        AllSharedPreferences allSharedPreferences = Context.getInstance().allSharedPreferences();
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
         String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
         if (!preferredName.isEmpty()) {
             String[] preferredNameArray = preferredName.split(" ");
@@ -278,13 +277,13 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         return getClinicSelection();
     }
 
-    public void initializeQueries() {
+    private void initializeQueries() {
         String tableName = PathConstants.CHILD_TABLE_NAME;
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         ChildSmartClientsProvider hhscp = new ChildSmartClientsProvider(getActivity(),
                 clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository());
-        clientAdapter = new SmartRegisterPaginatedCursorAdapter(getActivity(), null, hhscp, Context.getInstance().commonrepository(tableName));
+        clientAdapter = new SmartRegisterPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
         clientsView.setAdapter(clientAdapter);
 
         setTablename(tableName);
@@ -357,7 +356,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     }
 
 
-    public void updateSearchView() {
+    private void updateSearchView() {
         getSearchView().removeTextChangedListener(textWatcher);
         getSearchView().addTextChangedListener(textWatcher);
     }
@@ -383,7 +382,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         super.onLoadFinished(loader, cursor);
         // Check if query was issued
         if (searchView != null && searchView.getText().toString().length() > 0) {
-            if (cursor.getCount() == 0) {// No search result found
+            if (cursor.getCount() == 0) { // No search result found
                 if (showNoResultDialogHandler != null) {
                     showNoResultDialogHandler.removeCallbacksAndMessages(null);
                     showNoResultDialogHandler = null;
@@ -448,7 +447,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     }
 
 
-    public void countOverDue() {
+    private void countOverDue() {
         String mainCondition = filterSelectionCondition(true);
         int count = count(mainCondition);
 
@@ -466,10 +465,9 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         ((ChildSmartRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(count);
     }
 
-    public void countDueOverDue() {
+    private void countDueOverDue() {
         String mainCondition = filterSelectionCondition(false);
-        int count = count(mainCondition);
-        dueOverdueCount = count;
+        dueOverdueCount = count(mainCondition);
     }
 
     private int count(String mainConditionString) {

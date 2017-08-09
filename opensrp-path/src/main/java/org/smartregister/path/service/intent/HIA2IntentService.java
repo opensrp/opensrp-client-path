@@ -8,7 +8,6 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.joda.time.DateTime;
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
@@ -48,7 +47,6 @@ public class HIA2IntentService extends IntentService {
     private MonthlyTalliesRepository monthlyTalliesRepository;
     private EventClientRepository eventClientRepository;
     private HIA2Service hia2Service;
-    private boolean generateReport;
 
     //HIA2 Status
     private VaccineRepository vaccineRepository;
@@ -67,7 +65,7 @@ public class HIA2IntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i(TAG, "Started HIA2 service");
         try {
-            generateReport = intent.getBooleanExtra(GENERATE_REPORT, false);
+            boolean generateReport = intent.getBooleanExtra(GENERATE_REPORT, false);
             if (!generateReport) {
                 //Update H1A2 status (Within or Overdue)
                 updateVaccineHIA2Status();
@@ -115,7 +113,7 @@ public class HIA2IntentService extends IntentService {
 
             SQLiteDatabase db = VaccinatorApplication.getInstance().getRepository().getWritableDatabase();
             //get previous dates if shared preferences is null meaning reports for previous months haven't been generated
-            String lastProcessedDate = Context.getInstance().allSharedPreferences().getPreference(HIA2Service.HIA2_LAST_PROCESSED_DATE);
+            String lastProcessedDate = VaccinatorApplication.getInstance().context().allSharedPreferences().getPreference(HIA2Service.HIA2_LAST_PROCESSED_DATE);
             ArrayList<HashMap<String, String>> reportDates;
             if (lastProcessedDate == null || lastProcessedDate.isEmpty()) {
                 reportDates = eventClientRepository.rawQuery(db, HIA2Service.PREVIOUS_REPORT_DATES_QUERY.concat(" order by eventDate asc"));
@@ -123,14 +121,14 @@ public class HIA2IntentService extends IntentService {
             } else {
                 reportDates = eventClientRepository.rawQuery(db, HIA2Service.PREVIOUS_REPORT_DATES_QUERY.concat(" where " + EventClientRepository.event_column.updatedAt + " >'" + lastProcessedDate + "'" + " order by eventDate asc"));
             }
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+            String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             for (Map<String, String> dates : reportDates) {
                 String date = dates.get(EventClientRepository.event_column.eventDate.name());
                 String updatedAt = dates.get(EventClientRepository.event_column.updatedAt.name());
 
                 Map<String, Object> hia2Report = hia2Service.generateIndicators(db, date);
                 dailyTalliesRepository.save(date, hia2Report);
-                Context.getInstance().allSharedPreferences().savePreference(HIA2Service.HIA2_LAST_PROCESSED_DATE, updatedAt);
+                VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(HIA2Service.HIA2_LAST_PROCESSED_DATE, updatedAt);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -187,7 +185,7 @@ public class HIA2IntentService extends IntentService {
 
     private Long countDaysAfterDueDate(Vaccine vaccine) {
 
-        CommonRepository commonRepository = Context.getInstance().commonrepository(PathConstants.CHILD_TABLE_NAME);
+        CommonRepository commonRepository = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME);
         if (vaccine == null || vaccine.getBaseEntityId() == null || vaccine.getDate() == null) {
             return null;
         }

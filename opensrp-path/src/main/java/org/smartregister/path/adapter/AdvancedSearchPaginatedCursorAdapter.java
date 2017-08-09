@@ -20,7 +20,7 @@ import org.smartregister.path.provider.AdvancedSearchClientsProvider;
  */
 public class AdvancedSearchPaginatedCursorAdapter extends SectionCursorAdapter {
     private final AdvancedSearchClientsProvider listItemProvider;
-    private CommonRepository commonRepository;
+    private final CommonRepository commonRepository;
 
     public AdvancedSearchPaginatedCursorAdapter(Context context, Cursor c, AdvancedSearchClientsProvider listItemProvider, CommonRepository commonRepository) {
         super(context, c);

@@ -25,7 +25,6 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;
-import org.smartregister.service.FormSubmissionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.sync.AdditionalSyncService;
@@ -57,24 +56,22 @@ public class PathUpdateActionsTask {
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
     private final LockingBackgroundTask task;
-    private ActionService actionService;
-    private Context context;
-    private FormSubmissionSyncService formSubmissionSyncService;
-    private AllFormVersionSyncService allFormVersionSyncService;
+    private final ActionService actionService;
+    private final Context context;
+    private final AllFormVersionSyncService allFormVersionSyncService;
     private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
-    HTTPAgent httpAgent;
+    private final HTTPAgent httpAgent;
 
 
-    public PathUpdateActionsTask(Context context, ActionService actionService, FormSubmissionSyncService formSubmissionSyncService, ProgressIndicator progressIndicator,
+    public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
                                  AllFormVersionSyncService allFormVersionSyncService) {
         this.actionService = actionService;
         this.context = context;
-        this.formSubmissionSyncService = formSubmissionSyncService;
         this.allFormVersionSyncService = allFormVersionSyncService;
         this.additionalSyncService = null;
         task = new LockingBackgroundTask(progressIndicator);
-        this.httpAgent = org.smartregister.Context.getInstance().getHttpAgent();
+        this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
 
     }
 
@@ -86,7 +83,7 @@ public class PathUpdateActionsTask {
         this.pathAfterFetchListener = pathAfterFetchListener;
 
         sendSyncStatusBroadcastMessage(context, FetchStatus.fetchStarted);
-        if (org.smartregister.Context.getInstance().IsUserLoggedOut()) {
+        if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
             logInfo("Not updating from server as user is not logged in.");
             return;
         }
@@ -103,7 +100,7 @@ public class PathUpdateActionsTask {
 
                     FetchStatus fetchStatusAdditional = additionalSyncService == null ? nothingFetched : additionalSyncService.sync();
 
-                    if (org.smartregister.Context.getInstance().configuration().shouldSyncForm()) {
+                    if (VaccinatorApplication.getInstance().context().configuration().shouldSyncForm()) {
 
                         allFormVersionSyncService.verifyFormsInFolder();
                         FetchStatus fetchVersionStatus = allFormVersionSyncService.pullFormDefinitionFromServer();
@@ -181,13 +178,13 @@ public class PathUpdateActionsTask {
 
     }
 
-    public void pushToServer() {
+    private void pushToServer() {
         pushECToServer();
         pushReportsToServer();
         pushStockToServer();
     }
 
-    public void pushECToServer() {
+    private void pushECToServer() {
         EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         boolean keepSyncing = true;
         int limit = 50;
@@ -202,7 +199,7 @@ public class PathUpdateActionsTask {
                     return;
                 }
 
-                String baseUrl = org.smartregister.Context.getInstance().configuration().dristhiBaseURL();
+                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
                 if (baseUrl.endsWith("/")) {
                     baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
                 }
@@ -242,7 +239,7 @@ public class PathUpdateActionsTask {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
         String anmId = allSharedPreferences.fetchRegisteredANM();
-        String baseUrl = org.smartregister.Context.getInstance().configuration().dristhiBaseURL();
+        String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
         if (baseUrl.endsWith("/")) {
             baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
         }
@@ -303,7 +300,7 @@ public class PathUpdateActionsTask {
                 }
             }
         } catch (Exception e) {
-
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         }
         return toreturn;
     }
@@ -329,12 +326,12 @@ public class PathUpdateActionsTask {
                 }
             }
         } catch (Exception e) {
-
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         }
         return Stock_arrayList;
     }
 
-    public void pushStockToServer() {
+    private void pushStockToServer() {
         boolean keepSyncing = true;
         int limit = 50;
 
@@ -348,7 +345,7 @@ public class PathUpdateActionsTask {
                     return;
                 }
 
-                String baseUrl = org.smartregister.Context.getInstance().configuration().dristhiBaseURL();
+                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
                 if (baseUrl.endsWith("/")) {
                     baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
                 }
@@ -408,7 +405,7 @@ public class PathUpdateActionsTask {
                     return;
                 }
 
-                String baseUrl = org.smartregister.Context.getInstance().configuration().dristhiBaseURL();
+                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
                 if (baseUrl.endsWith("/")) {
                     baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
                 }

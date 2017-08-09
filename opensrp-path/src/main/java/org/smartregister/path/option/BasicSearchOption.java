@@ -1,14 +1,14 @@
 package org.smartregister.path.option;
 
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.dialog.FilterOption;
 
 public class BasicSearchOption implements FilterOption {
     public enum Type {
-        CHILD, WOMAN;
+        CHILD, WOMAN
     }
 
     private String filter;
@@ -64,15 +64,12 @@ public class BasicSearchOption implements FilterOption {
                 && currentclient.getDetails().get("husband_name").contains(filter)) {
             return true;
         }
-        if (currentclient.getDetails().get("contact_phone_number") != null
-                && currentclient.getDetails().get("contact_phone_number").contains(filter)) {
-            return true;
-        }
-        return false;
+        return currentclient.getDetails().get("contact_phone_number") != null
+                && currentclient.getDetails().get("contact_phone_number").contains(filter);
     }
 
     @Override
     public String name() {
-        return Context.getInstance().applicationContext().getResources().getString(R.string.search_hint);
+        return VaccinatorApplication.getInstance().context().applicationContext().getResources().getString(R.string.search_hint);
     }
 }

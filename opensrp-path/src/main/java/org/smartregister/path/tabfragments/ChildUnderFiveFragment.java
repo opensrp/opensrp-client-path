@@ -16,7 +16,6 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -92,7 +91,7 @@ public class ChildUnderFiveFragment extends Fragment {
         View underFiveFragment = inflater.inflate(R.layout.child_under_five_fragment, container, false);
         fragmentContainer = (LinearLayout) underFiveFragment.findViewById(R.id.container);
 
-        alertService = Context.getInstance().alertService();
+        alertService = VaccinatorApplication.getInstance().context().alertService();
 
         DetailsRepository detailsRepository = ((ChildDetailTabbedActivity) getActivity()).getDetailsRepository();
         childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
@@ -114,8 +113,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void createWeightLayout(LinearLayout fragmentContainer, boolean editmode) {
         LinkedHashMap<Long, Pair<String, String>> weightmap = new LinkedHashMap<>();
-        ArrayList<Boolean> weighteditmode = new ArrayList<Boolean>();
-        ArrayList<View.OnClickListener> listeners = new ArrayList<View.OnClickListener>();
+        ArrayList<Boolean> weighteditmode = new ArrayList<>();
+        ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
         WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
         List<Weight> weightlist = wp.findLast5(childDetails.entityId());
@@ -311,7 +310,7 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
 
-    public void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
+    private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
         FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
@@ -334,7 +333,7 @@ public class ChildUnderFiveFragment extends Fragment {
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
+    private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
         FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {

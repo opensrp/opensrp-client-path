@@ -16,9 +16,9 @@ import org.smartregister.view.viewholder.NativePNCSmartRegisterViewHolder;
 
 public class VaccinationServiceModeOption extends ServiceModeOption {
 
-    private String name;
-    private int[] headerTextResourceIds;
-    private int[] columnWeights;
+    private final String name;
+    private final int[] headerTextResourceIds;
+    private final int[] columnWeights;
 
     public VaccinationServiceModeOption(SmartRegisterClientsProvider provider, String name, int[] headerTextResourceIds, int[] columnWeights) {
         super(provider);
@@ -43,8 +43,8 @@ public class VaccinationServiceModeOption extends ServiceModeOption {
             @Override
             public int weightSum() {
                 int sum = 0;
-                for (int i = 0; i < columnWeights.length; i++) {
-                    sum += columnWeights[i];
+                for (int columnWeight : columnWeights) {
+                    sum += columnWeight;
                 }
                 return sum;
             }

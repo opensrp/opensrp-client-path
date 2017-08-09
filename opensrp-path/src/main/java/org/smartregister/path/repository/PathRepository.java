@@ -32,12 +32,12 @@ import util.PathConstants;
 public class PathRepository extends Repository {
 
     private static final String TAG = PathRepository.class.getCanonicalName();
-    protected SQLiteDatabase readableDatabase;
-    protected SQLiteDatabase writableDatabase;
-    private Context context;
+    private SQLiteDatabase readableDatabase;
+    private SQLiteDatabase writableDatabase;
+    private final Context context;
 
-    public PathRepository(Context context) {
-        super(context, PathConstants.DATABASE_NAME, PathConstants.DATABASE_VERSION, org.smartregister.Context.getInstance().session(), VaccinatorApplication.createCommonFtsObject(), org.smartregister.Context.getInstance().sharedRepositoriesArray());
+    public PathRepository(Context context, org.smartregister.Context opensrpContext) {
+        super(context, PathConstants.DATABASE_NAME, PathConstants.DATABASE_VERSION, opensrpContext.session(), VaccinatorApplication.createCommonFtsObject(), opensrpContext.sharedRepositoriesArray());
         this.context = context;
     }
 
@@ -273,7 +273,7 @@ public class PathRepository extends Repository {
 
         String newTableNameSuffix = "_v2";
 
-        Set<String> searchColumns = new LinkedHashSet<String>();
+        Set<String> searchColumns = new LinkedHashSet<>();
         searchColumns.add(CommonFtsObject.idColumn);
         searchColumns.add(CommonFtsObject.relationalIdColumn);
         searchColumns.add(CommonFtsObject.phraseColumn);

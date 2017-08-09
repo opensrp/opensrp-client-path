@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import org.smartregister.Context;
 import org.smartregister.path.R;
+import org.smartregister.path.application.VaccinatorApplication;
 
 /**
  * Created by coder on 6/28/17.
@@ -33,11 +33,11 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
         super();
     }
 
-    public void setDate(String date) {
+    private void setDate(String date) {
         this.date = date;
     }
 
-    public void setOnSendClickedListener(View.OnClickListener onSendClickedListener) {
+    private void setOnSendClickedListener(View.OnClickListener onSendClickedListener) {
         this.onSendClickedListener = onSendClickedListener;
     }
 
@@ -52,7 +52,7 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        String provider = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+        String provider = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
         View view = inflater.inflate(
                 R.layout.dialog_fragment_send_monthly,
                 container, false);

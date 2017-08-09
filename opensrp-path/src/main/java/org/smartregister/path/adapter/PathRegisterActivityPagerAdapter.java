@@ -9,10 +9,10 @@ import android.support.v4.app.FragmentPagerAdapter;
  * Created by keyman on 24-Mar-17.
  */
 public class PathRegisterActivityPagerAdapter extends FragmentPagerAdapter {
-    public static final String ARG_PAGE = "page";
-    Fragment mBaseFragment;
-    FragmentManager fragmentManager;
-    Fragment[] fragments;
+    private static final String ARG_PAGE = "page";
+    private final Fragment mBaseFragment;
+    private final FragmentManager fragmentManager;
+    private final Fragment[] fragments;
 
     public PathRegisterActivityPagerAdapter(FragmentManager fragmentManager, Fragment baseFragment, Fragment[] fragments) {
         super(fragmentManager);

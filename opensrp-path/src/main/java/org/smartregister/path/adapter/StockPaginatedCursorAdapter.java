@@ -14,7 +14,7 @@ import org.smartregister.path.repository.StockRepository;
  */
 public class StockPaginatedCursorAdapter extends CursorAdapter {
     private final StockProviderForCursorAdapter listItemProvider;
-    private StockRepository stockRepository;
+    private final StockRepository stockRepository;
 
     public StockPaginatedCursorAdapter(Context context, Cursor c, StockProviderForCursorAdapter listItemProvider, StockRepository stockRepository) {
         super(context, c);

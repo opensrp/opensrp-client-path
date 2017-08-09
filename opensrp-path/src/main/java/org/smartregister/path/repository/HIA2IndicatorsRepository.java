@@ -21,18 +21,18 @@ public class HIA2IndicatorsRepository extends BaseRepository {
     private static final String TAG = HIA2IndicatorsRepository.class.getCanonicalName();
     public static final String INDICATORS_CSV_FILE = "Zambia-EIR-DataDictionaryReporting-HIA2.csv";
     private static final String HIA2_INDICATORS_SQL = "CREATE TABLE hia2_indicators (_id INTEGER NOT NULL,provider_id VARCHAR,indicator_code VARCHAR NOT NULL,label VARCHAR,dhis_id VARCHAR ,description VARCHAR,category VARCHAR ,created_at DATETIME NULL,updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
-    public static final String HIA2_INDICATORS_TABLE_NAME = "hia2_indicators";
-    public static final String ID_COLUMN = "_id";
-    public static final String PROVIDER_ID = "provider_id";
-    public static final String INDICATOR_CODE = "indicator_code";
-    public static final String LABEL = "label";
-    public static final String DESCRIPTION = "description";
-    public static final String DHIS_ID = "dhis_id";
-    public static final String CATEGORY = "category";
+    private static final String HIA2_INDICATORS_TABLE_NAME = "hia2_indicators";
+    private static final String ID_COLUMN = "_id";
+    private static final String PROVIDER_ID = "provider_id";
+    private static final String INDICATOR_CODE = "indicator_code";
+    private static final String LABEL = "label";
+    private static final String DESCRIPTION = "description";
+    private static final String DHIS_ID = "dhis_id";
+    private static final String CATEGORY = "category";
 
-    public static final String CREATED_AT_COLUMN = "created_at";
-    public static final String UPDATED_AT_COLUMN = "updated_at";
-    public static final String[] HIA2_TABLE_COLUMNS = {ID_COLUMN, PROVIDER_ID, INDICATOR_CODE, LABEL, DHIS_ID, DESCRIPTION, CATEGORY, CREATED_AT_COLUMN, UPDATED_AT_COLUMN};
+    private static final String CREATED_AT_COLUMN = "created_at";
+    private static final String UPDATED_AT_COLUMN = "updated_at";
+    private static final String[] HIA2_TABLE_COLUMNS = {ID_COLUMN, PROVIDER_ID, INDICATOR_CODE, LABEL, DHIS_ID, DESCRIPTION, CATEGORY, CREATED_AT_COLUMN, UPDATED_AT_COLUMN};
     public static final Map<Integer, String> CSV_COLUMN_MAPPING;
 
     private static final String PROVIDER_ID_INDEX = "CREATE INDEX " + HIA2_INDICATORS_TABLE_NAME + "_" + PROVIDER_ID + "_index ON " + HIA2_INDICATORS_TABLE_NAME + "(" + PROVIDER_ID + " COLLATE NOCASE);";

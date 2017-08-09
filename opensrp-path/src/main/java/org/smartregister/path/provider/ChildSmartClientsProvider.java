@@ -60,9 +60,9 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     private final LayoutInflater inflater;
     private final Context context;
     private final View.OnClickListener onClickListener;
-    private AlertService alertService;
-    private VaccineRepository vaccineRepository;
-    private WeightRepository weightRepository;
+    private final AlertService alertService;
+    private final VaccineRepository vaccineRepository;
+    private final WeightRepository weightRepository;
     private final AbsListView.LayoutParams clientViewLayoutParams;
 
     public ChildSmartClientsProvider(Context context, View.OnClickListener onClickListener,
@@ -122,7 +122,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         final ImageView profilePic = (ImageView) convertView.findViewById(R.id.child_profilepic);
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
-        if (pc.entityId() != null) {//image already in local storage most likey ):
+        if (pc.entityId() != null) { //image already in local storage most likey ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(org.smartregister.R.id.entity_id, pc.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(pc.entityId(), OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
@@ -370,8 +370,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
     @Override
     public View inflatelayoutForCursorAdapter() {
-        ViewGroup view = (ViewGroup) inflater().inflate(R.layout.smart_register_child_client, null);
-        return view;
+        return (ViewGroup) inflater().inflate(R.layout.smart_register_child_client, null);
     }
 
     public LayoutInflater inflater() {
@@ -392,16 +391,16 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     }
 
     private class WeightAsyncTask extends AsyncTask<Void, Void, Void> {
-        private View convertView;
-        private String entityId;
-        private String lostToFollowUp;
-        private String inactive;
+        private final View convertView;
+        private final String entityId;
+        private final String lostToFollowUp;
+        private final String inactive;
         private Weight weight;
 
         private WeightAsyncTask(View convertView,
-                               String entityId,
-                               String lostToFollowUp,
-                               String inactive) {
+                                String entityId,
+                                String lostToFollowUp,
+                                String inactive) {
             this.convertView = convertView;
             this.entityId = entityId;
             this.lostToFollowUp = lostToFollowUp;
@@ -423,11 +422,11 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     }
 
     private class VaccinationAsyncTask extends AsyncTask<Void, Void, Void> {
-        private View convertView;
-        private String entityId;
-        private String dobString;
-        private String lostToFollowUp;
-        private String inactive;
+        private final View convertView;
+        private final String entityId;
+        private final String dobString;
+        private final String lostToFollowUp;
+        private final String inactive;
         private List<Vaccine> vaccines = new ArrayList<>();
         private List<Alert> alerts = new ArrayList<>();
 

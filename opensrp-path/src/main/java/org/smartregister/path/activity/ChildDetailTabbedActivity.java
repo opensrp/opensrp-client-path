@@ -114,14 +114,14 @@ import static org.smartregister.util.Utils.getValue;
 
 public class ChildDetailTabbedActivity extends BaseActivity implements VaccinationActionListener, WeightActionListener, StatusChangeListener, ServiceActionListener {
 
-    public Menu overflow;
+    private Menu overflow;
     private ChildDetailsToolbar detailtoolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private TextView saveButton;
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
-    public static Gender gender;
+    private static Gender gender;
     //////////////////////////////////////////////////
     private static final String TAG = "ChildDetails";
     private static final String VACCINES_FILE = "vaccines.json";
@@ -133,7 +133,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
     private File currentfile;
-    public String location_name = "";
+    private String location_name = "";
 
     private ViewPagerAdapter adapter;
 
@@ -493,6 +493,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                                     jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
                                 }
                             } catch (Exception e) {
+                                Log.e(TAG, e.getMessage());
                             }
                         }
                     }
@@ -620,7 +621,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return "";
     }
 
-    public void startFormActivity(String formName, String entityId, String metaData) {
+    private void startFormActivity(String formName, String entityId, String metaData) {
 
         Intent intent = new Intent(getApplicationContext(), PathJsonFormActivity.class);
 
@@ -844,14 +845,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void updateProfilePicture(Gender gender) {
-        this.gender = gender;
+        ChildDetailTabbedActivity.gender = gender;
         if (isDataOk()) {
             ImageView profileImageIV = (ImageView) findViewById(R.id.profile_image_iv);
 
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener((ImageView) profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
+                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
             }
             profileImageIV.setOnClickListener(new View.OnClickListener() {
@@ -899,7 +900,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
+        return File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
@@ -907,7 +908,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         // Save a file: path for use with ACTION_VIEW intents
 //        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        return image;
     }
 
     private void updateGenderViews() {
@@ -1096,16 +1096,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void saveVaccine(List<VaccineWrapper> tags, final View view) {
-        if (tags.isEmpty()) {
-            return;
-        } else if (tags.size() == 1) {
-            saveVaccine(tags.get(0));
-            updateVaccineGroupViews(view);
-        } else {
-            VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
-            SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
-            backgroundTask.setView(view);
-            backgroundTask.execute(arrayTags);
+        if (tags != null && !tags.isEmpty()) {
+            if (tags.size() == 1) {
+                saveVaccine(tags.get(0));
+                updateVaccineGroupViews(view);
+            } else {
+                VaccineWrapper[] arrayTags = tags.toArray(new VaccineWrapper[tags.size()]);
+                SaveVaccinesTask backgroundTask = new SaveVaccinesTask();
+                backgroundTask.setView(view);
+                backgroundTask.execute(arrayTags);
+            }
         }
     }
 
@@ -1326,7 +1326,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         Utils.startAsyncTask(new UndoServiceTask(tag, view), null);
     }
 
-    public void saveService(ServiceWrapper tag, final View view) {
+    private void saveService(ServiceWrapper tag, final View view) {
         if (tag == null) {
             return;
         }
@@ -1470,8 +1470,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private class UndoServiceTask extends AsyncTask<Void, Void, Void> {
 
-        private View view;
-        private ServiceWrapper tag;
+        private final View view;
+        private final ServiceWrapper tag;
         private List<ServiceRecord> serviceRecordList;
         private ArrayList<ServiceWrapper> wrappers;
         private List<Alert> alertList;

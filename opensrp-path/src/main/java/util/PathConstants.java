@@ -2,12 +2,13 @@ package util;
 
 import org.smartregister.AllConstants;
 import org.smartregister.path.BuildConfig;
+import org.smartregister.path.application.VaccinatorApplication;
 
 /**
  * Created by coder on 2/14/17.
  */
 public class PathConstants extends AllConstants {
-    public static final String OPENMRS_URL = BuildConfig.OPENMRS_URL;
+    private static final String OPENMRS_URL = BuildConfig.OPENMRS_URL;
     public static final int DATABASE_VERSION = BuildConfig.DATABASE_VERSION;
 
     public static final String OPENMRS_IDGEN_URL = BuildConfig.OPENMRS_IDGEN_URL;
@@ -24,7 +25,7 @@ public class PathConstants extends AllConstants {
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
     public static String openmrsUrl() {
-        String baseUrl = org.smartregister.Context.getInstance().allSharedPreferences().fetchBaseURL("");
+        String baseUrl = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchBaseURL("");
         int lastIndex = baseUrl.lastIndexOf("/");
         baseUrl = baseUrl.substring(0, lastIndex) + "/openmrs";
         return OPENMRS_URL.isEmpty() || OPENMRS_URL == null ? baseUrl : OPENMRS_URL;

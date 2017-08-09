@@ -8,7 +8,6 @@ import android.util.Log;
 import net.sqlcipher.SQLException;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.smartregister.Context;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
@@ -32,17 +31,17 @@ public class MonthlyTalliesRepository extends BaseRepository {
     private static final String TAG = MonthlyTalliesRepository.class.getCanonicalName();
     public static final SimpleDateFormat DF_YYYYMM = new SimpleDateFormat("yyyy-MM");
     public static final SimpleDateFormat DF_DDMMYY = new SimpleDateFormat("dd/MM/yy");
-    public static final String TABLE_NAME = "monthly_tallies";
-    public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_PROVIDER_ID = "provider_id";
-    public static final String COLUMN_INDICATOR_ID = "indicator_id";
-    public static final String COLUMN_VALUE = "value";
-    public static final String COLUMN_MONTH = "month";
-    public static final String COLUMN_EDITED = "edited";
-    public static final String COLUMN_DATE_SENT = "date_sent";
-    public static final String COLUMN_UPDATED_AT = "updated_at";
-    public static final String COLUMN_CREATED_AT = "created_at";
-    public static final String[] TABLE_COLUMNS = {
+    private static final String TABLE_NAME = "monthly_tallies";
+    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_PROVIDER_ID = "provider_id";
+    private static final String COLUMN_INDICATOR_ID = "indicator_id";
+    private static final String COLUMN_VALUE = "value";
+    private static final String COLUMN_MONTH = "month";
+    private static final String COLUMN_EDITED = "edited";
+    private static final String COLUMN_DATE_SENT = "date_sent";
+    private static final String COLUMN_UPDATED_AT = "updated_at";
+    private static final String COLUMN_CREATED_AT = "created_at";
+    private static final String[] TABLE_COLUMNS = {
             COLUMN_ID, COLUMN_INDICATOR_ID, COLUMN_PROVIDER_ID,
             COLUMN_VALUE, COLUMN_MONTH, COLUMN_EDITED, COLUMN_DATE_SENT, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
     };
@@ -166,7 +165,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
                     null, null, null, null, null);
             monthlyTallies = readAllDataElements(cursor);
 
-            if (monthlyTallies.size() == 0) {// No tallies generated yet
+            if (monthlyTallies.size() == 0) { // No tallies generated yet
                 Log.w(TAG, "Using daily tallies instead of monthly");
                 Map<Long, List<DailyTally>> dailyTallies = VaccinatorApplication.getInstance()
                         .dailyTalliesRepository().findTalliesInMonth(DF_YYYYMM.parse(month));
@@ -217,7 +216,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
     }
 
     private MonthlyTally addUpDailyTallies(List<DailyTally> dailyTallies) {
-        String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+        String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
         MonthlyTally monthlyTally = null;
         double value = 0d;
         for (int i = 0; i < dailyTallies.size(); i++) {
@@ -321,7 +320,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
         try {
             database.beginTransaction();
             if (draftFormValues != null && !draftFormValues.isEmpty() && month != null) {
-                String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+                String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
 
                 for (String key : draftFormValues.keySet()) {
                     String value = draftFormValues.get(key);
@@ -389,8 +388,7 @@ public class MonthlyTalliesRepository extends BaseRepository {
             curTally.setValue(cursor.getString(cursor.getColumnIndex(COLUMN_VALUE)));
             curTally.setMonth(DF_YYYYMM.parse(cursor.getString(cursor.getColumnIndex(COLUMN_MONTH))));
             curTally.setEdited(
-                    cursor.getInt(cursor.getColumnIndex(COLUMN_EDITED)) == 0 ?
-                            false : true
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_EDITED)) != 0
             );
             curTally.setDateSent(
                     cursor.getString(cursor.getColumnIndex(COLUMN_DATE_SENT)) == null ?

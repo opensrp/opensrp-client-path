@@ -7,7 +7,7 @@ import android.content.Intent;
 import org.smartregister.path.sync.PathUpdateActionsTask;
 
 public class OnBootReceiver extends BroadcastReceiver {
-    private Intent serviceIntent;
+    private final Intent serviceIntent;
 
     {
         serviceIntent = new Intent();
@@ -21,7 +21,7 @@ public class OnBootReceiver extends BroadcastReceiver {
         }
     }
 
-    public void restartAlarms(Context context) {
+    private void restartAlarms(Context context) {
         PathUpdateActionsTask.setAlarms(context);
     }
 

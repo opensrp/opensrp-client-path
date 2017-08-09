@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.sync.PathAfterFetchListener;
 import org.smartregister.path.sync.PathUpdateActionsTask;
 import org.smartregister.sync.SyncProgressIndicator;
@@ -17,14 +18,18 @@ public class PathSyncBroadcastReceiver extends BroadcastReceiver {
 
         PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
                 context,
-                org.smartregister.Context.getInstance().actionService(),
-                org.smartregister.Context.getInstance().formSubmissionSyncService(),
+                getOpenSRPContext().actionService(),
                 new SyncProgressIndicator(),
-                org.smartregister.Context.getInstance().allFormVersionSyncService());
+                getOpenSRPContext().allFormVersionSyncService());
 
         pathUpdateActionsTask.updateFromServer(new PathAfterFetchListener());
 
     }
+
+    public org.smartregister.Context getOpenSRPContext() {
+        return VaccinatorApplication.getInstance().context();
+    }
+
 
 }
 

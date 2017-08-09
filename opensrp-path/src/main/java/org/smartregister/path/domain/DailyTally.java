@@ -11,7 +11,7 @@ import java.util.Date;
 
 public class DailyTally extends Tally implements Serializable {
     @JsonProperty
-    protected Date day;
+    private Date day;
 
     public DailyTally() {
         super();

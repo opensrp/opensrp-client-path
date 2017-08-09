@@ -32,7 +32,7 @@ public class WidgetFactory {
         return rows;
     }
 
-    public View createTableRowForWeight(LayoutInflater inflater, ViewGroup container, String labelString, String valueString, boolean editenabled, View.OnClickListener listener) {
+    private View createTableRowForWeight(LayoutInflater inflater, ViewGroup container, String labelString, String valueString, boolean editenabled, View.OnClickListener listener) {
         View rows = inflater.inflate(R.layout.tablerows_weight, container, false);
         TextView label = (TextView) rows.findViewById(R.id.label);
         TextView value = (TextView) rows.findViewById(R.id.value);

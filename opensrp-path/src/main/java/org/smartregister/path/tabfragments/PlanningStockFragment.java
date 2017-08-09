@@ -52,10 +52,6 @@ public class PlanningStockFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
     public View mainview;
 
@@ -80,10 +76,10 @@ public class PlanningStockFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        /*if (getArguments() != null) {
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
+        }*/
     }
 
     @Override
@@ -277,7 +273,7 @@ public class PlanningStockFragment extends Fragment {
     private LineGraphSeries<DataPoint> createGraphDataAndView(View view) {
         DateTime now = new DateTime(System.currentTimeMillis());
         DateTime threemonthEarlierIterator = now.minusMonths(3).withTimeAtStartOfDay();
-        ArrayList<DataPoint> datapointsforgraphs = new ArrayList<DataPoint>();
+        ArrayList<DataPoint> datapointsforgraphs = new ArrayList<>();
         while (threemonthEarlierIterator.isBefore(now)) {
             PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
             net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
@@ -312,7 +308,7 @@ public class PlanningStockFragment extends Fragment {
 
     }
 
-    public int processVaccinesDueNextMonth() {
+    private int processVaccinesDueNextMonth() {
         int vaccinesDueNextMonth = 0;
         String vaccinename = ((StockControlActivity) getActivity()).vaccineType.getName();
         if (vaccinename.equalsIgnoreCase("M/MR")) {
@@ -357,8 +353,8 @@ public class PlanningStockFragment extends Fragment {
         return countofNextMonthVaccineDue;
     }
 
-    public ArrayList<JSONObject> readvaccineFileAndReturnVaccinesofSameType(String vaccinetypename) {
-        ArrayList<JSONObject> vaccinesofsametype = new ArrayList<JSONObject>();
+    private ArrayList<JSONObject> readvaccineFileAndReturnVaccinesofSameType(String vaccinetypename) {
+        ArrayList<JSONObject> vaccinesofsametype = new ArrayList<>();
         String vaccinejsonstring = VaccinatorUtils.getSupportedVaccines(VaccinatorApplication.getInstance());
         try {
             JSONArray vaccineentry = new JSONArray(vaccinejsonstring);
@@ -454,7 +450,7 @@ public class PlanningStockFragment extends Fragment {
         mListener = null;
     }
 
-    public ActiveChildrenStats getActivechildrenStat() {
+    private ActiveChildrenStats getActivechildrenStat() {
         ActiveChildrenStats activeChildrenStats = new ActiveChildrenStats();
         PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
         net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();

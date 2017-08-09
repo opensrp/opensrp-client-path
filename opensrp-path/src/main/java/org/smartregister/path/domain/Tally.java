@@ -12,19 +12,19 @@ import java.util.Date;
 
 public class Tally implements Serializable {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-    protected Hia2Indicator indicator;
+    private Hia2Indicator indicator;
     @JsonProperty
-    protected long id;
+    private long id;
     @JsonProperty
-    protected String value;
+    private String value;
     @JsonProperty
-    protected String providerId;
+    private String providerId;
     @JsonProperty
-    protected Date updatedAt;
+    private Date updatedAt;
 
 
     @JsonProperty
-    protected Date createdAt;
+    private Date createdAt;
 
     public Tally() {
     }

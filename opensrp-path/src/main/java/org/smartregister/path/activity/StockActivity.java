@@ -29,8 +29,6 @@ import java.util.ArrayList;
  */
 public class StockActivity extends BaseActivity {
     private GridView stockGrid;
-    private LocationSwitcherToolbar toolbar;
-    public org.smartregister.Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +36,7 @@ public class StockActivity extends BaseActivity {
         setContentView(getContentView());
 
 
-        toolbar = (LocationSwitcherToolbar) getToolbar();
+        LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +71,7 @@ public class StockActivity extends BaseActivity {
         });
 
 
-        AllSharedPreferences allSharedPreferences = org.smartregister.Context.getInstance().allSharedPreferences();
+        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
         String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
         if (!preferredName.isEmpty()) {
             String[] preferredNameArray = preferredName.split(" ");
@@ -91,9 +89,9 @@ public class StockActivity extends BaseActivity {
 
 
         stockGrid = (GridView) findViewById(R.id.stockgrid);
-        context = org.smartregister.Context.getInstance().updateApplicationContext(this.getApplicationContext());
     }
 
+    @SuppressWarnings("unchecked")
     private void refreshadapter() {
         ArrayList<VaccineType> allVaccineTypes = (ArrayList) VaccinatorApplication.getInstance().vaccineTypeRepository().getAllVaccineTypes(null);
         VaccineType[] allVaccineTypesarray = allVaccineTypes.toArray(new VaccineType[allVaccineTypes.size()]);
@@ -154,7 +152,7 @@ public class StockActivity extends BaseActivity {
     }
 
     class stockGridAdapter extends BaseAdapter {
-        private Context context;
+        private final Context context;
         private final VaccineType[] vaccineTypes;
 
         public stockGridAdapter(Context context, VaccineType[] vaccineTypes) {
@@ -206,7 +204,7 @@ public class StockActivity extends BaseActivity {
                 });
 
             } else {
-                gridView = (View) convertView;
+                gridView = convertView;
             }
 
             return gridView;

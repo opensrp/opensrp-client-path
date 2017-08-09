@@ -7,7 +7,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.smartregister.Context;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.UniqueId;
 import org.smartregister.repository.BaseRepository;
 
@@ -19,19 +19,19 @@ import java.util.List;
 public class UniqueIdRepository extends BaseRepository {
     private static final String TAG = UniqueIdRepository.class.getCanonicalName();
     private static final String UniqueIds_SQL = "CREATE TABLE unique_ids(_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,openmrs_id VARCHAR NOT NULL,status VARCHAR NULL, used_by VARCHAR NULL,synced_by VARCHAR NULL,created_at DATETIME NULL,updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP )";
-    public static final String UniqueIds_TABLE_NAME = "unique_ids";
-    public static final String ID_COLUMN = "_id";
-    public static final String OPENMRS_ID_COLUMN = "openmrs_id";
-    public static final String STATUS_COLUMN = "status";
+    private static final String UniqueIds_TABLE_NAME = "unique_ids";
+    private static final String ID_COLUMN = "_id";
+    private static final String OPENMRS_ID_COLUMN = "openmrs_id";
+    private static final String STATUS_COLUMN = "status";
     private static final String USED_BY_COLUMN = "used_by";
     private static final String SYNCED_BY_COLUMN = "synced_by";
-    public static final String CREATED_AT_COLUMN = "created_at";
-    public static final String UPDATED_AT_COLUMN = "updated_at";
-    public static final String[] UniqueIds_TABLE_COLUMNS = {ID_COLUMN, OPENMRS_ID_COLUMN, STATUS_COLUMN, USED_BY_COLUMN, SYNCED_BY_COLUMN, CREATED_AT_COLUMN, UPDATED_AT_COLUMN};
+    private static final String CREATED_AT_COLUMN = "created_at";
+    private static final String UPDATED_AT_COLUMN = "updated_at";
+    private static final String[] UniqueIds_TABLE_COLUMNS = {ID_COLUMN, OPENMRS_ID_COLUMN, STATUS_COLUMN, USED_BY_COLUMN, SYNCED_BY_COLUMN, CREATED_AT_COLUMN, UPDATED_AT_COLUMN};
 
-    public static String STATUS_USED = "used";
-    public static String STATUS_NOT_USED = "not_used";
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final String STATUS_USED = "used";
+    private static final String STATUS_NOT_USED = "not_used";
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
     public UniqueIdRepository(PathRepository pathRepository) {
@@ -57,7 +57,7 @@ public class UniqueIdRepository extends BaseRepository {
         SQLiteDatabase database = getWritableDatabase();
 
         try {
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+            String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
 
             database.beginTransaction();
             for (String id : ids) {
@@ -126,7 +126,7 @@ public class UniqueIdRepository extends BaseRepository {
     public void close(String openmrsId) {
         try {
             String id;
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+            String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             if (!openmrsId.contains("-")) {
                 id = formatId(openmrsId);
             } else {
@@ -177,7 +177,7 @@ public class UniqueIdRepository extends BaseRepository {
     }
 
     private List<UniqueId> readAll(Cursor cursor) {
-        List<UniqueId> UniqueIds = new ArrayList<UniqueId>();
+        List<UniqueId> UniqueIds = new ArrayList<>();
         if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
             cursor.moveToFirst();
             while (cursor.getCount() > 0 && !cursor.isAfterLast()) {

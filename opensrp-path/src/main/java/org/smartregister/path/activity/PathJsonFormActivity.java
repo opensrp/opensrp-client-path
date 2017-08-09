@@ -28,7 +28,7 @@ import util.JsonFormUtils;
 public class PathJsonFormActivity extends JsonFormActivity {
 
     private int generatedId = -1;
-    public MaterialEditText balancetextview;
+    private MaterialEditText balancetextview;
     private PathJsonFormFragment pathJsonFormFragment;
 
     @Override
@@ -281,7 +281,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     String wastedvials = value;
                     String vaccineName = object.getString("title").replace("Stock Issued", "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
-                    ;
+
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
@@ -455,9 +455,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
-                            String vialsvalue = value;
-                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("")) {
-                                displaybalance = currentBalance + Integer.parseInt(vialsvalue);
+
+                            if (StringUtils.isNotBlank(value)) {
+                                displaybalance = currentBalance + Integer.parseInt(value);
 //                                if (balancetextview != null) {
 //                                    balancetextview.setErrorColor(Color.BLACK);
 //                                    balancetextview.setError("New balance : " + displaybalance);
@@ -588,9 +588,8 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
-                            String vialsvalue = value;
-                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("") && !vialsvalue.equalsIgnoreCase("-")) {
-                                displaybalance = currentBalance + Integer.parseInt(vialsvalue);
+                            if (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("-")) {
+                                displaybalance = currentBalance + Integer.parseInt(value);
 //                                if (balancetextview != null) {
 //                                    balancetextview.setErrorColor(Color.BLACK);
 //                                    balancetextview.setError("New balance : " + displaybalance);

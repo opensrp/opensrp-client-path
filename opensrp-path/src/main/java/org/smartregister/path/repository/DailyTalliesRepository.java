@@ -8,7 +8,6 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.smartregister.Context;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
@@ -27,14 +26,14 @@ import java.util.Map;
 public class DailyTalliesRepository extends BaseRepository {
     private static final String TAG = DailyTalliesRepository.class.getCanonicalName();
     private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    public static final String TABLE_NAME = "daily_tallies";
-    public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_PROVIDER_ID = "provider_id";
-    public static final String COLUMN_INDICATOR_ID = "indicator_id";
-    public static final String COLUMN_VALUE = "value";
-    public static final String COLUMN_DAY = "day";
-    public static final String COLUMN_UPDATED_AT = "updated_at";
-    public static final String[] TABLE_COLUMNS = {
+    private static final String TABLE_NAME = "daily_tallies";
+    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_PROVIDER_ID = "provider_id";
+    private static final String COLUMN_INDICATOR_ID = "indicator_id";
+    private static final String COLUMN_VALUE = "value";
+    private static final String COLUMN_DAY = "day";
+    private static final String COLUMN_UPDATED_AT = "updated_at";
+    private static final String[] TABLE_COLUMNS = {
             COLUMN_ID, COLUMN_INDICATOR_ID, COLUMN_PROVIDER_ID,
             COLUMN_VALUE, COLUMN_DAY, COLUMN_UPDATED_AT
     };
@@ -89,7 +88,7 @@ public class DailyTalliesRepository extends BaseRepository {
         SQLiteDatabase database = getWritableDatabase();
         try {
             database.beginTransaction();
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
+            String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
             for (String indicatorCode : hia2Report.keySet()) {
                 Integer indicatorValue = (Integer) hia2Report.get(indicatorCode);
 

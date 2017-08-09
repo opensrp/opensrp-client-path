@@ -27,7 +27,7 @@ import static org.smartregister.util.Utils.getValue;
 public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
     private final Context context;
     private final View.OnClickListener onClickListener;
-    private CommonRepository commonRepository;
+    private final CommonRepository commonRepository;
 
     public AdvancedSearchClientsProvider(Context context, View.OnClickListener onClickListener,
                                          AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
@@ -99,7 +99,6 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
 
     @Override
     public View inflatelayoutForCursorAdapter() {
-        ViewGroup view = (ViewGroup) inflater().inflate(R.layout.advanced_search_client, null);
-        return view;
+        return (ViewGroup) inflater().inflate(R.layout.advanced_search_client, null);
     }
 }

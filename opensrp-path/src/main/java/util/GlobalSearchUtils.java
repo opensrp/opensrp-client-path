@@ -10,6 +10,7 @@ import org.smartregister.Context;
 import org.smartregister.DristhiConfiguration;
 import org.smartregister.domain.Response;
 import org.smartregister.event.Listener;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 
 import java.io.UnsupportedEncodingException;
@@ -32,8 +33,7 @@ public class GlobalSearchUtils {
                     return null;
                 } else {
                     try {
-                        JSONArray jsonArray = new JSONArray(response.payload());
-                        return jsonArray;
+                        return new JSONArray(response.payload());
                     } catch (Exception e) {
                         Log.e(getClass().getName(), "", e);
                         return null;
@@ -54,8 +54,8 @@ public class GlobalSearchUtils {
         }, null);
     }
 
-    public static Response<String> globalSearch(Map<String, String> map) {
-        Context context = Context.getInstance();
+    private static Response<String> globalSearch(Map<String, String> map) {
+        Context context = VaccinatorApplication.getInstance().context();
         DristhiConfiguration configuration = context.configuration();
         String baseUrl = configuration.dristhiBaseURL();
         String paramString = "";
@@ -85,8 +85,7 @@ public class GlobalSearchUtils {
         }
         String uri = baseUrl + "/rest/search/path" + paramString;
 
-        Response<String> response = context.getHttpAgent().fetch(uri);
-        return response;
+        return context.getHttpAgent().fetch(uri);
     }
 
     private static String urlEncode(String value) {

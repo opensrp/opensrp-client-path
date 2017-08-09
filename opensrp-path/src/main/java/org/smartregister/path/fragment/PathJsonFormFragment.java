@@ -35,6 +35,7 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.event.Listener;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.PathJsonFormActivity;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.interactors.PathJsonFormInteractor;
 import org.smartregister.path.provider.MotherLookUpSmartClientsProvider;
 import org.smartregister.path.viewstates.PathJsonFormFragmentViewState;
@@ -83,7 +84,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
     }
 
     public Context context() {
-        return Context.getInstance().updateApplicationContext(this.getActivity().getApplicationContext());
+        return VaccinatorApplication.getInstance().context();
     }
 
 
@@ -92,7 +93,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
         return motherLookUpListener;
     }
 
-    public void showMotherLookUp(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
+    private void showMotherLookUp(final HashMap<CommonPersonObject, List<CommonPersonObject>> map) {
         if (!map.isEmpty()) {
             tapToView(map);
         } else {
@@ -163,7 +164,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
     }
 
-    public void clearMotherLookUp() {
+    private void clearMotherLookUp() {
         String entityId = "mother";
         Map<String, List<View>> lookupMap = getLookUpMap();
         if (lookupMap.containsKey(entityId)) {
@@ -371,7 +372,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
 //                findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
 
-    public void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
+    private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
         if (mMainView != null) {
             int childCount = mMainView.getChildCount();
             for (int i = 0; i < childCount; i++) {

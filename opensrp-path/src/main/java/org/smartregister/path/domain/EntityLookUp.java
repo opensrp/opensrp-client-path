@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class EntityLookUp {
 
-    private Map<String, String> map = new HashMap<>();
+    private final Map<String, String> map = new HashMap<>();
 
     public void clear() {
         map.clear();

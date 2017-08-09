@@ -9,6 +9,7 @@ import android.content.Intent;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.util.Log;
 
@@ -29,7 +30,7 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent alarmIntent) {
         int serviceType = alarmIntent.getIntExtra(serviceTypeName, 0);
-        if (!org.smartregister.Context.getInstance().IsUserLoggedOut()) {
+        if (!VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
             Intent serviceIntent = null;
             switch (serviceType) {
                 case PathConstants.ServiceType.DATA_SYNCHRONIZATION:
@@ -68,7 +69,7 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
 
     }
 
-    public void startService(Context context, Intent serviceIntent, int serviceType) {
+    private void startService(Context context, Intent serviceIntent, int serviceType) {
         context.startService(serviceIntent);
     }
 

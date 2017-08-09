@@ -3,16 +3,17 @@ package org.smartregister.path.tabfragments;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import org.joda.time.DateTime;
-import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.DateUtil;
@@ -28,7 +29,7 @@ import util.JsonFormUtils;
 
 public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
-    public Map<String, String> detailsMap;
+    private Map<String, String> detailsMap;
     private LayoutInflater inflater;
     private ViewGroup container;
     private LinearLayout layout;
@@ -94,7 +95,7 @@ public class ChildRegistrationDataFragment extends Fragment {
 //        detailsMap = childDetails.getColumnmaps();
             WidgetFactory wd = new WidgetFactory();
 
-            layout.addView(wd.createTableRow(inflater, container, "Child's home health facility", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(Context.getInstance(), Utils.getValue(detailsMap, "Home_Facility", false)))));
+            layout.addView(wd.createTableRow(inflater, container, "Child's home health facility", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "Home_Facility", false)))));
             layout.addView(wd.createTableRow(inflater, container, "Child's ZEIR ID", Utils.getValue(childDetails.getColumnmaps(), "zeir_id", false)));
             layout.addView(wd.createTableRow(inflater, container, "Child's register card number", Utils.getValue(detailsMap, "Child_Register_Card_Number", false)));
             layout.addView(wd.createTableRow(inflater, container, "Child's birth certificate number", Utils.getValue(detailsMap, "Child_Birth_Certificate", false)));
@@ -140,7 +141,7 @@ public class ChildRegistrationDataFragment extends Fragment {
                 Date mother_dob = dateTime.toDate();
                 motherDob = ChildDetailTabbedActivity.DATE_FORMAT.format(mother_dob);
             } catch (Exception e) {
-
+                Log.e(getClass().getCanonicalName(), e.getMessage());
             }
 
             // If default mother dob ... set it as blank
@@ -163,15 +164,15 @@ public class ChildRegistrationDataFragment extends Fragment {
                 placeofnearth_Choice = "Home";
             }
             layout.addView(wd.createTableRow(inflater, container, "Place of birth", placeofnearth_Choice));
-            layout.addView(wd.createTableRow(inflater, container, "Health facility the child was born in", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(Context.getInstance(), Utils.getValue(detailsMap, "Birth_Facility_Name", false)))));
+            layout.addView(wd.createTableRow(inflater, container, "Health facility the child was born in", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "Birth_Facility_Name", false)))));
             if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(
-                    Context.getInstance(), Utils.getValue(detailsMap, "Birth_Facility_Name",
+                    VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "Birth_Facility_Name",
                             false))).equalsIgnoreCase("other")) {
                 layout.addView(wd.createTableRow(inflater, container, "Other birth facility", Utils.getValue(detailsMap, "Birth_Facility_Name_Other", true)));
             }
-            layout.addView(wd.createTableRow(inflater, container, "Child's residential area", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(Context.getInstance(), Utils.getValue(detailsMap, "address3", false)))));
+            layout.addView(wd.createTableRow(inflater, container, "Child's residential area", JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "address3", false)))));
             if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(
-                    Context.getInstance(),
+                    VaccinatorApplication.getInstance().context(),
                     Utils.getValue(detailsMap, "address3", true))).equalsIgnoreCase("other")) {
                 layout.addView(wd.createTableRow(inflater, container, "Other residential area", Utils.getValue(detailsMap, "address5", true)));
             }

@@ -164,7 +164,6 @@ public class MenuItemTestVersion implements MenuItem {
 
     @Override
     public void setShowAsAction(int var1) {
-        return;
     }
 
     @Override

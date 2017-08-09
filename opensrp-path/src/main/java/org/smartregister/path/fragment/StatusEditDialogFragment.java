@@ -21,7 +21,7 @@ import java.util.Map;
 @SuppressLint("ValidFragment")
 public class StatusEditDialogFragment extends DialogFragment {
     private final Context context;
-    public static Map<String, String> details;
+    private static Map<String, String> details;
     private static final String inactive = "inactive";
     private static final String lostToFollowUp = "lost_to_follow_up";
 

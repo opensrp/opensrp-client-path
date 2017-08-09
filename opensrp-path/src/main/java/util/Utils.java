@@ -131,11 +131,11 @@ public class Utils {
         return addToRow(context, value, row, compact, 1);
     }
 
-    public static TableRow addToRow(Context context, String value, TableRow row, boolean compact, int weight) {
+    private static TableRow addToRow(Context context, String value, TableRow row, boolean compact, int weight) {
         return addToRow(context, Html.fromHtml(value), row, compact, weight);
     }
 
-    public static TableRow addToRow(Context context, Spanned value, TableRow row, boolean compact, int weight) {
+    private static TableRow addToRow(Context context, Spanned value, TableRow row, boolean compact, int weight) {
         TextView v = new TextView(context);
         v.setText(value);
         if (compact) {

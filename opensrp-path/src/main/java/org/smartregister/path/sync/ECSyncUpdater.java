@@ -21,11 +21,11 @@ import util.MoveToMyCatchmentUtils;
 public class ECSyncUpdater {
     public static final String SEARCH_URL = "/rest/event/sync";
 
-    public static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
-    public static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
+    private static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
+    private static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
 
-    private EventClientRepository db;
-    private Context context;
+    private final EventClientRepository db;
+    private final Context context;
 
     private static ECSyncUpdater instance;
 
@@ -36,15 +36,16 @@ public class ECSyncUpdater {
         return instance;
     }
 
-    public ECSyncUpdater(Context context) {
+    private ECSyncUpdater(Context context) {
         this.context = context;
         db = VaccinatorApplication.getInstance().eventClientRepository();
     }
 
 
     private JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
-        HTTPAgent httpAgent = org.smartregister.Context.getInstance().getHttpAgent();
-        String baseUrl = org.smartregister.Context.getInstance().configuration().dristhiBaseURL();
+        HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+        String baseUrl = VaccinatorApplication.getInstance().context().
+                configuration().dristhiBaseURL();
         if (baseUrl.endsWith("/")) {
             baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
         }
@@ -64,8 +65,7 @@ public class ECSyncUpdater {
             throw new Exception(SEARCH_URL + " not returned data");
         }
 
-        JSONObject jsonObject = new JSONObject((String) resp.payload());
-        return jsonObject;
+        return new JSONObject((String) resp.payload());
     }
 
     public int fetchAllClientsAndEvents(String filterName, String filterValue) {
@@ -154,6 +154,7 @@ public class ECSyncUpdater {
             Log.e(getClass().getName(), "Exception", e);
         }
     }
+
     public void addReport(JSONObject jsonObject) {
         try {
             db.addReport(jsonObject);
@@ -166,7 +167,7 @@ public class ECSyncUpdater {
         return Long.parseLong(Utils.getPreference(context, LAST_SYNC_TIMESTAMP, "0"));
     }
 
-    public void updateLastSyncTimeStamp(long lastSyncTimeStamp) {
+    private void updateLastSyncTimeStamp(long lastSyncTimeStamp) {
         Utils.writePreference(context, LAST_SYNC_TIMESTAMP, lastSyncTimeStamp + "");
     }
 

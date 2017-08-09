@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.smartregister.Context;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.text.SimpleDateFormat;
@@ -65,12 +66,11 @@ public class ProviderProfileActivity extends Activity {
         if (context().IsUserLoggedOut()) {
             DrishtiApplication application = (DrishtiApplication) getApplication();
             application.logoutCurrentUser();
-            return;
         }
 
     }
 
-    protected Context context() {
-        return Context.getInstance().updateApplicationContext(this.getApplicationContext());
+    private Context context() {
+        return VaccinatorApplication.getInstance().context();
     }
 }

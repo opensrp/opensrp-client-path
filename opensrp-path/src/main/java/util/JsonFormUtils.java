@@ -84,7 +84,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String READ_ONLY = "read_only";
     private static final String METADATA = "metadata";
     public static final String ZEIR_ID = "ZEIR_ID";
-    public static final String M_ZEIR_ID = "M_ZEIR_ID";
+    private static final String M_ZEIR_ID = "M_ZEIR_ID";
     public static final String encounterType = "Update Birth Registration";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -95,7 +95,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final SimpleDateFormat dd_MM_yyyy = new SimpleDateFormat("dd-MM-yyyy");
     //public static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
     //2007-03-31T04:00:00.000Z
-    public static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
+    public static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").registerTypeAdapter(DateTime.class, new DateTimeTypeConverter()).create();
 
 
     public static void saveForm(Context context, org.smartregister.Context openSrpContext,
@@ -372,7 +372,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void mergeAndSaveClient(Context context, Client baseClient) throws Exception {
+    private static void mergeAndSaveClient(Context context, Client baseClient) throws Exception {
         ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
         JSONObject updatedClientJson = new JSONObject(gson.toJson(baseClient));
@@ -393,8 +393,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static void saveOutOfAreaService(Context context, org.smartregister.Context openSrpContext,
-                                            String jsonString) {
+    private static void saveOutOfAreaService(Context context, org.smartregister.Context openSrpContext,
+                                             String jsonString) {
         SaveOutOfAreaServiceTask saveOutOfAreaServiceTask = new SaveOutOfAreaServiceTask(context,
                 openSrpContext, jsonString);
 
@@ -529,7 +529,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static void saveStaticImageToDisk(Bitmap image, String providerId, String entityId) {
+    private static void saveStaticImageToDisk(Bitmap image, String providerId, String entityId) {
         if (image == null || StringUtils.isBlank(providerId) || StringUtils.isBlank(entityId)) {
             return;
         }
@@ -556,7 +556,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 profileImage.setFilepath(absoluteFileName);
                 profileImage.setFilecategory("profilepic");
                 profileImage.setSyncStatus(ImageRepository.TYPE_Unsynced);
-                ImageRepository imageRepo = (ImageRepository) org.smartregister.Context.getInstance().imageRepository();
+                ImageRepository imageRepo = VaccinatorApplication.getInstance().context().imageRepository();
                 imageRepo.add(profileImage);
             }
 
@@ -574,7 +574,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static Client createBaseClient(JSONArray fields, String entityId) {
+    private static Client createBaseClient(JSONArray fields, String entityId) {
 
         String firstName = getFieldValue(fields, FormEntityConstants.Person.first_name);
         String middleName = getFieldValue(fields, FormEntityConstants.Person.middle_name);
@@ -592,7 +592,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } catch (Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
-            birthdateApprox = bde > 0 ? true : false;
+            birthdateApprox = bde > 0;
         }
         String aproxdd = getFieldValue(fields, FormEntityConstants.Person.deathdate_estimated);
         Boolean deathdateApprox = false;
@@ -603,7 +603,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } catch (Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
-            deathdateApprox = dde > 0 ? true : false;
+            deathdateApprox = dde > 0;
         }
         String gender = getFieldValue(fields, FormEntityConstants.Person.gender);
 
@@ -624,9 +624,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
     }
 
-    public static Event createEvent(org.smartregister.Context openSrpContext,
-                                    JSONArray fields, JSONObject metadata, String entityId,
-                                    String encounterType, String providerId, String bindType) {
+    private static Event createEvent(org.smartregister.Context openSrpContext,
+                                     JSONArray fields, JSONObject metadata, String entityId,
+                                     String encounterType, String providerId, String bindType) {
 
         String encounterDateField = getFieldValue(fields, FormEntityConstants.Encounter.encounter_date);
         String encounterLocation = null;
@@ -736,7 +736,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    public static Client createSubformClient(Context context, JSONArray fields, Client parent, String bindType, String relationalId) throws ParseException {
+    private static Client createSubformClient(Context context, JSONArray fields, Client parent, String bindType, String relationalId) throws ParseException {
 
         if (StringUtils.isBlank(bindType)) {
             return null;
@@ -768,7 +768,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } catch (Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
-            birthdateApprox = bde > 0 ? true : false;
+            birthdateApprox = bde > 0;
         }
         String aproxdd = getSubFormFieldValue(fields, FormEntityConstants.Person.deathdate_estimated, bindType);
         Boolean deathdateApprox = false;
@@ -779,7 +779,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             } catch (Exception e) {
                 Log.e(TAG, e.toString(), e);
             }
-            deathdateApprox = dde > 0 ? true : false;
+            deathdateApprox = dde > 0;
         }
 
         List<Address> addresses = new ArrayList<>(extractAddresses(fields, bindType).values());
@@ -805,7 +805,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return c;
     }
 
-    public static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String providerId, String bindType) {
+    private static Event createSubFormEvent(JSONArray fields, JSONObject metadata, Event parent, String entityId, String encounterType, String providerId, String bindType) {
 
 
         Event e = (Event) new Event()
@@ -926,7 +926,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    public static JSONArray generateLocationHierarchyTree(org.smartregister.Context context, boolean withOtherOption, ArrayList<String> allowedLevels) {
+    private static JSONArray generateLocationHierarchyTree(org.smartregister.Context context, boolean withOtherOption, ArrayList<String> allowedLevels) {
         JSONArray array = new JSONArray();
         try {
             JSONObject locationData = new JSONObject(context.anmLocationController().get());
@@ -1012,6 +1012,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         try {
             level = openMrsLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
         } catch (JSONException e) {
+            Log.e(JsonFormUtils.class.getCanonicalName(), e.getMessage());
         }
         jsonFormObject.put("level", "");
         JSONArray children = new JSONArray();
@@ -1098,7 +1099,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         }
     }
 
-    public static void addAddAvailableVaccines(Context context, JSONObject form) {
+    private static void addAddAvailableVaccines(Context context, JSONObject form) {
         String supportedVaccinesString = VaccinatorUtils.getSupportedVaccines(context);
         if (StringUtils.isNotEmpty(supportedVaccinesString) && form != null) {
             // For each of the vaccine groups, create a checkbox question
@@ -1129,8 +1130,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             String unsplitNames = curVaccine.getString("name");
                             String separator = curVaccine.getString("vaccine_separator");
                             String[] splitValues = unsplitNames.split(separator);
-                            for (int k = 0; k < splitValues.length; k++) {
-                                vaccineNamesDefined.add(splitValues[k]);
+                            for (String splitValue : splitValues) {
+                                vaccineNamesDefined.add(splitValue);
                             }
                         } else {
                             vaccineNamesDefined.add(curVaccine.getString("name"));
@@ -1167,8 +1168,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             String rawNames = vaccines.getJSONObject(j).getString("name");
                             String separator = vaccines.getJSONObject(j).getString("vaccine_separator");
                             String[] split = rawNames.split(separator);
-                            for (int k = 0; k < split.length; k++) {
-                                definedVaccineNames.add(split[k]);
+                            for (String aSplit : split) {
+                                definedVaccineNames.add(aSplit);
                             }
                         } else {
                             definedVaccineNames.add(vaccines.getJSONObject(j).getString("name"));
@@ -1553,7 +1554,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             .equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
                         jsonObject.remove(JsonFormUtils.VALUE);
                         jsonObject.put(JsonFormUtils.VALUE, entityId);
-                        continue;
                     }
                 }
             } else if ("out_of_catchment_service".equals(formName)) {
@@ -1577,7 +1577,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             .equalsIgnoreCase(JsonFormUtils.ZEIR_ID)) {
                         jsonObject.remove(JsonFormUtils.VALUE);
                         jsonObject.put(JsonFormUtils.VALUE, entityId);
-                        continue;
                     }
                 }
 
@@ -1593,7 +1592,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     public static Event addMetaData(Context context, Event event, Date start) throws JSONException {
-        Map<String, String> metaFields = new HashMap<String, String>();
+        Map<String, String> metaFields = new HashMap<>();
         metaFields.put("deviceid", "163149AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         metaFields.put("end", "163138AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         metaFields.put("start", "163137AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");

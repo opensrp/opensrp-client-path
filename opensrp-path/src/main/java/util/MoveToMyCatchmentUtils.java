@@ -14,6 +14,7 @@ import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.db.Event;
 import org.smartregister.domain.db.Obs;
 import org.smartregister.event.Listener;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
@@ -29,7 +30,7 @@ import java.util.List;
  * Created by keyman on 26/01/2017.
  */
 public class MoveToMyCatchmentUtils {
-    public static String MOVE_TO_CATCHMENT_EVENT = "Move To Catchment";
+    public static final String MOVE_TO_CATCHMENT_EVENT = "Move To Catchment";
 
     public static void moveToMyCatchment(final List<String> ids, final Listener<JSONObject> listener, final ProgressDialog progressDialog) {
 
@@ -42,8 +43,7 @@ public class MoveToMyCatchmentUtils {
                     return null;
                 } else {
                     try {
-                        JSONObject jsonObject = new JSONObject(response.payload());
-                        return jsonObject;
+                        return new JSONObject(response.payload());
                     } catch (Exception e) {
                         Log.e(getClass().getName(), "", e);
                         return null;
@@ -64,12 +64,12 @@ public class MoveToMyCatchmentUtils {
         }, null);
     }
 
-    public static Response<String> move(List<String> ids) {
+    private static Response<String> move(List<String> ids) {
         if (ids == null || ids.isEmpty()) {
-            return new Response<String>(ResponseStatus.failure, "entityId doesn't exist");
+            return new Response<>(ResponseStatus.failure, "entityId doesn't exist");
         }
 
-        Context context = Context.getInstance();
+        Context context = VaccinatorApplication.getInstance().context();
         DristhiConfiguration configuration = context.configuration();
 
         String baseUrl = configuration.dristhiBaseURL();
@@ -78,8 +78,7 @@ public class MoveToMyCatchmentUtils {
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
         String uri = baseUrl + ECSyncUpdater.SEARCH_URL + paramString;
 
-        Response<String> response = context.getHttpAgent().fetch(uri);
-        return response;
+        return context.getHttpAgent().fetch(uri);
     }
 
     private static String urlEncode(String value) {

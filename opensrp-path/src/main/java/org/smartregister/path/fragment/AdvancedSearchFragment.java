@@ -87,7 +87,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private ProgressDialog progressDialog;
 
     //private List<Integer> editedList = new ArrayList<>();
-    private Map<String, String> editMap = new HashMap<>();
+    private final Map<String, String> editMap = new HashMap<>();
     private boolean listMode = false;
     private int overdueCount = 0;
     private boolean outOfArea = false;
@@ -308,7 +308,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     }
 
-    public void search(final View view) {
+    private void search(final View view) {
         android.util.Log.i(getClass().getName(), "Hiding Keyboard " + DateTime.now().toString());
         ((ChildSmartRegisterActivity) getActivity()).hideKeyboard();
         view.setClickable(false);
@@ -610,7 +610,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
     }
 
-    public String filterandSortQuery() {
+    private String filterandSortQuery() {
         String tableName = getTablename();
         String parentTableName = "ec_mother";
 
@@ -947,7 +947,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
             if (jsonArray != null) {
 
-                List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+                List<JSONObject> jsonValues = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonValues.add(getJsonObject(jsonArray, i));
                 }
@@ -1145,7 +1145,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                     break;
                 case R.id.move_to_catchment:
                     if (client == null && view.getTag() != null && view.getTag() instanceof List) {
-                        List<String> ids = (List<String>) view.getTag();
+                        @SuppressWarnings("unchecked") List<String> ids = (List<String>) view.getTag();
                         moveToMyCatchmentArea(ids);
                     }
                     break;
@@ -1170,7 +1170,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     }
 
     private class DatePickerListener implements View.OnClickListener {
-        private EditText editText;
+        private final EditText editText;
 
         private DatePickerListener(EditText editText) {
             this.editText = editText;

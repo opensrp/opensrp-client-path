@@ -1,6 +1,7 @@
 package org.smartregister.path.tabfragments;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -64,25 +65,25 @@ public class CurrentStock extends Fragment implements
     ///////////////////////////////////////block for list///////////////////
     public static final String DIALOG_TAG = "dialog";
     private boolean refreshList;
-    public ListView clientsView;
-    public ProgressBar clientsProgressView;
-    public static int totalcount = 0;
-    public static int currentlimit = 20;
-    public static int currentoffset = 0;
-    public String mainSelect;
-    public String filters = "";
-    public String mainCondition = "";
-    public String Sortqueries;
-    public String tablename;
-    public String countSelect;
-    public String joinTable = "";
+    private ListView clientsView;
+    private ProgressBar clientsProgressView;
+    private static int totalcount = 0;
+    private static int currentlimit = 20;
+    private static int currentoffset = 0;
+    private String mainSelect;
+    private final String filters = "";
+    private String mainCondition = "";
+    private String Sortqueries;
+    private String tablename;
+    private String countSelect;
+    private final String joinTable = "";
 
-    protected static final int LOADER_ID = 0;
+    private static final int LOADER_ID = 0;
     private StockRepository stockRepository;
 
-    public StockPaginatedCursorAdapter clientAdapter;
+    private StockPaginatedCursorAdapter clientAdapter;
 
-    public View mView;
+    private View mView;
 
     private boolean isPaused;
 
@@ -90,18 +91,13 @@ public class CurrentStock extends Fragment implements
     private Button nextPageView;
     private Button previousPageView;
 
-    ///////////////////////////////////////////////////////////////////////
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private final PaginationViewHandler paginationViewHandler = new PaginationViewHandler();
 
     public String getTablename() {
         return tablename;
     }
 
-    public void setTablename(String tablename) {
+    private void setTablename(String tablename) {
         this.tablename = tablename;
     }
 
@@ -139,10 +135,10 @@ public class CurrentStock extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        /*if (getArguments() != null) {
+            String mParam1 = getArguments().getString(ARG_PARAM1);
+            String mParam2 = getArguments().getString(ARG_PARAM2);
+        }*/
     }
 
     @Override
@@ -213,7 +209,7 @@ public class CurrentStock extends Fragment implements
         countExecute();
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.setSelectquery("Select * FROM Stocks Where Stocks." + StockRepository.VACCINE_TYPE_ID + " = " + ((StockControlActivity) getActivity()).vaccineType.getId());
-        queryBUilder.orderbyCondition(stockRepository.DATE_CREATED + " DESC, " + stockRepository.DATE_UPDATED + " DESC");
+        queryBUilder.orderbyCondition(StockRepository.DATE_CREATED + " DESC, " + StockRepository.DATE_UPDATED + " DESC");
 //        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
 //                tableName + "._id",
 //                tableName + ".vaccine_type_id",
@@ -237,7 +233,6 @@ public class CurrentStock extends Fragment implements
     }
 
     private void launchReceivedForm() {
-        Context context = Context.getInstance();
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_received_form");
@@ -251,7 +246,6 @@ public class CurrentStock extends Fragment implements
     }
 
     private void launchAdjustmentForm() {
-        Context context = Context.getInstance();
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_adjustment_form");
@@ -265,7 +259,6 @@ public class CurrentStock extends Fragment implements
     }
 
     private void launchIssuedForm() {
-        Context context = Context.getInstance();
         Intent intent = new Intent(getActivity().getApplicationContext(), PathJsonFormActivity.class);
         try {
             JSONObject form = FormUtils.getInstance(getActivity().getApplicationContext()).getFormJson("stock_issued_form");
@@ -287,15 +280,15 @@ public class CurrentStock extends Fragment implements
         getValueForStock(mView);
     }
 
-    public void returnfromform() {
-        ((StockControlActivity) getActivity()).planning_stock_fragment.loatDataView(((StockControlActivity) getActivity()).planning_stock_fragment.mainview);
+    private void returnfromform() {
+        ((StockControlActivity) getActivity()).planningStockFragment.loatDataView(((StockControlActivity) getActivity()).planningStockFragment.mainview);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         {
-            if (resultCode == getActivity().RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
 
                 try {
                     String jsonString = data.getStringExtra("json");
@@ -389,7 +382,6 @@ public class CurrentStock extends Fragment implements
     private void processStockIssued(String jsonString) {
         JSONObject jsonForm = null;
         try {
-            Context context = Context.getInstance();
             jsonForm = new JSONObject(jsonString);
             JSONArray fields = JsonFormUtils.fields(jsonForm);
             String Date_Stock_Received = JsonFormUtils.getFieldValue(fields, "Date_Stock_Issued");
@@ -444,7 +436,7 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-    public void refresh() {
+    private void refresh() {
         pageInfoView.setText(
                 format(getResources().getString(R.string.str_page_info),
                         getCurrentPageCount(),
@@ -464,21 +456,21 @@ public class CurrentStock extends Fragment implements
         return currentoffset != 0;
     }
 
-    public void gotoNextPage() {
+    private void gotoNextPage() {
         if (!(currentoffset + currentlimit > totalcount)) {
             currentoffset = currentoffset + currentlimit;
             filterandSortExecute();
         }
     }
 
-    public void goBackToPreviousPage() {
+    private void goBackToPreviousPage() {
         if (currentoffset > 0) {
             currentoffset = currentoffset - currentlimit;
             filterandSortExecute();
         }
     }
 
-    public void filterandSortInInitializeQueries() {
+    private void filterandSortInInitializeQueries() {
         if (isPausedOrRefreshList()) {
             this.showProgressView();
             this.filterandSortExecute();
@@ -488,7 +480,7 @@ public class CurrentStock extends Fragment implements
     }
 
 
-    public void initialFilterandSortExecute() {
+    private void initialFilterandSortExecute() {
         Loader<Cursor> loader = getLoaderManager().getLoader(LOADER_ID);
         showProgressView();
         if (loader != null) {
@@ -498,13 +490,13 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-    public void filterandSortExecute() {
+    private void filterandSortExecute() {
         refresh();
 
         getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
-    public void showProgressView() {
+    private void showProgressView() {
         if (clientsProgressView.getVisibility() == INVISIBLE) {
             clientsProgressView.setVisibility(View.VISIBLE);
         }
@@ -514,7 +506,7 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-    public void hideProgressView() {
+    private void hideProgressView() {
         if (clientsProgressView.getVisibility() == VISIBLE) {
             clientsProgressView.setVisibility(INVISIBLE);
         }
@@ -546,7 +538,7 @@ public class CurrentStock extends Fragment implements
         return query;
     }
 
-    public void countExecute() {
+    private void countExecute() {
         Cursor c = null;
 
         try {
@@ -581,7 +573,7 @@ public class CurrentStock extends Fragment implements
         }
     }
 
-    protected boolean isValidFilterForFts(CommonRepository commonRepository) {
+    private boolean isValidFilterForFts(CommonRepository commonRepository) {
         return false;
 //        return commonRepository.isFts() && filters != null
 //                && !StringUtils.containsIgnoreCase(filters, "like")
@@ -627,27 +619,27 @@ public class CurrentStock extends Fragment implements
         clientAdapter.swapCursor(null);
     }
 
-    public CommonRepository commonRepository() {
+    private CommonRepository commonRepository() {
         return new CommonRepository(VaccinatorApplication.createCommonFtsObject(), StockRepository.stock_TABLE_NAME, StockRepository.stock_TABLE_COLUMNS);
     }
 
-    public boolean isPausedOrRefreshList() {
+    private boolean isPausedOrRefreshList() {
         return isPaused() || isRefreshList();
     }
 
-    public boolean isRefreshList() {
+    private boolean isRefreshList() {
         return refreshList;
     }
 
     protected Context context() {
-        return Context.getInstance().updateApplicationContext(this.getActivity().getApplicationContext());
+        return VaccinatorApplication.getInstance().context();
     }
 
-    public void setRefreshList(boolean refreshList) {
+    private void setRefreshList(boolean refreshList) {
         this.refreshList = refreshList;
     }
 
-    public boolean isPaused() {
+    private boolean isPaused() {
         return isPaused;
     }
 
@@ -676,7 +668,7 @@ public class CurrentStock extends Fragment implements
 
             LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            toaddNote.addView((ViewGroup) getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null), p);
+            toaddNote.addView(getActivity().getLayoutInflater().inflate(R.layout.current_stock_note, null), p);
 
             clientsView.addFooterView(toaddNote);
             refresh();

@@ -39,8 +39,7 @@ public class StockControlActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     public VaccineType vaccineType;
-    public CurrentStock current_stock_fragment;
-    public PlanningStockFragment planning_stock_fragment;
+    public PlanningStockFragment planningStockFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +75,7 @@ public class StockControlActivity extends AppCompatActivity {
             }
         });
 
-        AllSharedPreferences allSharedPreferences = org.smartregister.Context.getInstance().allSharedPreferences();
+        AllSharedPreferences allSharedPreferences = VaccinatorApplication.getInstance().context().allSharedPreferences();
         String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
         if (!preferredName.isEmpty()) {
             String[] preferredNameArray = preferredName.split(" ");
@@ -93,7 +92,7 @@ public class StockControlActivity extends AppCompatActivity {
 
     }
 
-    public void initializeCustomNavbarLIsteners() {
+    private void initializeCustomNavbarLIsteners() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
@@ -281,11 +280,10 @@ public class StockControlActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    current_stock_fragment = CurrentStock.newInstance("", "");
-                    return current_stock_fragment;
+                    return CurrentStock.newInstance("", "");
                 case 1:
-                    planning_stock_fragment = PlanningStockFragment.newInstance("", "");
-                    return planning_stock_fragment;
+                    planningStockFragment = PlanningStockFragment.newInstance("", "");
+                    return planningStockFragment;
             }
             return null;
         }

@@ -51,10 +51,10 @@ import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
  * Created by Ahmed on 13-Oct-15.
  */
 public class ChildSmartRegisterActivity extends BaseRegisterActivity {
-    private static String TAG = ChildSmartRegisterActivity.class.getCanonicalName();
+    private static final String TAG = ChildSmartRegisterActivity.class.getCanonicalName();
 
     @Bind(R.id.view_pager)
-    OpenSRPViewPager mPager;
+    protected OpenSRPViewPager mPager;
     private FragmentPagerAdapter mPagerAdapter;
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private int currentPage;
@@ -140,7 +140,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         try {
             LoginActivity.setLanguage();
         } catch (Exception e) {
-
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         }
         super.showFragmentDialog(dialogOptionModel, tag);
     }
@@ -298,7 +298,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         }
     }
 
-    private Listener<FetchStatus> onDataFetchedListener = new Listener<FetchStatus>() {
+    private final Listener<FetchStatus> onDataFetchedListener = new Listener<FetchStatus>() {
         @Override
         public void onEvent(FetchStatus fetchStatus) {
             refreshList(fetchStatus);

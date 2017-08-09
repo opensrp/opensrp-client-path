@@ -34,19 +34,19 @@ public class StockRepository extends BaseRepository {
             "sync_status VARCHAR," +
             "date_updated INTEGER NULL)";
     public static final String stock_TABLE_NAME = "Stocks";
-    public static final String ID_COLUMN = "_id";
+    private static final String ID_COLUMN = "_id";
     public static final String VACCINE_TYPE_ID = "vaccine_type_id";
     public static final String TRANSACTION_TYPE = "transaction_type";
-    public static final String PROVIDER_ID = "providerid";
-    public static final String VALUE = "value";
+    private static final String PROVIDER_ID = "providerid";
+    private static final String VALUE = "value";
     public static final String DATE_CREATED = "date_created";
-    public static final String TO_FROM = "to_from";
-    public static final String SYNC_STATUS = "sync_status";
+    private static final String TO_FROM = "to_from";
+    private static final String SYNC_STATUS = "sync_status";
     public static final String DATE_UPDATED = "date_updated";
     public static final String[] stock_TABLE_COLUMNS = {ID_COLUMN, VACCINE_TYPE_ID, TRANSACTION_TYPE, PROVIDER_ID, VALUE, DATE_CREATED, TO_FROM, SYNC_STATUS, DATE_UPDATED};
 
-    public static String TYPE_Unsynced = "Unsynced";
-    public static String TYPE_Synced = "Synced";
+    public static final String TYPE_Unsynced = "Unsynced";
+    private static final String TYPE_Synced = "Synced";
 
     public StockRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -94,7 +94,7 @@ public class StockRepository extends BaseRepository {
     }
 
     public List<Stock> findUnSyncedBeforeTime(int hours) {
-        List<Stock> stocks = new ArrayList<Stock>();
+        List<Stock> stocks = new ArrayList<>();
         Cursor cursor = null;
         try {
             Calendar calendar = Calendar.getInstance();
@@ -115,7 +115,7 @@ public class StockRepository extends BaseRepository {
     }
 
     public List<Stock> findUnSyncedWithLimit(int limit) {
-        List<Stock> stocks = new ArrayList<Stock>();
+        List<Stock> stocks = new ArrayList<>();
         Cursor cursor = null;
         try {
 
@@ -205,7 +205,7 @@ public class StockRepository extends BaseRepository {
 //    }
 
     private List<Stock> readAllstocks(Cursor cursor) {
-        List<Stock> stocks = new ArrayList<Stock>();
+        List<Stock> stocks = new ArrayList<>();
 
 
         try {
@@ -229,9 +229,10 @@ public class StockRepository extends BaseRepository {
                 }
             }
         } catch (Exception e) {
-
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         } finally {
-            cursor.close();
+            if (cursor != null)
+                cursor.close();
         }
         return stocks;
     }
@@ -321,6 +322,7 @@ public class StockRepository extends BaseRepository {
         return sum;
     }
 
+    @SuppressWarnings("unchecked")
     public int getBalanceFromNameAndDate(String Name, Long updatedat) {
         SQLiteDatabase database = getReadableDatabase();
 //      Cursor c = getReadableDatabase().query(stock_TABLE_NAME, stock_TABLE_COLUMNS, DATE_UPDATED + " < ?", new String[]{""+updatedAt.longValue()}, null, null, null, null);

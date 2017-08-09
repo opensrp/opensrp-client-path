@@ -78,7 +78,7 @@ public class MotherLookUpUtils {
 
 
         List<String> ids = new ArrayList<>();
-        List<CommonPersonObject> motherList = new ArrayList<CommonPersonObject>();
+        List<CommonPersonObject> motherList = new ArrayList<>();
 
         CommonRepository commonRepository = context.commonrepository(tableName);
         String query = lookUpQuery(entityLookUp.getMap(), tableName);

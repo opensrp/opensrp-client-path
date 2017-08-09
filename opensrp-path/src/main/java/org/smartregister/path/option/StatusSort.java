@@ -2,9 +2,9 @@ package org.smartregister.path.option;
 
 import android.util.Log;
 
-import org.smartregister.Context;
 import org.smartregister.cursoradapter.CursorSortOption;
 import org.smartregister.domain.Alert;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.contract.SmartRegisterClients;
 
@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StatusSort implements CursorSortOption {
-    private String name;
+    private final String name;
 
-    private Comparator<SmartRegisterClient> commoncomparator = new Comparator<SmartRegisterClient>() {
+    private final Comparator<SmartRegisterClient> commoncomparator = new Comparator<SmartRegisterClient>() {
         @Override
         public int compare(SmartRegisterClient oneClient, SmartRegisterClient anotherClient2) {
             Map<String, Integer> m = new HashMap<>();
@@ -27,8 +27,8 @@ public class StatusSort implements CursorSortOption {
             m.put("normal", 3);
             m.put("urgent", 4);
 
-            List<Alert> alertlist_for_client1 = Context.getInstance().alertService().findByEntityIdAndAlertNames(oneClient.entityId(), "TT 1", "TT 2", "TT 3", "TT 4", "TT 5", "tt1", "tt2", "tt3", "tt4", "tt5");
-            List<Alert> alertlist_for_client2 = Context.getInstance().alertService().findByEntityIdAndAlertNames(anotherClient2.entityId(), "TT 1", "TT 2", "TT 3", "TT 4", "TT 5", "tt1", "tt2", "tt3", "tt4", "tt5");
+            List<Alert> alertlist_for_client1 = VaccinatorApplication.getInstance().context().alertService().findByEntityIdAndAlertNames(oneClient.entityId(), "TT 1", "TT 2", "TT 3", "TT 4", "TT 5", "tt1", "tt2", "tt3", "tt4", "tt5");
+            List<Alert> alertlist_for_client2 = VaccinatorApplication.getInstance().context().alertService().findByEntityIdAndAlertNames(anotherClient2.entityId(), "TT 1", "TT 2", "TT 3", "TT 4", "TT 5", "tt1", "tt2", "tt3", "tt4", "tt5");
 
             Log.i(this.getClass().getName(), "ALERT 1 SIZE: " + alertlist_for_client1.toString());
             Log.i(this.getClass().getName(), "ALERT 2 SIZE: " + alertlist_for_client2.toString());

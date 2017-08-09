@@ -140,6 +140,7 @@ public class SentMonthlyFragment extends Fragment
         SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
         SimpleDateFormat dateSentFormat = new SimpleDateFormat("M/d/yy");
         Map<Long, String> sortMap = new TreeMap<>(new Comparator<Comparable>() {
+            @SuppressWarnings("unchecked")
             public int compare(Comparable a, Comparable b) {
                 return b.compareTo(a);
             }
@@ -160,7 +161,7 @@ public class SentMonthlyFragment extends Fragment
                             dateSentFormat.format(curMonthTallies.get(0).getDateSent()),
                             curMonthTallies.get(0).getProviderId());
                     map.get(year)
-                            .add(new ExpandedListAdapter.ItemData<Pair<String, String>, Date>(
+                            .add(new ExpandedListAdapter.ItemData<>(
                                     Pair.create(MONTH_YEAR_FORMAT.format(month), details), month));
                     sortMap.put(month.getTime(), year);
                 }
@@ -191,7 +192,7 @@ public class SentMonthlyFragment extends Fragment
         progressDialog.setMessage(getString(R.string.please_wait_message));
     }
 
-    public void showProgressDialog() {
+    private void showProgressDialog() {
         try {
             if (progressDialog == null) {
                 initializeProgressDialog();
@@ -203,7 +204,7 @@ public class SentMonthlyFragment extends Fragment
         }
     }
 
-    public void hideProgressDialog() {
+    private void hideProgressDialog() {
         try {
             if (progressDialog != null) {
                 progressDialog.dismiss();

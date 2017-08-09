@@ -16,6 +16,7 @@ import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseRegisterActivity;
 import org.smartregister.path.activity.ChildImmunizationActivity;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
@@ -59,7 +60,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
     protected void onCreation() {
     }
 
-    protected TextWatcher textWatcher = new TextWatcher() {
+    protected final TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
         }
@@ -123,7 +124,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
             try {
 
                 String locationId = JsonFormUtils.getOpenMrsLocationId(context(), clinicSelection.getSelectedItem());
-                Context.getInstance().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
+                context().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -138,6 +139,10 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
         return false;
     }
 
+    @Override
+    protected Context context() {
+        return VaccinatorApplication.getInstance().context();
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes

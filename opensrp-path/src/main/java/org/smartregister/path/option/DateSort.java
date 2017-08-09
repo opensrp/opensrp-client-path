@@ -4,8 +4,8 @@ import org.smartregister.cursoradapter.CursorSortOption;
 import org.smartregister.view.contract.SmartRegisterClients;
 
 public class DateSort implements CursorSortOption {
-    private String name;
-    private String sort;
+    private final String name;
+    private final String sort;
 
     @Override
     public String sort() {

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.json.JSONObject;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Report;
 import org.smartregister.path.domain.ReportHia2Indicator;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -24,8 +25,8 @@ public class ReportUtils {
         try {
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-            String providerId = org.smartregister.Context.getInstance().allSharedPreferences().fetchRegisteredANM();
-            String locationId = org.smartregister.Context.getInstance().allSharedPreferences().getPreference(PathConstants.CURRENT_LOCATION_ID);
+            String providerId = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
+            String locationId = VaccinatorApplication.getInstance().context().allSharedPreferences().getPreference(PathConstants.CURRENT_LOCATION_ID);
             Report report = new Report();
             report.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
             report.setHia2Indicators(hia2Indicators);

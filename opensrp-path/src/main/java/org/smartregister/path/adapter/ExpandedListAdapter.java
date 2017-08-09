@@ -21,11 +21,11 @@ import java.util.Map;
  */
 public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
 
-    private Context context;
+    private final Context context;
     private LinkedHashMap<String, List<ItemData<L, T>>> map = new LinkedHashMap<>();
-    private List<String> headers = new ArrayList<>();
-    private int headerLayout;
-    private int childLayout;
+    private final List<String> headers = new ArrayList<>();
+    private final int headerLayout;
+    private final int childLayout;
 
 
     public ExpandedListAdapter(Context context, LinkedHashMap<String, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
@@ -53,6 +53,7 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
         return childPosition;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public View getChildView(int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {

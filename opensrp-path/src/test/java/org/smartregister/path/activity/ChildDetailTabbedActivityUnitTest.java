@@ -3,6 +3,7 @@ package org.smartregister.path.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -700,6 +701,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
 
     public void statusViewShouldUpdateToActiveifChildStatusParamListIsEmpty() {
@@ -788,6 +790,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
             controller.pause().stop().destroy(); //destroy controller if we can
 
         } catch (Exception e) {
+            Log.e(getClass().getCanonicalName(), e.getMessage());
         }
 
         System.gc();

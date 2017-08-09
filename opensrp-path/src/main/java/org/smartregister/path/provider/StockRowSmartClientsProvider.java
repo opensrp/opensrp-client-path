@@ -87,8 +87,7 @@ public class StockRowSmartClientsProvider implements StockProviderForCursorAdapt
 
     @Override
     public View inflatelayoutForCursorAdapter() {
-        ViewGroup view = (ViewGroup) inflater().inflate(R.layout.smart_register_stock_control_client, null);
-        return view;
+        return (ViewGroup) inflater().inflate(R.layout.smart_register_stock_control_client, null);
     }
 
     public LayoutInflater inflater() {

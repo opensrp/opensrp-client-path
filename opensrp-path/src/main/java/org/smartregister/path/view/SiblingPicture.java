@@ -19,6 +19,7 @@ import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.DetailsRepository;
@@ -148,12 +149,12 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
     private class GetChildDetailsTask extends AsyncTask<Void, Void, CommonPersonObjectClient> {
         private final String baseEntityId;
         private final BaseActivity baseActivity;
-        private DetailsRepository detailsRepository;
+        private final DetailsRepository detailsRepository;
 
         public GetChildDetailsTask(BaseActivity baseActivity, String baseEntityId) {
             this.baseActivity = baseActivity;
             this.baseEntityId = baseEntityId;
-            detailsRepository = org.smartregister.Context.getInstance().detailsRepository();
+            detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
         }
 
         @Override

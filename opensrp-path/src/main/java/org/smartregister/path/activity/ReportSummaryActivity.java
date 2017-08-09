@@ -25,6 +25,7 @@ public class ReportSummaryActivity extends BaseActivity {
     private LinkedHashMap<String, ArrayList<Tally>> tallies;
     private String subTitle;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

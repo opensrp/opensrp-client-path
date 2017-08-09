@@ -53,7 +53,7 @@ import util.JsonFormUtils;
  * Created by coder on 6/7/17.
  */
 public class HIA2ReportsActivity extends BaseActivity {
-    private static String TAG = HIA2ReportsActivity.class.getCanonicalName();
+    private static final String TAG = HIA2ReportsActivity.class.getCanonicalName();
     private static final int REQUEST_CODE_GET_JSON = 3432;
     public static final int MONTH_SUGGESTION_LIMIT = 3;
     private static final String FORM_KEY_CONFIRM = "confirm";
@@ -188,7 +188,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         showFragment = false;
     }
 
-    void sendReport(final Date month) {
+    private void sendReport(final Date month) {
         if (month != null) {
             FragmentTransaction ft = getFragmentManager()
                     .beginTransaction();
@@ -260,7 +260,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         }), null);
     }
 
-    public static String retrieveValue(List<MonthlyTally> monthlyTallies, Hia2Indicator hia2Indicator) {
+    private static String retrieveValue(List<MonthlyTally> monthlyTallies, Hia2Indicator hia2Indicator) {
         String defaultValue = "0";
         if (hia2Indicator == null || monthlyTallies == null) {
             return defaultValue;
@@ -284,7 +284,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         progressDialog.setMessage(getString(R.string.please_wait_message));
     }
 
-    public void showProgressDialog() {
+    protected void showProgressDialog() {
         if (progressDialog == null) {
             initializeProgressDialog();
         }
@@ -292,7 +292,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         progressDialog.show();
     }
 
-    public void hideProgressDialog() {
+    protected void hideProgressDialog() {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
@@ -304,10 +304,10 @@ public class HIA2ReportsActivity extends BaseActivity {
     ////////////////////////////////////////////////////////////////
 
     public static class StartDraftMonthlyFormTask extends AsyncTask<Void, Void, Intent> {
-        private HIA2ReportsActivity baseActivity;
-        private Date date;
-        private String formName;
-        private boolean firstTimeEdit;
+        private final HIA2ReportsActivity baseActivity;
+        private final Date date;
+        private final String formName;
+        private final boolean firstTimeEdit;
 
         public StartDraftMonthlyFormTask(HIA2ReportsActivity baseActivity,
                                          Date date, String formName, boolean firstTimeEdit) {

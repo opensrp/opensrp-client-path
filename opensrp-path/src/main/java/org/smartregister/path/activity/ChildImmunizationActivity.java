@@ -104,7 +104,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final String VACCINES_FILE = "vaccines.json";
     private static final String EXTRA_CHILD_DETAILS = "child_details";
     private static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
@@ -139,7 +139,7 @@ public class ChildImmunizationActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        detailsRepository = org.smartregister.Context.getInstance().detailsRepository();
+        detailsRepository = getOpenSRPContext().detailsRepository();
 
         toolbar = (LocationSwitcherToolbar) getToolbar();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -214,7 +214,7 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void updateViews() {
-        ((LinearLayout) findViewById(R.id.profile_name_layout)).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.profile_name_layout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 launchDetailActivity(ChildImmunizationActivity.this, childDetails, null);
@@ -256,7 +256,7 @@ public class ChildImmunizationActivity extends BaseActivity
             if (childDetails.entityId() != null) { //image already in local storage most likey ):
                 //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
                 profileImageIV.setTag(org.smartregister.R.id.entity_id, childDetails.entityId());
-                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener((ImageView) profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
+                DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(childDetails.entityId(), OpenSRPImageLoader.getStaticImageListener(profileImageIV, ImageUtils.profileImageResourceByGender(gender), ImageUtils.profileImageResourceByGender(gender)));
 
             }
         }
@@ -457,7 +457,7 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<VaccineWrapper>();
+                ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                 vaccineWrappers.add(vaccine);
                 addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
             }
@@ -633,7 +633,7 @@ public class ChildImmunizationActivity extends BaseActivity
         fromContext.startActivity(intent);
     }
 
-    public void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
+    private void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();
         try {
@@ -748,7 +748,7 @@ public class ChildImmunizationActivity extends BaseActivity
         Utils.startAsyncTask(new UndoVaccineTask(tag, v), null);
     }
 
-    public void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
+    private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
 
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
@@ -773,7 +773,7 @@ public class ChildImmunizationActivity extends BaseActivity
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
+    private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
 
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
@@ -791,7 +791,7 @@ public class ChildImmunizationActivity extends BaseActivity
         serviceDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void performRegisterActions() {
+    private void performRegisterActions() {
         if (registerClickables != null) {
             if (registerClickables.isRecordWeight()) {
                 final View recordWeight = findViewById(R.id.record_weight);
@@ -1015,9 +1015,9 @@ public class ChildImmunizationActivity extends BaseActivity
                         if (COMBINED_VACCINES.contains(curWrapperName)) {
                             // Check if any of the sister vaccines is currAffectedVaccineName
                             String[] allSisters = COMBINED_VACCINES_MAP.get(curWrapperName).split(" / ");
-                            for (int i = 0; i < allSisters.length; i++) {
-                                if (allSisters[i].replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
-                                    curWrapperName = allSisters[i];
+                            for (String allSister : allSisters) {
+                                if (allSister.replace(" ", "").equalsIgnoreCase(curAffectedVaccineName.replace(" ", ""))) {
+                                    curWrapperName = allSister;
                                     break;
                                 }
                             }
@@ -1075,7 +1075,7 @@ public class ChildImmunizationActivity extends BaseActivity
         Utils.startAsyncTask(new UndoServiceTask(tag), null);
     }
 
-    public void saveService(ServiceWrapper tag, final View view) {
+    private void saveService(ServiceWrapper tag, final View view) {
         if (tag == null) {
             return;
         }
@@ -1316,8 +1316,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private class UndoServiceTask extends AsyncTask<Void, Void, Void> {
 
-        private View view;
-        private ServiceWrapper tag;
+        private final View view;
+        private final ServiceWrapper tag;
         private List<ServiceRecord> serviceRecordList;
         private ArrayList<ServiceWrapper> wrappers;
         private List<Alert> alertList;
@@ -1424,8 +1424,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected Void doInBackground(Alert... params) {
-            for (int i = 0; i < params.length; i++) {
-                alertService.changeAlertStatusToComplete(params[i].caseId(), params[i].visitCode());
+            for (Alert param : params) {
+                alertService.changeAlertStatusToComplete(param.caseId(), param.visitCode());
             }
             return null;
         }
@@ -1497,8 +1497,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private class UndoVaccineTask extends AsyncTask<Void, Void, Void> {
 
-        private VaccineWrapper tag;
-        private View v;
+        private final VaccineWrapper tag;
+        private final View v;
         private final VaccineRepository vaccineRepository;
         private final AlertService alertService;
         private List<Vaccine> vaccineList;

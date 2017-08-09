@@ -14,9 +14,9 @@ public class Stock {
     private String syncStatus;
     private Long dateUpdated;
 
-    public static String issued = "issued";
-    public static String received = "received";
-    public static String loss_adjustment = "loss_adjustment";
+    public static final String issued = "issued";
+    public static final String received = "received";
+    public static final String loss_adjustment = "loss_adjustment";
 
     public Stock(Long id, String transactionType, String providerid, int value, Long dateCreated, String toFrom, String syncStatus, Long dateUpdated, String vaccineTypeId) {
         this.id = id;

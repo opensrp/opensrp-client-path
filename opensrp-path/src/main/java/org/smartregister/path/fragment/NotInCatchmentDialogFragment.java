@@ -24,7 +24,7 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     private final BaseRegisterActivity parentActivity;
     private final String zeirId;
 
-    public NotInCatchmentDialogFragment(BaseRegisterActivity parentActivity, String zeirId) {
+    private NotInCatchmentDialogFragment(BaseRegisterActivity parentActivity, String zeirId) {
         this.parentActivity = parentActivity;
         this.zeirId = zeirId;
     }

@@ -33,7 +33,7 @@ public class Hia2ServiceBroadcastReceiver extends BroadcastReceiver {
         context.registerReceiver(singleton, new IntentFilter(ACTION_SERVICE_DONE));
     }
 
-    public static void destroy(Context context) {
+    private static void destroy(Context context) {
         try {
             if (singleton != null) {
                 context.unregisterReceiver(singleton);

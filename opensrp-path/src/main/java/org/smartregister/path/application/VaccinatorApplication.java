@@ -123,7 +123,7 @@ public class VaccinatorApplication extends DrishtiApplication
         context.userService().logoutSession();
     }
 
-    public void cleanUpSyncState() {
+    protected void cleanUpSyncState() {
         DrishtiSyncScheduler.stop(getApplicationContext());
         context.allSharedPreferences().saveIsSyncInProgress(false);
     }
@@ -138,7 +138,7 @@ public class VaccinatorApplication extends DrishtiApplication
         super.onTerminate();
     }
 
-    public void applyUserLanguagePreference() {
+    protected void applyUserLanguagePreference() {
         Configuration config = getBaseContext().getResources().getConfiguration();
 
         String lang = context.allSharedPreferences().fetchLanguagePreference();
@@ -157,11 +157,9 @@ public class VaccinatorApplication extends DrishtiApplication
 
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(PathConstants.CHILD_TABLE_NAME)) {
-            String[] ftsSearchFileds = {"zeir_id", "epi_card_number", "first_name", "last_name"};
-            return ftsSearchFileds;
+            return new String[]{"zeir_id", "epi_card_number", "first_name", "last_name"};
         } else if (tableName.equals(PathConstants.MOTHER_TABLE_NAME)) {
-            String[] ftsSearchFileds = {"zeir_id", "epi_card_number", "first_name", "last_name", "father_name", "husband_name", "contact_phone_number"};
-            return ftsSearchFileds;
+            return new String[]{"zeir_id", "epi_card_number", "first_name", "last_name", "father_name", "husband_name", "contact_phone_number"};
         }
         return null;
     }
@@ -186,20 +184,18 @@ public class VaccinatorApplication extends DrishtiApplication
 
             return names.toArray(new String[names.size()]);
         } else if (tableName.equals(PathConstants.MOTHER_TABLE_NAME)) {
-            String[] sortFields = {"first_name", "dob", "zeir_id", "last_interacted_with"};
-            return sortFields;
+            return new String[]{"first_name", "dob", "zeir_id", "last_interacted_with"};
         }
         return null;
     }
 
     private static String[] getFtsTables() {
-        String[] ftsTables = {PathConstants.CHILD_TABLE_NAME, PathConstants.MOTHER_TABLE_NAME};
-        return ftsTables;
+        return new String[]{PathConstants.CHILD_TABLE_NAME, PathConstants.MOTHER_TABLE_NAME};
     }
 
-    public static Map<String, Pair<String, Boolean>> getAlertScheduleMap() {
+    private static Map<String, Pair<String, Boolean>> getAlertScheduleMap() {
         ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
-        Map<String, Pair<String, Boolean>> map = new HashMap<String, Pair<String, Boolean>>();
+        Map<String, Pair<String, Boolean>> map = new HashMap<>();
         for (VaccineRepo.Vaccine vaccine : vaccines) {
             map.put(vaccine.display(), Pair.create(PathConstants.CHILD_TABLE_NAME, false));
         }
@@ -244,7 +240,7 @@ public class VaccinatorApplication extends DrishtiApplication
     public Repository getRepository() {
         try {
             if (repository == null) {
-                repository = new PathRepository(getInstance().getApplicationContext());
+                repository = new PathRepository(getInstance().getApplicationContext(), context());
                 uniqueIdRepository();
                 dailyTalliesRepository();
                 monthlyTalliesRepository();

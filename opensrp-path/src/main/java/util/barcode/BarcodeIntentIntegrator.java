@@ -178,10 +178,10 @@ public class BarcodeIntentIntegrator {
 
     private final SecuredFragment fragment;
     private final SecuredActivity activity;
-    private String title;
-    private String message;
-    private String buttonYes;
-    private String buttonNo;
+    private final String title;
+    private final String message;
+    private final String buttonYes;
+    private final String buttonNo;
     private List<String> targetApplications;
     private final Map<String, Object> moreExtras;
 
@@ -193,7 +193,7 @@ public class BarcodeIntentIntegrator {
         buttonYes = DEFAULT_YES;
         buttonNo = DEFAULT_NO;
         targetApplications = TARGET_ALL_KNOWN;
-        moreExtras = new HashMap<String, Object>(3);
+        moreExtras = new HashMap<>(3);
     }
 
     public BarcodeIntentIntegrator(SecuredActivity activity) {
@@ -204,7 +204,7 @@ public class BarcodeIntentIntegrator {
         buttonYes = DEFAULT_YES;
         buttonNo = DEFAULT_NO;
         targetApplications = TARGET_ALL_KNOWN;
-        moreExtras = new HashMap<String, Object>(3);
+        moreExtras = new HashMap<>(3);
     }
 
     public Collection<String> getTargetApplications() {
@@ -216,7 +216,7 @@ public class BarcodeIntentIntegrator {
      */
     @Deprecated
     public void setTargetApplications(Collection<String> targetApplications) {
-        List<String> list = new ArrayList<String>(targetApplications.size());
+        List<String> list = new ArrayList<>(targetApplications.size());
         for (String app : targetApplications) {
             list.add(app);
         }

@@ -510,7 +510,6 @@ public abstract class BaseActivity extends AppCompatActivity
     private void startSync() {
         PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
                 this, getOpenSRPContext().actionService(),
-                getOpenSRPContext().formSubmissionSyncService(),
                 new SyncProgressIndicator(),
                 getOpenSRPContext().allFormVersionSyncService());
         pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
@@ -547,7 +546,7 @@ public abstract class BaseActivity extends AppCompatActivity
         return new int[]{darkShade, normalShade, lightSade};
     }
 
-    protected void startJsonForm(String formName, String entityId) {
+    private void startJsonForm(String formName, String entityId) {
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
@@ -582,7 +581,7 @@ public abstract class BaseActivity extends AppCompatActivity
                 negBtnText, negativeButtonClick, tag);
     }
 
-    protected void showNotification(String message, Drawable notificationIcon, String positiveButtonText,
+    private void showNotification(String message, Drawable notificationIcon, String positiveButtonText,
                                     View.OnClickListener positiveButtonOnClick,
                                     String negativeButtonText,
                                     View.OnClickListener negativeButtonOnClick,
@@ -752,7 +751,7 @@ public abstract class BaseActivity extends AppCompatActivity
     protected abstract int getToolbarId();
 
     public Context getOpenSRPContext() {
-        return Context.getInstance().updateApplicationContext(this.getApplicationContext());
+        return VaccinatorApplication.getInstance().context();
     }
 
     public Menu getMenu() {

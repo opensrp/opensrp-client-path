@@ -23,6 +23,7 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -102,9 +103,9 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         SyncStatusBroadcastReceiver.getInstance().removeSyncStatusListener(this);
     }
 
-    public void updateFromServer() {
+    private void updateFromServer() {
         PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
-                this, context().actionService(), context().formSubmissionSyncService(),
+                this, context().actionService(),
                 new SyncProgressIndicator(), context().allFormVersionSyncService());
         pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
     }
@@ -205,7 +206,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private void startSync() {
         PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
                 this, context().actionService(),
-                context().formSubmissionSyncService(),
                 new SyncProgressIndicator(),
                 context().allFormVersionSyncService());
         pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
@@ -299,7 +299,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         }
     }
 
-    public void initializeCustomNavbarLIsteners() {
+    private void initializeCustomNavbarLIsteners() {
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
         syncMenuItem.setOnClickListener(new View.OnClickListener() {
@@ -401,6 +401,14 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         return lastSync;
     }
 
+    @Override
+    protected Context context() {
+        return VaccinatorApplication.getInstance().context();
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
     private class BaseActivityToggle extends ActionBarDrawerToggle {
 
         private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {

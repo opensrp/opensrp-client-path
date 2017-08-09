@@ -6,7 +6,6 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.smartregister.Context;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.util.FileUtilities;
@@ -46,7 +45,7 @@ public class PullUniqueIdsIntentService extends IntentService {
         try {
             int numberToGenerate = 0;
 
-            if (uniqueIdRepo.countUnUsedIds() == 0) {// first time pull no ids at all
+            if (uniqueIdRepo.countUnUsedIds() == 0) { // first time pull no ids at all
                 numberToGenerate = PathConstants.OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE;
             } else if (uniqueIdRepo.countUnUsedIds() <= 250) { //maintain a minimum of 250 else skip this pull
                 numberToGenerate = PathConstants.OPENMRS_UNIQUE_ID_BATCH_SIZE;
@@ -54,8 +53,8 @@ public class PullUniqueIdsIntentService extends IntentService {
                 return;
             }
 
-            String userName = Context.getInstance().allSharedPreferences().fetchRegisteredANM();
-            String password = Context.getInstance().allSettings().fetchANMPassword();
+            String userName = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
+            String password = VaccinatorApplication.getInstance().context().allSettings().fetchANMPassword();
 
             String localUrlString = PathConstants.openmrsUrl() + PathConstants.OPENMRS_IDGEN_URL + "?source=" + PathConstants.OPENMRS_UNIQUE_ID_SOURCE + "&numberToGenerate=" + numberToGenerate + "&username=" + userName + "&password=" + password;
 //           // Convert the incoming data string to a URL.
@@ -75,7 +74,7 @@ public class PullUniqueIdsIntentService extends IntentService {
                 HttpURLConnection localHttpURLConnection = (HttpURLConnection) localURLConnection;
 
                 // Sets the user agent for this request.
-                localHttpURLConnection.setRequestProperty("User-Agent", FileUtilities.getUserAgent(Context.getInstance().applicationContext()));
+                localHttpURLConnection.setRequestProperty("User-Agent", FileUtilities.getUserAgent(VaccinatorApplication.getInstance().context().applicationContext()));
 
 
                 // Gets a response code from the RSS server
@@ -113,7 +112,7 @@ public class PullUniqueIdsIntentService extends IntentService {
      */
     private String readInputStreamToString(HttpURLConnection connection) {
         String result = null;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         InputStream is = null;
 
         try {
@@ -145,7 +144,7 @@ public class PullUniqueIdsIntentService extends IntentService {
         JSONObject responseJson = new JSONObject(response);
         JSONArray jsonArray = responseJson.getJSONArray("identifiers");
         if (jsonArray != null && jsonArray.length() > 0) {
-            List<String> ids = new ArrayList<String>();
+            List<String> ids = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
                 ids.add(jsonArray.getString(i));
             }

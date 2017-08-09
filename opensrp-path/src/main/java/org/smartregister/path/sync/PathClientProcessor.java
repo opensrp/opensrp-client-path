@@ -46,7 +46,7 @@ public class PathClientProcessor extends ClientProcessor {
     private static final String TAG = "PathClientProcessor";
     private static PathClientProcessor instance;
 
-    public PathClientProcessor(Context context) {
+    private PathClientProcessor(Context context) {
         super(context);
     }
 
@@ -184,7 +184,7 @@ public class PathClientProcessor extends ClientProcessor {
 
     }
 
-    public Boolean processVaccine(JSONObject vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processVaccine(JSONObject vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
@@ -228,7 +228,7 @@ public class PathClientProcessor extends ClientProcessor {
         }
     }
 
-    public Boolean processWeight(JSONObject weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processWeight(JSONObject weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
@@ -280,7 +280,7 @@ public class PathClientProcessor extends ClientProcessor {
         }
     }
 
-    public Boolean processService(JSONObject service, JSONObject clientVaccineClassificationJson) throws Exception {
+    private Boolean processService(JSONObject service, JSONObject clientVaccineClassificationJson) throws Exception {
 
         try {
 
@@ -366,7 +366,7 @@ public class PathClientProcessor extends ClientProcessor {
     }
 
 
-    public ContentValues processCaseModel(JSONObject entity, JSONObject clientClassificationJson) {
+    private ContentValues processCaseModel(JSONObject entity, JSONObject clientClassificationJson) {
         try {
             JSONArray columns = clientClassificationJson.getJSONArray("columns");
 
@@ -478,7 +478,7 @@ public class PathClientProcessor extends ClientProcessor {
         }
     }
 
-    public boolean unSync(List<JSONObject> events) {
+    private boolean unSync(List<JSONObject> events) {
         try {
 
             if (events == null || events.isEmpty()) {
@@ -493,7 +493,7 @@ public class PathClientProcessor extends ClientProcessor {
             JSONObject clientClassificationJson = new JSONObject(clientClassificationStr);
             JSONArray bindObjects = clientClassificationJson.getJSONArray("bindobjects");
 
-            DetailsRepository detailsRepository = org.smartregister.Context.getInstance().detailsRepository();
+            DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(getContext());
 
             for (JSONObject event : events) {

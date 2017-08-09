@@ -67,16 +67,13 @@ import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logVerbose;
 
 public class LoginActivity extends AppCompatActivity {
-    private Context context;
     private EditText userNameEditText;
     private EditText passwordEditText;
     private ProgressDialog progressDialog;
     public static final String ENGLISH_LOCALE = "en";
-    public static final String KANNADA_LOCALE = "kn";
-    public static final String URDU_LOCALE = "ur";
-    public static final String ENGLISH_LANGUAGE = "English";
-    public static final String KANNADA_LANGUAGE = "Kannada";
-    public static final String URDU_LANGUAGE = "Urdu";
+    private static final String URDU_LOCALE = "ur";
+    private static final String ENGLISH_LANGUAGE = "English";
+    private static final String URDU_LANGUAGE = "Urdu";
     private android.content.Context appContext;
     private RemoteLoginTask remoteLoginTask;
 
@@ -87,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
         try {
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(this));
             String preferredLocale = allSharedPreferences.fetchLanguagePreference();
-            Resources res = Context.getInstance().applicationContext().getResources();
+            Resources res = getOpenSRPContext().applicationContext().getResources();
             // Change locale settings in the app.
             DisplayMetrics dm = res.getDisplayMetrics();
             Configuration conf = res.getConfiguration();
@@ -107,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
         }
         appContext = this;
-        context = Context.getInstance().updateApplicationContext(this.getApplicationContext());
         positionViews();
         initializeLoginFields();
         initializeBuildDetails();
@@ -147,16 +143,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (!context.IsUserLoggedOut()) {
+        if (!getOpenSRPContext().IsUserLoggedOut()) {
             goToHome(false);
         }
     }
 
     public void login(final View view) {
-        login(view, !context.allSharedPreferences().fetchForceRemoteLogin());
+        login(view, !getOpenSRPContext().allSharedPreferences().fetchForceRemoteLogin());
     }
 
-    public void login(final View view, boolean localLogin) {
+    private void login(final View view, boolean localLogin) {
         android.util.Log.i(getClass().getName(), "Hiding Keyboard " + DateTime.now().toString());
         hideKeyboard();
         view.setClickable(false);
@@ -204,8 +200,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void localLogin(View view, String userName, String password) {
         view.setClickable(true);
-        if (context.userService().isUserInValidGroup(userName, password)
-                && (!PathConstants.TIME_CHECK || TimeStatus.OK.equals(context.userService().validateStoredServerTimeZone()))) {
+        if (getOpenSRPContext().userService().isUserInValidGroup(userName, password)
+                && (!PathConstants.TIME_CHECK || TimeStatus.OK.equals(getOpenSRPContext().userService().validateStoredServerTimeZone()))) {
             localLoginWith(userName, password);
         } else {
 
@@ -219,8 +215,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onEvent(LoginResponse loginResponse) {
                 view.setClickable(true);
                 if (loginResponse == SUCCESS) {
-                    if (context.userService().isUserInPioneerGroup(userName)) {
-                        TimeStatus timeStatus = context.userService().validateDeviceTime(
+                    if (getOpenSRPContext().userService().isUserInPioneerGroup(userName)) {
+                        TimeStatus timeStatus = getOpenSRPContext().userService().validateDeviceTime(
                                 loginResponse.payload(), PathConstants.MAX_SERVER_TIME_DIFFERENCE);
                         if (!PathConstants.TIME_CHECK || timeStatus.equals(TimeStatus.OK)) {
                             remoteLoginWith(userName, password, loginResponse.payload());
@@ -228,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
                             appContext.startService(intent);
                         } else {
                             if (timeStatus.equals(TimeStatus.TIMEZONE_MISMATCH)) {
-                                TimeZone serverTimeZone = context.userService()
+                                TimeZone serverTimeZone = getOpenSRPContext().userService()
                                         .getServerTimeZone(loginResponse.payload());
                                 showErrorDialog(getString(timeStatus.getMessage(),
                                         serverTimeZone.getDisplayName()));
@@ -236,7 +232,7 @@ public class LoginActivity extends AppCompatActivity {
                                 showErrorDialog(getString(timeStatus.getMessage()));
                             }
                         }
-                    } else {// Valid user from wrong group trying to log in
+                    } else { // Valid user from wrong group trying to log in
                         showErrorDialog(getResources().getString(R.string.unauthorized_group));
                     }
                 } else {
@@ -286,7 +282,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onEvent(Response<String> data) {
                 if (data.status() == ResponseStatus.success) {
-                    context.userService().saveAnmLocation(data.payload());
+                    getOpenSRPContext().userService().saveAnmLocation(data.payload());
                 }
             }
         });
@@ -307,7 +303,7 @@ public class LoginActivity extends AppCompatActivity {
         task.doActionInBackground(new BackgroundAction<Response<String>>() {
             @Override
             public Response<String> actionToDoInBackgroundThread() {
-                return context.userService().getLocationInformation();
+                return getOpenSRPContext().userService().getLocationInformation();
             }
 
             @Override
@@ -327,8 +323,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void fillUserIfExists() {
-        if (context.userService().hasARegisteredUser()) {
-            userNameEditText.setText(context.allSharedPreferences().fetchRegisteredANM());
+        if (getOpenSRPContext().userService().hasARegisteredUser()) {
+            userNameEditText.setText(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
             userNameEditText.setEnabled(false);
         }
     }
@@ -339,7 +335,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void localLoginWith(String userName, String password) {
-        context.userService().localLogin(userName, password);
+        getOpenSRPContext().userService().localLogin(userName, password);
         goToHome(false);
         startZScoreIntentService();
         new Thread(new Runnable() {
@@ -358,14 +354,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void remoteLoginWith(String userName, String password, String userInfo) {
-        context.userService().remoteLogin(userName, password, userInfo);
+        getOpenSRPContext().userService().remoteLogin(userName, password, userInfo);
         goToHome(true);
         DrishtiSyncScheduler.startOnlyIfConnectedToNetwork(getApplicationContext());
     }
 
     private void goToHome(boolean remote) {
         if (!remote) startZScoreIntentService();
-        VaccinatorApplication.setCrashlyticsUser(context);
+        VaccinatorApplication.setCrashlyticsUser(getOpenSRPContext());
         Intent intent = new Intent(this, ChildSmartRegisterActivity.class);
         intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, remote);
         startActivity(intent);
@@ -387,9 +383,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public static void setLanguage() {
-        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(Context.getInstance().applicationContext()));
+        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
         String preferredLocale = allSharedPreferences.fetchLanguagePreference();
-        Resources res = Context.getInstance().applicationContext().getResources();
+        Resources res = getOpenSRPContext().applicationContext().getResources();
         // Change locale settings in the app.
         DisplayMetrics dm = res.getDisplayMetrics();
         android.content.res.Configuration conf = res.getConfiguration();
@@ -399,12 +395,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public static String switchLanguagePreference() {
-        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(Context.getInstance().applicationContext()));
+        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
 
         String preferredLocale = allSharedPreferences.fetchLanguagePreference();
         if (URDU_LOCALE.equals(preferredLocale)) {
             allSharedPreferences.saveLanguagePreference(URDU_LOCALE);
-            Resources res = Context.getInstance().applicationContext().getResources();
+            Resources res = getOpenSRPContext().applicationContext().getResources();
             // Change locale settings in the app.
             DisplayMetrics dm = res.getDisplayMetrics();
             android.content.res.Configuration conf = res.getConfiguration();
@@ -413,7 +409,7 @@ public class LoginActivity extends AppCompatActivity {
             return URDU_LANGUAGE;
         } else {
             allSharedPreferences.saveLanguagePreference(ENGLISH_LOCALE);
-            Resources res = Context.getInstance().applicationContext().getResources();
+            Resources res = getOpenSRPContext().applicationContext().getResources();
             // Change locale settings in the app.
             DisplayMetrics dm = res.getDisplayMetrics();
             android.content.res.Configuration conf = res.getConfiguration();
@@ -450,6 +446,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    public static Context getOpenSRPContext() {
+        return VaccinatorApplication.getInstance().context();
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
@@ -473,7 +472,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected LoginResponse doInBackground(Void... params) {
-            return context.userService().isValidRemoteLogin(userName, password);
+            return getOpenSRPContext().userService().isValidRemoteLogin(userName, password);
         }
 
         @Override

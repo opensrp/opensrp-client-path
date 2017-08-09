@@ -29,7 +29,7 @@ import static org.smartregister.util.Utils.getValue;
  */
 public class MotherLookUpSmartClientsProvider {
     private final LayoutInflater inflater;
-    private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+    private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
 
 
     public MotherLookUpSmartClientsProvider(Context context) {
@@ -39,7 +39,7 @@ public class MotherLookUpSmartClientsProvider {
     public void getView(CommonPersonObject commonPersonObject, List<CommonPersonObject> children, View convertView) {
         CommonPersonObjectClient pc = Utils.convert(commonPersonObject);
 
-        List<CommonPersonObjectClient> childList = new ArrayList<CommonPersonObjectClient>();
+        List<CommonPersonObjectClient> childList = new ArrayList<>();
         for (CommonPersonObject childCommonPersonObject : children) {
             childList.add(Utils.convert(childCommonPersonObject));
         }
@@ -81,7 +81,7 @@ public class MotherLookUpSmartClientsProvider {
         return inflater().inflate(R.layout.mother_child_lookup_client, null);
     }
 
-    public LayoutInflater inflater() {
+    private LayoutInflater inflater() {
         return inflater;
     }
 

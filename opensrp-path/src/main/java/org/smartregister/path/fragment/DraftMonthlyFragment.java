@@ -242,7 +242,7 @@ public class DraftMonthlyFragment extends Fragment
 
     }
 
-    private View.OnClickListener monthClickListener = new View.OnClickListener() {
+    private final View.OnClickListener monthClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             alertDialog.dismiss();
@@ -254,7 +254,7 @@ public class DraftMonthlyFragment extends Fragment
 
         }
     };
-    private View.OnClickListener monthDraftsClickListener = new View.OnClickListener() {
+    private final View.OnClickListener monthDraftsClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Object tag = v.getTag();
@@ -282,7 +282,7 @@ public class DraftMonthlyFragment extends Fragment
 
     }
 
-    protected void startMonthlyReportForm(Date date, boolean firstTimeEdit) {
+    private void startMonthlyReportForm(Date date, boolean firstTimeEdit) {
         ((HIA2ReportsActivity) getActivity()).startMonthlyReportForm("hia2_monthly_report", date, firstTimeEdit);
     }
 

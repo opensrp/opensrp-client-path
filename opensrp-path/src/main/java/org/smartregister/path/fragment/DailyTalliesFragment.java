@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import org.smartregister.Context;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.HIA2ReportsActivity;
 import org.smartregister.path.activity.ReportSummaryActivity;
@@ -131,6 +130,7 @@ public class DailyTalliesFragment extends Fragment
     private LinkedHashMap<String, List<ExpandedListAdapter.ItemData<String, Date>>> formatListData() {
         Map<String, List<ExpandedListAdapter.ItemData<String, Date>>> map = new HashMap<>();
         Map<Long, String> sortMap = new TreeMap<>(new Comparator<Comparable>() {
+            @SuppressWarnings("unchecked")
             public int compare(Comparable a, Comparable b) {
                 return b.compareTo(a);
             }
@@ -147,7 +147,7 @@ public class DailyTalliesFragment extends Fragment
                     }
 
                     map.get(monthString).add(
-                            new ExpandedListAdapter.ItemData<String, Date>(DAY_FORMAT.format(day),
+                            new ExpandedListAdapter.ItemData<>(DAY_FORMAT.format(day),
                                     day)
                     );
                     sortMap.put(day.getTime(), monthString);
@@ -183,7 +183,7 @@ public class DailyTalliesFragment extends Fragment
                 if (hia2Indicators.containsKey(curIgnoredCode)) {
                     DailyTally curIgnoredTally = new DailyTally();
                     curIgnoredTally.setProviderId(
-                            Context.getInstance().allSharedPreferences().fetchRegisteredANM()
+                            VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM()
                     );
                     curIgnoredTally.setIndicator(hia2Indicators.get(curIgnoredCode));
                     curIgnoredTally.setValue(getString(R.string.n_a));
@@ -203,7 +203,7 @@ public class DailyTalliesFragment extends Fragment
         progressDialog.setMessage(getString(R.string.please_wait_message));
     }
 
-    public void showProgressDialog() {
+    private void showProgressDialog() {
         try {
             if (progressDialog == null) {
                 initializeProgressDialog();
@@ -215,7 +215,7 @@ public class DailyTalliesFragment extends Fragment
         }
     }
 
-    public void hideProgressDialog() {
+    private void hideProgressDialog() {
         try {
             if (progressDialog != null) {
                 progressDialog.dismiss();
@@ -232,9 +232,14 @@ public class DailyTalliesFragment extends Fragment
         }
     }
 
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+
     private class GetAllTalliesTask extends AsyncTask<Void, Void, HashMap<String, ArrayList<DailyTally>>> {
 
-        private HashMap<String, Hia2Indicator> indicatorsMap;
+        private final HashMap<String, Hia2Indicator> indicatorsMap;
 
         public GetAllTalliesTask() {
             indicatorsMap = new HashMap<>();

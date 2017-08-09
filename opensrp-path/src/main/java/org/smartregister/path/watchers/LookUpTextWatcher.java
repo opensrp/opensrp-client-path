@@ -23,9 +23,9 @@ import util.MotherLookUpUtils;
 public class LookUpTextWatcher implements TextWatcher {
     private static Map<String, EntityLookUp> lookUpMap;
 
-    private View mView;
-    private JsonFormFragment formFragment;
-    private String mEntityId;
+    private final View mView;
+    private final JsonFormFragment formFragment;
+    private final String mEntityId;
 
 
     public LookUpTextWatcher(JsonFormFragment formFragment, View view, String entityId) {

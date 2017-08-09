@@ -9,8 +9,8 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.util.Scheduler;
+import org.smartregister.immunization.adapter.ImmunizationRowAdapter;
 import org.smartregister.immunization.domain.VaccineWrapper;
-import org.smartregister.path.adapter.ImmunizationRowAdapter;
 
 import java.util.ArrayList;
 
@@ -57,9 +57,7 @@ public class ImmunizationRowAdapterShadow implements ShadowsAdapter {
 
     @Implementation
     public ArrayList<VaccineWrapper> getDueVaccines() {
-        ArrayList<VaccineWrapper> dueVaccines = new ArrayList<>();
-
-        return dueVaccines;
+        return new ArrayList<>();
     }
 
     @Implementation
