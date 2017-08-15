@@ -16,11 +16,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.reflect.Whitebox;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.smartregister.CoreLibrary;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.mocks.ChildDetailTabbedActivityTestVersion;
@@ -82,7 +82,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         PowerMockito.mockStatic(org.smartregister.Context.class);
 
-        Whitebox.setInternalState(org.smartregister.Context.class, "context", context_);
+        CoreLibrary.init(context_);
 
         activity.detailsRepository = getDetailsRepository();
         controller.setup();
