@@ -541,6 +541,7 @@ public class ChildImmunizationActivity extends BaseActivity
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), "pmtct_status", false));
+        weightWrapper.setDateOfBirth(dobString);
 
         if (lastUnsyncedWeight != null) {
             weightWrapper.setWeight(lastUnsyncedWeight.getKg());
@@ -722,6 +723,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             tag.setDbKey(weight.getId());
+            tag.setDateOfBirth(dobString);
             updateRecordWeightViews(tag);
             setLastModified(true);
         }

@@ -1078,6 +1078,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), "pmtct_status", false));
+        weightWrapper.setDateOfBirth(dobString);
 
         EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, weightWrapper);
         editWeightDialogFragment.show(ft, DIALOG_TAG);
