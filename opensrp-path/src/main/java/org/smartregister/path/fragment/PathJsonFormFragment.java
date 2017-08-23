@@ -173,8 +173,13 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
                 for (View view : lookUpViews) {
 
+
                     if (view instanceof MaterialEditText) {
+
+
+
                         MaterialEditText materialEditText = (MaterialEditText) view;
+                        materialEditText.setEnabled(true);
                         enableEditText(materialEditText);
                         materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
                         materialEditText.setText("");
@@ -318,11 +323,11 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
                         if (view instanceof MaterialEditText) {
                             MaterialEditText materialEditText = (MaterialEditText) view;
+                            materialEditText.setEnabled(false);
                             materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, true);
                             materialEditText.setText(text);
                             materialEditText.setInputType(InputType.TYPE_NULL);
                             disableEditText(materialEditText);
-
                         }
                     }
 
