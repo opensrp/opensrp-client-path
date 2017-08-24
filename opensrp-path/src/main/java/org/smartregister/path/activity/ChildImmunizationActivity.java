@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -112,6 +113,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final HashMap<String, String> COMBINED_VACCINES_MAP;
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
+    private final String BCG2_NOTIFICATION_DONE = "bcg2_not_done";
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -419,28 +421,36 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showVaccineNotifications(List<Vaccine> vaccineList, List<Alert> alerts) {
-        if (!VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
-            Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
 
-            boolean bcgOfferedInPast = true;
-            if (bcg != null) {
-                Calendar bcgDate = Calendar.getInstance();
-                bcgDate.setTime(bcg.getDate());
+        DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
+        Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-                Calendar today = Calendar.getInstance();
-                if (bcgDate.get(Calendar.YEAR) == today.get(Calendar.YEAR)
-                        && bcgDate.get(Calendar.MONTH) == today.get(Calendar.MONTH)
-                        && bcgDate.get(Calendar.DATE) == today.get(Calendar.DATE)) {
-                    bcgOfferedInPast = false;
-                }
-            }
+        if (details.containsKey(BCG2_NOTIFICATION_DONE)) {
+            return;
+        }
 
-            if (VaccinateActionUtils.hasAlert(alerts, VaccineRepo.Vaccine.bcg2) && bcgOfferedInPast) {
-                Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
-                if (!alert.isComplete()) {
-                    showCheckBcgScarNotification(alert);
-                }
-            }
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return;
+        }
+
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, 12);
+
+        Calendar today = Calendar.getInstance();
+
+        if (today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today)) {
+            showCheckBcgScarNotification(alert);
         }
     }
 
@@ -947,8 +957,7 @@ public class ChildImmunizationActivity extends BaseActivity
                             hideNotification();
                             Alert alert = (Alert) v.getTag();
                             if (alert != null) {
-                                new MarkAlertAsDoneTask(getOpenSRPContext().alertService())
-                                        .execute(alert);
+                                Utils.startAsyncTask(new MarkBcgTwoAsDoneTask(), null);
                             }
                         }
                     }, 0, null, alert);
@@ -1417,20 +1426,14 @@ public class ChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private class MarkAlertAsDoneTask extends AsyncTask<Alert, Void, Void> {
-        private final AlertService alertService;
-
-        private MarkAlertAsDoneTask(AlertService alertService) {
-            this.alertService = alertService;
-        }
-
+    private class MarkBcgTwoAsDoneTask extends AsyncTask<Void, Void, Void> {
         @Override
-        protected Void doInBackground(Alert... params) {
-            for (Alert param : params) {
-                alertService.changeAlertStatusToComplete(param.caseId(), param.visitCode());
-            }
+        protected Void doInBackground(Void... params) {
+            DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
+            detailsRepository.add(childDetails.entityId(), BCG2_NOTIFICATION_DONE, Boolean.TRUE.toString(), (new Date().getTime()));
             return null;
         }
+
     }
 
     private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Pair<ArrayList<VaccineWrapper>, List<Vaccine>>> {
