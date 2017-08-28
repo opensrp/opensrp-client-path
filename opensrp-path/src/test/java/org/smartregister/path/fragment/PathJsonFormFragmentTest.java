@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import shared.BaseUnitTest;
 
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Created by ona on 28/08/2017.
@@ -20,19 +21,19 @@ public class PathJsonFormFragmentTest extends BaseUnitTest {
 
     @Test
     public void setPathJsonFormFragmentNotNullOnInstantiation() throws Exception {
-        junit.framework.Assert.assertNotNull(pathJsonFormFragment);
+        assertNotNull(pathJsonFormFragment);
 
     }
 
     @Test
     public void motherLookUpListenerIsNotNullOnFragmentInstantiation() throws Exception {
-        junit.framework.Assert.assertNotNull(pathJsonFormFragment.motherLookUpListener());
+        assertNotNull(pathJsonFormFragment.motherLookUpListener());
 
     }
 
     @Test
     public void contextNotNullOnFragmentInstantiation() throws Exception {
-        junit.framework.Assert.assertNotNull(pathJsonFormFragment.context());
+        assertNotNull(pathJsonFormFragment.context());
 
     }
 
