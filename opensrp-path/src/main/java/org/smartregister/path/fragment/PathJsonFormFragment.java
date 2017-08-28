@@ -109,7 +109,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
         ListView listView = (ListView) view.findViewById(R.id.list_view);
 
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.PathDialog);
         builder.setView(view).setNegativeButton(R.string.dismiss, null);
         builder.setCancelable(true);
@@ -170,21 +169,13 @@ public class PathJsonFormFragment extends JsonFormFragment {
         if (lookupMap.containsKey(entityId)) {
             List<View> lookUpViews = lookupMap.get(entityId);
             if (lookUpViews != null && !lookUpViews.isEmpty()) {
-
                 for (View view : lookUpViews) {
-
-
                     if (view instanceof MaterialEditText) {
-
-
-
                         MaterialEditText materialEditText = (MaterialEditText) view;
                         materialEditText.setEnabled(true);
                         enableEditText(materialEditText);
                         materialEditText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
                         materialEditText.setText("");
-
-
                     }
                 }
 
@@ -374,7 +365,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
 //        super.getMainView();
         updateRelevantTextView(getMainView(), todisplay, labeltext);
 
-//                findViewWithTag("labelHeaderImage")).setText("is it possible");
+//        findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
 
     private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
