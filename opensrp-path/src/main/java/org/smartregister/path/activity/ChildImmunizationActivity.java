@@ -448,9 +448,10 @@ public class ChildImmunizationActivity extends BaseActivity
             return;
         }
 
+        int bcgOffsetInWeeks = 12;
         Calendar twelveWeeksLaterDate = Calendar.getInstance();
         twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, 12);
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
 
         Calendar today = Calendar.getInstance();
 
@@ -1435,7 +1436,7 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected Void doInBackground(Void... params) {
             DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
-            detailsRepository.add(childDetails.entityId(), BCG2_NOTIFICATION_DONE, Boolean.TRUE.toString(), (new Date().getTime()));
+            detailsRepository.add(childDetails.entityId(), BCG2_NOTIFICATION_DONE, Boolean.TRUE.toString(), new Date().getTime());
             return null;
         }
 

@@ -149,6 +149,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String inactive = "inactive";
     public static final String lostToFollowUp = "lost_to_follow_up";
 
+    private static final String CHILD = "child";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -327,7 +328,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         AlertService alertService = getOpenSRPContext().alertService();
         List<Alert> alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                VaccinateActionUtils.allAlertNames("child"));
+                VaccinateActionUtils.allAlertNames(CHILD));
 
         boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
         if (!showRecordBcg2) {
@@ -618,7 +619,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (form.getString("encounter_type").equals("Death")) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
                 } else if (form.getString("encounter_type").equals("Birth Registration")) {
-                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", "child", "mother");
+                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
                 } else if (form.getString("encounter_type").equals("AEFI")) {
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
@@ -1137,6 +1138,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             invalidateOptionsMenu();
+            childUnderFiveFragment.loadView(false, false, false);
         }
     }
 
@@ -1351,9 +1353,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             return false;
         }
 
+        int bcgOffsetInWeeks = 12;
         Calendar twelveWeeksLaterDate = Calendar.getInstance();
         twelveWeeksLaterDate.setTime(bcg.getDate());
-        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, 12);
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
 
         Calendar today = Calendar.getInstance();
 
@@ -1391,7 +1394,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
                 .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) vaccineList = new ArrayList<>();
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
 
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
@@ -1489,7 +1494,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         protected Void doInBackground(Void... params) {
             DateTime birthDateTime = Utils.dobToDateTime(childDetails);
             if (birthDateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, "child");
+                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, CHILD);
             }
             return null;
         }
