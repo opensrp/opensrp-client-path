@@ -88,7 +88,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         controller.setup();
     }
 
-
     @After
     public void tearDown() {
         destroyController();
@@ -101,7 +100,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldRenderAvatarImageView() {
 
@@ -109,7 +107,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertNotNull(logoImageView);
 
     }
-
 
     @Test
     public void shouldRenderEditIconImageView() {
@@ -136,7 +133,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertNotNull(textView);
 
     }
-
 
     @Test
     public void shouldRenderStatusImageView() {
