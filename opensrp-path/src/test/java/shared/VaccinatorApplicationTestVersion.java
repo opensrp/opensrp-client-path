@@ -1,7 +1,10 @@
 package shared;
 
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.robolectric.TestLifecycleApplication;
+import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.Vaccine;
@@ -9,8 +12,10 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.service.AlertService;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.mockito.Matchers.anyString;
@@ -28,6 +33,9 @@ public class VaccinatorApplicationTestVersion extends VaccinatorApplication impl
     @Mock
     private RecurringServiceTypeRepository recurringServiceTypeRepository;
 
+    @Mock
+    private AlertService alertService;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -36,6 +44,11 @@ public class VaccinatorApplicationTestVersion extends VaccinatorApplication impl
         when(vaccineRepository.findByEntityId(anyString())).thenReturn(Collections.<Vaccine>emptyList());
 
         when(recurringServiceRecordRepository.findByEntityId(anyString())).thenReturn(Collections.<ServiceRecord>emptyList());
+
+        Whitebox.setInternalState(context, "alertService", alertService);
+
+        when(alertService.findByEntityIdAndAlertNames(Mockito.anyString(), Mockito.any(String[].class))).thenReturn(new ArrayList<Alert>());
+
 
         mInstance = this;
 

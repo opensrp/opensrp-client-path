@@ -106,6 +106,7 @@
     <string name="edit_registration_data">Edit registration data</string>
     <string name="edit_immunization_data">Edit immunisation data</string>
     <string name="edit_recurring_services_data">Edit recurring services data</string>
+    <string name="record_bcg_2">Record BCG 2 (if no scar)</string>
     <string name="mark_inactive">Mark inactive</string>
     <string name="mark_active">Mark active</string>
     <string name="mark_as_lost_to_followup">Mark as lost to followup</string>
@@ -138,6 +139,8 @@
     <string name="active">Active</string>
     <string name="inactive">Inactive</string>
     <string name="lost_to_follow_up">Lost to Follow-Up</string>
+    <string name="lost_to_follow_up_with_nl">Lost to\nFollow-Up</string>
+    <string name="status">status</string>
     <string name="zeir_id">ZEIR ID</string>
     <string name="zeir_id_hint">ZEIR ID number</string>
     <string name="first_name">First Name</string>

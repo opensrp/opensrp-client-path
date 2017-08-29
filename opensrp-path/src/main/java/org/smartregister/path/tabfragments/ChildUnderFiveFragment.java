@@ -16,6 +16,7 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -31,6 +32,7 @@ import org.smartregister.immunization.repository.RecurringServiceRecordRepositor
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.path.R;
@@ -48,7 +50,6 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -62,8 +63,6 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
-    private static final String VACCINES_FILE = "vaccines.json";
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private Map<String, String> Detailsmap;
     private AlertService alertService;
@@ -221,12 +220,17 @@ public class ChildUnderFiveFragment extends Fragment {
                     VaccinateActionUtils.allAlertNames("child"));
         }
 
-        String supportedVaccinesString = readAssetContents(VACCINES_FILE);
+        String supportedVaccinesString = VaccinatorUtils.getSupportedVaccines(getActivity());
         try {
             JSONArray supportedVaccines = new JSONArray(supportedVaccinesString);
             for (int i = 0; i < supportedVaccines.length(); i++) {
+
+                JSONObject vaccineGroupObject = supportedVaccines.getJSONObject(i);
+
+                VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroupObject, vaccineList);
+
                 ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editmode);
-                curGroup.setData(supportedVaccines.getJSONObject(i), childDetails, vaccineList, alertList);
+                curGroup.setData(vaccineGroupObject, childDetails, vaccineList, alertList);
                 curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
                     @Override
                     public void onUndoClick(ImmunizationRowGroup vaccineGroup, VaccineWrapper vaccine) {

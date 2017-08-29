@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -50,6 +51,7 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceSchedule;
 import org.smartregister.immunization.domain.ServiceType;
@@ -57,6 +59,7 @@ import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
@@ -91,7 +94,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -124,7 +126,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private static Gender gender;
     //////////////////////////////////////////////////
     private static final String TAG = "ChildDetails";
-    private static final String VACCINES_FILE = "vaccines.json";
     public static final String EXTRA_CHILD_DETAILS = "child_details";
     public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
@@ -148,6 +149,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String inactive = "inactive";
     public static final String lostToFollowUp = "lost_to_follow_up";
 
+    private static final String CHILD = "child";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,9 +187,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             @Override
             public void onClick(View v) {
                 detailtoolbar.showOverflowMenu();
-                for (int i = 0; i < overflow.size(); i++) {
-                    overflow.getItem(i).setVisible(true);
-                }
+                invalidateOptionsMenu();
                 childUnderFiveFragment.loadView(false, false, false);
 
                 saveButton.setVisibility(View.INVISIBLE);
@@ -213,9 +213,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             public void onPageSelected(int position) {
                 if (position == 0) {
                     saveButton.setVisibility(View.INVISIBLE);
-                    for (int i = 0; i < overflow.size(); i++) {
-                        overflow.getItem(i).setVisible(true);
-                    }
+                    invalidateOptionsMenu();
                     childUnderFiveFragment.loadView(false, false, false);
                 }
             }
@@ -264,8 +262,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // super.onCreateOptionsMenu(menu);
-
         getMenuInflater().inflate(R.menu.menu_child_detail_settings, menu);
         overflow = menu;
         VaccineRepository vaccineRepository = getVaccinatorApplicationInstance().vaccineRepository();
@@ -273,18 +269,17 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(ChildDetailTabbedActivity.this);
 
-        boolean show_vaccine_list = false;
+        boolean showVaccineList = false;
         for (int i = 0; i < vaccineList.size(); i++) {
             Vaccine vaccine = vaccineList.get(i);
             boolean check = showVaccineListCheck(vaccine.getEventId(), vaccine.getFormSubmissionId());
             if (check) {
-                show_vaccine_list = true;
+                showVaccineList = true;
                 break;
             }
         }
 
-        if (!show_vaccine_list) {
-
+        if (!showVaccineList) {
             overflow.findItem(R.id.immunization_data).setEnabled(false);
         }
 
@@ -307,7 +302,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         WeightRepository wp = getVaccinatorApplicationInstance().weightRepository();
         List<Weight> weightlist = wp.findLast5(childDetails.entityId());
-        boolean show_weight_edit = false;
+        boolean showWeightEdit = false;
         for (int i = 0; i < weightlist.size(); i++) {
             Weight weight = weightlist.get(i);
             org.smartregister.domain.db.Event event = null;
@@ -320,40 +315,28 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (event != null) {
                 Date weight_create_date = event.getDateCreated().toDate();
                 if (!DateUtil.checkIfDateThreeMonthsOlder(weight_create_date)) {
-                    show_weight_edit = true;
+                    showWeightEdit = true;
                 }
             } else {
-                show_weight_edit = true;
+                showWeightEdit = true;
             }
         }
 
-        if (!show_weight_edit) {
+        if (!showWeightEdit) {
             overflow.findItem(R.id.weight_data).setEnabled(false);
         }
-        return true;
-    }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        //super.onPrepareOptionsMenu(menu);
-        //getMenuInflater().inflate(R.menu.menu_child_detail_settings, menu);
+        AlertService alertService = getOpenSRPContext().alertService();
+        List<Alert> alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
+                VaccinateActionUtils.allAlertNames(CHILD));
 
-//        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-//            menu.findItem(R.id.mark_as_lost_to_followup).setTitle(getResources().getString(R.string.mark_as_not_lost_to_followup));
-//        }else{
-//            menu.findItem(R.id.mark_as_lost_to_followup).setTitle(getResources().getString(R.string.mark_as_lost_to_followup));
-//
-//        }
-//
-//        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-//            menu.findItem(R.id.mark_inactive).setTitle(getResources().getString(R.string.mark_active));
-//        }else{
-//            menu.findItem(R.id.mark_inactive).setTitle(getResources().getString(R.string.mark_inactive));
-//        }
+        boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
+        if (!showRecordBcg2) {
+            overflow.findItem(R.id.record_bcg_2).setVisible(false);
+        }
 
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -399,26 +382,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
 
                 StatusEditDialogFragment.newInstance(this, details).show(ft, DIALOG_TAG);
-//                if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-//                    updateClientAttribute(inactive, false);
-//
-//                } else {
-//                    updateClientAttribute(inactive, true);
-//
-//                }
-//                updateStatus();
                 return true;
-//            case R.id.mark_as_lost_to_followup:
-//                if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-//                    updateClientAttribute(lostToFollowUp, false);
-//                } else {
-//                    updateClientAttribute(lostToFollowUp, true);
-//
-//                }
-//                updateStatus();
-//                return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
+            case R.id.record_bcg_2:
+                showBcg2DialogFragment();
+                return true;
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -493,7 +462,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                                     jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
                                 }
                             } catch (Exception e) {
-                                Log.e(TAG, e.getMessage());
+                                Log.e(TAG, Log.getStackTraceString(e));
                             }
                         }
                     }
@@ -615,7 +584,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 return form.toString();
             }
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
         }
 
         return "";
@@ -650,7 +619,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (form.getString("encounter_type").equals("Death")) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
                 } else if (form.getString("encounter_type").equals("Birth Registration")) {
-                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", "child", "mother");
+                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
                 } else if (form.getString("encounter_type").equals("AEFI")) {
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
@@ -658,12 +627,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 childDataFragment.childDetails = childDetails;
                 childDataFragment.loadData();
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, Log.getStackTraceString(e));
             }
 
-        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK)
-
-        {
+        } else if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             String imageLocation = currentfile.getAbsolutePath();
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
@@ -765,7 +732,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         String childId = "";
         String dobString = "";
         String formattedAge = "";
-        String formattedDob = "";
         if (isDataOk()) {
             name = getValue(childDetails.getColumnmaps(), "first_name", true)
                     + " " + getValue(childDetails.getColumnmaps(), "last_name", true);
@@ -777,7 +743,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 Date dob = dateTime.toDate();
-                formattedDob = DATE_FORMAT.format(dob);
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
@@ -785,7 +750,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 }
             }
         }
-
 
         profileage.setText(String.format("%s: %s", getString(R.string.age), formattedAge));
         profileZeirID.setText(String.format("%s: %s", getString(R.string.label_zeir), childId));
@@ -813,25 +777,24 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             statusImage.clearColorFilter();
             statusImage.setColorFilter(Color.TRANSPARENT);
             statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
-            status_name.setText("Inactive");
+            status_name.setText(R.string.inactive);
             status_name.setTextColor(getResources().getColor(R.color.dark_grey));
             status_name.setVisibility(View.VISIBLE);
-            status.setText("status");
+            status.setText(R.string.status);
         } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
             statusImage.setColorFilter(Color.TRANSPARENT);
-//            status_name.setText("Lost to");
             status_name.setVisibility(View.GONE);
-            status.setText("Lost to\nFollow-Up");
+            status.setText(R.string.lost_to_follow_up_with_nl);
         }
         if (!((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())))) {
             statusImage.setImageResource(R.drawable.ic_icon_status_active);
             statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
-            status_name.setText("Active");
+            status_name.setText(R.string.active);
             status_name.setTextColor(getResources().getColor(R.color.alert_completed));
             status_name.setVisibility(View.VISIBLE);
-            status.setText("status");
+            status.setText(R.string.status);
         }
     }
 
@@ -882,7 +845,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-
+                Log.e(TAG, Log.getStackTraceString(ex));
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
@@ -935,19 +898,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             Method method = c.getDeclaredMethod("setSelectedIndicatorColor", int.class);
             method.setAccessible(true);
             method.invoke(ob, getResources().getColor(normalShade)); //now its ok
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
-
-
     }
 
     private boolean isDataOk() {
@@ -1182,6 +1135,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         vaccineRepository.add(vaccine);
         tag.setDbKey(vaccine.getId());
+
+        if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
+            invalidateOptionsMenu();
+            childUnderFiveFragment.loadView(false, false, false);
+        }
     }
 
     private String getReportDeceasedMetadata() {
@@ -1205,7 +1163,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             return form == null ? null : form.toString();
 
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
         }
         return "";
     }
@@ -1262,7 +1220,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             ContentValues contentValues = new ContentValues();
             //Add the base_entity_id
             contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-            int id = db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
+            db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
 
 
             Event event = (Event) new Event()
@@ -1292,7 +1250,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
 
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -1379,6 +1337,80 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
 
+    private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
+
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return false;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return false;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return false;
+        }
+
+        int bcgOffsetInWeeks = 12;
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
+
+        Calendar today = Calendar.getInstance();
+
+        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
+    }
+
+    private void showBcg2DialogFragment() {
+
+        VaccineWrapper vaccineWrapper = new VaccineWrapper();
+        vaccineWrapper.setId(childDetails.entityId());
+        vaccineWrapper.setGender(childDetails.getDetails().get("gender"));
+        vaccineWrapper.setName(VaccineRepo.Vaccine.bcg2.display());
+        vaccineWrapper.setDefaultName(VaccineRepo.Vaccine.bcg2.display());
+
+        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
+        Date dob = Calendar.getInstance().getTime();
+        if (!TextUtils.isEmpty(dobString)) {
+            DateTime dateTime = new DateTime(dobString);
+            dob = dateTime.toDate();
+        }
+
+        Photo photo = org.smartregister.immunization.util.ImageUtils.profilePhotoByClient(childDetails);
+        vaccineWrapper.setPhoto(photo);
+
+        String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
+        vaccineWrapper.setPatientNumber(zeirId);
+
+        String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
+        String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
+        String childName = getName(firstName, lastName);
+        vaccineWrapper.setPatientName(childName.trim());
+
+        ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
+        vaccineWrappers.add(vaccineWrapper);
+
+        List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
+                .findByEntityId(childDetails.entityId());
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
+
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+
+        ft.addToBackStack(null);
+
+        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers);
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
+    }
+
+
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
@@ -1462,7 +1494,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         protected Void doInBackground(Void... params) {
             DateTime birthDateTime = Utils.dobToDateTime(childDetails);
             if (birthDateTime != null) {
-                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, "child");
+                VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), birthDateTime, CHILD);
             }
             return null;
         }

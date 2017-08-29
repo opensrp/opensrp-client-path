@@ -66,8 +66,6 @@ public class VaccinatorApplication extends DrishtiApplication
         implements TimeChangedBroadcastReceiver.OnTimeChangedListener {
 
     private static final String TAG = "VaccinatorApplication";
-    private Locale locale = null;
-    private Context context;
     private static CommonFtsObject commonFtsObject;
     private UniqueIdRepository uniqueIdRepository;
     private DailyTalliesRepository dailyTalliesRepository;
