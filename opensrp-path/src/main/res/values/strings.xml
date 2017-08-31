@@ -191,7 +191,7 @@
     <string name="searching_dialog_message">Please wait</string>
     <string name="move_to_catchment_dialog_title">Moving…</string>
     <string name="move_to_catchment_dialog_message">Please wait</string>
-    <string name="send_report_warning">Send report?\n\tDate: %1$s\n\tUser: %2$s</string>
+    <string name="send_report_warning">Send the %1$s report?\nDate: %2$s\nUser: %3$s</string>
     <string name="send">Send</string>
     <string name="n_a">"N/A"</string>
     <string name="confirm_button_label">Confirm</string>

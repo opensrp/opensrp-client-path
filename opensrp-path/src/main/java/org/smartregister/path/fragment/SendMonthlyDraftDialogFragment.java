@@ -19,11 +19,13 @@ import org.smartregister.path.application.VaccinatorApplication;
  */
 public class SendMonthlyDraftDialogFragment extends DialogFragment {
     private String date;
+    private String month;
     private View.OnClickListener onSendClickedListener;
 
-    public static SendMonthlyDraftDialogFragment newInstance(String month, View.OnClickListener onSendClickedListener) {
+    public static SendMonthlyDraftDialogFragment newInstance(String month, String date, View.OnClickListener onSendClickedListener) {
         SendMonthlyDraftDialogFragment f = new SendMonthlyDraftDialogFragment();
-        f.setDate(month);
+        f.setMonth(month);
+        f.setDate(date);
         f.setOnSendClickedListener(onSendClickedListener);
 
         return f;
@@ -35,6 +37,10 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
 
     private void setDate(String date) {
         this.date = date;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
     }
 
     private void setOnSendClickedListener(View.OnClickListener onSendClickedListener) {
@@ -59,6 +65,7 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
         TextView tvSendMonthlyDraft = (TextView) view.findViewById(R.id.tv_send_monthly_draft);
         tvSendMonthlyDraft.setText(String.format(
                 getString(R.string.send_report_warning),
+                month,
                 date,
                 provider));
 
@@ -92,7 +99,7 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                getDialog().getWindow().setLayout(FrameLayout.LayoutParams.MATCH_PARENT,
+                getDialog().getWindow().setLayout(FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT);
             }
         });

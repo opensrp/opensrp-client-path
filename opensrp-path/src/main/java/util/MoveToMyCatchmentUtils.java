@@ -141,8 +141,9 @@ public class MoveToMyCatchmentUtils {
                     }
                 }
 
-                // Update providerId and Save unsynced event
+                // Update providerId, locationId and Save unsynced event
                 event.setProviderId(toProviderId);
+                event.setLocationId(toLocationId);
                 JSONObject updatedJsonEvent = ecUpdater.convertToJson(event);
                 jsonEvent = JsonFormUtils.merge(jsonEvent, updatedJsonEvent);
 

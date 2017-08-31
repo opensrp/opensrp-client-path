@@ -41,6 +41,7 @@ import org.smartregister.util.FormUtils;
 import org.smartregister.util.Utils;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -198,9 +199,10 @@ public class HIA2ReportsActivity extends BaseActivity {
                 ft.remove(prev);
             }
 
+            String monthString = new SimpleDateFormat("MMM yyyy").format(month);
             // Create and show the dialog.
             SendMonthlyDraftDialogFragment newFragment = SendMonthlyDraftDialogFragment
-                    .newInstance(
+                    .newInstance(monthString,
                             MonthlyTalliesRepository.DF_DDMMYY.format(Calendar.getInstance().getTime()),
                             new View.OnClickListener() {
                                 @Override
