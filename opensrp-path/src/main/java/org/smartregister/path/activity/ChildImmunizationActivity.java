@@ -222,11 +222,12 @@ public class ChildImmunizationActivity extends BaseActivity
                 launchDetailActivity(ChildImmunizationActivity.this, childDetails, null);
             }
         });
+
         // TODO: update all views using child data
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        //details.putAll(childDetails.getColumnmaps());
-        //):( prrrr
-        childDetails.getColumnmaps().putAll(details);
+
+        util.Utils.putAll(childDetails.getColumnmaps(), details);
+
         updateGenderViews();
         toolbar.setTitle(updateActivityTitle());
         updateAgeViews();
@@ -1579,10 +1580,8 @@ public class ChildImmunizationActivity extends BaseActivity
                 if (children != null) {
                     ArrayList<String> baseEntityIds = new ArrayList<>();
                     for (CommonPersonObject curChild : children) {
-                        if (!baseEntityId.equals(Utils.getValue(curChild.getColumnmaps(),
-                                "base_entity_id", false))) {
-                            baseEntityIds.add(Utils.getValue(curChild.getColumnmaps(),
-                                    "base_entity_id", false));
+                        if (!baseEntityId.equals(curChild.getCaseId())) {
+                            baseEntityIds.add(curChild.getCaseId());
                         }
                     }
 

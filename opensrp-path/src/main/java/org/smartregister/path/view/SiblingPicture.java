@@ -143,7 +143,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
             if (rawDetails != null) {
                 // Get extra child details
                 CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
-                childDetails.getColumnmaps().putAll(detailsRepository.getAllDetailsForClient(baseEntityId));
+                util.Utils.putAll(childDetails.getColumnmaps(), detailsRepository.getAllDetailsForClient(baseEntityId));
 
                 // Check if child has a profile pic
                 ProfileImage profileImage = baseActivity.getOpenSRPContext()
@@ -177,7 +177,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
                                 Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
                     }
                 }
-                childDetails.getColumnmaps().putAll(motherDetails);
+                util.Utils.putAll(childDetails.getColumnmaps(), motherDetails);
                 childDetails.setDetails(childDetails.getColumnmaps());
 
                 return childDetails;
