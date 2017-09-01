@@ -1570,7 +1570,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected ArrayList<String> doInBackground(Void... params) {
-            String baseEntityId = Utils.getValue(childDetails.getColumnmaps(), "base_entity_id", false);
+            String baseEntityId = childDetails.entityId();
             String motherBaseEntityId = Utils.getValue(childDetails.getColumnmaps(), "relational_id", false);
             if (!TextUtils.isEmpty(motherBaseEntityId) && !TextUtils.isEmpty(baseEntityId)) {
                 List<CommonPersonObject> children = getOpenSRPContext().commonrepository(PathConstants.CHILD_TABLE_NAME)
