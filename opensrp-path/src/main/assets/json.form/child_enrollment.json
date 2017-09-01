@@ -183,7 +183,7 @@
         "openmrs_entity_parent": "",
         "openmrs_entity": "concept",
         "openmrs_entity_id": "163260AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "openmrs_data_type": "text",
+        "openmrs_data_type": "date",
         "type": "date_picker",
         "hint": "Date first seen *",
         "expanded": false,
