@@ -7,43 +7,50 @@
 
     <TextView
         android:id="@+id/tv_send_monthly_draft"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="30dp"
+        android:lineSpacingMultiplier="1.5"
         android:textSize="24sp" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|right"
         android:layout_marginBottom="15dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
-        android:gravity="center_vertical|right"
-        android:orientation="horizontal">
+        android:layout_marginTop="20dp">
 
-        <Button
-            android:id="@+id/button_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:background="@null"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/cancel"
-            android:textSize="22sp" />
 
         <Button
             android:id="@+id/button_send"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="25dp"
             android:background="@null"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="@string/send"
-            android:textSize="22sp" />
-    </LinearLayout>
+            android:textAllCaps="true"
+            android:textColor="@color/vaccine_blue_bg_stk"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/button_cancel"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_toLeftOf="@id/button_send"
+            android:background="@null"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="@string/cancel"
+            android:textAllCaps="true"
+            android:textColor="@color/vaccine_blue_bg_stk"
+            android:textSize="24sp" />
+    </RelativeLayout>
 
 </LinearLayout>
