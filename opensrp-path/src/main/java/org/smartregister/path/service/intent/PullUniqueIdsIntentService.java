@@ -28,6 +28,7 @@ import util.PathConstants;
  */
 public class PullUniqueIdsIntentService extends IntentService {
     public static final String ID_URL = "/uniqueids/get";
+    public static final String IDENTIFIERS = "identifiers";
     private static final String TAG = PullUniqueIdsIntentService.class.getCanonicalName();
     private UniqueIdRepository uniqueIdRepo;
 
@@ -48,7 +49,7 @@ public class PullUniqueIdsIntentService extends IntentService {
                 return;
             }
             JSONObject ids = fetchOpenMRSIds(PathConstants.OPENMRS_UNIQUE_ID_SOURCE, numberToGenerate);
-            if (ids != null && ids.has("identifiers")) {
+            if (ids != null && ids.has(IDENTIFIERS)) {
                 parseResponse(ids);
             }
         } catch (Exception e1) {
@@ -116,7 +117,7 @@ public class PullUniqueIdsIntentService extends IntentService {
     }
 
     private void parseResponse(JSONObject idsFromOMRS) throws Exception {
-        JSONArray jsonArray = idsFromOMRS.getJSONArray("identifiers");
+        JSONArray jsonArray = idsFromOMRS.getJSONArray(IDENTIFIERS);
         if (jsonArray != null && jsonArray.length() > 0) {
             List<String> ids = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
