@@ -1,9 +1,12 @@
 package shared;
 
+import android.util.Log;
+
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.TestLifecycleApplication;
+import org.smartregister.Context;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.ServiceRecord;
@@ -14,6 +17,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.service.AlertService;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +29,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 /**
  * Created by onadev on 15/06/2017.
  */
+
 public class VaccinatorApplicationTestVersion extends VaccinatorApplication implements TestLifecycleApplication {
     @Mock
     private VaccineRepository vaccineRepository;
@@ -32,9 +37,9 @@ public class VaccinatorApplicationTestVersion extends VaccinatorApplication impl
     private RecurringServiceRecordRepository recurringServiceRecordRepository;
     @Mock
     private RecurringServiceTypeRepository recurringServiceTypeRepository;
-
     @Mock
     private AlertService alertService;
+    public static final String TAG = VaccinatorApplicationTestVersion.class.getCanonicalName();
 
     @Override
     public void onCreate() {
@@ -45,7 +50,13 @@ public class VaccinatorApplicationTestVersion extends VaccinatorApplication impl
 
         when(recurringServiceRecordRepository.findByEntityId(anyString())).thenReturn(Collections.<ServiceRecord>emptyList());
 
-        Whitebox.setInternalState(context, "alertService", alertService);
+        try {
+            Field field = Context.class.getDeclaredField("alertService");
+            field.setAccessible(true);
+            field.set(context, alertService);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
 
         when(alertService.findByEntityIdAndAlertNames(Mockito.anyString(), Mockito.any(String[].class))).thenReturn(new ArrayList<Alert>());
 
@@ -103,4 +114,5 @@ public class VaccinatorApplicationTestVersion extends VaccinatorApplication impl
     @Override
     public void cleanUpSyncState() {
     }
+
 }

@@ -51,7 +51,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
  * created by onadev on 07/06/2017.
  */
 @PrepareForTest({org.smartregister.Context.class})
-@Config(shadows = {ImageUtilsShadow.class, ImmunizationRowAdapterShadow.class, ImmunizationRowCardShadow.class})
+@Config(shadows = {ImmunizationRowAdapterShadow.class, ImmunizationRowCardShadow.class})
 public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     @InjectMocks
@@ -77,10 +77,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         activity = controller.get();
 
         initMocks(this);
-
-        PowerMockito.mockStatic(VaccinatorApplication.class);
-
-        PowerMockito.mockStatic(org.smartregister.Context.class);
 
         CoreLibrary.init(context_);
 

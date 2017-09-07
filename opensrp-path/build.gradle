@@ -132,7 +132,7 @@ dependencies {
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
 
-    testCompile('org.robolectric:robolectric:3.4') {
+    testCompile('org.robolectric:robolectric:3.4.2') {
 
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'org.apache.maven', module: 'maven-model'
@@ -150,10 +150,10 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     // PowerMock
-    def powerMockVersion = '1.6.4'
+    def powerMockVersion = '1.7.1'
     testCompile "org.powermock:powermock-module-junit4:$powerMockVersion"
     testCompile "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
-    testCompile "org.powermock:powermock-api-mockito:$powerMockVersion"
+    testCompile "org.powermock:powermock-api-mockito2:$powerMockVersion"
     testCompile("org.powermock:powermock-classloading-xstream:$powerMockVersion") {
 
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'

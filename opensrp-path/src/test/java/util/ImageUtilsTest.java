@@ -1,4 +1,5 @@
-package org.smartregister.path.util;
+package util;
+
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,9 +12,8 @@ import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Photo;
 import org.smartregister.domain.ProfileImage;
-import org.smartregister.immunization.ImmunizationLibrary;
-import org.smartregister.immunization.R;
-import org.smartregister.immunization.util.ImageUtils;
+import org.smartregister.path.R;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.ImageRepository;
 
 import java.util.Collections;
@@ -28,7 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 /**
  * Created by ona on 28/08/2017.
  */
-@PrepareForTest({ImmunizationLibrary.class})
+@PrepareForTest({VaccinatorApplication.class})
 public class ImageUtilsTest extends BaseUnitTest {
 
     @Rule
@@ -38,7 +38,7 @@ public class ImageUtilsTest extends BaseUnitTest {
     private CommonPersonObjectClient commonPersonObjectClient;
 
     @Mock
-    private ImmunizationLibrary immunizationLibrary;
+    private VaccinatorApplication vaccinatorApplication;
 
     @Mock
     private Context context;
@@ -96,11 +96,11 @@ public class ImageUtilsTest extends BaseUnitTest {
 
     @Test
     public void profilePhotoByClientReturnsDefaultInfantBoyPhoto() {
-        PowerMockito.mockStatic(ImmunizationLibrary.class);
-        PowerMockito.when(ImmunizationLibrary.getInstance()).thenReturn(immunizationLibrary);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context()).thenReturn(context);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context().imageRepository()).thenReturn(imageRepository);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context().imageRepository().findByEntityId(anyString())).thenReturn(null);
+        PowerMockito.mockStatic(VaccinatorApplication.class);
+        PowerMockito.when(VaccinatorApplication.getInstance()).thenReturn(vaccinatorApplication);
+        PowerMockito.when(VaccinatorApplication.getInstance().context()).thenReturn(context);
+        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository()).thenReturn(imageRepository);
+        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository().findByEntityId(anyString())).thenReturn(null);
         Photo photo = ImageUtils.profilePhotoByClient(commonPersonObjectClient);
         assertNotNull(photo);
         assertEquals(photo.getResourceId(), R.drawable.child_boy_infant);
@@ -108,15 +108,15 @@ public class ImageUtilsTest extends BaseUnitTest {
 
     @Test
     public void profilePhotoByClientReturnsCorrectPhotoFilePathForCorrespondingClient() {
-        PowerMockito.mockStatic(ImmunizationLibrary.class);
-        PowerMockito.when(ImmunizationLibrary.getInstance()).thenReturn(immunizationLibrary);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context()).thenReturn(context);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context().imageRepository()).thenReturn(imageRepository);
+        PowerMockito.mockStatic(VaccinatorApplication.class);
+        PowerMockito.when(VaccinatorApplication.getInstance()).thenReturn(vaccinatorApplication);
+        PowerMockito.when(VaccinatorApplication.getInstance().context()).thenReturn(context);
+        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository()).thenReturn(imageRepository);
         ProfileImage profileImage = new ProfileImage();
         String imagePath = "/dummy/test/path/image.png";
         String dummyCaseId = "4400";
         profileImage.setFilepath(imagePath);
-        PowerMockito.when(ImmunizationLibrary.getInstance().context().imageRepository().findByEntityId(dummyCaseId)).thenReturn(profileImage);
+        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository().findByEntityId(dummyCaseId)).thenReturn(profileImage);
         commonPersonObjectClient = new CommonPersonObjectClient(dummyCaseId, Collections.<String, String>emptyMap(), "Test Name");
         commonPersonObjectClient.setCaseId(dummyCaseId);
         Photo photo = ImageUtils.profilePhotoByClient(commonPersonObjectClient);
