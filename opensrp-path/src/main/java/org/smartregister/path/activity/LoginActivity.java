@@ -239,7 +239,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     } else {
                         if (loginResponse == null) {
-                            showErrorDialog("Login failed. Unknown reason. Try Again");
+                            showErrorDialog("Sorry, your login failed. Please try again.");
                         } else {
                             if (loginResponse == NO_INTERNET_CONNECTIVITY) {
                                 showErrorDialog(getResources().getString(R.string.no_internet_connectivity));
