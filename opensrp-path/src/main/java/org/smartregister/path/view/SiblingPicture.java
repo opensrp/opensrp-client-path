@@ -1,9 +1,7 @@
 package org.smartregister.path.view;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
@@ -11,17 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
-import org.smartregister.path.activity.ChildDetailTabbedActivity;
+import org.smartregister.path.activity.ChildImmunizationActivity;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.toolbar.BaseToolbar;
-import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.Utils;
@@ -31,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import util.ImageUtils;
-import util.JsonFormUtils;
 import util.PathConstants;
 
 /**
@@ -121,23 +115,8 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(baseActivity, ChildDetailTabbedActivity.class);
-                Bundle bundle = new Bundle();
-                try {
-                    BaseToolbar baseToolbar = baseActivity.getBaseToolbar();
-                    if (baseToolbar instanceof LocationSwitcherToolbar) {
-                        bundle.putString("location_name",
-                                JsonFormUtils.getOpenMrsLocationId(baseActivity.getOpenSRPContext(),
-                                        ((LocationSwitcherToolbar) baseToolbar).getCurrentLocation()));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                bundle.putSerializable(ChildDetailTabbedActivity.EXTRA_CHILD_DETAILS, childDetails);
-                bundle.putSerializable(ChildDetailTabbedActivity.EXTRA_REGISTER_CLICKABLES, null);
-                intent.putExtras(bundle);
-
-                baseActivity.startActivity(intent);
+                ChildImmunizationActivity.launchActivity(baseActivity, childDetails, null);
+                baseActivity.finish();
             }
         });
     }
@@ -164,7 +143,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
             if (rawDetails != null) {
                 // Get extra child details
                 CommonPersonObjectClient childDetails = Utils.convert(rawDetails);
-                childDetails.getColumnmaps().putAll(detailsRepository.getAllDetailsForClient(baseEntityId));
+                util.Utils.putAll(childDetails.getColumnmaps(), detailsRepository.getAllDetailsForClient(baseEntityId));
 
                 // Check if child has a profile pic
                 ProfileImage profileImage = baseActivity.getOpenSRPContext()
@@ -186,7 +165,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
                 motherDetails.put("mother_nrc_number", "");
                 if (!TextUtils.isEmpty(motherBaseEntityId)) {
                     CommonPersonObject rawMotherDetails = baseActivity.getOpenSRPContext()
-                            .commonrepository("ec_mother").findByBaseEntityId(motherBaseEntityId);
+                            .commonrepository(PathConstants.MOTHER_TABLE_NAME).findByBaseEntityId(motherBaseEntityId);
                     if (rawMotherDetails != null) {
                         motherDetails.put("mother_first_name",
                                 Utils.getValue(rawMotherDetails.getColumnmaps(), "first_name", false));
@@ -198,7 +177,7 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
                                 Utils.getValue(rawMotherDetails.getColumnmaps(), "nrc_number", false));
                     }
                 }
-                childDetails.getColumnmaps().putAll(motherDetails);
+                util.Utils.putAll(childDetails.getColumnmaps(), motherDetails);
                 childDetails.setDetails(childDetails.getColumnmaps());
 
                 return childDetails;

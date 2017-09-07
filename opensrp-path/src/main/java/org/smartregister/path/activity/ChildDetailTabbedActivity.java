@@ -166,7 +166,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         location_name = extras.getString("location_name");
         detailsRepository = detailsRepository == null ? this.getOpenSRPContext().detailsRepository() : detailsRepository;
         details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        details.putAll(childDetails.getColumnmaps());
+        util.Utils.putAll(details, childDetails.getColumnmaps());
 
         setContentView(R.layout.child_detail_activity_simple_tabs);
 
@@ -1246,7 +1246,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (childDetails.getColumnmaps().containsKey(attributeName)) {
                 childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
             }
-            details.putAll(childDetails.getColumnmaps());
+            util.Utils.putAll(detailmaps, childDetails.getColumnmaps());
 
 
         } catch (Exception e) {
@@ -1258,9 +1258,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     protected void onResume() {
         super.onResume();
         details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        //details.putAll(childDetails.getColumnmaps());
-        //):( prrrr
-        childDetails.getColumnmaps().putAll(details);
+        util.Utils.putAll(childDetails.getColumnmaps(), detailmaps);
         updateActivityTitle();
         initiallization();
     }
