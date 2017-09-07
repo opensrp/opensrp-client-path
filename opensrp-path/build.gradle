@@ -138,7 +138,6 @@ dependencies {
         exclude group: 'org.apache.maven', module: 'maven-model'
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
-        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
 
     testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
