@@ -56,7 +56,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue "string", 'opensrp_url', '"http://zeir.smartregister.org/opensrp"'
             buildConfigField "String", 'OPENMRS_URL', '"http://openmrs.zeir.smartregister.org/openmrs"'
             buildConfigField "String", 'OPENMRS_IDGEN_URL', '"/module/idgen/exportIdentifiers.form"'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
@@ -68,7 +67,6 @@ android {
         }
 
         debug {
-            resValue "string", 'opensrp_url', '"http://46.101.51.199:8080/opensrp"'
             buildConfigField "String", 'OPENMRS_URL', '"http://46.101.51.199:8080/openmrs"'
             buildConfigField "String", 'OPENMRS_IDGEN_URL', '"/module/idgen/exportIdentifiers.form"'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'

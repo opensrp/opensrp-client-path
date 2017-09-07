@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.AllConstants;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -266,7 +267,7 @@ public class PathClientProcessor extends ClientProcessor {
                 weightObj.setLocationId(contentValues.getAsString(WeightRepository.LOCATIONID));
                 weightObj.setSyncStatus(WeightRepository.TYPE_Synced);
                 weightObj.setFormSubmissionId(weight.has(WeightRepository.FORMSUBMISSION_ID) ? weight.getString(WeightRepository.FORMSUBMISSION_ID) : null);
-                weightObj.setEventId(weight.getString("id")); //FIXME hard coded id
+                weightObj.setEventId(weight.getString(PathConstants.ID));
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
 

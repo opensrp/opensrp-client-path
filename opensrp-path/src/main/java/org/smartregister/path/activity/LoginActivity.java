@@ -211,46 +211,54 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void remoteLogin(final View view, final String userName, final String password) {
-        tryRemoteLogin(userName, password, new Listener<LoginResponse>() {
-            public void onEvent(LoginResponse loginResponse) {
-                view.setClickable(true);
-                if (loginResponse == SUCCESS) {
-                    if (getOpenSRPContext().userService().isUserInPioneerGroup(userName)) {
-                        TimeStatus timeStatus = getOpenSRPContext().userService().validateDeviceTime(
-                                loginResponse.payload(), PathConstants.MAX_SERVER_TIME_DIFFERENCE);
-                        if (!PathConstants.TIME_CHECK || timeStatus.equals(TimeStatus.OK)) {
-                            remoteLoginWith(userName, password, loginResponse.payload());
-                            Intent intent = new Intent(appContext, PullUniqueIdsIntentService.class);
-                            appContext.startService(intent);
-                        } else {
-                            if (timeStatus.equals(TimeStatus.TIMEZONE_MISMATCH)) {
-                                TimeZone serverTimeZone = getOpenSRPContext().userService()
-                                        .getServerTimeZone(loginResponse.payload());
-                                showErrorDialog(getString(timeStatus.getMessage(),
-                                        serverTimeZone.getDisplayName()));
+
+        if (!getOpenSRPContext().allSharedPreferences().fetchBaseURL("").isEmpty()) {
+            tryRemoteLogin(userName, password, new Listener<LoginResponse>() {
+                public void onEvent(LoginResponse loginResponse) {
+                    view.setClickable(true);
+                    if (loginResponse == SUCCESS) {
+                        if (getOpenSRPContext().userService().isUserInPioneerGroup(userName)) {
+                            TimeStatus timeStatus = getOpenSRPContext().userService().validateDeviceTime(
+                                    loginResponse.payload(), PathConstants.MAX_SERVER_TIME_DIFFERENCE);
+                            if (!PathConstants.TIME_CHECK || timeStatus.equals(TimeStatus.OK)) {
+                                remoteLoginWith(userName, password, loginResponse.payload());
+                                Intent intent = new Intent(appContext, PullUniqueIdsIntentService.class);
+                                appContext.startService(intent);
                             } else {
-                                showErrorDialog(getString(timeStatus.getMessage()));
+                                if (timeStatus.equals(TimeStatus.TIMEZONE_MISMATCH)) {
+                                    TimeZone serverTimeZone = getOpenSRPContext().userService()
+                                            .getServerTimeZone(loginResponse.payload());
+                                    showErrorDialog(getString(timeStatus.getMessage(),
+                                            serverTimeZone.getDisplayName()));
+                                } else {
+                                    showErrorDialog(getString(timeStatus.getMessage()));
+                                }
                             }
+                        } else { // Valid user from wrong group trying to log in
+                            showErrorDialog(getResources().getString(R.string.unauthorized_group));
                         }
-                    } else { // Valid user from wrong group trying to log in
-                        showErrorDialog(getResources().getString(R.string.unauthorized_group));
-                    }
-                } else {
-                    if (loginResponse == null) {
-                        showErrorDialog("Login failed. Unknown reason. Try Again");
                     } else {
-                        if (loginResponse == NO_INTERNET_CONNECTIVITY) {
-                            showErrorDialog(getResources().getString(R.string.no_internet_connectivity));
-                        } else if (loginResponse == UNKNOWN_RESPONSE) {
-                            showErrorDialog(getResources().getString(R.string.unknown_response));
-                        } else if (loginResponse == UNAUTHORIZED) {
-                            showErrorDialog(getResources().getString(R.string.unauthorized));
-                        }
+                        if (loginResponse == null) {
+                            showErrorDialog("Login failed. Unknown reason. Try Again");
+                        } else {
+                            if (loginResponse == NO_INTERNET_CONNECTIVITY) {
+                                showErrorDialog(getResources().getString(R.string.no_internet_connectivity));
+                            } else if (loginResponse == UNKNOWN_RESPONSE) {
+                                showErrorDialog(getResources().getString(R.string.unknown_response));
+                            } else if (loginResponse == UNAUTHORIZED) {
+                                showErrorDialog(getResources().getString(R.string.unauthorized));
+                            }
 //                        showErrorDialog(loginResponse.message());
+                        }
                     }
                 }
-            }
-        });
+            });
+
+        } else {
+            view.setClickable(true);
+            showErrorDialog("OpenSRP Base URL is missing. Please add it in Settings and try again");
+
+        }
     }
 
     private void showErrorDialog(String message) {
