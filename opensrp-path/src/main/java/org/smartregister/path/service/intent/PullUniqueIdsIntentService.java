@@ -48,7 +48,7 @@ public class PullUniqueIdsIntentService extends IntentService {
                 return;
             }
             JSONObject ids = fetchOpenMRSIds(PathConstants.OPENMRS_UNIQUE_ID_SOURCE, numberToGenerate);
-            if (ids !=null && ids.has("identifiers")) {
+            if (ids != null && ids.has("identifiers")) {
                 parseResponse(ids);
             }
         } catch (Exception e1) {
@@ -56,13 +56,13 @@ public class PullUniqueIdsIntentService extends IntentService {
         }
     }
 
-
     private JSONObject fetchOpenMRSIds(int source, int numberToGenerate) throws Exception {
         HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
         String baseUrl = VaccinatorApplication.getInstance().context().
                 configuration().dristhiBaseURL();
-        if (baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+        String endString = "/";
+        if (baseUrl.endsWith(endString)) {
+            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(endString));
         }
 
         String url = baseUrl + ID_URL + "?source=" + source + "&numberToGenerate=" + numberToGenerate;
