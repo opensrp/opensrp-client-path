@@ -2,7 +2,6 @@ package util;
 
 import org.smartregister.AllConstants;
 import org.smartregister.path.BuildConfig;
-import org.smartregister.path.application.VaccinatorApplication;
 
 /**
  * Created by coder on 2/14/17.
