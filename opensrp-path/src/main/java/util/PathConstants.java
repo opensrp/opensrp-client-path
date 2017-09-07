@@ -24,6 +24,8 @@ public class PathConstants extends AllConstants {
 
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
+    public static final String ID = "id";
+
     public static String openmrsUrl() {
         String baseUrl = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchBaseURL("");
         int lastIndex = baseUrl.lastIndexOf("/");
@@ -57,6 +59,4 @@ public class PathConstants extends AllConstants {
 
         public static final String DOD = "dod";
     }
-
-    public static final String ID = "id";
 }

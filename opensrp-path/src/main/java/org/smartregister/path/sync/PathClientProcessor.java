@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.smartregister.AllConstants;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
