@@ -18,7 +18,11 @@ import org.smartregister.repository.ImageRepository;
 import java.util.Collections;
 
 import shared.BaseUnitTest;
-  
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 /**
  * Created by ona on 28/08/2017.
@@ -44,50 +48,48 @@ public class ImageUtilsTest extends BaseUnitTest {
     @Before
     public void setUp() {
 
-        org.mockito.MockitoAnnotations.initMocks(this);
-    
+        initMocks(this);
     }
-
 
     @Test
     public void profileImageResourceByGenderWithEmptyStringParameterReturnsDefaultResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender(""), R.drawable.child_boy_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender(""), R.drawable.child_boy_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithMaleParameterReturnsMaleResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender("male"), R.drawable.child_boy_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender("male"), R.drawable.child_boy_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithFemaleParameterReturnsFemaleResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender("female"), R.drawable.child_girl_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender("female"), R.drawable.child_girl_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithTransgenderParameterReturnsTransgenderResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender("transgender"), R.drawable.child_transgender_inflant);
+        assertEquals(ImageUtils.profileImageResourceByGender("transgender"), R.drawable.child_transgender_inflant);
     }
 
     @Test
     public void profileImageResourceByGenderObjectWithMaleGenderParameterReturnsMaleResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender(org.opensrp.api.constants.Gender.MALE), R.drawable.child_boy_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender(org.opensrp.api.constants.Gender.MALE), R.drawable.child_boy_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithFemaleObjectReturnsFemaleResource() {
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender(org.opensrp.api.constants.Gender.FEMALE), R.drawable.child_girl_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender(org.opensrp.api.constants.Gender.FEMALE), R.drawable.child_girl_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithNullObjectParameterReturnsTransgenderResource() {
         org.opensrp.api.constants.Gender gender = null;
-        org.junit.Assert.assertEquals(ImageUtils.profileImageResourceByGender(gender), R.drawable.child_transgender_inflant);
+        assertEquals(ImageUtils.profileImageResourceByGender(gender), R.drawable.child_transgender_inflant);
     }
 
     @Test
     public void imageUtilsClassConstructorReturnsNonNullObjectOnInstantiation() {
-        org.junit.Assert.assertNotNull(new ImageUtils());
+        assertNotNull(new ImageUtils());
     }
 
     @Test
@@ -96,10 +98,10 @@ public class ImageUtilsTest extends BaseUnitTest {
         PowerMockito.when(VaccinatorApplication.getInstance()).thenReturn(vaccinatorApplication);
         PowerMockito.when(VaccinatorApplication.getInstance().context()).thenReturn(context);
         PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository()).thenReturn(imageRepository);
-        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository().findByEntityId(org.mockito.Matchers.anyString())).thenReturn(null);
+        PowerMockito.when(VaccinatorApplication.getInstance().context().imageRepository().findByEntityId(anyString())).thenReturn(null);
         Photo photo = ImageUtils.profilePhotoByClient(commonPersonObjectClient);
-        org.junit.Assert.assertNotNull(photo);
-        org.junit.Assert.assertEquals(photo.getResourceId(), R.drawable.child_boy_infant);
+        assertNotNull(photo);
+        assertEquals(photo.getResourceId(), R.drawable.child_boy_infant);
     }
 
     @Test
@@ -116,7 +118,7 @@ public class ImageUtilsTest extends BaseUnitTest {
         commonPersonObjectClient = new CommonPersonObjectClient(dummyCaseId, Collections.<String, String>emptyMap(), "Test Name");
         commonPersonObjectClient.setCaseId(dummyCaseId);
         Photo photo = ImageUtils.profilePhotoByClient(commonPersonObjectClient);
-        org.junit.Assert.assertNotNull(photo);
-        org.junit.Assert.assertEquals(imagePath, photo.getFilePath());
+        assertNotNull(photo);
+        assertEquals(imagePath, photo.getFilePath());
     }
 }
