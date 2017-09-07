@@ -6,7 +6,6 @@
     <color name="light_grey">#CCCCCC</color>
     <color name="dark_grey">#999999</color>
     <color name="transparent_dark_grey">#EE999999</color>
-    <color name="inactive_grey">#B5B5B5</color>
 
     <color name="actionbar">#208CC5</color>
     <color name="client_list_grey">#737373</color>
@@ -24,7 +23,6 @@
     <color name="female_light_pink">#f7dbf7</color>
 
     <color name="primary">#358CB7</color>
-    <color name="primary_background">#ddf0fa</color>
     <color name="primary_dark">#276C91</color>
     <color name="accent">#358CB7</color>
     <color name="text_color_primary">#737373</color>
