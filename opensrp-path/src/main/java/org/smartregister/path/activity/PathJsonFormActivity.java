@@ -1,6 +1,7 @@
 package org.smartregister.path.activity;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 
@@ -27,6 +28,7 @@ import util.JsonFormUtils;
  */
 public class PathJsonFormActivity extends JsonFormActivity {
 
+    private static final String VACCINE_HINT = " child(ren) vaccinated today. Assuming ";
     private int generatedId = -1;
     private MaterialEditText balancetextview;
     private PathJsonFormFragment pathJsonFormFragment;
@@ -147,7 +149,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
                         displaybalance = vialsused;
                         if (balancetextview != null) {
                             balancetextview.setErrorColor(Color.BLACK);
-                            balancetextview.setError(currentBalance + " children vaccinated today.Assuming " + displaybalance + " vials used.");
+                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
+                            balancetextview.setAccentTypeface(typeFace);
+                            balancetextview.setError(currentBalance + VACCINE_HINT + displaybalance + " vial(s) used.");
 //                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
                         }
                     } else {
@@ -241,7 +245,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
                         displaybalance = vialsused;
                         if (balancetextview != null) {
                             balancetextview.setErrorColor(Color.BLACK);
-                            balancetextview.setError(currentBalanceVaccineUsed + " children vaccinated today.Assuming " + displaybalance + " vials used.");
+                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
+                            balancetextview.setAccentTypeface(typeFace);
+                            balancetextview.setError(currentBalanceVaccineUsed + VACCINE_HINT + displaybalance + " vial(s) used.");
 //                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
                         }
                     } else {
@@ -335,7 +341,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
                         displaybalance = vialsused;
                         if (balancetextview != null) {
                             balancetextview.setErrorColor(Color.BLACK);
-                            balancetextview.setError(currentBalanceVaccineUsed + " children vaccinated today.Assuming " + displaybalance + " vials used.");
+                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
+                            balancetextview.setAccentTypeface(typeFace);
+                            balancetextview.setError(currentBalanceVaccineUsed + VACCINE_HINT + displaybalance + " vial(s) used.");
 //                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
                         }
                     } else {
