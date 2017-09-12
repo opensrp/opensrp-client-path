@@ -489,9 +489,9 @@ public class ChildImmunizationActivity extends BaseActivity
         LinearLayout parent;
         if (canvasId == -1) {
             Random r = new Random();
-            int randomId = r.nextInt(4232 - 213) + 213;
+            canvasId = r.nextInt(4232 - 213) + 213;
             parent = new LinearLayout(this);
-            parent.setId(randomId);
+            parent.setId(canvasId);
             vaccineGroupCanvasLL.addView(parent);
         } else {
             parent = (LinearLayout) findViewById(canvasId);
