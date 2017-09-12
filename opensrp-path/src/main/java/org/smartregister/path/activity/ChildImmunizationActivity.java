@@ -114,6 +114,8 @@ public class ChildImmunizationActivity extends BaseActivity
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
     private final String BCG2_NOTIFICATION_DONE = "bcg2_not_done";
+    private static final int RANDOM_MAX_RANGE = 4232;
+    private static final int RANDOM_MIN_RANGE = 213;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -487,19 +489,20 @@ public class ChildImmunizationActivity extends BaseActivity
         });
 
         LinearLayout parent;
-        if (canvasId == -1) {
+        int groupParentId = canvasId;
+        if (groupParentId == -1) {
             Random r = new Random();
-            canvasId = r.nextInt(4232 - 213) + 213;
+            groupParentId = r.nextInt(RANDOM_MAX_RANGE - RANDOM_MIN_RANGE) + RANDOM_MIN_RANGE;
             parent = new LinearLayout(this);
-            parent.setId(canvasId);
+            parent.setId(groupParentId);
             vaccineGroupCanvasLL.addView(parent);
         } else {
-            parent = (LinearLayout) findViewById(canvasId);
+            parent = (LinearLayout) findViewById(groupParentId);
             parent.removeAllViews();
         }
         parent.addView(curGroup);
         curGroup.setTag(R.id.vaccine_group_vaccine_data, vaccineGroupData.toString());
-        curGroup.setTag(R.id.vaccine_group_parent_id, String.valueOf(canvasId));
+        curGroup.setTag(R.id.vaccine_group_parent_id, String.valueOf(groupParentId));
         vaccineGroups.add(curGroup);
     }
 
@@ -635,7 +638,7 @@ public class ChildImmunizationActivity extends BaseActivity
             is.close();
             fileContents = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            android.util.Log.e(TAG, ex.toString(), ex);
+            Log.e(TAG, ex.toString(), ex);
         }
 
         return fileContents;
@@ -1352,27 +1355,25 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected Void doInBackground(Void... params) {
-            if (tag != null) {
+            if (tag != null && tag.getDbKey() != null) {
+                RecurringServiceRecordRepository recurringServiceRecordRepository = VaccinatorApplication.getInstance().recurringServiceRecordRepository();
+                Long dbKey = tag.getDbKey();
+                recurringServiceRecordRepository.deleteServiceRecord(dbKey);
 
-                if (tag.getDbKey() != null) {
-                    RecurringServiceRecordRepository recurringServiceRecordRepository = VaccinatorApplication.getInstance().recurringServiceRecordRepository();
-                    Long dbKey = tag.getDbKey();
-                    recurringServiceRecordRepository.deleteServiceRecord(dbKey);
+                serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
 
-                    serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+                wrappers = new ArrayList<>();
+                wrappers.add(tag);
 
-                    wrappers = new ArrayList<>();
-                    wrappers.add(tag);
+                ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
-                    ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
+                RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
+                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
 
-                    RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-                    List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                    String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
+                AlertService alertService = getOpenSRPContext().alertService();
+                alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
 
-                    AlertService alertService = getOpenSRPContext().alertService();
-                    alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
-                }
             }
             return null;
         }
