@@ -27,9 +27,9 @@
 
 
 # Introduction
-The OpenSRP Path is an app that handles infant records from child birth to 5 years of age. This mainly includes monitoring child weight, vaccination schedules and other supplements that have been proven to prevent diseases and/or, improve infant growth and health.
+OpenSRP Path is an app that handles infant records from child birth to 5 years of age. This mainly includes monitoring child weight, vaccination schedules and other supplements that have been proven to prevent diseases and/or improve infant growth and health.
 
-It's main focus is **Infant Health**
+Its main focus is **Infant Health**
 
 
 ## Features
@@ -82,7 +82,11 @@ The OpenSRP Path App enables providers to:
 
 ## App Walkthrough (End-User)
 
-1. **(Optional)** Open the app, open the app menu > Settings > Change url to ```http://46.101.51.199:8080/opensrp```
+1. **(Optional)** Open the app, open the app menu > Settings > Change url to your `server-url:port`. eg Point to Ona OpenSRP test server at `http://46.101.51.199:8080/opensrp`.
+
+> **Note**
+> Ona OpenSRP test server may not be up. You can follow [this Docker Setup](https://smartregister.atlassian.net/wiki/spaces/Documentation/pages/52690946/Docker+Setup) and [this Docker Compose Setup](https://smartregister.atlassian.net/wiki/spaces/Documentation/pages/52690976/Docker+Compose+Setup) guide for setting up your OpenSRP and OpenMRS Server.
+
 ![Settings Page](https://user-images.githubusercontent.com/31766075/30325652-37287d06-97ce-11e7-9039-5fd74dde2643.png)
 
 2. Login using Sample Credentials(Provider Credentials) eg. 
@@ -134,7 +138,7 @@ This opens a page which contains the immunisation history in a vaccine card.
 + Patient name
 + Patient Weight _(Two Options Available: Record past OR Current weight)_
 + Patient Weight Graph
-+ Patients Date of Birth - Written as ` DOB: 30/04/2016 `
++ Patient's Date of Birth - Written as ` DOB: 30/04/2016 `
 + Patient's Sibling's - Their pictures or Name _Abbreviations_
 + Patient's Recurring Immunisation and Other Health Services eg. Vitamin A, Deworming
 + Other Periodical immunization services & Their [status](#service-status) in the **Vaccine Card** (Service given, service due, service overdue, service delivered in the past).
@@ -150,7 +154,7 @@ As shown below:
 
 ### 4.2 Click on the Health Facility Name
 
-A dropdown menu appears with a list of the Health Facility Zones + Health Facility. The healt facility name is the first, the rest are branches/zones of the health facility.
+A dropdown menu appears with a list of the Health Facility Zones + Health Facility. The health facility name is the first, the rest are branches/zones of the health facility.
 
 ![Health Facility Dropdown Menu](https://user-images.githubusercontent.com/31766075/30325653-37290410-97ce-11e7-85b2-16346528a11a.png)
 
@@ -160,7 +164,7 @@ When chosen:
 
 ### 4.3 Click on the Plus Icon
 
-An form to add a new patient to the current chosen Health Facility OR Health Facility Zone is openned.
+A form to add a new patient to the current chosen Health Facility OR Health Facility Zone is openned.
 
 As show below:
 ![New Patient Form](https://user-images.githubusercontent.com/31766075/30325642-36daad92-97ce-11e7-8094-3c9280613a1b.png)
@@ -207,7 +211,7 @@ This opens another activity where the provider can perform an [Advanced Search](
 
 #### Advanced Search
 
-This patient search enabled one to search using other conditions or characteristics.
+This patient search enables one to search using other conditions or characteristics.
 
    * Using other search conditions such as 
       * Patient/Child Active status
