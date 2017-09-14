@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
+import util.PathConstants;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
@@ -129,7 +130,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         final ImageView profilePic = (ImageView) convertView.findViewById(R.id.child_profilepic);
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
-        if (pc.entityId() != null) { //image already in local storage most likey ):
+        if (pc.entityId() != null) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(org.smartregister.R.id.entity_id, pc.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(pc.entityId(), OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
@@ -277,7 +278,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         // Alerts
         Map<String, Date> recievedVaccines = receivedVaccines(updateWrapper.getVaccines());
 
-        List<Map<String, Object>> sch = generateScheduleList("child", new DateTime(updateWrapper.getDobString()), recievedVaccines, updateWrapper.getAlertList());
+        List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(updateWrapper.getDobString()), recievedVaccines, updateWrapper.getAlertList());
 
         State state = State.FULLY_IMMUNIZED;
         String stateKey = null;
@@ -407,7 +408,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         } else if (state.equals(State.NO_ALERT)) {
             if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, "week") || StringUtils.containsIgnoreCase(stateKey, "month")) && !updateWrapper.getVaccines().isEmpty()) {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
-                String previousStateKey = VaccinateActionUtils.previousStateKey("child", vaccine);
+                String previousStateKey = VaccinateActionUtils.previousStateKey(PathConstants.KEY.CHILD, vaccine);
                 if (previousStateKey != null) {
                     recordVaccinationText.setText(previousStateKey);
                 } else {
@@ -460,6 +461,58 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
     public LayoutInflater inflater() {
         return inflater;
+    }
+
+    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
+
+        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
+
+        if (commonRepository != null) {
+            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
+
+            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
+            recordVaccination.setVisibility(View.VISIBLE);
+
+            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
+            moveToCatchment.setVisibility(View.GONE);
+
+            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+                if (isWeightRecord) {
+                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
+                    recordWeightText.setText("Record\nservice");
+
+                    String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
+
+                    View recordWeight = convertView.findViewById(R.id.record_weight);
+                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordWeight.setTag(zeirId);
+                    recordWeight.setClickable(true);
+                    recordWeight.setEnabled(true);
+                    recordWeight.setOnClickListener(onClickListener);
+                } else {
+
+                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
+                    moveToCatchmentText.setText("Move to my\ncatchment");
+
+                    String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
+                    String entityId = pc.entityId();
+
+                    List<String> ids = new ArrayList<>();
+                    ids.add(motherBaseEntityId);
+                    ids.add(entityId);
+
+                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    moveToCatchment.setTag(ids);
+                    moveToCatchment.setClickable(true);
+                    moveToCatchment.setEnabled(true);
+                    moveToCatchment.setOnClickListener(onClickListener);
+
+                    moveToCatchment.setVisibility(View.VISIBLE);
+                    recordVaccination.setVisibility(View.GONE);
+                }
+            }
+
+        }
     }
 
     public enum State {
@@ -550,7 +603,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         @Override
         protected Void doInBackground(Void... params) {
             vaccines = vaccineRepository.findByEntityId(entityId);
-            alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames("child"));
+            alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
             return null;
         }
 
@@ -571,55 +624,4 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
     }
 
-    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
-
-        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
-
-        if (commonRepository != null) {
-            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
-
-            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
-            recordVaccination.setVisibility(View.VISIBLE);
-
-            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
-            moveToCatchment.setVisibility(View.GONE);
-
-            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-                if (isWeightRecord) {
-                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
-                    recordWeightText.setText("Record\nservice");
-
-                    String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
-
-                    View recordWeight = convertView.findViewById(R.id.record_weight);
-                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    recordWeight.setTag(zeirId);
-                    recordWeight.setClickable(true);
-                    recordWeight.setEnabled(true);
-                    recordWeight.setOnClickListener(onClickListener);
-                } else {
-
-                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
-                    moveToCatchmentText.setText("Move to my\ncatchment");
-
-                    String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
-                    String entityId = pc.entityId();
-
-                    List<String> ids = new ArrayList<>();
-                    ids.add(motherBaseEntityId);
-                    ids.add(entityId);
-
-                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    moveToCatchment.setTag(ids);
-                    moveToCatchment.setClickable(true);
-                    moveToCatchment.setEnabled(true);
-                    moveToCatchment.setOnClickListener(onClickListener);
-
-                    moveToCatchment.setVisibility(View.VISIBLE);
-                    recordVaccination.setVisibility(View.GONE);
-                }
-            }
-
-        }
-    }
 }

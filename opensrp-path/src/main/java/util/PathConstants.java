@@ -47,4 +47,9 @@ public class PathConstants extends AllConstants {
 
         public static final String DOD = "dod";
     }
+
+    public static final class KEY {
+
+        public static final String CHILD = "child";
+    }
 }

@@ -11,8 +11,6 @@ import org.smartregister.path.R;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
 
-import static org.smartregister.util.Utils.getValue;
-
 /**
  * Created by Keyman on 06-Apr-17.
  */
@@ -23,7 +21,7 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
 
     public AdvancedSearchClientsProvider(Context context, View.OnClickListener onClickListener,
                                          AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
-        super(context, onClickListener, alertService, vaccineRepository, weightRepository,commonRepository);
+        super(context, onClickListener, alertService, vaccineRepository, weightRepository, commonRepository);
         this.onClickListener = onClickListener;
         this.context = context;
         this.commonRepository = commonRepository;
@@ -38,7 +36,7 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
     @Deprecated
     @Override
     public void getView(SmartRegisterClient client, View convertView) {
-        super.getView(null,client, convertView);
+        super.getView(null, client, convertView);
     }
 
     @Override
