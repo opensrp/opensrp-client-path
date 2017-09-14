@@ -1,19 +1,21 @@
 package org.smartregister.path.provider;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
@@ -23,6 +25,9 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
+import org.smartregister.path.fragment.AdvancedSearchFragment;
+import org.smartregister.path.wrapper.VaccineViewRecordUpdateWrapper;
+import org.smartregister.path.wrapper.WeightViewRecordUpdateWrapper;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -64,21 +69,23 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     private final VaccineRepository vaccineRepository;
     private final WeightRepository weightRepository;
     private final AbsListView.LayoutParams clientViewLayoutParams;
+    private final CommonRepository commonRepository;
 
     public ChildSmartClientsProvider(Context context, View.OnClickListener onClickListener,
-                                     AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository) {
+                                     AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
         this.onClickListener = onClickListener;
         this.context = context;
         this.alertService = alertService;
         this.vaccineRepository = vaccineRepository;
         this.weightRepository = weightRepository;
+        this.commonRepository = commonRepository;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         clientViewLayoutParams = new AbsListView.LayoutParams(MATCH_PARENT, (int) context.getResources().getDimension(org.smartregister.R.dimen.list_item_height));
     }
 
     @Override
-    public void getView(SmartRegisterClient client, final View convertView) {
+    public void getView(Cursor cursor, SmartRegisterClient client, final View convertView) {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
         fillValue((TextView) convertView.findViewById(R.id.child_zeir_id), getValue(pc.getColumnmaps(), "zeir_id", false));
@@ -99,7 +106,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
         fillValue((TextView) convertView.findViewById(R.id.child_mothername), motherName);
 
-        DateTime birthDateTime = new DateTime((new Date()).getTime());
+        DateTime birthDateTime;
         String dobString = getValue(pc.getColumnmaps(), "dob", false);
         String durationString = "";
         if (StringUtils.isNotBlank(dobString)) {
@@ -146,72 +153,77 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         String inactive = getValue(pc.getColumnmaps(), "inactive", false);
 
         try {
-            Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive), null);
-            Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive), null);
+            Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
+            Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive, client, cursor), null);
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage(), e);
         }
 
     }
 
-    private void updateRecordWeight(View convertView, Weight weight, String lostToFollowUp, String inactive) {
-        View recordWeight = convertView.findViewById(R.id.record_weight);
+    private void updateRecordWeight(WeightViewRecordUpdateWrapper updateWrapper) {
+
+        View recordWeight = updateWrapper.getConvertView().findViewById(R.id.record_weight);
         recordWeight.setVisibility(View.VISIBLE);
 
-        if (weight != null) {
-            TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
-            recordWeightText.setText(Utils.kgStringSuffix(weight.getKg()));
+        if (updateWrapper.getWeight() != null) {
+            TextView recordWeightText = (TextView) updateWrapper.getConvertView().findViewById(R.id.record_weight_text);
+            recordWeightText.setText(Utils.kgStringSuffix(updateWrapper.getWeight().getKg()));
 
-            ImageView recordWeightCheck = (ImageView) convertView.findViewById(R.id.record_weight_check);
+            ImageView recordWeightCheck = (ImageView) updateWrapper.getConvertView().findViewById(R.id.record_weight_check);
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             recordWeight.setClickable(false);
             recordWeight.setBackground(new ColorDrawable(context.getResources()
                     .getColor(android.R.color.transparent)));
         } else {
-            TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
+            TextView recordWeightText = (TextView) updateWrapper.getConvertView().findViewById(R.id.record_weight_text);
             recordWeightText.setText(context.getString(R.string.record_weight_with_nl));
 
-            ImageView recordWeightCheck = (ImageView) convertView.findViewById(R.id.record_weight_check);
+            ImageView recordWeightCheck = (ImageView) updateWrapper.getConvertView().findViewById(R.id.record_weight_check);
             recordWeightCheck.setVisibility(View.GONE);
             recordWeight.setClickable(true);
         }
 
         // Update active/inactive/lostToFollowup status
-        if (lostToFollowUp.equals(Boolean.TRUE.toString()) || inactive.equals(Boolean.TRUE.toString())) {
+        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString()) || updateWrapper.getInactive().equals(Boolean.TRUE.toString())) {
             recordWeight.setVisibility(View.INVISIBLE);
         }
 
+        //Update Out of Catchment
+        if (updateWrapper.getCursor() instanceof AdvancedSearchFragment.AdvancedMatrixCursor) {
+            updateViews(updateWrapper.getConvertView(), updateWrapper.getClient(), true);
+        }
     }
 
-    private void updateRecordVaccination(View convertView, List<Vaccine> vaccines, List<Alert> alertList, String dobString, String lostToFollowUp, String inactive) {
-        View recordVaccination = convertView.findViewById(R.id.record_vaccination);
+    private void updateRecordVaccination(VaccineViewRecordUpdateWrapper updateWrapper) {
+        View recordVaccination = updateWrapper.getConvertView().findViewById(R.id.record_vaccination);
         recordVaccination.setVisibility(View.VISIBLE);
 
-        TextView recordVaccinationText = (TextView) convertView.findViewById(R.id.record_vaccination_text);
-        ImageView recordVaccinationCheck = (ImageView) convertView.findViewById(R.id.record_vaccination_check);
+        TextView recordVaccinationText = (TextView) updateWrapper.getConvertView().findViewById(R.id.record_vaccination_text);
+        ImageView recordVaccinationCheck = (ImageView) updateWrapper.getConvertView().findViewById(R.id.record_vaccination_check);
         recordVaccinationCheck.setVisibility(View.GONE);
 
-        convertView.setLayoutParams(clientViewLayoutParams);
+        updateWrapper.getConvertView().setLayoutParams(clientViewLayoutParams);
 
         // Alerts
-        Map<String, Date> recievedVaccines = receivedVaccines(vaccines);
+        Map<String, Date> recievedVaccines = receivedVaccines(updateWrapper.getVaccines());
 
-        List<Map<String, Object>> sch = generateScheduleList("child", new DateTime(dobString), recievedVaccines, alertList);
+        List<Map<String, Object>> sch = generateScheduleList("child", new DateTime(updateWrapper.getDobString()), recievedVaccines, updateWrapper.getAlertList());
 
         State state = State.FULLY_IMMUNIZED;
         String stateKey = null;
 
         Map<String, Object> nv = null;
-        if (vaccines.isEmpty()) {
+        if (updateWrapper.getVaccines().isEmpty()) {
             List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
             nv = nextVaccineDue(sch, vList);
         }
 
         if (nv == null) {
             Date lastVaccine = null;
-            if (!vaccines.isEmpty()) {
-                Vaccine vaccine = vaccines.get(vaccines.size() - 1);
+            if (!updateWrapper.getVaccines().isEmpty()) {
+                Vaccine vaccine = updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 lastVaccine = vaccine.getDate();
             }
 
@@ -249,11 +261,11 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
 
         // Update active/inactive/lostToFollowup status
-        if (lostToFollowUp.equals(Boolean.TRUE.toString())) {
+        if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString())) {
             state = State.LOST_TO_FOLLOW_UP;
         }
 
-        if (inactive.equals(Boolean.TRUE.toString())) {
+        if (updateWrapper.getInactive().equals(Boolean.TRUE.toString())) {
             state = State.INACTIVE;
         }
 
@@ -325,8 +337,8 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
-            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, "week") || StringUtils.containsIgnoreCase(stateKey, "month")) && !vaccines.isEmpty()) {
-                Vaccine vaccine = vaccines.isEmpty() ? null : vaccines.get(vaccines.size() - 1);
+            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, "week") || StringUtils.containsIgnoreCase(stateKey, "month")) && !updateWrapper.getVaccines().isEmpty()) {
+                Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
                 String previousStateKey = VaccinateActionUtils.previousStateKey("child", vaccine);
                 if (previousStateKey != null) {
                     recordVaccinationText.setText(previousStateKey);
@@ -349,6 +361,11 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         }
+
+        //Update Out of Catchment
+        if (updateWrapper.getCursor() instanceof AdvancedSearchFragment.AdvancedMatrixCursor) {
+            updateViews(updateWrapper.getConvertView(), updateWrapper.getClient(), false);
+        }
     }
 
     @Override
@@ -370,7 +387,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
     @Override
     public View inflatelayoutForCursorAdapter() {
-        return (ViewGroup) inflater().inflate(R.layout.smart_register_child_client, null);
+        return inflater().inflate(R.layout.smart_register_child_client, null);
     }
 
     public LayoutInflater inflater() {
@@ -396,15 +413,21 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         private final String lostToFollowUp;
         private final String inactive;
         private Weight weight;
+        private SmartRegisterClient client;
+        private Cursor cursor;
 
         private WeightAsyncTask(View convertView,
                                 String entityId,
                                 String lostToFollowUp,
-                                String inactive) {
+                                String inactive,
+                                SmartRegisterClient smartRegisterClient,
+                                Cursor cursor) {
             this.convertView = convertView;
             this.entityId = entityId;
             this.lostToFollowUp = lostToFollowUp;
             this.inactive = inactive;
+            this.client = smartRegisterClient;
+            this.cursor = cursor;
         }
 
 
@@ -416,7 +439,14 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         @Override
         protected void onPostExecute(Void param) {
-            updateRecordWeight(convertView, weight, lostToFollowUp, inactive);
+            WeightViewRecordUpdateWrapper wrapper = new WeightViewRecordUpdateWrapper();
+            wrapper.setWeight(weight);
+            wrapper.setLostToFollowUp(lostToFollowUp);
+            wrapper.setInactive(inactive);
+            wrapper.setClient(client);
+            wrapper.setCursor(cursor);
+            wrapper.setConvertView(convertView);
+            updateRecordWeight(wrapper);
 
         }
     }
@@ -429,17 +459,23 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         private final String inactive;
         private List<Vaccine> vaccines = new ArrayList<>();
         private List<Alert> alerts = new ArrayList<>();
+        private SmartRegisterClient client;
+        private Cursor cursor;
 
         private VaccinationAsyncTask(View convertView,
                                      String entityId,
                                      String dobString,
                                      String lostToFollowUp,
-                                     String inactive) {
+                                     String inactive,
+                                     SmartRegisterClient smartRegisterClient,
+                                     Cursor cursor) {
             this.convertView = convertView;
             this.entityId = entityId;
             this.dobString = dobString;
             this.lostToFollowUp = lostToFollowUp;
             this.inactive = inactive;
+            this.client = smartRegisterClient;
+            this.cursor = cursor;
         }
 
 
@@ -452,7 +488,69 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         @Override
         protected void onPostExecute(Void param) {
-            updateRecordVaccination(convertView, vaccines, alerts, dobString, lostToFollowUp, inactive);
+
+            VaccineViewRecordUpdateWrapper wrapper = new VaccineViewRecordUpdateWrapper();
+            wrapper.setVaccines(vaccines);
+            wrapper.setLostToFollowUp(lostToFollowUp);
+            wrapper.setInactive(inactive);
+            wrapper.setClient(client);
+            wrapper.setCursor(cursor);
+            wrapper.setAlertList(alerts);
+            wrapper.setConvertView(convertView);
+            wrapper.setDobString(dobString);
+            updateRecordVaccination(wrapper);
+
+        }
+    }
+
+    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
+
+        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
+
+        if (commonRepository != null) {
+            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
+
+            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
+            recordVaccination.setVisibility(View.VISIBLE);
+
+            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
+            moveToCatchment.setVisibility(View.GONE);
+
+            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+                if (isWeightRecord) {
+                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
+                    recordWeightText.setText("Record\nservice");
+
+                    String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
+
+                    View recordWeight = convertView.findViewById(R.id.record_weight);
+                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordWeight.setTag(zeirId);
+                    recordWeight.setClickable(true);
+                    recordWeight.setEnabled(true);
+                    recordWeight.setOnClickListener(onClickListener);
+                } else {
+
+                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
+                    moveToCatchmentText.setText("Move to my\ncatchment");
+
+                    String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
+                    String entityId = pc.entityId();
+
+                    List<String> ids = new ArrayList<>();
+                    ids.add(motherBaseEntityId);
+                    ids.add(entityId);
+
+                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    moveToCatchment.setTag(ids);
+                    moveToCatchment.setClickable(true);
+                    moveToCatchment.setEnabled(true);
+                    moveToCatchment.setOnClickListener(onClickListener);
+
+                    moveToCatchment.setVisibility(View.VISIBLE);
+                    recordVaccination.setVisibility(View.GONE);
+                }
+            }
 
         }
     }

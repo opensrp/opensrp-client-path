@@ -38,7 +38,6 @@ import java.util.Map;
  *         Class containing some static utility methods.
  */
 public class Utils {
-    private static final String TAG = "Utils";
 
     private Utils() {
     }
