@@ -54,7 +54,7 @@ public class PathConstants extends AllConstants {
         public static final String MALE = "male";
         public static final String FEMALE = "female";
         public static final String TRANSGENDER = "transgender";
-    }
+    } 
 
     public static final class KEY {
         public static final String CHILD = "child";
