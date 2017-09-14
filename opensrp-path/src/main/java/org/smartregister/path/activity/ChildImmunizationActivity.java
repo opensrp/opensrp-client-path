@@ -91,8 +91,6 @@ import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
 
-import static org.smartregister.util.Utils.getName;
-import static org.smartregister.util.Utils.getValue;
 
 /**
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
@@ -271,7 +269,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String childId = "";
         if (isDataOk()) {
             name = constructChildName();
-            childId = getValue(childDetails.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false);
+            childId = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false);
         }
 
         TextView nameTV = (TextView) findViewById(R.id.name_tv);
@@ -287,7 +285,7 @@ public class ChildImmunizationActivity extends BaseActivity
         String formattedAge = "";
         String formattedDob = "";
         if (isDataOk()) {
-            dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+            dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 Date dob = dateTime.toDate();
@@ -308,7 +306,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private void updateGenderViews() {
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
-            String genderString = getValue(childDetails, PathConstants.KEY.GENDER, false);
+            String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
             if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.MALE)) {
@@ -351,12 +349,10 @@ public class ChildImmunizationActivity extends BaseActivity
                 }
 
                 for (ServiceRecord serviceRecord : serviceRecordList) {
-                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced)) {
-                        if (serviceRecord.getType().equals(type)) {
+                    if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) && serviceRecord.getType().equals(type)) {
                             foundServiceTypeMap.put(type, serviceTypeMap.get(type));
                             break;
                         }
-                    }
                 }
 
                 if (foundServiceTypeMap.containsKey(type)) {
@@ -536,17 +532,17 @@ public class ChildImmunizationActivity extends BaseActivity
     private void updateWeightViews(Weight lastUnsyncedWeight) {
 
         String childName = constructChildName();
-        String gender = getValue(childDetails.getColumnmaps(), PathConstants.KEY.GENDER, true);
-        String motherFirstName = getValue(childDetails.getColumnmaps(), PathConstants.KEY.MOTHER_FIRST_NAME, true);
+        String gender = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.GENDER, true);
+        String motherFirstName = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
 
-        String zeirId = getValue(childDetails.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false);
+        String zeirId = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false);
         String duration = "";
-        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
         if (StringUtils.isNotBlank(dobString)) {
-            DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false));
+            DateTime dateTime = new DateTime(Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false));
             duration = DateUtil.getDuration(dateTime);
         }
 
@@ -559,7 +555,7 @@ public class ChildImmunizationActivity extends BaseActivity
         weightWrapper.setPatientNumber(zeirId);
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PathConstants.KEY.PMTCT_STATUS, false));
+        weightWrapper.setPmtctStatus(Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.PMTCT_STATUS, false));
         weightWrapper.setDateOfBirth(dobString);
 
         if (lastUnsyncedWeight != null) {
@@ -721,7 +717,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Gender gender = Gender.UNKNOWN;
-            String genderString = getValue(childDetails, PathConstants.KEY.GENDER, false);
+            String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
             if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
             } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
@@ -729,7 +725,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Date dob = null;
-            String dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 dob = dateTime.toDate();
@@ -779,7 +775,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
-        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
         Date dob = Calendar.getInstance().getTime();
         if (!TextUtils.isEmpty(dobString)) {
             DateTime dateTime = new DateTime(dobString);
@@ -974,9 +970,9 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private String constructChildName() {
-        String firstName = getValue(childDetails.getColumnmaps(), PathConstants.KEY.FIRST_NAME, true);
-        String lastName = getValue(childDetails.getColumnmaps(), PathConstants.KEY.LAST_NAME, true);
-        return getName(firstName, lastName).trim();
+        String firstName = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.FIRST_NAME, true);
+        String lastName = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.LAST_NAME, true);
+        return Utils.getName(firstName, lastName).trim();
     }
 
     @Override
@@ -1400,11 +1396,11 @@ public class ChildImmunizationActivity extends BaseActivity
             WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
             List<Weight> allWeights = weightRepository.findByEntityId(childDetails.entityId());
             try {
-                String dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
-                if (!TextUtils.isEmpty(getValue(childDetails.getColumnmaps(), PathConstants.KEY.BIRTH_WEIGHT, false))
+                String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+                if (!TextUtils.isEmpty(Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.BIRTH_WEIGHT, false))
                         && !TextUtils.isEmpty(dobString)) {
                     DateTime dateTime = new DateTime(dobString);
-                    Double birthWeight = Double.valueOf(getValue(childDetails.getColumnmaps(), PathConstants.KEY.BIRTH_WEIGHT, false));
+                    Double birthWeight = Double.valueOf(Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.BIRTH_WEIGHT, false));
 
                     Weight weight = new Weight(-1l, null, (float) birthWeight.doubleValue(), dateTime.toDate(), null, null, null, Calendar.getInstance().getTimeInMillis(), null, null, 0);
                     allWeights.add(weight);
@@ -1493,7 +1489,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair = new Pair<>(list, vaccineList);
-            String dobString = getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+            String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, PathConstants.KEY.CHILD);
