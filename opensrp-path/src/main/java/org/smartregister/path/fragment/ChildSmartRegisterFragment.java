@@ -54,8 +54,6 @@ import java.util.List;
 
 import util.PathConstants;
 
-import static android.view.View.INVISIBLE;
-
 public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implements SyncStatusBroadcastReceiver.SyncStatusListener {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
     private LocationPickerView clinicSelection;
@@ -200,8 +198,8 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
-        view.findViewById(R.id.btn_report_month).setVisibility(INVISIBLE);
-        view.findViewById(R.id.service_mode_selection).setVisibility(INVISIBLE);
+        view.findViewById(R.id.btn_report_month).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
         filterSection = view.findViewById(R.id.filter_selection);
         filterSection.setOnClickListener(clientActionHandler);
