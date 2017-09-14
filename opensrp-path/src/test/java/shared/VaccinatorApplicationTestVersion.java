@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.TestLifecycleApplication;
 import org.smartregister.Context;
 import org.smartregister.domain.Alert;

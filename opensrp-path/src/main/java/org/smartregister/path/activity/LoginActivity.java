@@ -338,8 +338,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void hideKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), HIDE_NOT_ALWAYS);
+        try {
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), HIDE_NOT_ALWAYS);
+        } catch (Exception e) {
+            logError("Error hideKeyboard: " + e);
+        }
     }
 
     private void localLoginWith(String userName, String password) {
@@ -396,7 +400,7 @@ public class LoginActivity extends AppCompatActivity {
         Resources res = getOpenSRPContext().applicationContext().getResources();
         // Change locale settings in the app.
         DisplayMetrics dm = res.getDisplayMetrics();
-        android.content.res.Configuration conf = res.getConfiguration();
+        Configuration conf = res.getConfiguration();
         conf.locale = new Locale(preferredLocale);
         res.updateConfiguration(conf, dm);
 
@@ -459,8 +463,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
+// Inner classes
+////////////////////////////////////////////////////////////////
     private class RemoteLoginTask extends AsyncTask<Void, Void, LoginResponse> {
         private final String userName;
         private final String password;

@@ -58,17 +58,17 @@ public class ImageUtilsTest extends BaseUnitTest {
 
     @Test
     public void profileImageResourceByGenderWithMaleParameterReturnsMaleResource() {
-        assertEquals(ImageUtils.profileImageResourceByGender("male"), R.drawable.child_boy_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender(PathConstants.GENDER.MALE), R.drawable.child_boy_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithFemaleParameterReturnsFemaleResource() {
-        assertEquals(ImageUtils.profileImageResourceByGender("female"), R.drawable.child_girl_infant);
+        assertEquals(ImageUtils.profileImageResourceByGender(PathConstants.GENDER.FEMALE), R.drawable.child_girl_infant);
     }
 
     @Test
     public void profileImageResourceByGenderWithTransgenderParameterReturnsTransgenderResource() {
-        assertEquals(ImageUtils.profileImageResourceByGender("transgender"), R.drawable.child_transgender_inflant);
+        assertEquals(ImageUtils.profileImageResourceByGender(PathConstants.GENDER.TRANSGENDER), R.drawable.child_transgender_inflant);
     }
 
     @Test

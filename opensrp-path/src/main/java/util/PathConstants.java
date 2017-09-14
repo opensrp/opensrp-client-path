@@ -34,7 +34,6 @@ public class PathConstants extends AllConstants {
         public static final int RECURRING_SERVICES_SYNC_PROCESSING = 7;
     }
 
-
     public static final class EventType {
 
         public static final String DEATH = "Death";
@@ -48,5 +47,12 @@ public class PathConstants extends AllConstants {
     public static final class EC_CHILD_TABLE {
 
         public static final String DOD = "dod";
+    }
+
+    public static final class GENDER {
+
+        public static final String MALE = "male";
+        public static final String FEMALE = "female";
+        public static final String TRANSGENDER = "transgender";
     }
 }
