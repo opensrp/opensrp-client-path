@@ -27,13 +27,6 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
 
     }
 
-    @Deprecated
-    @Override
-    public void getView(SmartRegisterClient client, View convertView) {
-        super.getView(null, client, convertView);
-    }
-
-    @Override
     public View inflatelayoutForCursorAdapter() {
         return inflater().inflate(R.layout.advanced_search_client, null);
     }
