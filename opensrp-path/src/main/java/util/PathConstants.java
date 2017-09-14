@@ -21,6 +21,8 @@ public class PathConstants extends AllConstants {
 
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
+    public static final String ID = "id";
+
     public static final class ServiceType {
 
         public static final int DATA_SYNCHRONIZATION = 1;
@@ -31,7 +33,6 @@ public class PathConstants extends AllConstants {
         public static final int WEIGHT_SYNC_PROCESSING = 6;
         public static final int RECURRING_SERVICES_SYNC_PROCESSING = 7;
     }
-
 
     public static final class EventType {
 
@@ -46,5 +47,12 @@ public class PathConstants extends AllConstants {
     public static final class EC_CHILD_TABLE {
 
         public static final String DOD = "dod";
+    }
+
+    public static final class GENDER {
+
+        public static final String MALE = "male";
+        public static final String FEMALE = "female";
+        public static final String TRANSGENDER = "transgender";
     }
 }

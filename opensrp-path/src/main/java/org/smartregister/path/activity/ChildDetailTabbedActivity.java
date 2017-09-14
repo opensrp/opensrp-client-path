@@ -758,9 +758,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
             String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals("female")) {
+            if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals("male")) {
+            } else if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.MALE)) {
                 gender = Gender.MALE;
             }
         }
@@ -877,9 +877,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
             String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals("female")) {
+            if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals("male")) {
+            } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
                 gender = Gender.MALE;
             }
         }
@@ -962,9 +962,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
             Gender gender = Gender.UNKNOWN;
             String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals("female")) {
+            if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals("male")) {
+            } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
                 gender = Gender.MALE;
             }
 
