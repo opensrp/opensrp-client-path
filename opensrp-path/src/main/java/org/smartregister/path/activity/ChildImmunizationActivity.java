@@ -101,8 +101,7 @@ import static org.smartregister.util.Utils.getValue;
 public class ChildImmunizationActivity extends BaseActivity
         implements LocationSwitcherToolbar.OnLocationChangeListener, WeightActionListener, VaccinationActionListener, ServiceActionListener {
 
-    private static final String TAG = "ChildImmunoActivity";
-    private static final String VACCINES_FILE = "vaccines.json";
+    private static final String TAG = "ChildImmunoActivity"; 
     private static final String EXTRA_CHILD_DETAILS = "child_details";
     private static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
@@ -310,9 +309,9 @@ public class ChildImmunizationActivity extends BaseActivity
         Gender gender = Gender.UNKNOWN;
         if (isDataOk()) {
             String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.equalsIgnoreCase("female")) {
+            if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.equalsIgnoreCase("male")) {
+            } else if (genderString != null && genderString.equalsIgnoreCase(PathConstants.GENDER.MALE)) {
                 gender = Gender.MALE;
             }
         }
@@ -723,9 +722,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
             Gender gender = Gender.UNKNOWN;
             String genderString = getValue(childDetails, "gender", false);
-            if (genderString != null && genderString.toLowerCase().equals("female")) {
+            if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
                 gender = Gender.FEMALE;
-            } else if (genderString != null && genderString.toLowerCase().equals("male")) {
+            } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
                 gender = Gender.MALE;
             }
 
