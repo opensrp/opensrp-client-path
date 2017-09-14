@@ -350,9 +350,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
                 for (ServiceRecord serviceRecord : serviceRecordList) {
                     if (serviceRecord.getSyncStatus().equals(RecurringServiceTypeRepository.TYPE_Unsynced) && serviceRecord.getType().equals(type)) {
-                            foundServiceTypeMap.put(type, serviceTypeMap.get(type));
-                            break;
-                        }
+                        foundServiceTypeMap.put(type, serviceTypeMap.get(type));
+                        break;
+                    }
                 }
 
                 if (foundServiceTypeMap.containsKey(type)) {
