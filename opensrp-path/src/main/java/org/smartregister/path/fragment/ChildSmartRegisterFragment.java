@@ -282,7 +282,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         ChildSmartClientsProvider hhscp = new ChildSmartClientsProvider(getActivity(),
-                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository());
+                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository(), context().commonrepository(tableName));
         clientAdapter = new SmartRegisterPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
         clientsView.setAdapter(clientAdapter);
 
@@ -510,7 +510,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     private void switchViews(boolean filterSelected) {
         if (filterSelected) {
             if (titleLabelView != null) {
-                titleLabelView.setText(String.format(getString(R.string.overdue_due), dueOverdueCount));
+                titleLabelView.setText(String.format(getString(R.string.overdue_due), String.valueOf(dueOverdueCount)));
             }
             nameInitials.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
