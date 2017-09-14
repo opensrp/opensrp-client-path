@@ -60,11 +60,12 @@ public class SiblingPicture extends RecyclerView.ViewHolder {
         int genderColor = R.color.gender_neutral_green;
         int genderLightColor = R.color.gender_neutral_light_green;
         String genderString = Utils.getValue(childDetails.getColumnmaps(), "gender", false);
-        if (genderString != null && genderString.equalsIgnoreCase("female")) {
+
+        if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
             gender = Gender.FEMALE;
             genderColor = R.color.female_pink;
             genderLightColor = R.color.female_light_pink;
-        } else if (genderString != null && genderString.equalsIgnoreCase("male")) {
+        } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
             gender = Gender.MALE;
             genderColor = R.color.male_blue;
             genderLightColor = R.color.male_light_blue;

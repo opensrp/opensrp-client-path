@@ -266,7 +266,7 @@ public class PathClientProcessor extends ClientProcessor {
                 weightObj.setLocationId(contentValues.getAsString(WeightRepository.LOCATIONID));
                 weightObj.setSyncStatus(WeightRepository.TYPE_Synced);
                 weightObj.setFormSubmissionId(weight.has(WeightRepository.FORMSUBMISSION_ID) ? weight.getString(WeightRepository.FORMSUBMISSION_ID) : null);
-                weightObj.setEventId(weight.getString("id")); //FIXME hard coded id
+                weightObj.setEventId(weight.getString(PathConstants.ID));
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
 
