@@ -15,16 +15,10 @@ import org.smartregister.view.contract.SmartRegisterClient;
  * Created by Keyman on 06-Apr-17.
  */
 public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
-    private final Context context;
-    private final View.OnClickListener onClickListener;
-    private final CommonRepository commonRepository;
 
     public AdvancedSearchClientsProvider(Context context, View.OnClickListener onClickListener,
                                          AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
         super(context, onClickListener, alertService, vaccineRepository, weightRepository, commonRepository);
-        this.onClickListener = onClickListener;
-        this.context = context;
-        this.commonRepository = commonRepository;
 
     }
 
@@ -33,7 +27,6 @@ public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
 
     }
 
-    @Override
     public View inflatelayoutForCursorAdapter() {
         return inflater().inflate(R.layout.advanced_search_client, null);
     }

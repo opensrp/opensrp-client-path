@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
+import util.PathConstants;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
@@ -88,26 +89,26 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     public void getView(Cursor cursor, SmartRegisterClient client, final View convertView) {
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
-        fillValue((TextView) convertView.findViewById(R.id.child_zeir_id), getValue(pc.getColumnmaps(), "zeir_id", false));
+        fillValue((TextView) convertView.findViewById(R.id.child_zeir_id), getValue(pc.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false));
 
-        String firstName = getValue(pc.getColumnmaps(), "first_name", true);
-        String lastName = getValue(pc.getColumnmaps(), "last_name", true);
+        String firstName = getValue(pc.getColumnmaps(), PathConstants.KEY.FIRST_NAME, true);
+        String lastName = getValue(pc.getColumnmaps(), PathConstants.KEY.LAST_NAME, true);
         String childName = getName(firstName, lastName);
 
-        String motherFirstName = getValue(pc.getColumnmaps(), "mother_first_name", true);
+        String motherFirstName = getValue(pc.getColumnmaps(), PathConstants.KEY.MOTHER_FIRST_NAME, true);
         if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
             childName = "B/o " + motherFirstName.trim();
         }
         fillValue((TextView) convertView.findViewById(R.id.child_name), childName);
 
-        String motherName = getValue(pc.getColumnmaps(), "mother_first_name", true) + " " + getValue(pc, "mother_last_name", true);
+        String motherName = getValue(pc.getColumnmaps(), PathConstants.KEY.MOTHER_LAST_NAME, true) + " " + getValue(pc, PathConstants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
         fillValue((TextView) convertView.findViewById(R.id.child_mothername), motherName);
 
         DateTime birthDateTime;
-        String dobString = getValue(pc.getColumnmaps(), "dob", false);
+        String dobString = getValue(pc.getColumnmaps(), PathConstants.KEY.DOB, false);
         String durationString = "";
         if (StringUtils.isNotBlank(dobString)) {
             try {
@@ -122,14 +123,14 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
         fillValue((TextView) convertView.findViewById(R.id.child_age), durationString);
 
-        fillValue((TextView) convertView.findViewById(R.id.child_card_number), pc.getColumnmaps(), "epi_card_number", false);
+        fillValue((TextView) convertView.findViewById(R.id.child_card_number), pc.getColumnmaps(), PathConstants.KEY.EPI_CARD_NUMBER, false);
 
-        String gender = getValue(pc.getColumnmaps(), "gender", true);
+        String gender = getValue(pc.getColumnmaps(), PathConstants.KEY.GENDER, true);
 
         final ImageView profilePic = (ImageView) convertView.findViewById(R.id.child_profilepic);
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
-        if (pc.entityId() != null) { //image already in local storage most likey ):
+        if (pc.entityId() != null) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(org.smartregister.R.id.entity_id, pc.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(pc.entityId(), OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
@@ -149,8 +150,8 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         recordVaccination.setOnClickListener(onClickListener);
         recordVaccination.setVisibility(View.INVISIBLE);
 
-        String lostToFollowUp = getValue(pc.getColumnmaps(), "lost_to_follow_up", false);
-        String inactive = getValue(pc.getColumnmaps(), "inactive", false);
+        String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
+        String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
 
         try {
             Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
@@ -209,7 +210,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         // Alerts
         Map<String, Date> recievedVaccines = receivedVaccines(updateWrapper.getVaccines());
 
-        List<Map<String, Object>> sch = generateScheduleList("child", new DateTime(updateWrapper.getDobString()), recievedVaccines, updateWrapper.getAlertList());
+        List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(updateWrapper.getDobString()), recievedVaccines, updateWrapper.getAlertList());
 
         State state = State.FULLY_IMMUNIZED;
         String stateKey = null;
@@ -231,14 +232,14 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
 
         if (nv != null) {
-            DateTime dueDate = (DateTime) nv.get("date");
-            VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get("vaccine");
+            DateTime dueDate = (DateTime) nv.get(PathConstants.KEY.DATE);
+            VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(PathConstants.KEY.VACCINE);
             stateKey = VaccinateActionUtils.stateKey(vaccine);
-            if (nv.get("alert") == null) {
+            if (nv.get(PathConstants.KEY.ALERT) == null) {
                 state = State.NO_ALERT;
-            } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("normal")) {
+            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.NORMAL)) {
                 state = State.DUE;
-            } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("upcoming")) {
+            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.UPCOMING)) {
                 Calendar today = Calendar.getInstance();
                 today.set(Calendar.HOUR_OF_DAY, 0);
                 today.set(Calendar.MINUTE, 0);
@@ -250,9 +251,9 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
                 } else {
                     state = State.UPCOMING;
                 }
-            } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("urgent")) {
+            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.URGENT)) {
                 state = State.OVERDUE;
-            } else if (((Alert) nv.get("alert")).status().value().equalsIgnoreCase("expired")) {
+            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.EXPIRED)) {
                 state = State.EXPIRED;
             }
         } else {
@@ -337,9 +338,9 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.NO_ALERT)) {
-            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, "week") || StringUtils.containsIgnoreCase(stateKey, "month")) && !updateWrapper.getVaccines().isEmpty()) {
+            if (StringUtils.isNotBlank(stateKey) && (StringUtils.containsIgnoreCase(stateKey, PathConstants.KEY.WEEK) || StringUtils.containsIgnoreCase(stateKey, PathConstants.KEY.MONTH)) && !updateWrapper.getVaccines().isEmpty()) {
                 Vaccine vaccine = updateWrapper.getVaccines().isEmpty() ? null : updateWrapper.getVaccines().get(updateWrapper.getVaccines().size() - 1);
-                String previousStateKey = VaccinateActionUtils.previousStateKey("child", vaccine);
+                String previousStateKey = VaccinateActionUtils.previousStateKey(PathConstants.KEY.CHILD, vaccine);
                 if (previousStateKey != null) {
                     recordVaccinationText.setText(previousStateKey);
                 } else {
@@ -392,6 +393,58 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
     public LayoutInflater inflater() {
         return inflater;
+    }
+
+    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
+
+        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
+
+        if (commonRepository != null) {
+            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
+
+            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
+            recordVaccination.setVisibility(View.VISIBLE);
+
+            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
+            moveToCatchment.setVisibility(View.GONE);
+
+            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+                if (isWeightRecord) {
+                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
+                    recordWeightText.setText("Record\nservice");
+
+                    String zeirId = getValue(pc.getColumnmaps(), PathConstants.KEY.ZEIR_ID, false);
+
+                    View recordWeight = convertView.findViewById(R.id.record_weight);
+                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordWeight.setTag(zeirId);
+                    recordWeight.setClickable(true);
+                    recordWeight.setEnabled(true);
+                    recordWeight.setOnClickListener(onClickListener);
+                } else {
+
+                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
+                    moveToCatchmentText.setText("Move to my\ncatchment");
+
+                    String motherBaseEntityId = getValue(pc.getColumnmaps(), PathConstants.KEY.MOTHER_BASE_ENTITY_ID, false);
+                    String entityId = pc.entityId();
+
+                    List<String> ids = new ArrayList<>();
+                    ids.add(motherBaseEntityId);
+                    ids.add(entityId);
+
+                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
+                    moveToCatchment.setTag(ids);
+                    moveToCatchment.setClickable(true);
+                    moveToCatchment.setEnabled(true);
+                    moveToCatchment.setOnClickListener(onClickListener);
+
+                    moveToCatchment.setVisibility(View.VISIBLE);
+                    recordVaccination.setVisibility(View.GONE);
+                }
+            }
+
+        }
     }
 
     public enum State {
@@ -482,7 +535,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         @Override
         protected Void doInBackground(Void... params) {
             vaccines = vaccineRepository.findByEntityId(entityId);
-            alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames("child"));
+            alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
             return null;
         }
 
@@ -503,55 +556,4 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
     }
 
-    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
-
-        CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
-
-        if (commonRepository != null) {
-            CommonPersonObject commonPersonObject = commonRepository.findByBaseEntityId(pc.entityId());
-
-            View recordVaccination = convertView.findViewById(R.id.record_vaccination);
-            recordVaccination.setVisibility(View.VISIBLE);
-
-            View moveToCatchment = convertView.findViewById(R.id.move_to_catchment);
-            moveToCatchment.setVisibility(View.GONE);
-
-            if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
-                if (isWeightRecord) {
-                    TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
-                    recordWeightText.setText("Record\nservice");
-
-                    String zeirId = getValue(pc.getColumnmaps(), "zeir_id", false);
-
-                    View recordWeight = convertView.findViewById(R.id.record_weight);
-                    recordWeight.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    recordWeight.setTag(zeirId);
-                    recordWeight.setClickable(true);
-                    recordWeight.setEnabled(true);
-                    recordWeight.setOnClickListener(onClickListener);
-                } else {
-
-                    TextView moveToCatchmentText = (TextView) convertView.findViewById(R.id.move_to_catchment_text);
-                    moveToCatchmentText.setText("Move to my\ncatchment");
-
-                    String motherBaseEntityId = getValue(pc.getColumnmaps(), "mother_base_entity_id", false);
-                    String entityId = pc.entityId();
-
-                    List<String> ids = new ArrayList<>();
-                    ids.add(motherBaseEntityId);
-                    ids.add(entityId);
-
-                    moveToCatchment.setBackground(context.getResources().getDrawable(R.drawable.record_weight_bg));
-                    moveToCatchment.setTag(ids);
-                    moveToCatchment.setClickable(true);
-                    moveToCatchment.setEnabled(true);
-                    moveToCatchment.setOnClickListener(onClickListener);
-
-                    moveToCatchment.setVisibility(View.VISIBLE);
-                    recordVaccination.setVisibility(View.GONE);
-                }
-            }
-
-        }
-    }
 }
