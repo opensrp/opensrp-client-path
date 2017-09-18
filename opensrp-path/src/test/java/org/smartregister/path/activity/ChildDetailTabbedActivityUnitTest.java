@@ -47,6 +47,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
@@ -772,22 +773,11 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     @Test
     public void onGiveTodayCallsSaveServiceMethodWithCorrectParameters() throws Exception {
-        activity.onGiveToday(serviceWrapper, view);
 
-        //PowerMockito.doNothing().when(activity, method(ChildDetailTabbedActivity.class, "saveService", ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
-        //PowerMockito.verifyPrivate(activity, times(1)).invoke("saveService", ServiceWrapper.class, View.class);
-
-    }
-
-    @Test
-    public void onGiveTodayDoesNotCallsSaveServiceMethodIfTagParameterIsNull() {
-
-        activity.onGiveToday(null, view);
-
-        // PowerMockito.doNothing().when(activity, method(ChildDetailTabbedActivity.class, "saveService", ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
-        //PowerMockito.verifyPrivate(activity, times(1)).invoke("saveService", ServiceWrapper.class, View.class);
-
-
+        ChildDetailTabbedActivity spy = PowerMockito.spy(activity);
+        spy.onGiveToday(serviceWrapper, view);
+        PowerMockito.doNothing().when(spy, method(ChildDetailTabbedActivity.class, "saveService", ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
+        PowerMockito.verifyPrivate(spy, times(1)).invoke("saveService", serviceWrapper, view);
     }
 
     class DetailsRepositoryLocal extends DetailsRepository {
