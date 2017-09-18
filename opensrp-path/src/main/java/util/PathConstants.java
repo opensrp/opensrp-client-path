@@ -6,7 +6,8 @@ import org.smartregister.path.BuildConfig;
 /**
  * Created by coder on 2/14/17.
  */
-public class PathConstants extends AllConstants {
+public class
+PathConstants extends AllConstants {
     public static final int DATABASE_VERSION = BuildConfig.DATABASE_VERSION;
 
     public static final int OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE = BuildConfig.OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE;
@@ -88,6 +89,10 @@ public class PathConstants extends AllConstants {
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
         public static final String BIRTH_WEIGHT = "Birth_Weight";
         public static final String RELATIONAL_ID = "relational_id";
+        public static final String MOTHER = "mother";
+        public static final String ENTITY_ID = "entity_id";
+        public static final String VALUE = "value";
+        public static final String STEPNAME = "stepName";
     }
 
 }
