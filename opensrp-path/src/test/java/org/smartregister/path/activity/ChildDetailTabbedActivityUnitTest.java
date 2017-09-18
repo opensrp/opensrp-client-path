@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.robolectric.Robolectric;
@@ -27,7 +26,6 @@ import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.mocks.ChildDetailTabbedActivityTestVersion;
 import org.smartregister.path.activity.mocks.MenuItemTestVersion;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.toolbar.ChildDetailsToolbar;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.EasyMap;
@@ -38,18 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import shared.BaseUnitTest;
-import shared.customshadows.ImageUtilsShadow;
 import shared.customshadows.ImmunizationRowAdapterShadow;
 import shared.customshadows.ImmunizationRowCardShadow;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
+import static junit.framework.Assert.*;
 import static org.mockito.Mockito.times;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
 
@@ -75,10 +66,10 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     private Map<String, String> details;
 
     @Mock
-    ServiceWrapper serviceWrapper;
+    private ServiceWrapper serviceWrapper;
 
     @Mock
-    View view;
+    private View view;
 
     @Before
     public void setUp() {
@@ -88,7 +79,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
 
-        initMocks(this);
+        org.mockito.MockitoAnnotations.initMocks(this);
 
         CoreLibrary.init(context_);
 
@@ -773,11 +764,11 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     @Test
     public void onGiveTodayCallsSaveServiceMethodWithCorrectParameters() throws Exception {
-
         ChildDetailTabbedActivity spy = PowerMockito.spy(activity);
         spy.onGiveToday(serviceWrapper, view);
-        PowerMockito.doNothing().when(spy, method(ChildDetailTabbedActivity.class, "saveService", ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
-        PowerMockito.verifyPrivate(spy, times(1)).invoke("saveService", serviceWrapper, view);
+        String privateMethodName = "saveService";
+        PowerMockito.doNothing().when(spy, method(ChildDetailTabbedActivity.class, privateMethodName, ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
+        PowerMockito.verifyPrivate(spy, times(1)).invoke(privateMethodName, serviceWrapper, view);
     }
 
     class DetailsRepositoryLocal extends DetailsRepository {

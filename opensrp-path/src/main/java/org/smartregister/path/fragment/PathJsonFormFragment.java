@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import util.MotherLookUpUtils;
+import util.PathConstants;
 
 import static org.smartregister.util.Utils.getValue;
 
@@ -62,7 +63,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
     public static PathJsonFormFragment getFormFragment(String stepName) {
         PathJsonFormFragment jsonFormFragment = new PathJsonFormFragment();
         Bundle bundle = new Bundle();
-        bundle.putString("stepName", stepName);
+        bundle.putString(PathConstants.KEY.STEPNAME, stepName);
         jsonFormFragment.setArguments(bundle);
         return jsonFormFragment;
     }
@@ -164,10 +165,9 @@ public class PathJsonFormFragment extends JsonFormFragment {
     }
 
     private void clearMotherLookUp() {
-        String entityId = "mother";
         Map<String, List<View>> lookupMap = getLookUpMap();
-        if (lookupMap.containsKey(entityId)) {
-            List<View> lookUpViews = lookupMap.get(entityId);
+        if (lookupMap.containsKey(PathConstants.KEY.MOTHER)) {
+            List<View> lookUpViews = lookupMap.get(PathConstants.KEY.MOTHER);
             if (lookUpViews != null && !lookUpViews.isEmpty()) {
                 for (View view : lookUpViews) {
                     if (view instanceof MaterialEditText) {
@@ -180,8 +180,8 @@ public class PathJsonFormFragment extends JsonFormFragment {
                 }
 
                 Map<String, String> metadataMap = new HashMap<>();
-                metadataMap.put("entity_id", "");
-                metadataMap.put("value", "");
+                metadataMap.put(PathConstants.KEY.ENTITY_ID, "");
+                metadataMap.put(PathConstants.KEY.VALUE, "");
 
                 writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
@@ -280,11 +280,9 @@ public class PathJsonFormFragment extends JsonFormFragment {
     private void lookupDialogDismissed(CommonPersonObjectClient pc) {
         if (pc != null) {
 
-            String entityId = "mother";
-
             Map<String, List<View>> lookupMap = getLookUpMap();
-            if (lookupMap.containsKey(entityId)) {
-                List<View> lookUpViews = lookupMap.get(entityId);
+            if (lookupMap.containsKey(PathConstants.KEY.MOTHER)) {
+                List<View> lookUpViews = lookupMap.get(PathConstants.KEY.MOTHER);
                 if (lookUpViews != null && !lookUpViews.isEmpty()) {
 
                     for (View view : lookUpViews) {
@@ -323,8 +321,8 @@ public class PathJsonFormFragment extends JsonFormFragment {
                     }
 
                     Map<String, String> metadataMap = new HashMap<>();
-                    metadataMap.put("entity_id", entityId);
-                    metadataMap.put("value", getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
+                    metadataMap.put(PathConstants.KEY.ENTITY_ID, PathConstants.KEY.MOTHER);
+                    metadataMap.put(PathConstants.KEY.VALUE, getValue(pc.getColumnmaps(), MotherLookUpUtils.baseEntityId, false));
 
                     writeMetaDataValue(FormUtils.LOOK_UP_JAVAROSA_PROPERTY, metadataMap);
 
