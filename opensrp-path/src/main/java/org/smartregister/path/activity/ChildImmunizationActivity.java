@@ -113,6 +113,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private final String BCG2_NOTIFICATION_DONE = "bcg2_not_done";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
+    private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -599,7 +600,7 @@ public class ChildImmunizationActivity extends BaseActivity
             if (weightWrapper.getUpdatedWeightDate() != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - weightWrapper.getUpdatedWeightDate().getMillis();
 
-                if (timeDiff <= TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS)) {
+                if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
                     recordWeight.setClickable(false);
                     recordWeight.setBackground(new ColorDrawable(getResources()
