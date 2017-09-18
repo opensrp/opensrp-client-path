@@ -28,7 +28,6 @@ import util.JsonFormUtils;
  */
 public class PathJsonFormActivity extends JsonFormActivity {
 
-    private static final String VACCINE_HINT = " child(ren) vaccinated today. Assuming ";
     private int generatedId = -1;
     private MaterialEditText balancetextview;
     private PathJsonFormFragment pathJsonFormFragment;
@@ -145,24 +144,24 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     } else if (currentBalance != 0) {
                         vialsused = (currentBalance / dosesPerVial) + 1;
                     }
-                    if (currentBalance != 0) {
-                        displaybalance = vialsused;
-                        if (balancetextview != null) {
-                            balancetextview.setErrorColor(Color.BLACK);
-                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
-                            balancetextview.setAccentTypeface(typeFace);
-                            balancetextview.setError(currentBalance + VACCINE_HINT + displaybalance + " vial(s) used.");
-//                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
-                        }
-                    } else {
-                        balancetextview.setErrorColor(Color.BLACK);
-                        balancetextview.setError("");
-
-                    }
+                    initializeBalanceTextView(currentBalance, vialsused, balancetextview);
                 }
             }
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void initializeBalanceTextView(int currentBalance, int vialsUsed, MaterialEditText balanceTextView) {
+        if (balanceTextView != null) {
+            balanceTextView.setErrorColor(Color.BLACK);
+            if (currentBalance != 0) {
+                Typeface typeFace = Typeface.create(balanceTextView.getTypeface(), Typeface.ITALIC);
+                balanceTextView.setAccentTypeface(typeFace);
+                balanceTextView.setError(currentBalance +" child(ren) vaccinated today. Assuming " + vialsUsed + " vial(s) used.");
+            } else {
+                balanceTextView.setError("");
+            }
         }
     }
 
@@ -241,20 +240,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     } else if (currentBalanceVaccineUsed != 0) {
                         vialsused = (currentBalanceVaccineUsed / dosesPerVial) + 1;
                     }
-                    if (currentBalanceVaccineUsed != 0) {
-                        displaybalance = vialsused;
-                        if (balancetextview != null) {
-                            balancetextview.setErrorColor(Color.BLACK);
-                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
-                            balancetextview.setAccentTypeface(typeFace);
-                            balancetextview.setError(currentBalanceVaccineUsed + VACCINE_HINT + displaybalance + " vial(s) used.");
-//                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
-                        }
-                    } else {
-                        balancetextview.setErrorColor(Color.BLACK);
-                        balancetextview.setError("");
-
-                    }
+                    initializeBalanceTextView(currentBalanceVaccineUsed, vialsused, balancetextview);
                 }
             }
         } catch (JSONException e) {
@@ -337,20 +323,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     } else if (currentBalanceVaccineUsed != 0) {
                         vialsused = (currentBalanceVaccineUsed / dosesPerVial) + 1;
                     }
-                    if (currentBalanceVaccineUsed != 0) {
-                        displaybalance = vialsused;
-                        if (balancetextview != null) {
-                            balancetextview.setErrorColor(Color.BLACK);
-                            Typeface typeFace = Typeface.create(balancetextview.getTypeface(), Typeface.ITALIC);
-                            balancetextview.setAccentTypeface(typeFace);
-                            balancetextview.setError(currentBalanceVaccineUsed + VACCINE_HINT + displaybalance + " vial(s) used.");
-//                                    writeValue("step1","labelHeaderImage","checkwritetolabel","","","");
-                        }
-                    } else {
-                        balancetextview.setErrorColor(Color.BLACK);
-                        balancetextview.setError("");
-
-                    }
+                    initializeBalanceTextView(currentBalanceVaccineUsed, vialsused, balancetextview);
                 }
             }
         } catch (JSONException e) {
