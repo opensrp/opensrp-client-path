@@ -311,7 +311,7 @@ public class ChildUnderFiveFragment extends Fragment {
             is.close();
             fileContents = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            android.util.Log.e(getClass().getName(), ex.toString(), ex);
+            Log.e(getClass().getName(), ex.toString(), ex);
         }
 
         return fileContents;

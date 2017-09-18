@@ -17,9 +17,9 @@ public class ImageUtils {
 
     public static int profileImageResourceByGender(String gender) {
         if (StringUtils.isNotBlank(gender)) {
-            if (gender.equalsIgnoreCase("male")) {
+            if (gender.equalsIgnoreCase(PathConstants.GENDER.MALE)) {
                 return R.drawable.child_boy_infant;
-            } else if (gender.equalsIgnoreCase("female")) {
+            } else if (gender.equalsIgnoreCase(PathConstants.GENDER.FEMALE)) {
                 return R.drawable.child_girl_infant;
             } else if (gender.toLowerCase().contains("trans")) {
                 return R.drawable.child_transgender_inflant;
