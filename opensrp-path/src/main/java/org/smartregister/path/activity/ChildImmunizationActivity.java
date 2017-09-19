@@ -113,6 +113,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private final String BCG2_NOTIFICATION_DONE = "bcg2_not_done";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
+    private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -578,6 +579,13 @@ public class ChildImmunizationActivity extends BaseActivity
     private void updateRecordWeightViews(WeightWrapper weightWrapper) {
         View recordWeight = findViewById(R.id.record_weight);
         recordWeight.setClickable(true);
+        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+
+        TextView recordWeightText = (TextView) findViewById(R.id.record_weight_text);
+        recordWeightText.setText(R.string.record_weight);
+
+        ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
+        recordWeightCheck.setVisibility(View.GONE);
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -585,23 +593,24 @@ public class ChildImmunizationActivity extends BaseActivity
             }
         });
 
-        recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
         if (weightWrapper.getDbKey() != null && weightWrapper.getWeight() != null) {
-            TextView recordWeightText = (TextView) findViewById(R.id.record_weight_text);
             recordWeightText.setText(Utils.kgStringSuffix(weightWrapper.getWeight()));
-
-            ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
             recordWeightCheck.setVisibility(View.VISIBLE);
 
             if (weightWrapper.getUpdatedWeightDate() != null) {
-                long timeDiff = Calendar.getInstance().getTimeInMillis()
-                        - weightWrapper.getUpdatedWeightDate().getMillis();
+                long timeDiff = Calendar.getInstance().getTimeInMillis() - weightWrapper.getUpdatedWeightDate().getMillis();
 
-                if (timeDiff < TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) {
+                if (timeDiff <= TimeUnit.MILLISECONDS.convert(RECORD_WEIGHT_BUTTON_ACTIVE_MIN, TimeUnit.HOURS)) {
                     //disable the button
                     recordWeight.setClickable(false);
                     recordWeight.setBackground(new ColorDrawable(getResources()
                             .getColor(android.R.color.transparent)));
+                } else {
+                    //reset state
+                    recordWeight.setClickable(true);
+                    recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
+                    recordWeightText.setText(R.string.record_weight);
+                    recordWeightCheck.setVisibility(View.GONE);
                 }
             }
         }
