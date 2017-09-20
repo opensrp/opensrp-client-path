@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +38,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,7 @@ import static java.text.MessageFormat.format;
 import static org.smartregister.domain.FetchStatus.fetched;
 import static org.smartregister.domain.FetchStatus.fetchedFailed;
 import static org.smartregister.domain.FetchStatus.nothingFetched;
+import static org.smartregister.path.activity.LoginActivity.getOpenSRPContext;
 import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logInfo;
 
@@ -55,13 +58,21 @@ public class PathUpdateActionsTask {
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
+    private static final ArrayList<String> ALLOWED_LEVELS;
+
+    static {
+        ALLOWED_LEVELS = new ArrayList<>();
+        ALLOWED_LEVELS.add("Health Facility");
+        ALLOWED_LEVELS.add("Zone");
+    }
+
     private final LockingBackgroundTask task;
     private final ActionService actionService;
     private final Context context;
     private final AllFormVersionSyncService allFormVersionSyncService;
+    private final HTTPAgent httpAgent;
     private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
-    private final HTTPAgent httpAgent;
 
 
     public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
@@ -73,6 +84,13 @@ public class PathUpdateActionsTask {
         task = new LockingBackgroundTask(progressIndicator);
         this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
 
+    }
+
+    public static void setAlarms(Context context) {
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
     }
 
     public void setAdditionalSyncService(AdditionalSyncService additionalSyncService) {
@@ -137,8 +155,33 @@ public class PathUpdateActionsTask {
         });
     }
 
-    private FetchStatus sync() {
+    public ArrayList<String> locationsCSV() {
+        JSONObject locationData;
+        ArrayList<String> locations = new ArrayList<>();
         try {
+            locationData = new JSONObject(getOpenSRPContext().anmLocationController().get());
+            if (locationData.has("locationsHierarchy") && locationData.getJSONObject("locationsHierarchy").has("map")) {
+                JSONObject map = locationData.getJSONObject("locationsHierarchy").getJSONObject("map");
+                Iterator<String> keys = map.keys();
+                while (keys.hasNext()) {
+                    String curKey = keys.next();
+                    extractLocations(locations, map.getJSONObject(curKey));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return locations;
+    }
+
+    private FetchStatus sync() {
+        ArrayList<String> locationsCSV = locationsCSV();
+
+        if (locationsCSV.isEmpty() || locationsCSV == null) {
+            return fetchedFailed;
+        }
+        try {
+
             int totalCount = 0;
             pushToServer();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
@@ -148,10 +191,8 @@ public class PathUpdateActionsTask {
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             while (true) {
                 long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-
-                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_PROVIDER, allSharedPreferences.fetchRegisteredANM());
+                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, StringUtils.join(locationsCSV, ","));
                 totalCount += eCount;
-
                 if (eCount <= 0) {
                     if (eCount < 0) totalCount = eCount;
                     break;
@@ -174,6 +215,24 @@ public class PathUpdateActionsTask {
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
             return fetchedFailed;
+        }
+
+    }
+
+    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
+            throws JSONException {
+        String name = rawLocationData.getJSONObject("node").getString("locationId");
+        String level = rawLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
+
+        if (ALLOWED_LEVELS.contains(level)) {
+            locationList.add(name);
+        }
+        if (rawLocationData.has("children")) {
+            Iterator<String> childIterator = rawLocationData.getJSONObject("children").keys();
+            while (childIterator.hasNext()) {
+                String curChildKey = childIterator.next();
+                extractLocations(locationList, rawLocationData.getJSONObject("children").getJSONObject(curChildKey));
+            }
         }
 
     }
@@ -445,19 +504,11 @@ public class PathUpdateActionsTask {
         context.startService(intent);
     }
 
-
     private void sendSyncStatusBroadcastMessage(Context context, FetchStatus fetchStatus) {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         context.sendBroadcast(intent);
-    }
-
-    public static void setAlarms(Context context) {
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
     }
 
 }
