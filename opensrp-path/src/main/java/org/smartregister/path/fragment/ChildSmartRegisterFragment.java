@@ -54,8 +54,6 @@ import java.util.List;
 
 import util.PathConstants;
 
-import static android.view.View.INVISIBLE;
-
 public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implements SyncStatusBroadcastReceiver.SyncStatusListener {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
     private LocationPickerView clinicSelection;
@@ -200,8 +198,8 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     @Override
     public void setupViews(View view) {
         super.setupViews(view);
-        view.findViewById(R.id.btn_report_month).setVisibility(INVISIBLE);
-        view.findViewById(R.id.service_mode_selection).setVisibility(INVISIBLE);
+        view.findViewById(R.id.btn_report_month).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.service_mode_selection).setVisibility(View.INVISIBLE);
 
         filterSection = view.findViewById(R.id.filter_selection);
         filterSection.setOnClickListener(clientActionHandler);
@@ -282,7 +280,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         ChildSmartClientsProvider hhscp = new ChildSmartClientsProvider(getActivity(),
-                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository());
+                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository(), context().commonrepository(tableName));
         clientAdapter = new SmartRegisterPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
         clientsView.setAdapter(clientAdapter);
 
@@ -510,7 +508,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     private void switchViews(boolean filterSelected) {
         if (filterSelected) {
             if (titleLabelView != null) {
-                titleLabelView.setText(String.format(getString(R.string.overdue_due), dueOverdueCount));
+                titleLabelView.setText(String.format(getString(R.string.overdue_due), String.valueOf(dueOverdueCount)));
             }
             nameInitials.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);

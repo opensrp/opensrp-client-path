@@ -22,3 +22,4 @@ build/
 opensrp-path/fabric.properties
 opensrp-path/reports/
 opensrp-path/jacoco.exec
+jacoco.exec

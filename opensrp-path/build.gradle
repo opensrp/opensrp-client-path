@@ -55,8 +55,10 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue "string", 'opensrp_url', '"http://zeir.smartregister.org/opensrp"'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro' 
+            resValue "string", 'opensrp_url', '""'
+            buildConfigField "String", 'OPENMRS_URL', '"http://openmrs.zeir.smartregister.org/openmrs"'
+            buildConfigField "String", 'OPENMRS_IDGEN_URL', '"/module/idgen/exportIdentifiers.form"' 
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '1'
@@ -101,17 +103,16 @@ dependencies {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.0.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.0.3-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.0.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.0.1-SNAPSHOT@aar') {
         transitive = true
     }
     compile ('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar') {
         transitive = true
     }
-
 
     compile('com.android.support:design:22.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
@@ -130,13 +131,12 @@ dependencies {
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
 
-    testCompile('org.robolectric:robolectric:3.4') {
+    testCompile('org.robolectric:robolectric:3.4.2') {
 
         exclude group: 'com.google.guava', module: 'guava'
         exclude group: 'org.apache.maven', module: 'maven-model'
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
-        exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
 
     testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
@@ -149,10 +149,10 @@ dependencies {
         exclude group: 'junit', module: 'junit'
     }
     // PowerMock
-    def powerMockVersion = '1.6.4'
+    def powerMockVersion = '1.7.1'
     testCompile "org.powermock:powermock-module-junit4:$powerMockVersion"
     testCompile "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
-    testCompile "org.powermock:powermock-api-mockito:$powerMockVersion"
+    testCompile "org.powermock:powermock-api-mockito2:$powerMockVersion"
     testCompile("org.powermock:powermock-classloading-xstream:$powerMockVersion") {
 
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'

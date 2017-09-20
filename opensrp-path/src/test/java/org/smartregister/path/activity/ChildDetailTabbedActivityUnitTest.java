@@ -22,10 +22,10 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.smartregister.CoreLibrary;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.mocks.ChildDetailTabbedActivityTestVersion;
 import org.smartregister.path.activity.mocks.MenuItemTestVersion;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.toolbar.ChildDetailsToolbar;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.EasyMap;
@@ -36,22 +36,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import shared.BaseUnitTest;
-import shared.customshadows.ImageUtilsShadow;
 import shared.customshadows.ImmunizationRowAdapterShadow;
 import shared.customshadows.ImmunizationRowCardShadow;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static junit.framework.Assert.*;
+import static org.mockito.Mockito.times;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
 
 /**
  * created by onadev on 07/06/2017.
  */
 @PrepareForTest({org.smartregister.Context.class})
-@Config(shadows = {ImageUtilsShadow.class, ImmunizationRowAdapterShadow.class, ImmunizationRowCardShadow.class})
+@Config(shadows = {ImmunizationRowAdapterShadow.class, ImmunizationRowCardShadow.class})
 public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     @InjectMocks
@@ -68,6 +65,12 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     private ActivityController<ChildDetailTabbedActivityTestVersion> controller;
     private Map<String, String> details;
 
+    @Mock
+    private ServiceWrapper serviceWrapper;
+
+    @Mock
+    private View view;
+
     @Before
     public void setUp() {
         details = new HashMap<>();
@@ -76,11 +79,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
 
-        initMocks(this);
-
-        PowerMockito.mockStatic(VaccinatorApplication.class);
-
-        PowerMockito.mockStatic(org.smartregister.Context.class);
+        org.mockito.MockitoAnnotations.initMocks(this);
 
         CoreLibrary.init(context_);
 
@@ -116,7 +115,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldRenderChildNameTextView() {
 
@@ -150,7 +148,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldRenderStatusNameTextView() {
 
@@ -159,7 +156,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldRenderStatusTextView() {
 
@@ -167,7 +163,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertNotNull(textView);
 
     }
-
 
     @Test
     public void shouldRenderRegistrationDataTabTitle() {
@@ -425,7 +420,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldDisplayOnOptionsMenuCaseRegistrationData() {
         MenuItemTestVersion menuItem = new MenuItemTestVersion();
@@ -457,7 +451,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldDisplayOnOptionsMenuCaseImmunizationData() {
         MenuItemTestVersion menuItem = new MenuItemTestVersion();
@@ -473,7 +466,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
 
     }
-
 
     @Test
     public void shouldDisplayOnOptionsMenuCaseWeightData() {
@@ -497,7 +489,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
 
     }
-
 
     @Test
     public void shouldDisplayOnOptionsMenuCaseReportDeceased() {
@@ -535,9 +526,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         //Testing whether function call returned true
         assertTrue(result);
 
-
     }
-
 
     @Test
     public void getViewPagerAdapterShouldNotReturnNull() {
@@ -553,7 +542,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertNotNull(activity.getViewPagerAdapter().getItem(1));
 
     }
-
 
     @Test
     public void getDetailsRepositoryShouldNotReturnNull() {
@@ -573,7 +561,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertTrue(activity.isFinishing());
 
     }
-
 
     @Test
     public void getVaccinatorApplicationInstanceShouldNotReturnNull() {
@@ -605,7 +592,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void shouldRenderStatusFragmentOnStatusViewClick() {
 
@@ -624,9 +610,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertTrue(outViews.get(0).getVisibility() == View.VISIBLE);
     }
 
-
     @Test
-
     public void onCreateSetsUpSuccessfullyWithSerializedChildDetails() {
 
 
@@ -651,9 +635,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertNotNull(nameView);
     }
 
-
     @Test
-
     public void statusViewShouldUpdateToInactiveIfChildDetailsInactiveParamIsSetToTrue() {
 
         destroyController(); //destroy controller
@@ -686,13 +668,11 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
     }
 
-
     @Test
     public void onBackActivityShouldReturnChildImmunizationActivityClass() {
 
         assertNotNull(activity.getVaccinatorApplicationInstance());
         assertTrue(activity.onBackActivity() == ChildImmunizationActivity.class);
-
 
     }
 
@@ -732,7 +712,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-
     public void statusViewShouldUpdateToLostToFollowUpWhenChildStatusLostToFollowUpParamIsTrue() {
 
         destroyController(); //destroy controller
@@ -771,15 +750,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         return new DetailsRepositoryLocal();
     }
 
-    class DetailsRepositoryLocal extends DetailsRepository {
-
-
-        @Override
-        public Map<String, String> getAllDetailsForClient(String baseEntityId) {
-            return details;
-        }
-    }
-
     private void destroyController() {
         try {
             activity.finish();
@@ -792,5 +762,22 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         System.gc();
     }
 
+    @Test
+    public void onGiveTodayCallsSaveServiceMethodWithCorrectParameters() throws Exception {
+        ChildDetailTabbedActivity spy = PowerMockito.spy(activity);
+        spy.onGiveToday(serviceWrapper, view);
+        String privateMethodName = "saveService";
+        PowerMockito.doNothing().when(spy, method(ChildDetailTabbedActivity.class, privateMethodName, ServiceWrapper.class, View.class)).withArguments(serviceWrapper, view);
+        PowerMockito.verifyPrivate(spy, times(1)).invoke(privateMethodName, serviceWrapper, view);
+    }
+
+    class DetailsRepositoryLocal extends DetailsRepository {
+
+
+        @Override
+        public Map<String, String> getAllDetailsForClient(String baseEntityId) {
+            return details;
+        }
+    }
 
 }
