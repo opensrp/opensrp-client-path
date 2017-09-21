@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -170,7 +171,11 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
                 String query = "";
 
                 SmartRegisterQueryBuilder sqb = new SmartRegisterQueryBuilder(mainSelect);
-                query = sqb.addCondition(" WHERE " + getTablename() + ".zeir_id = " + searchQuery);
+                String whereOrAnd = " WHERE ";
+                if (StringUtils.containsIgnoreCase(sqb.getSelectquery(), whereOrAnd.trim())) {
+                    whereOrAnd = " AND ";
+                }
+                query = sqb.addCondition(whereOrAnd + getTablename() + ".zeir_id = " + searchQuery);
                 query = sqb.Endquery(sqb.addlimitandOffset(query, 1, 0));
 
                 cursor = commonRepository().rawCustomQueryForAdapter(query);
