@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +21,7 @@ import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
@@ -28,6 +30,7 @@ import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.sync.AdditionalSyncService;
+import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
@@ -55,13 +58,14 @@ public class PathUpdateActionsTask {
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
+
     private final LockingBackgroundTask task;
     private final ActionService actionService;
     private final Context context;
     private final AllFormVersionSyncService allFormVersionSyncService;
+    private final HTTPAgent httpAgent;
     private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
-    private final HTTPAgent httpAgent;
 
 
     public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
@@ -73,6 +77,13 @@ public class PathUpdateActionsTask {
         task = new LockingBackgroundTask(progressIndicator);
         this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
 
+    }
+
+    public static void setAlarms(Context context) {
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
     }
 
     public void setAdditionalSyncService(AdditionalSyncService additionalSyncService) {
@@ -137,21 +148,25 @@ public class PathUpdateActionsTask {
         });
     }
 
+
     private FetchStatus sync() {
+
         try {
+            // Fetch locations
+            String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
+
+            if (StringUtils.isBlank(locations)) {
+                return fetchedFailed;
+            }
+
             int totalCount = 0;
             pushToServer();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-            // Retrieve database host from preferences
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             while (true) {
                 long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-
-                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_PROVIDER, allSharedPreferences.fetchRegisteredANM());
+                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
                 totalCount += eCount;
-
                 if (eCount <= 0) {
                     if (eCount < 0) totalCount = eCount;
                     break;
@@ -177,6 +192,7 @@ public class PathUpdateActionsTask {
         }
 
     }
+
 
     private void pushToServer() {
         pushECToServer();
@@ -445,19 +461,11 @@ public class PathUpdateActionsTask {
         context.startService(intent);
     }
 
-
     private void sendSyncStatusBroadcastMessage(Context context, FetchStatus fetchStatus) {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         context.sendBroadcast(intent);
-    }
-
-    public static void setAlarms(Context context) {
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
     }
 
 }

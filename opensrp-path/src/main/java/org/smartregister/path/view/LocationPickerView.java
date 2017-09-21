@@ -40,7 +40,8 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     private ServiceLocationsAdapter serviceLocationsAdapter;
     private OnLocationChangeListener onLocationChangeListener;
 
-    private static final ArrayList<String> ALLOWED_LEVELS;
+    public static final String PREF_TEAM_LOCATIONS = "PREF_TEAM_LOCATIONS";
+    public static final ArrayList<String> ALLOWED_LEVELS;
     private static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
 
     static {
