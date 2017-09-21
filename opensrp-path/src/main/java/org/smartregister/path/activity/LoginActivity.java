@@ -29,7 +29,10 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.domain.LoginResponse;
 import org.smartregister.domain.Response;
@@ -41,15 +44,19 @@ import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.util.Log;
+import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
@@ -372,7 +379,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToHome(boolean remote) {
-        if (!remote) startZScoreIntentService();
+        if (!remote) {
+            startZScoreIntentService();
+        } else {
+            Utils.startAsyncTask(new SaveTeamLocationsTask(), null);
+        }
         VaccinatorApplication.setCrashlyticsUser(getOpenSRPContext());
         Intent intent = new Intent(this, ChildSmartRegisterActivity.class);
         intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, remote);
@@ -494,4 +505,57 @@ public class LoginActivity extends AppCompatActivity {
             afterLoginCheck.onEvent(loginResponse);
         }
     }
+
+    private class SaveTeamLocationsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ArrayList<String> locationsCSV = locationsCSV();
+
+            if (locationsCSV.isEmpty()) {
+                return null;
+            }
+
+            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils.join(locationsCSV, ","));
+            return null;
+        }
+
+        public ArrayList<String> locationsCSV() {
+            JSONObject locationData;
+            ArrayList<String> locations = new ArrayList<>();
+            try {
+                locationData = new JSONObject(VaccinatorApplication.getInstance().context().anmLocationController().get());
+                if (locationData.has("locationsHierarchy") && locationData.getJSONObject("locationsHierarchy").has("map")) {
+                    JSONObject map = locationData.getJSONObject("locationsHierarchy").getJSONObject("map");
+                    Iterator<String> keys = map.keys();
+                    while (keys.hasNext()) {
+                        String curKey = keys.next();
+                        extractLocations(locations, map.getJSONObject(curKey));
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e(getClass().getCanonicalName(), android.util.Log.getStackTraceString(e));
+            }
+            return locations;
+        }
+    }
+
+    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
+            throws JSONException {
+        String name = rawLocationData.getJSONObject("node").getString("locationId");
+        String level = rawLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
+
+        if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
+            locationList.add(name);
+        }
+        if (rawLocationData.has("children")) {
+            Iterator<String> childIterator = rawLocationData.getJSONObject("children").keys();
+            while (childIterator.hasNext()) {
+                String curChildKey = childIterator.next();
+                extractLocations(locationList, rawLocationData.getJSONObject("children").getJSONObject(curChildKey));
+            }
+        }
+
+    }
+
 }

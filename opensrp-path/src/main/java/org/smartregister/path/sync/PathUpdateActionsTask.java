@@ -21,6 +21,7 @@ import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
@@ -29,6 +30,7 @@ import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.sync.AdditionalSyncService;
+import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
 import org.smartregister.view.ProgressIndicator;
@@ -38,7 +40,6 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +50,6 @@ import static java.text.MessageFormat.format;
 import static org.smartregister.domain.FetchStatus.fetched;
 import static org.smartregister.domain.FetchStatus.fetchedFailed;
 import static org.smartregister.domain.FetchStatus.nothingFetched;
-import static org.smartregister.path.activity.LoginActivity.getOpenSRPContext;
 import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logInfo;
 
@@ -58,13 +58,6 @@ public class PathUpdateActionsTask {
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
-    private static final ArrayList<String> ALLOWED_LEVELS;
-
-    static {
-        ALLOWED_LEVELS = new ArrayList<>();
-        ALLOWED_LEVELS.add("Health Facility");
-        ALLOWED_LEVELS.add("Zone");
-    }
 
     private final LockingBackgroundTask task;
     private final ActionService actionService;
@@ -155,43 +148,24 @@ public class PathUpdateActionsTask {
         });
     }
 
-    public ArrayList<String> locationsCSV() {
-        JSONObject locationData;
-        ArrayList<String> locations = new ArrayList<>();
-        try {
-            locationData = new JSONObject(getOpenSRPContext().anmLocationController().get());
-            if (locationData.has("locationsHierarchy") && locationData.getJSONObject("locationsHierarchy").has("map")) {
-                JSONObject map = locationData.getJSONObject("locationsHierarchy").getJSONObject("map");
-                Iterator<String> keys = map.keys();
-                while (keys.hasNext()) {
-                    String curKey = keys.next();
-                    extractLocations(locations, map.getJSONObject(curKey));
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return locations;
-    }
 
     private FetchStatus sync() {
-        ArrayList<String> locationsCSV = locationsCSV();
 
-        if (locationsCSV.isEmpty() || locationsCSV == null) {
-            return fetchedFailed;
-        }
         try {
+            // Fetch locations
+            String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
+
+            if (StringUtils.isBlank(locations)) {
+                return fetchedFailed;
+            }
 
             int totalCount = 0;
             pushToServer();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-            // Retrieve database host from preferences
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             while (true) {
                 long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, StringUtils.join(locationsCSV, ","));
+                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
                 totalCount += eCount;
                 if (eCount <= 0) {
                     if (eCount < 0) totalCount = eCount;
@@ -219,23 +193,6 @@ public class PathUpdateActionsTask {
 
     }
 
-    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
-            throws JSONException {
-        String name = rawLocationData.getJSONObject("node").getString("locationId");
-        String level = rawLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
-
-        if (ALLOWED_LEVELS.contains(level)) {
-            locationList.add(name);
-        }
-        if (rawLocationData.has("children")) {
-            Iterator<String> childIterator = rawLocationData.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                extractLocations(locationList, rawLocationData.getJSONObject("children").getJSONObject(curChildKey));
-            }
-        }
-
-    }
 
     private void pushToServer() {
         pushECToServer();
