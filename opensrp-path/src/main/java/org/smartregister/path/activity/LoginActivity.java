@@ -473,6 +473,26 @@ public class LoginActivity extends AppCompatActivity {
         return VaccinatorApplication.getInstance().context();
     }
 
+    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
+            throws JSONException {
+        final String NODE = "node";
+        final String CHILDREN = "children";
+        String name = rawLocationData.getJSONObject(NODE).getString("locationId");
+        String level = rawLocationData.getJSONObject(NODE).getJSONArray("tags").getString(0);
+
+        if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
+            locationList.add(name);
+        }
+        if (rawLocationData.has(CHILDREN)) {
+            Iterator<String> childIterator = rawLocationData.getJSONObject(CHILDREN).keys();
+            while (childIterator.hasNext()) {
+                String curChildKey = childIterator.next();
+                extractLocations(locationList, rawLocationData.getJSONObject(CHILDREN).getJSONObject(curChildKey));
+            }
+        }
+
+    }
+
     ////////////////////////////////////////////////////////////////
 // Inner classes
 ////////////////////////////////////////////////////////////////
@@ -521,12 +541,14 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         public ArrayList<String> locationsCSV() {
+            final String LOCATIONS_HIERARCHY = "locationsHierarchy";
+            final String MAP = "map";
             JSONObject locationData;
             ArrayList<String> locations = new ArrayList<>();
             try {
                 locationData = new JSONObject(VaccinatorApplication.getInstance().context().anmLocationController().get());
-                if (locationData.has("locationsHierarchy") && locationData.getJSONObject("locationsHierarchy").has("map")) {
-                    JSONObject map = locationData.getJSONObject("locationsHierarchy").getJSONObject("map");
+                if (locationData.has(LOCATIONS_HIERARCHY) && locationData.getJSONObject(LOCATIONS_HIERARCHY).has(MAP)) {
+                    JSONObject map = locationData.getJSONObject(LOCATIONS_HIERARCHY).getJSONObject(MAP);
                     Iterator<String> keys = map.keys();
                     while (keys.hasNext()) {
                         String curKey = keys.next();
@@ -538,24 +560,6 @@ public class LoginActivity extends AppCompatActivity {
             }
             return locations;
         }
-    }
-
-    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
-            throws JSONException {
-        String name = rawLocationData.getJSONObject("node").getString("locationId");
-        String level = rawLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
-
-        if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
-            locationList.add(name);
-        }
-        if (rawLocationData.has("children")) {
-            Iterator<String> childIterator = rawLocationData.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                extractLocations(locationList, rawLocationData.getJSONObject("children").getJSONObject(curChildKey));
-            }
-        }
-
     }
 
 }
