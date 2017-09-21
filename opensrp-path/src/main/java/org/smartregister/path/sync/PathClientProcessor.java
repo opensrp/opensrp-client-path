@@ -40,6 +40,7 @@ import java.util.List;
 
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
+import util.Utils;
 
 public class PathClientProcessor extends ClientProcessor {
 
@@ -218,7 +219,7 @@ public class PathClientProcessor extends ClientProcessor {
                 vaccineObj.setEventId(vaccine.getString("id")); //FIXME hard coded id
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
-                vaccineRepository.add(vaccineObj);
+                Utils.addVaccine(vaccineRepository, vaccineObj);
             }
             return true;
 
