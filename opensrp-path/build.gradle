@@ -110,7 +110,7 @@ dependencies {
     compile('org.smartregister:opensrp-client-immunization:1.0.1-SNAPSHOT@aar') {
         transitive = true
     }
-    compile ('org.smartregister:opensrp-client-growth-monitoring:1.0.0-SNAPSHOT@aar') {
+    compile ('org.smartregister:opensrp-client-growth-monitoring:1.0.1-SNAPSHOT@aar') {
         transitive = true
     }
 

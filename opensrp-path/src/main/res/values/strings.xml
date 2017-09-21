@@ -195,4 +195,11 @@
     <string name="send">Send</string>
     <string name="n_a">"N/A"</string>
     <string name="confirm_button_label">Confirm</string>
+
+    <string name="due_label">Due</string>
+    <string name="upcoming_label">Upcoming</string>
+    <string name="expired_label">Expired</string>
+    <string name="record_label">Record</string>
+    <string name="waiting_label">Waiting</string>
+    <string name="fully_immunized_label">Fully\nimmunized</string>
 </resources>
