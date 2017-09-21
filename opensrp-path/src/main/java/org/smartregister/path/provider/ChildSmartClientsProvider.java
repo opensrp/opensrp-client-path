@@ -314,13 +314,13 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
-            recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label) + "\n" + stateKey);
+            recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
-            recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label) + "\n" + stateKey);
+            recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label));
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
@@ -349,7 +349,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
                 recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
-                recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label) + "\n" + stateKey);
+                recordVaccinationText.setText(context.getResources().getString(R.string.upcoming_label));
             }
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
