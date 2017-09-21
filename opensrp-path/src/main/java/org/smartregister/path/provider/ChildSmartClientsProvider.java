@@ -58,6 +58,7 @@ import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccin
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
+import static util.Utils.LINE_SEPARATOR;
 
 /**
  * Created by Ahmed on 13-Oct-15.
@@ -271,7 +272,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
 
         if (state.equals(State.FULLY_IMMUNIZED)) {
-            recordVaccinationText.setText("Fully\nimmunized");
+            recordVaccinationText.setText(R.string.fully_immunized_label);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
@@ -281,7 +282,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setEnabled(false);
 
         } else if (state.equals(State.INACTIVE)) {
-            recordVaccinationText.setText("Inactive");
+            recordVaccinationText.setText(R.string.inactive);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccinationCheck.setImageResource(R.drawable.ic_icon_status_inactive);
@@ -292,7 +293,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
 
         } else if (state.equals(State.LOST_TO_FOLLOW_UP)) {
-            recordVaccinationText.setText("Lost to\nFollow-Up");
+            recordVaccinationText.setText(R.string.lost_to_follow_up_with_nl);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccinationCheck.setImageResource(R.drawable.ic_icon_status_losttofollowup);
@@ -302,37 +303,37 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setEnabled(false);
 
         } else if (state.equals(State.WAITING)) {
-            recordVaccinationText.setText("Waiting");
+            recordVaccinationText.setText(R.string.waiting_label);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.EXPIRED)) {
-            recordVaccinationText.setText("Expired");
+            recordVaccinationText.setText(R.string.expired_label);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
-            recordVaccinationText.setText("Due\n" + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
-            recordVaccinationText.setText("Record\n" + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-            recordVaccinationText.setText("Record\n" + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.OVERDUE)) {
-            recordVaccinationText.setText("Record\n" + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
@@ -349,7 +350,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
                 recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
-                recordVaccinationText.setText("Due\n" + stateKey);
+                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             }
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
