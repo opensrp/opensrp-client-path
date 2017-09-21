@@ -902,7 +902,7 @@ public class ChildImmunizationActivity extends BaseActivity
         } else {
             vaccine.setCalculation(-1);
         }
-        vaccineRepository.add(vaccine);
+        util.Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
         setLastModified(true);
     }

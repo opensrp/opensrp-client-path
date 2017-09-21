@@ -1836,7 +1836,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 if (vaccines.size() > 0) {
                     VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
                     for (Vaccine curVaccine : vaccines) {
-                        vaccineRepository.add(curVaccine);
+                        Utils.addVaccine(vaccineRepository, curVaccine);
                     }
                 }
             } catch (Exception e) {

@@ -1133,7 +1133,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         } else {
             vaccine.setCalculation(-1);
         }
-        vaccineRepository.add(vaccine);
+        util.Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {

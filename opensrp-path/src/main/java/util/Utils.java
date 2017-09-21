@@ -21,12 +21,16 @@ import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.domain.EditWrapper;
 
 import java.util.Collection;
@@ -167,6 +171,49 @@ public class Utils {
             if (!(values.remove(null))) break;
         }
         map.putAll(extend);
+    }
+
+    public static void addVaccine(VaccineRepository vaccineRepository, Vaccine vaccine) {
+        try {
+            if (vaccineRepository == null || vaccine == null) {
+                return;
+            }
+
+            // Add the vaccine
+            vaccineRepository.add(vaccine);
+
+            String name = vaccine.getName();
+            if (StringUtils.isBlank(name)) {
+                return;
+            }
+
+            // Update vaccines in the same group where either can be given
+            // For example measles 1 / mr 1
+            name = VaccineRepository.removeHyphen(name);
+            String ftsVaccineName = null;
+
+            if (VaccineRepo.Vaccine.measles1.display().equalsIgnoreCase(name)) {
+                ftsVaccineName = VaccineRepo.Vaccine.mr1.display();
+            } else if (VaccineRepo.Vaccine.mr1.display().equalsIgnoreCase(name)) {
+                ftsVaccineName = VaccineRepo.Vaccine.measles1.display();
+            } else if (VaccineRepo.Vaccine.measles2.display().equalsIgnoreCase(name)) {
+                ftsVaccineName = VaccineRepo.Vaccine.mr2.display();
+            } else if (VaccineRepo.Vaccine.mr2.display().equalsIgnoreCase(name)) {
+                ftsVaccineName = VaccineRepo.Vaccine.measles2.display();
+            }
+
+            if (ftsVaccineName != null) {
+                ftsVaccineName = VaccineRepository.addHyphen(ftsVaccineName.toLowerCase());
+                Vaccine ftsVaccine = new Vaccine();
+                ftsVaccine.setBaseEntityId(vaccine.getBaseEntityId());
+                ftsVaccine.setName(ftsVaccineName);
+                vaccineRepository.updateFtsSearch(ftsVaccine);
+            }
+
+        } catch (Exception e) {
+            Log.e(Utils.class.getCanonicalName(), Log.getStackTraceString(e));
+        }
+
     }
 
 }
