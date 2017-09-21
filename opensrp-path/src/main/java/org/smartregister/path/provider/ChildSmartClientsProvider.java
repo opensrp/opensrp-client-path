@@ -58,6 +58,7 @@ import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccin
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
+import static util.Utils.LINE_SEPARATOR;
 
 /**
  * Created by Ahmed on 13-Oct-15.
@@ -314,25 +315,25 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + System.getProperty("line.separator") + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackgroundColor(context.getResources().getColor(R.color.white));
             recordVaccination.setEnabled(false);
         } else if (state.equals(State.UPCOMING_NEXT_7_DAYS)) {
-            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + System.getProperty("line.separator") + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_light_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.DUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + System.getProperty("line.separator") + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_blue_bg));
             recordVaccination.setEnabled(true);
         } else if (state.equals(State.OVERDUE)) {
-            recordVaccinationText.setText(context.getString(R.string.record_label) + System.getProperty("line.separator") + stateKey);
+            recordVaccinationText.setText(context.getString(R.string.record_label) + LINE_SEPARATOR + stateKey);
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.status_bar_text_almost_white));
 
             recordVaccination.setBackground(context.getResources().getDrawable(R.drawable.due_vaccine_red_bg));
@@ -349,7 +350,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
                 recordVaccinationCheck.setImageResource(R.drawable.ic_action_check);
                 recordVaccinationCheck.setVisibility(View.VISIBLE);
             } else {
-                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + System.getProperty("line.separator") + stateKey);
+                recordVaccinationText.setText(context.getString(R.string.upcoming_label) + LINE_SEPARATOR + stateKey);
             }
             recordVaccinationText.setTextColor(context.getResources().getColor(R.color.client_list_grey));
 
