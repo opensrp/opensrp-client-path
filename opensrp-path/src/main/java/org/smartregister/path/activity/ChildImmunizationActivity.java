@@ -607,6 +607,8 @@ public class ChildImmunizationActivity extends BaseActivity
                             .getColor(android.R.color.transparent)));
                 } else {
                     //reset state
+                    weightWrapper.setWeight(null);
+                    weightWrapper.setDbKey(null);
                     recordWeight.setClickable(true);
                     recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
                     recordWeightText.setText(R.string.record_weight);
