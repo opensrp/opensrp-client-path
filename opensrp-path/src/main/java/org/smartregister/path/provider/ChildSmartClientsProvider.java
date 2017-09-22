@@ -102,7 +102,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
         fillValue((TextView) convertView.findViewById(R.id.child_name), childName);
 
-        String motherName = getValue(pc.getColumnmaps(), PathConstants.KEY.MOTHER_LAST_NAME, true) + " " + getValue(pc, PathConstants.KEY.MOTHER_LAST_NAME, true);
+        String motherName = getValue(pc.getColumnmaps(), PathConstants.KEY.MOTHER_FIRST_NAME, true) + " " + getValue(pc, PathConstants.KEY.MOTHER_LAST_NAME, true);
         if (!StringUtils.isNotBlank(motherName)) {
             motherName = "M/G: " + motherName.trim();
         }
