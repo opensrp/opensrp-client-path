@@ -564,7 +564,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     }
 
                                     String vaccineName = object.getString("title").replace("Stock Loss/Adjustment", "").trim();
-                                    vaccineName = checkifmeasles(vaccineName);
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
