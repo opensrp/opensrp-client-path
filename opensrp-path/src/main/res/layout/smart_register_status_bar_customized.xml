@@ -19,13 +19,14 @@
 
         <EditText
             android:id="@+id/edt_search"
-            android:layout_width="@dimen/ec_main_header_search_box_width"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
             android:background="@android:color/transparent"
             android:ellipsize="end"
             android:hint="@string/str_search_hint"
+            android:minWidth="@dimen/ec_main_header_search_box_width"
             android:singleLine="true"
+            android:layout_toLeftOf="@+id/btn_search_cancel"
             android:textColor="@color/light_grey"
             android:textColorHint="@color/light_grey"
             android:textSize="18sp" />

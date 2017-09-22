@@ -530,6 +530,8 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
         String tableName = PathConstants.CHILD_TABLE_NAME;
         setTablename(tableName);
+        String parentTableName = PathConstants.MOTHER_TABLE_NAME;
+
         AdvancedSearchClientsProvider hhscp = new AdvancedSearchClientsProvider(getActivity(),
                 clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository(), commonRepository());
         clientAdapter = new AdvancedSearchPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
@@ -537,6 +539,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
         SmartRegisterQueryBuilder countqueryBUilder = new SmartRegisterQueryBuilder();
         countqueryBUilder.SelectInitiateMainTableCounts(getTablename());
+        countqueryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + getTablename() + ".relational_id =  " + parentTableName + ".id");
         countSelect = countqueryBUilder.mainCondition("");
 
     }
@@ -612,7 +615,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private String filterandSortQuery() {
         String tableName = getTablename();
-        String parentTableName = "ec_mother";
+        String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
@@ -672,14 +675,19 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private String getMainConditionString(String tableName) {
 
-        String startDateKey = START_DATE;
-        String endDateKey = END_DATE;
+        final String parentTableName = PathConstants.MOTHER_TABLE_NAME;
+
+        final String startDateKey = START_DATE;
+        final String endDateKey = END_DATE;
+
+        final String motherFirstNameKey = parentTableName + "." + FIRST_NAME;
+        final String motherLastNameKey = parentTableName + "." + LAST_NAME;
 
         String mainConditionString = "";
         for (Map.Entry<String, String> entry : editMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if (!key.equals(startDateKey) && !key.equals(endDateKey) && !key.contains(ACTIVE) && !key.contains(INACTIVE) && !key.contains(LOST_TO_FOLLOW_UP)) {
+            if (!key.equals(startDateKey) && !key.equals(endDateKey) && !key.contains(ACTIVE) && !key.contains(INACTIVE) && !key.contains(LOST_TO_FOLLOW_UP) && !key.contains(motherFirstNameKey) && !key.contains(motherLastNameKey)) {
                 if (StringUtils.isBlank(mainConditionString)) {
                     mainConditionString += " " + key + " Like '%" + value + "%'";
                 } else {
@@ -706,6 +714,15 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
             } else if (editMap.containsKey(startDateKey)) {
                 mainConditionString += " AND " + tableName + ".dob <= '" + editMap.get(endDateKey) + "'";
+            }
+        }
+
+
+        if (editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
+            if (StringUtils.isBlank(mainConditionString)) {
+                mainConditionString += " " + motherFirstNameKey + " Like '%" + editMap.get(motherFirstNameKey) + "%' OR " + motherLastNameKey + " Like '%" + editMap.get(motherLastNameKey) + "%'";
+            } else {
+                mainConditionString += " AND  (" + motherFirstNameKey + " Like '%" + editMap.get(motherFirstNameKey) + "%' OR " + motherLastNameKey + " Like '%" + editMap.get(motherLastNameKey) + "%' ) ";
             }
         }
 

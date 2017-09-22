@@ -85,6 +85,11 @@ public class VaccinatorApplication extends DrishtiApplication
         context.updateApplicationContext(getApplicationContext());
         context.updateCommonFtsObject(createCommonFtsObject());
 
+        //Initialize Modules
+        CoreLibrary.init(context());
+        GrowthMonitoringLibrary.init(context(), getRepository());
+        ImmunizationLibrary.init(context(), getRepository(), createCommonFtsObject());
+
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
@@ -100,11 +105,6 @@ public class VaccinatorApplication extends DrishtiApplication
         initOfflineSchedules();
         setCrashlyticsUser(context);
         PathUpdateActionsTask.setAlarms(this);
-
-        //Initialize Modules
-        CoreLibrary.init(context());
-        GrowthMonitoringLibrary.init(context(), getRepository());
-        ImmunizationLibrary.init(context(), getRepository(), createCommonFtsObject());
 
     }
 

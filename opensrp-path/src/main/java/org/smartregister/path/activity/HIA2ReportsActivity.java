@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -42,6 +43,8 @@ import org.smartregister.util.Utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -49,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import util.JsonFormUtils;
+import util.PathConstants;
 
 /**
  * Created by coder on 6/7/17.
@@ -58,6 +62,7 @@ public class HIA2ReportsActivity extends BaseActivity {
     private static final int REQUEST_CODE_GET_JSON = 3432;
     public static final int MONTH_SUGGESTION_LIMIT = 3;
     private static final String FORM_KEY_CONFIRM = "confirm";
+    private static final List<String> readOnlyList = new ArrayList<>(Arrays.asList("CHN1-011", "CHN1-021", "CHN1-025", "CHN2-015", "CHN2-030", "CHN2-041", "CHN2-051", "CHN2-061"));
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -152,27 +157,31 @@ public class HIA2ReportsActivity extends BaseActivity {
 
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_GET_JSON && resultCode == RESULT_OK) {
             try {
                 showFragment = true;
                 String jsonString = data.getStringExtra("json");
+                boolean skipValidationSet = data.getBooleanExtra(JsonFormConstants.SKIP_VALIDATION, false);
                 JSONObject form = new JSONObject(jsonString);
                 String monthString = form.getString("report_month");
                 Date month = HIA2Service.dfyymmdd.parse(monthString);
 
                 JSONObject monthlyDraftForm = new JSONObject(jsonString);
                 Map<String, String> result = JsonFormUtils.sectionFields(monthlyDraftForm);
-                boolean saveClicked = false;
+                boolean saveClicked;
                 if (result.containsKey(FORM_KEY_CONFIRM)) {
                     saveClicked = Boolean.valueOf(result.get(FORM_KEY_CONFIRM));
                     result.remove(FORM_KEY_CONFIRM);
+                    if (skipValidationSet) {
+                        Snackbar.make(tabLayout, R.string.all_changes_saved, Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    saveClicked = false;
                 }
-                VaccinatorApplication.getInstance().monthlyTalliesRepository()
-                        .save(result, month);
-                if (saveClicked) {
+                VaccinatorApplication.getInstance().monthlyTalliesRepository().save(result, month);
+                if (saveClicked && !skipValidationSet) {
                     sendReport(month);
                 }
             } catch (JSONException e) {
@@ -328,13 +337,10 @@ public class HIA2ReportsActivity extends BaseActivity {
         @Override
         protected Intent doInBackground(Void... params) {
             try {
-                MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication
-                        .getInstance().monthlyTalliesRepository();
-                List<MonthlyTally> monthlyTallies = monthlyTalliesRepository
-                        .findDrafts(MonthlyTalliesRepository.DF_YYYYMM.format(date));
+                MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication.getInstance().monthlyTalliesRepository();
+                List<MonthlyTally> monthlyTallies = monthlyTalliesRepository.findDrafts(MonthlyTalliesRepository.DF_YYYYMM.format(date));
 
-                HIA2IndicatorsRepository hIA2IndicatorsRepository = VaccinatorApplication
-                        .getInstance().hIA2IndicatorsRepository();
+                HIA2IndicatorsRepository hIA2IndicatorsRepository = VaccinatorApplication.getInstance().hIA2IndicatorsRepository();
                 List<Hia2Indicator> hia2Indicators = hIA2IndicatorsRepository.fetchAll();
                 if (hia2Indicators == null || hia2Indicators.isEmpty()) {
                     return null;
@@ -343,7 +349,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                 JSONObject form = FormUtils.getInstance(baseActivity).getFormJson(formName);
                 JSONObject step1 = form.getJSONObject("step1");
                 String title = MonthlyTalliesRepository.DF_YYYYMM.format(date).concat(" Draft");
-                step1.put("title", title);
+                step1.put(PathConstants.KEY.TITLE, title);
 
                 JSONArray sections = step1.getJSONArray(JsonFormConstants.SECTIONS);
 
@@ -356,28 +362,29 @@ public class HIA2ReportsActivity extends BaseActivity {
                     if (hia2Indicator.getLabel() == null) {
                         hia2Indicator.setLabel("");
                     }
-                    String label = hia2Indicator.getLabel() + " *";
+                    String label = hia2Indicator.getIndicatorCode() + ": " + hia2Indicator.getLabel() + " *";
 
                     JSONObject vRequired = new JSONObject();
-                    vRequired.put("value", "true");
-                    vRequired.put("err", "Specify: " + hia2Indicator.getLabel());
+                    vRequired.put(JsonFormConstants.VALUE, "true");
+                    vRequired.put(JsonFormConstants.ERR, "Specify: " + hia2Indicator.getLabel());
                     JSONObject vNumeric = new JSONObject();
-                    vNumeric.put("value", "true");
-                    vNumeric.put("err", "Value should be numeric");
+                    vNumeric.put(JsonFormConstants.VALUE, "true");
+                    vNumeric.put(JsonFormConstants.ERR, "Value should be numeric");
 
-                    jsonObject.put("key", hia2Indicator.getId());
-                    jsonObject.put("type", "edit_text");
-                    jsonObject.put("hint", label);
-                    jsonObject.put("value", retrieveValue(monthlyTallies, hia2Indicator));
+                    jsonObject.put(JsonFormConstants.KEY, hia2Indicator.getId());
+                    jsonObject.put(JsonFormConstants.TYPE, "edit_text");
+                    jsonObject.put(JsonFormConstants.READ_ONLY, readOnlyList.contains(hia2Indicator.getIndicatorCode()));
+                    jsonObject.put(JsonFormConstants.HINT, label);
+                    jsonObject.put(JsonFormConstants.VALUE, retrieveValue(monthlyTallies, hia2Indicator));
                     if (DailyTalliesRepository.IGNORED_INDICATOR_CODES
                             .contains(hia2Indicator.getIndicatorCode()) && firstTimeEdit) {
-                        jsonObject.put("value", "");
+                        jsonObject.put(JsonFormConstants.VALUE, "");
                     }
-                    jsonObject.put("v_required", vRequired);
-                    jsonObject.put("v_numeric", vNumeric);
-                    jsonObject.put("openmrs_entity_parent", "");
-                    jsonObject.put("openmrs_entity", "");
-                    jsonObject.put("openmrs_entity_id", "");
+                    jsonObject.put(JsonFormConstants.V_REQUIRED, vRequired);
+                    jsonObject.put(JsonFormConstants.V_NUMERIC, vNumeric);
+                    jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_PARENT, "");
+                    jsonObject.put(JsonFormConstants.OPENMRS_ENTITY, "");
+                    jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_ID, "");
                     indicatorCategory = hia2Indicator.getCategory();
                     JSONArray fields = null;
                     if (fieldsMap.containsKey(indicatorCategory)) {
@@ -399,16 +406,16 @@ public class HIA2ReportsActivity extends BaseActivity {
 
                 // Add the confirm button
                 JSONObject buttonObject = new JSONObject();
-                buttonObject.put("key", FORM_KEY_CONFIRM);
-                buttonObject.put("value", "false");
-                buttonObject.put("type", "button");
-                buttonObject.put("hint", "Confirm");
-                buttonObject.put("openmrs_entity_parent", "");
-                buttonObject.put("openmrs_entity", "");
-                buttonObject.put("openmrs_entity_id", "");
+                buttonObject.put(JsonFormConstants.KEY, FORM_KEY_CONFIRM);
+                buttonObject.put(JsonFormConstants.VALUE, "false");
+                buttonObject.put(JsonFormConstants.TYPE, "button");
+                buttonObject.put(JsonFormConstants.HINT, "Confirm");
+                buttonObject.put(JsonFormConstants.OPENMRS_ENTITY_PARENT, "");
+                buttonObject.put(JsonFormConstants.OPENMRS_ENTITY, "");
+                buttonObject.put(JsonFormConstants.OPENMRS_ENTITY_ID, "");
                 JSONObject action = new JSONObject();
-                action.put("behaviour", "finish_form");
-                buttonObject.put("action", action);
+                action.put(JsonFormConstants.BEHAVIOUR, "finish_form");
+                buttonObject.put(JsonFormConstants.ACTION, action);
 
                 JSONArray confirmSectionFields = new JSONArray();
                 confirmSectionFields.put(buttonObject);
@@ -416,10 +423,11 @@ public class HIA2ReportsActivity extends BaseActivity {
                 confirmSection.put(JsonFormConstants.FIELDS, confirmSectionFields);
                 sections.put(confirmSection);
 
-                form.put("report_month", HIA2Service.dfyymmdd.format(date));
+                form.put(JsonFormConstants.REPORT_MONTH, HIA2Service.dfyymmdd.format(date));
 
                 Intent intent = new Intent(baseActivity, PathJsonFormActivity.class);
                 intent.putExtra("json", form.toString());
+                intent.putExtra(JsonFormConstants.SKIP_VALIDATION, true);
 
                 return intent;
             } catch (Exception e) {
@@ -453,8 +461,7 @@ public class HIA2ReportsActivity extends BaseActivity {
 
         @Override
         protected List<MonthlyTally> doInBackground(Void... params) {
-            MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication
-                    .getInstance().monthlyTalliesRepository();
+            MonthlyTalliesRepository monthlyTalliesRepository = VaccinatorApplication.getInstance().monthlyTalliesRepository();
             Calendar endDate = Calendar.getInstance();
             endDate.set(Calendar.DAY_OF_MONTH, 1); // Set date to first day of this month
             endDate.set(Calendar.HOUR_OF_DAY, 23);
