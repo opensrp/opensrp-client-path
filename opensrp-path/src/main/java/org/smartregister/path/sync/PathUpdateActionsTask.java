@@ -126,10 +126,15 @@ public class PathUpdateActionsTask {
                         }
                     }
 
-                    if (fetchStatusForActions == fetched || fetchStatusForForms == fetched || fetchStatusAdditional == fetched)
+                    //Todo - Communicate exactly what is happening to the user eg. If actions do not update or if forms do not update - Dunno how to do that right now
+                    if (
+                            (fetchStatusForForms == fetched) &&
+                            (fetchStatusForActions == fetched || fetchStatusAdditional == fetched) )
                         return fetched;
+                    else
+                        return fetchedFailed;
 
-                    return fetchStatusForForms;
+                    //Dunno why this is here - return fetchStatusForForms;
                 }
 
                 return FetchStatus.noConnection;
@@ -159,6 +164,7 @@ public class PathUpdateActionsTask {
                 return fetchedFailed;
             }
 
+            //Todo - Change this to default -1 so that if it is not changed, the sync has failed
             int totalCount = 0;
             pushToServer();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
