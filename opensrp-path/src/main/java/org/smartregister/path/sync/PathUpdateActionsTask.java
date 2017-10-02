@@ -109,7 +109,6 @@ public class PathUpdateActionsTask {
                     startImageUploadIntentService(context);
                     startPullUniqueIdsIntentService(context);
 
-                    FetchStatus fetchStatusAdditional = additionalSyncService == null ? nothingFetched : additionalSyncService.sync();
 
                     if (VaccinatorApplication.getInstance().context().configuration().shouldSyncForm()) {
 
@@ -126,15 +125,12 @@ public class PathUpdateActionsTask {
                         }
                     }
 
-                    //Todo - Communicate exactly what is happening to the user eg. If actions do not update or if forms do not update - Dunno how to do that right now
-                    if (
-                            (fetchStatusForForms == fetched) &&
-                            (fetchStatusForActions == fetched || fetchStatusAdditional == fetched) )
-                        return fetched;
-                    else
-                        return fetchedFailed;
+                    if ( fetchStatusForForms == fetched ) {
+                        return fetchStatusForActions;
+                    } else {
+                        return fetchStatusForActions;
+                    }
 
-                    //Dunno why this is here - return fetchStatusForForms;
                 }
 
                 return FetchStatus.noConnection;
@@ -164,7 +160,6 @@ public class PathUpdateActionsTask {
                 return fetchedFailed;
             }
 
-            //Todo - Change this to default -1 so that if it is not changed, the sync has failed
             int totalCount = 0;
             pushToServer();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
@@ -174,7 +169,10 @@ public class PathUpdateActionsTask {
                 int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
                 totalCount += eCount;
                 if (eCount <= 0) {
-                    if (eCount < 0) totalCount = eCount;
+                    if (eCount < 0) {
+                        totalCount = eCount;
+                        // Break here, & return error since eCount returned was - 1
+                    }
                     break;
                 }
 
