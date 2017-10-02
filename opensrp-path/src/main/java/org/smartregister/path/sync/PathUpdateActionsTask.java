@@ -160,41 +160,47 @@ public class PathUpdateActionsTask {
                 return fetchedFailed;
             }
 
-            int totalCount = 0;
             pushToServer();
-            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-
-            while (true) {
-                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
-                totalCount += eCount;
-                if (eCount <= 0) {
-                    if (eCount < 0) {
-                        totalCount = eCount;
-                        // Break here, & return error since eCount returned was - 1
-                    }
-                    break;
-                }
-
-                long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
-                Log.i(getClass().getName(), "!!!!! Sync count:  " + eCount);
-                pathAfterFetchListener.partialFetch(fetched);
-            }
+            FetchStatus formActionsFetctStatus = pullFormAndActionsFromServer(locations);
             pullStockFromServer();
 
-            if (totalCount == 0) {
-                return nothingFetched;
-            } else if (totalCount < 0) {
-                return fetchedFailed;
-            } else {
-                return fetched;
-            }
+            return formActionsFetctStatus;
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
             return fetchedFailed;
         }
 
+    }
+
+    private FetchStatus pullFormAndActionsFromServer(String locations) throws Exception {
+        int totalCount = 0;
+        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+
+        while (true) {
+            long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+            totalCount += eCount;
+            if (eCount <= 0) {
+                if (eCount < 0) {
+                    return fetchedFailed;
+                }
+                break;
+            }
+
+            long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
+            Log.i(getClass().getName(), "!!!!! Sync count:  " + eCount);
+            pathAfterFetchListener.partialFetch(fetched);
+        }
+
+
+        if (totalCount == 0) {
+            return nothingFetched;
+        } else if (totalCount < 0) {
+            return fetchedFailed;
+        } else {
+            return fetched;
+        }
     }
 
 
