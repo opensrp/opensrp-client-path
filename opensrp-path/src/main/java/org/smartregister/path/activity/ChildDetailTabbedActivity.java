@@ -567,7 +567,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("PMTCT_Status")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "PMTCT_Status", true));
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "pmtct_status", true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
                         JSONArray homeFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
