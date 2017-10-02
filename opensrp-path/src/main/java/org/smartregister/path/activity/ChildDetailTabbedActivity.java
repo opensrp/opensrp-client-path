@@ -239,8 +239,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             public void onClick(View v) {
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 android.app.Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-
-                StatusEditDialogFragment.newInstance(ChildDetailTabbedActivity.this, details).show(ft, DIALOG_TAG);
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
             }
         });
 
@@ -380,8 +382,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             case R.id.change_status:
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
                 android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-
-                StatusEditDialogFragment.newInstance(this, details).show(ft, DIALOG_TAG);
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
