@@ -429,8 +429,10 @@ public class PathJsonFormFragment extends JsonFormFragment {
                         mainView.setTag(com.vijay.jsonwizard.R.id.skip_validation, skipValidation);
                         ValidationStatus validationStatus = presenter.writeValuesAndValidate(getMainView());
                         if (!validationStatus.isValid() && !Boolean.valueOf(getMainView().getTag(com.vijay.jsonwizard.R.id.skip_validation).toString())) {
-                            android.content.Context context =  (this.getView() != null) ? this.getView().getContext(): null;
-                            if (context == null) return true;
+                            android.content.Context context = (this.getView() != null) ? this.getView().getContext() : null;
+                            if (context == null) {
+                                return true;
+                            }
 
                             Toast.makeText(context, validationStatus.getErrorMessage(), Toast.LENGTH_LONG);
                             validationStatus.requestAttention();
