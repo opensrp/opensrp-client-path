@@ -419,7 +419,9 @@ public class PathJsonFormFragment extends JsonFormFragment {
                 if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
                     if (object.getString("title").contains("Stock Loss/Adjustment")) {
                         // First perform validation & then balanceCheck
-                        if (presenter == null) return true;
+                        if (presenter == null) {
+                            return true;
+                        }
 
                         LinearLayout mainView = getMainView();
 
