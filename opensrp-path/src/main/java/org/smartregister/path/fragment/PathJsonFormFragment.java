@@ -19,11 +19,14 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.vijay.jsonwizard.activities.JsonFormActivity;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.presenters.JsonFormFragmentPresenter;
 import com.vijay.jsonwizard.utils.FormUtils;
+import com.vijay.jsonwizard.utils.ValidationStatus;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
 import org.apache.commons.lang3.StringUtils;
@@ -414,6 +417,25 @@ public class PathJsonFormFragment extends JsonFormFragment {
             JSONObject object = getStep("step1");
             try {
                 if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
+                    if (object.getString("title").contains("Stock Loss/Adjustment")) {
+                        // First perform validation & then balanceCheck
+                        if (presenter == null) return true;
+
+                        LinearLayout mainView = getMainView();
+
+                        boolean skipValidation = ((JsonFormActivity) mainView.getContext()).getIntent().getBooleanExtra("skip_validation", false);
+                        mainView.setTag(com.vijay.jsonwizard.R.id.skip_validation, skipValidation);
+                        ValidationStatus validationStatus = presenter.writeValuesAndValidate(getMainView());
+                        if (!validationStatus.isValid() && !Boolean.valueOf(getMainView().getTag(com.vijay.jsonwizard.R.id.skip_validation).toString())) {
+                            android.content.Context context =  (this.getView() != null) ? this.getView().getContext(): null;
+                            if (context == null) return true;
+
+                            Toast.makeText(context, validationStatus.getErrorMessage(), Toast.LENGTH_LONG);
+                            validationStatus.requestAttention();
+                            return true;
+                        }
+                    }
+
                     balancecheck = ((PathJsonFormActivity) getActivity()).checkIfBalanceNegative();
                 }
             } catch (Exception e) {
