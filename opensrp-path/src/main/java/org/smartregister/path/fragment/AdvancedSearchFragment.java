@@ -487,7 +487,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             searchCriteriaString += " Mother/Guardian phone number: \"" + bold(motherGuardianPhoneNumberString) + "\",";
             String key = MOTHER_GUARDIAN_PHONE_NUMBER;
             if (!outOfArea) {
-                key = parentTableName + "." + CONTACT_PHONE_NUMBER;
+                key = tableName + "." + CONTACT_PHONE_NUMBER;
             }
             editMap.put(key, motherGuardianPhoneNumberString.trim());
         }
