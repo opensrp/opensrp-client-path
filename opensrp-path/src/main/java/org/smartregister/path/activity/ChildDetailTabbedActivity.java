@@ -147,8 +147,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private Map<String, String> details;
     public static final String inactive = "inactive";
-    public static final String lostToFollowUp = "lost_to_follow_up"
-            , PMTCT_STATUS_LOWER_CASE = "pmtct_status";
+    public static final String lostToFollowUp = "lost_to_follow_up";
+    public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
 
     private static final String CHILD = "child";
 
