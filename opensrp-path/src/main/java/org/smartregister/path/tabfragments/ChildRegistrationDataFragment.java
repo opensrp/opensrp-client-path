@@ -61,25 +61,10 @@ public class ChildRegistrationDataFragment extends Fragment {
         this.container = container;
         this.layout = layout;
 
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-//        layout.addView(createTableRow(inflater,container,"Catchment Area","Linda"));
-
+        loadData();
 
         // Inflate the layout for this fragment
         return fragmentview;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        loadData();
     }
 
     public void loadData() {

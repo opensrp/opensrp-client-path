@@ -350,7 +350,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
             case R.id.immunization_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(true, false, false);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -359,7 +361,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 return true;
 
             case R.id.recurring_services_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(false, true, false);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -367,7 +371,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 }
                 return true;
             case R.id.weight_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(false, false, true);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
