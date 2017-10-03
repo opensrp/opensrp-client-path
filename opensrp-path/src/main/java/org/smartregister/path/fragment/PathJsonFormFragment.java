@@ -412,14 +412,12 @@ public class PathJsonFormFragment extends JsonFormFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean balancecheck = true;
-        boolean isLossAdjustmentForm = false;
 
         if (item.getItemId() == com.vijay.jsonwizard.R.id.action_save) {
             JSONObject object = getStep("step1");
             try {
-                isLossAdjustmentForm = object.getString("title").contains("Stock Loss/Adjustment");
-                if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || isLossAdjustmentForm) {
-                    if (isLossAdjustmentForm) {
+                if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
+                    if (object.getString("title").contains("Stock Loss/Adjustment")) {
                         // First perform validation & then balanceCheck
                         if (presenter == null) return true;
 
@@ -445,8 +443,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
             }
         }
         if (balancecheck) {
-            if (isLossAdjustmentForm)
-                return true;
             return super.onOptionsItemSelected(item);
         } else {
             final Snackbar snackbar = Snackbar
