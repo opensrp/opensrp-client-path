@@ -182,7 +182,7 @@ public class StatusEditDialogFragment extends DialogFragment {
             boolean updateViews = false;
             switch (status) {
                 case ACTIVE:
-                    if ((details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString()))) {
+                    if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(inactive, false);
                         updateViews = true;
                     }
