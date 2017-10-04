@@ -64,7 +64,6 @@ public class PathUpdateActionsTask {
     private final Context context;
     private final AllFormVersionSyncService allFormVersionSyncService;
     private final HTTPAgent httpAgent;
-    private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
 
 
@@ -73,7 +72,6 @@ public class PathUpdateActionsTask {
         this.actionService = actionService;
         this.context = context;
         this.allFormVersionSyncService = allFormVersionSyncService;
-        this.additionalSyncService = null;
         task = new LockingBackgroundTask(progressIndicator);
         this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
 
@@ -84,10 +82,6 @@ public class PathUpdateActionsTask {
         VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
         VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
         VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
-    }
-
-    public void setAdditionalSyncService(AdditionalSyncService additionalSyncService) {
-        this.additionalSyncService = additionalSyncService;
     }
 
     public void updateFromServer(final PathAfterFetchListener pathAfterFetchListener) {
