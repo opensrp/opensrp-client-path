@@ -29,7 +29,6 @@ import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.ImageUploadSyncService;
-import org.smartregister.sync.AdditionalSyncService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
