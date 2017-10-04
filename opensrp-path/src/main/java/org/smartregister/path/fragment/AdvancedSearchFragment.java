@@ -1204,7 +1204,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             if (view instanceof EditText) {
                 previouslySelectedDateString = ((EditText) view).getText().toString();
 
-                if (!previouslySelectedDateString.equals("") && previouslySelectedDateString.length() > 2) {
+                if (!("").equals(previouslySelectedDateString) && previouslySelectedDateString.length() > 2) {
                     try {
                         Date previouslySelectedDate = DateUtil.yyyyMMdd.parse(previouslySelectedDateString);
                         mcurrentDate.setTime(previouslySelectedDate);
