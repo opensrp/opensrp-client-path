@@ -1210,7 +1210,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                         mcurrentDate.setTime(previouslySelectedDate);
                     } catch (ParseException e) {
                         e.printStackTrace();
-
                     }
                 }
             }
