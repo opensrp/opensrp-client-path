@@ -118,11 +118,7 @@ public class PathUpdateActionsTask {
                         }
                     }
 
-                    if (fetchStatusForForms == fetched) {
-                        return fetchStatusForActions;
-                    } else {
-                        return fetchStatusForForms;
-                    }
+                    return (fetchStatusForForms == fetched) ? fetchStatusForActions : return fetchStatusForForms;
 
                 }
 
@@ -173,16 +169,15 @@ public class PathUpdateActionsTask {
             long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
             int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
             totalCount += eCount;
-            if (eCount <= 0) {
-                if (eCount < 0) {
-                    return fetchedFailed;
-                }
+            if (eCount < 0) {
+                return fetchedFailed;
+            } else if (eCount == 0) {
                 break;
             }
 
             long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
             PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
-            Log.i(getClass().getName(), "!!!!! Sync count:  " + eCount);
+            Log.i(getClass().getName(), "Sync count:  " + eCount);
             pathAfterFetchListener.partialFetch(fetched);
         }
 
