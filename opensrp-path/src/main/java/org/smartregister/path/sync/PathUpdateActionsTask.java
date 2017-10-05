@@ -46,8 +46,6 @@ import java.util.Map;
 import util.NetworkUtils;
 import util.PathConstants;
 
-import org.smartregister.domain.FetchStatus;
-
 public class PathUpdateActionsTask {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
@@ -461,7 +459,6 @@ public class PathUpdateActionsTask {
     private void drishtiLogInfo(String message) {
         org.smartregister.util.Log.logInfo(message);
     }
-
 
     private void drishtiLogError(String message) {
         org.smartregister.util.Log.logError(message);
