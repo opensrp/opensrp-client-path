@@ -118,7 +118,7 @@ public class PathUpdateActionsTask {
                         }
                     }
 
-                    return (fetchStatusForForms == fetched) ? fetchStatusForActions : return fetchStatusForForms;
+                    return (fetchStatusForForms == fetched) ? fetchStatusForActions : fetchStatusForForms;
 
                 }
 
