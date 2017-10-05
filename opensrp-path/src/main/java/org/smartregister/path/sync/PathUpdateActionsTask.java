@@ -15,6 +15,7 @@ import org.smartregister.domain.DownloadStatus;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.Response;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
+import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -59,7 +60,7 @@ public class PathUpdateActionsTask {
     private final AllFormVersionSyncService allFormVersionSyncService;
     private final HTTPAgent httpAgent;
     private PathAfterFetchListener pathAfterFetchListener;
-
+    private static final int EVENT_FETCH_LIMIT = 50;
 
     public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
                                  AllFormVersionSyncService allFormVersionSyncService) {
@@ -68,7 +69,6 @@ public class PathUpdateActionsTask {
         this.allFormVersionSyncService = allFormVersionSyncService;
         task = new LockingBackgroundTask(progressIndicator);
         this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-
     }
 
     public static void setAlarms(Context context) {
@@ -133,7 +133,6 @@ public class PathUpdateActionsTask {
         });
     }
 
-
     private FetchStatus sync() {
 
         try {
@@ -186,7 +185,6 @@ public class PathUpdateActionsTask {
         }
     }
 
-
     private void pushToServer() {
         pushECToServer();
         pushReportsToServer();
@@ -196,29 +194,28 @@ public class PathUpdateActionsTask {
     private void pushECToServer() {
         EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         boolean keepSyncing = true;
-        int limit = 50;
         try {
             // db.markAllAsUnSynced();
 
             while (keepSyncing) {
                 Map<String, Object> pendingEvents = null;
-                pendingEvents = db.getUnSyncedEvents(limit);
+                pendingEvents = db.getUnSyncedEvents(EVENT_FETCH_LIMIT);
 
                 if (pendingEvents.isEmpty()) {
                     return;
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
-                if (pendingEvents.containsKey("clients")) {
-                    request.put("clients", pendingEvents.get("clients"));
+                if (pendingEvents.containsKey(context.getString(R.string.clients_key))) {
+                    request.put(context.getString(R.string.clients_key), pendingEvents.get(context.getString(R.string.clients_key)));
                 }
-                if (pendingEvents.containsKey("events")) {
-                    request.put("events", pendingEvents.get("events"));
+                if (pendingEvents.containsKey(context.getString(R.string.events_key))) {
+                    request.put(context.getString(R.string.events_key), pendingEvents.get(context.getString(R.string.events_key)));
                 }
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
@@ -249,8 +246,8 @@ public class PathUpdateActionsTask {
         AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
         String anmId = allSharedPreferences.fetchRegisteredANM();
         String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-        if (baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+        if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
         }
 
         while (true) {
@@ -297,13 +294,13 @@ public class PathUpdateActionsTask {
         Long toreturn = 0l;
         try {
             JSONObject stockContainer = new JSONObject(jsonPayload);
-            if (stockContainer.has("stocks")) {
-                JSONArray stockArray = stockContainer.getJSONArray("stocks");
+            if (stockContainer.has(context.getString(R.string.stocks_key))) {
+                JSONArray stockArray = stockContainer.getJSONArray(context.getString(R.string.stocks_key));
                 for (int i = 0; i < stockArray.length(); i++) {
 
                     JSONObject stockObject = stockArray.getJSONObject(i);
-                    if (stockObject.getLong("serverVersion") > toreturn) {
-                        toreturn = stockObject.getLong("serverVersion");
+                    if (stockObject.getLong(context.getString(R.string.server_version_key)) > toreturn) {
+                        toreturn = stockObject.getLong(context.getString(R.string.server_version_key));
                     }
 
                 }
@@ -318,19 +315,19 @@ public class PathUpdateActionsTask {
         ArrayList<Stock> Stock_arrayList = new ArrayList<>();
         try {
             JSONObject stockcontainer = new JSONObject(jsonPayload);
-            if (stockcontainer.has("stocks")) {
-                JSONArray stockArray = stockcontainer.getJSONArray("stocks");
+            if (stockcontainer.has(context.getString(R.string.stocks_key))) {
+                JSONArray stockArray = stockcontainer.getJSONArray(context.getString(R.string.stocks_key));
                 for (int i = 0; i < stockArray.length(); i++) {
                     JSONObject stockObject = stockArray.getJSONObject(i);
                     Stock stock = new Stock(null,
-                            stockObject.getString("transaction_type"),
-                            stockObject.getString("providerid"),
-                            stockObject.getInt("value"),
-                            stockObject.getLong("date_created"),
-                            stockObject.getString("to_from"),
+                            stockObject.getString(context.getString(R.string.transaction_type_key)),
+                            stockObject.getString(context.getString(R.string.providerid_key)),
+                            stockObject.getInt(context.getString(R.string.value_key)),
+                            stockObject.getLong(context.getString(R.string.date_created_key)),
+                            stockObject.getString(context.getString(R.string.to_from_key)),
                             BaseRepository.TYPE_Synced,
-                            stockObject.getLong("date_updated"),
-                            stockObject.getString("vaccine_type_id"));
+                            stockObject.getLong(context.getString(R.string.date_updated_key)),
+                            stockObject.getString(context.getString(R.string.vaccine_type_id_key)));
                     Stock_arrayList.add(stock);
                 }
             }
@@ -355,12 +352,12 @@ public class PathUpdateActionsTask {
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
-                request.put("stocks", stocksarray);
+                request.put(context.getString(R.string.stocks_key), stocksarray);
 
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
@@ -386,13 +383,13 @@ public class PathUpdateActionsTask {
             JSONObject stock = new JSONObject();
             try {
                 stock.put("identifier", stocks.get(i).getId());
-                stock.put("vaccine_type_id", stocks.get(i).getVaccineTypeId());
-                stock.put("transaction_type", stocks.get(i).getTransactionType());
-                stock.put("providerid", stocks.get(i).getProviderid());
-                stock.put("date_created", stocks.get(i).getDateCreated());
-                stock.put("value", stocks.get(i).getValue());
-                stock.put("to_from", stocks.get(i).getToFrom());
-                stock.put("date_updated", stocks.get(i).getUpdatedAt());
+                stock.put(context.getString(R.string.vaccine_type_id_key), stocks.get(i).getVaccineTypeId());
+                stock.put(context.getString(R.string.transaction_type_key), stocks.get(i).getTransactionType());
+                stock.put(context.getString(R.string.providerid_key), stocks.get(i).getProviderid());
+                stock.put(context.getString(R.string.date_created_key), stocks.get(i).getDateCreated());
+                stock.put(context.getString(R.string.value_key), stocks.get(i).getValue());
+                stock.put(context.getString(R.string.to_from_key), stocks.get(i).getToFrom());
+                stock.put(context.getString(R.string.date_updated_key), stocks.get(i).getUpdatedAt());
                 array.put(stock);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -415,8 +412,8 @@ public class PathUpdateActionsTask {
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
