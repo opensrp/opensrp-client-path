@@ -1405,7 +1405,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         ft.addToBackStack(null);
 
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers);
+        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 

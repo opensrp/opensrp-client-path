@@ -797,7 +797,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 .findByEntityId(childDetails.entityId());
         if (vaccineList == null) vaccineList = new ArrayList<>();
 
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers);
+        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -811,11 +811,16 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+        DateTime dob = DateTime.now();
+        if (!TextUtils.isEmpty(dobString)) {
+            dob = new DateTime(dobString);
+        }
 
         List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
                 .findByEntityId(childDetails.entityId());
 
-        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(serviceRecordList, serviceWrapper);
+        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
     }
 
