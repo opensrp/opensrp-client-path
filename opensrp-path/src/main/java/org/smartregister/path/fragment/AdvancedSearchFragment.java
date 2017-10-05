@@ -47,6 +47,7 @@ import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.provider.AdvancedSearchClientsProvider;
 import org.smartregister.util.Utils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1197,6 +1198,22 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         public void onClick(View view) {
             //To show current date in the datepicker
             Calendar mcurrentDate = Calendar.getInstance();
+
+            String previouslySelectedDateString = "";
+
+            if (view instanceof EditText) {
+                previouslySelectedDateString = ((EditText) view).getText().toString();
+
+                if (!("").equals(previouslySelectedDateString) && previouslySelectedDateString.length() > 2) {
+                    try {
+                        Date previouslySelectedDate = DateUtil.yyyyMMdd.parse(previouslySelectedDateString);
+                        mcurrentDate.setTime(previouslySelectedDate);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             int mYear = mcurrentDate.get(Calendar.YEAR);
             int mMonth = mcurrentDate.get(Calendar.MONTH);
             int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
