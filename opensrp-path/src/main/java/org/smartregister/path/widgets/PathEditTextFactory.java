@@ -17,6 +17,7 @@ import com.vijay.jsonwizard.widgets.EditTextFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.path.R;
+import org.smartregister.path.watchers.HI2ReportFormTextWatcher;
 import org.smartregister.path.watchers.LookUpTextWatcher;
 
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ public class PathEditTextFactory extends EditTextFactory {
     @Override
     public void attachJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, MaterialEditText editText) throws Exception {
         super.attachJson(stepName, context, formFragment, jsonObject, editText);
-
         // lookup hook
         if (jsonObject.has("look_up") && jsonObject.get("look_up").toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
@@ -52,6 +52,11 @@ public class PathEditTextFactory extends EditTextFactory {
             editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
         }
 
+        if (jsonObject.has("hia2_indicator")) {
+            editText.setTag(jsonObject.get("hia2_indicator"));
+            editText.setFloatingLabelTextSize(51);
+            editText.addTextChangedListener(new HI2ReportFormTextWatcher(formFragment, editText, jsonObject.get("hia2_indicator").toString()));
+        }
     }
 
     @Override

@@ -385,6 +385,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_PARENT, "");
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY, "");
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_ID, "");
+                    jsonObject.put("hia2_indicator", hia2Indicator.getIndicatorCode());
                     indicatorCategory = hia2Indicator.getCategory();
                     JSONArray fields = null;
                     if (fieldsMap.containsKey(indicatorCategory)) {
@@ -424,6 +425,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                 sections.put(confirmSection);
 
                 form.put(JsonFormConstants.REPORT_MONTH, HIA2Service.dfyymmdd.format(date));
+                form.put("identifier","HIA2ReportForm");
 
                 Intent intent = new Intent(baseActivity, PathJsonFormActivity.class);
                 intent.putExtra("json", form.toString());
