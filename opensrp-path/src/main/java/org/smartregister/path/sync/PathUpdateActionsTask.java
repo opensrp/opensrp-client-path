@@ -45,12 +45,7 @@ import java.util.Map;
 import util.NetworkUtils;
 import util.PathConstants;
 
-import static java.text.MessageFormat.format;
-import static org.smartregister.domain.FetchStatus.fetched;
-import static org.smartregister.domain.FetchStatus.fetchedFailed;
-import static org.smartregister.domain.FetchStatus.nothingFetched;
-import static org.smartregister.util.Log.logError;
-import static org.smartregister.util.Log.logInfo;
+import org.smartregister.domain.FetchStatus;
 
 public class PathUpdateActionsTask {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
@@ -88,7 +83,7 @@ public class PathUpdateActionsTask {
 
         sendSyncStatusBroadcastMessage(context, FetchStatus.fetchStarted);
         if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
-            logInfo("Not updating from server as user is not logged in.");
+            drishtiLogInfo("Not updating from server as user is not logged in.");
             return;
         }
 
@@ -113,12 +108,12 @@ public class PathUpdateActionsTask {
                             allFormVersionSyncService.unzipAllDownloadedFormFile();
                         }
 
-                        if (fetchVersionStatus == fetched || downloadStatus == DownloadStatus.downloaded) {
-                            return fetched;
+                        if (fetchVersionStatus == FetchStatus.fetched || downloadStatus == DownloadStatus.downloaded) {
+                            return FetchStatus.fetched;
                         }
                     }
 
-                    return (fetchStatusForForms == fetched) ? fetchStatusForActions : fetchStatusForForms;
+                    return (fetchStatusForForms == FetchStatus.fetched) ? fetchStatusForActions : fetchStatusForForms;
 
                 }
 
@@ -146,7 +141,7 @@ public class PathUpdateActionsTask {
             String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
 
             if (StringUtils.isBlank(locations)) {
-                return fetchedFailed;
+                return FetchStatus.fetchedFailed;
             }
 
             pushToServer();
@@ -156,7 +151,7 @@ public class PathUpdateActionsTask {
             return formActionsFetctStatus;
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
-            return fetchedFailed;
+            return FetchStatus.fetchedFailed;
         }
 
     }
@@ -170,7 +165,7 @@ public class PathUpdateActionsTask {
             int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
             totalCount += eCount;
             if (eCount < 0) {
-                return fetchedFailed;
+                return FetchStatus.fetchedFailed;
             } else if (eCount == 0) {
                 break;
             }
@@ -178,16 +173,16 @@ public class PathUpdateActionsTask {
             long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
             PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
             Log.i(getClass().getName(), "Sync count:  " + eCount);
-            pathAfterFetchListener.partialFetch(fetched);
+            pathAfterFetchListener.partialFetch(FetchStatus.fetched);
         }
 
 
         if (totalCount == 0) {
-            return nothingFetched;
+            return FetchStatus.nothingFetched;
         } else if (totalCount < 0) {
-            return fetchedFailed;
+            return FetchStatus.fetchedFailed;
         } else {
-            return fetched;
+            return FetchStatus.fetched;
         }
     }
 
@@ -227,7 +222,7 @@ public class PathUpdateActionsTask {
                 }
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
-                        format("{0}/{1}",
+                        MessageFormat.format("{0}/{1}",
                                 baseUrl,
                                 EVENTS_SYNC_PATH),
                         jsonPayload);
@@ -261,7 +256,7 @@ public class PathUpdateActionsTask {
         while (true) {
             long timestamp = preferences.getLong(LAST_STOCK_SYNC, 0);
             String timeStampString = String.valueOf(timestamp);
-            String uri = format("{0}/{1}?providerid={2}&serverVersion={3}",
+            String uri = MessageFormat.format("{0}/{1}?providerid={2}&serverVersion={3}",
                     baseUrl,
                     STOCK_SYNC_PATH,
                     anmId,
@@ -269,7 +264,7 @@ public class PathUpdateActionsTask {
             );
             Response<String> response = httpAgent.fetch(uri);
             if (response.isFailure()) {
-                logError(format("Stock pull failed."));
+                drishtiLogError("Stock pull failed.");
                 return;
             }
             String jsonPayload = response.payload();
@@ -369,7 +364,7 @@ public class PathUpdateActionsTask {
 
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
-                        format("{0}/{1}",
+                        MessageFormat.format("{0}/{1}",
                                 baseUrl,
                                 STOCK_Add_PATH),
                         jsonPayload);
@@ -464,6 +459,15 @@ public class PathUpdateActionsTask {
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         context.sendBroadcast(intent);
+    }
+
+    private void drishtiLogInfo(String message) {
+        org.smartregister.util.Log.logInfo(message);
+    }
+
+
+    private void drishtiLogError(String message) {
+        org.smartregister.util.Log.logError(message);
     }
 
 }
