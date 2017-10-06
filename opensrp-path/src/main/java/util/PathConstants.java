@@ -95,6 +95,9 @@ PathConstants extends AllConstants {
         public static final String STEPNAME = "stepName";
         public static final String TITLE = "title";
         public static final String ERR = "err";
+        public static final String HIA_2_INDICATOR = "hia2_indicator";
+        public static final String LOOK_UP = "look_up";
+        public static final String NUMBER_PICKER = "number_picker";
     }
 
 }

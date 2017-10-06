@@ -17,26 +17,28 @@ import com.vijay.jsonwizard.widgets.EditTextFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.path.R;
-import org.smartregister.path.watchers.HI2ReportFormTextWatcher;
+import org.smartregister.path.watchers.HIA2ReportFormTextWatcher;
 import org.smartregister.path.watchers.LookUpTextWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import util.PathConstants;
+
 /**
  * Created by keyman on 11/04/2017.
  */
 public class PathEditTextFactory extends EditTextFactory {
-    private static int HIA2_REPORT_FORM_HINT_FONT_SIZE = 51;
+    private static final int HIA2_REPORT_FORM_HINT_FONT_SIZE = 51;
 
     @Override
     public void attachJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, MaterialEditText editText) throws Exception {
         super.attachJson(stepName, context, formFragment, jsonObject, editText);
         // lookup hook
-        if (jsonObject.has("look_up") && jsonObject.get("look_up").toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (jsonObject.has(PathConstants.KEY.LOOK_UP) && jsonObject.get(PathConstants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
-            String entityId = jsonObject.getString("entity_id");
+            String entityId = jsonObject.getString(PathConstants.KEY.ENTITY_ID);
 
             Map<String, List<View>> lookupMap = formFragment.getLookUpMap();
             List<View> lookUpViews = new ArrayList<>();
@@ -53,16 +55,16 @@ public class PathEditTextFactory extends EditTextFactory {
             editText.setTag(com.vijay.jsonwizard.R.id.after_look_up, false);
         }
 
-        if (jsonObject.has("hia2_indicator")) {
-            editText.setTag(jsonObject.get("hia2_indicator"));
+        if (jsonObject.has(PathConstants.KEY.HIA_2_INDICATOR)) {
+            editText.setTag(jsonObject.get(PathConstants.KEY.HIA_2_INDICATOR));
             editText.setFloatingLabelTextSize(HIA2_REPORT_FORM_HINT_FONT_SIZE);
-            editText.addTextChangedListener(new HI2ReportFormTextWatcher(formFragment, jsonObject.get("hia2_indicator").toString()));
+            editText.addTextChangedListener(new HIA2ReportFormTextWatcher(formFragment, jsonObject.get(PathConstants.KEY.HIA_2_INDICATOR).toString()));
         }
     }
 
     @Override
     public List<View> getViewsFromJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, CommonListener listener) throws Exception {
-        if (jsonObject.has("number_picker") && jsonObject.get("number_picker").toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (jsonObject.has(PathConstants.KEY.NUMBER_PICKER) && jsonObject.get(PathConstants.KEY.NUMBER_PICKER).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
             List<View> views = new ArrayList<>(1);
 
             RelativeLayout rootLayout = (RelativeLayout) LayoutInflater.from(context).inflate(

@@ -11,7 +11,7 @@ import org.smartregister.path.service.HIA2Service;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HI2ReportFormTextWatcher implements TextWatcher {
+public class HIA2ReportFormTextWatcher implements TextWatcher {
 
     private static final Map<String, String[]> aggregateFieldsMap;
 
@@ -52,7 +52,7 @@ public class HI2ReportFormTextWatcher implements TextWatcher {
     private final JsonFormFragment formFragment;
     private final String hia2Indicator;
 
-    public HI2ReportFormTextWatcher(JsonFormFragment formFragment, String hi2IndicatorCode) {
+    public HIA2ReportFormTextWatcher(JsonFormFragment formFragment, String hi2IndicatorCode) {
         this.formFragment = formFragment;
         hia2Indicator = hi2IndicatorCode;
 
