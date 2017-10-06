@@ -1515,7 +1515,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1548,6 +1548,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         @Override
         protected void onPostExecute(Void params) {
             super.onPostExecute(params);
+            hideProgressDialog();
 
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);

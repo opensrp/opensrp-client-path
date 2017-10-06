@@ -1361,7 +1361,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1392,6 +1392,7 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected void onPostExecute(Void params) {
             super.onPostExecute(params);
+            hideProgressDialog();
 
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);
@@ -1538,7 +1539,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1563,6 +1564,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPostExecute(Void params) {
+            hideProgressDialog();
             super.onPostExecute(params);
 
             // Refresh the vaccine group with the updated vaccine
