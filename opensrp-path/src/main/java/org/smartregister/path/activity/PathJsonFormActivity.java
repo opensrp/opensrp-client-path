@@ -610,5 +610,33 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
         return balancecheck;
     }
+
+    public boolean checkIfAtLeastOneServiceGiven() {
+        JSONObject object = getStep("step1");
+        try {
+            if (object.getString("title").contains("Record out of catchment area service")) {
+                JSONArray fields = object.getJSONArray("fields");
+                for (int i = 0; i < fields.length(); i++) {
+                    JSONObject vaccineGroup = fields.getJSONObject(i);
+                    if (vaccineGroup.has("key") && vaccineGroup.has("is_vaccine_group")) {
+                        if (vaccineGroup.getBoolean("is_vaccine_group")) {
+                            if (vaccineGroup.has("value")) {
+                                return true;
+                            }
+                        }
+
+                    } else if (vaccineGroup.has("key") && vaccineGroup.getString("key").equals("Weight_Kg")) {
+                        if (vaccineGroup.has("value")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 }
 

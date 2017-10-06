@@ -408,7 +408,8 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean balancecheck = true;
+        boolean balancecheck = true,
+                fillFormCheck = true;
 
         if (item.getItemId() == com.vijay.jsonwizard.R.id.action_save) {
             JSONObject object = getStep("step1");
@@ -416,15 +417,28 @@ public class PathJsonFormFragment extends JsonFormFragment {
                 if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
                     balancecheck = ((PathJsonFormActivity) getActivity()).checkIfBalanceNegative();
                 }
+
+                if (object.getString("title").contains("Record out of catchment area service")) {
+                    fillFormCheck = ((PathJsonFormActivity) getActivity()).checkIfAtLeastOneServiceGiven();
+                }
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.toString(), e);
             }
         }
-        if (balancecheck) {
+        if (balancecheck && fillFormCheck) {
             return super.onOptionsItemSelected(item);
         } else {
+            String balanceCheckErrorMsg = "Please make sure the balance is not less than zero.",
+                    fillFormCheckErrorMsg = "Please register at least one service before saving",
+                    errorMessage = "";
+            if (!balancecheck) {
+                errorMessage = balanceCheckErrorMsg;
+            } else {
+                errorMessage = fillFormCheckErrorMsg;
+            }
+
             final Snackbar snackbar = Snackbar
-                    .make(getMainView(), "Please make sure the balance is not less than zero.", Snackbar.LENGTH_LONG);
+                    .make(getMainView(), errorMessage, Snackbar.LENGTH_LONG);
             snackbar.setAction("Close", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
