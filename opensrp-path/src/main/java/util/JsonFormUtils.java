@@ -28,6 +28,7 @@ import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.clientandeventmodel.FormEntityConstants;
 import org.smartregister.clientandeventmodel.Obs;
 import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.ProfileImage;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -35,6 +36,7 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
+import org.smartregister.path.activity.ChildSmartRegisterActivity;
 import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.UniqueIdRepository;
@@ -126,125 +128,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             return;
         }
 
-        try {
-            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
-            JSONObject jsonForm = new JSONObject(jsonString);
-
-            String entityId = getString(jsonForm, ENTITY_ID);
-            if (StringUtils.isBlank(entityId)) {
-                entityId = generateRandomUUIDString();
-            }
-
-            JSONArray fields = fields(jsonForm);
-            if (fields == null) {
-                return;
-            }
-
-            String encounterType = getString(jsonForm, ENCOUNTER_TYPE);
-
-            JSONObject metadata = getJSONObject(jsonForm, METADATA);
-
-            // Replace values for location questions with their corresponding location IDs
-            for (int i = 0; i < fields.length(); i++) {
-                String key = fields.getJSONObject(i).getString("key");
-                if ("Home_Facility".equals(key)
-                        || "Birth_Facility_Name".equals(key)
-                        || "Residential_Area".equals(key)) {
-                    try {
-                        String rawValue = fields.getJSONObject(i).getString("value");
-                        JSONArray valueArray = new JSONArray(rawValue);
-                        if (valueArray.length() > 0) {
-                            String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                            String lastLocationId = getOpenMrsLocationId(openSrpContext, lastLocationName);
-                            fields.getJSONObject(i).put("value", lastLocationId);
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, Log.getStackTraceString(e));
-                    }
-                } else if ("Mother_Guardian_Date_Birth".equals(key)) {
-                    if (TextUtils.isEmpty(fields.getJSONObject(i).optString("value"))) {
-                        fields.getJSONObject(i).put("value", MOTHER_DEFAULT_DOB);
-                    }
-                }
-            }
-
-            JSONObject lookUpJSONObject = getJSONObject(metadata, "look_up");
-            String lookUpEntityId = "";
-            String lookUpBaseEntityId = "";
-            if (lookUpJSONObject != null) {
-                lookUpEntityId = getString(lookUpJSONObject, "entity_id");
-                lookUpBaseEntityId = getString(lookUpJSONObject, "value");
-            }
-
-            Client c = JsonFormUtils.createBaseClient(fields, entityId);
-            Event e = JsonFormUtils.createEvent(openSrpContext, fields, metadata, entityId, encounterType, providerId, bindType);
-
-            Client s = null;
-            Event se = null;
-            if ("mother".equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
-                Client ss = new Client(lookUpBaseEntityId);
-                addRelationship(context, ss, c);
-            } else {
-
-                if (StringUtils.isNotBlank(subBindType)) {
-                    s = JsonFormUtils.createSubformClient(context, fields, c, subBindType, null);
-                }
-
-                if (s != null && e != null) {
-                    JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
-                    if (subBindTypeJson != null) {
-                        String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
-                        if (StringUtils.isNotBlank(subBindTypeEncounter)) {
-                            se = JsonFormUtils.createSubFormEvent(null, metadata, e, s.getBaseEntityId(), subBindTypeEncounter, providerId, subBindType);
-
-                        }
-                    }
-                }
-            }
-
-
-            if (c != null) {
-                JSONObject clientJson = new JSONObject(gson.toJson(c));
-
-                ecUpdater.addClient(c.getBaseEntityId(), clientJson);
-
-            }
-
-            if (e != null) {
-                JSONObject eventJson = new JSONObject(gson.toJson(e));
-                ecUpdater.addEvent(e.getBaseEntityId(), eventJson);
-            }
-
-            if (s != null) {
-                JSONObject clientJson = new JSONObject(gson.toJson(s));
-
-                ecUpdater.addClient(s.getBaseEntityId(), clientJson);
-
-            }
-
-            if (se != null) {
-                JSONObject eventJson = new JSONObject(gson.toJson(se));
-                ecUpdater.addEvent(se.getBaseEntityId(), eventJson);
-            }
-
-            String zeirId = c.getIdentifier(ZEIR_ID);
-            //mark zeir id as used
-            VaccinatorApplication.getInstance().uniqueIdRepository().close(zeirId);
-
-            String imageLocation = getFieldValue(fields, imageKey);
-            saveImage(context, providerId, entityId, imageLocation);
-
-            long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
-            Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-            allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
-
-        } catch (Exception e) {
-            Log.e(TAG, "", e);
-        }
+        org.smartregister.util.Utils.startAsyncTask(
+                new SaveBirthRegistrationTask(context, openSrpContext, jsonString, providerId, imageKey, bindType, subBindType), null
+        );
     }
 
     public static void editsave(Context context, org.smartregister.Context openSrpContext, String jsonString, String providerId, String imageKey, String bindType, String subBindType) {
@@ -1839,6 +1725,158 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         Utils.addVaccine(vaccineRepository, curVaccine);
                     }
                 }
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+            return null;
+        }
+    }
+
+    private static class SaveBirthRegistrationTask extends AsyncTask<Void, Void, Void> {
+        private Context context;
+        private org.smartregister.Context openSrpContext;
+        private String jsonString;
+        private String providerId;
+        private String imageKey;
+        private String bindType;
+        private String subBindType;
+
+        private SaveBirthRegistrationTask(Context context, org.smartregister.Context openSrpContext,
+                                          String jsonString, String providerId, String imageKey, String bindType,
+                                          String subBindType) {
+            this.context = context;
+            this.openSrpContext = openSrpContext;
+            this.jsonString = jsonString;
+            this.providerId = providerId;
+            this.imageKey = imageKey;
+            this.bindType = bindType;
+            this.subBindType = subBindType;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (context instanceof ChildSmartRegisterActivity) {
+                ChildSmartRegisterActivity childSmartRegisterActivity = ((ChildSmartRegisterActivity) context);
+                childSmartRegisterActivity.refreshList(FetchStatus.fetched);
+                childSmartRegisterActivity.hideProgressDialog();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            if (context instanceof ChildSmartRegisterActivity) {
+                ((ChildSmartRegisterActivity) context).showProgressDialog();
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+                AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+
+                JSONObject jsonForm = new JSONObject(jsonString);
+
+                String entityId = getString(jsonForm, ENTITY_ID);
+                if (StringUtils.isBlank(entityId)) {
+                    entityId = generateRandomUUIDString();
+                }
+
+                JSONArray fields = fields(jsonForm);
+                if (fields == null) {
+                    return null;
+                }
+
+                String encounterType = getString(jsonForm, ENCOUNTER_TYPE);
+                JSONObject metadata = getJSONObject(jsonForm, METADATA);
+
+                // Replace values for location questions with their corresponding location IDs
+                for (int i = 0; i < fields.length(); i++) {
+                    String key = fields.getJSONObject(i).getString("key");
+                    if ("Home_Facility".equals(key)
+                            || "Birth_Facility_Name".equals(key)
+                            || "Residential_Area".equals(key)) {
+                        try {
+                            String rawValue = fields.getJSONObject(i).getString("value");
+                            JSONArray valueArray = new JSONArray(rawValue);
+                            if (valueArray.length() > 0) {
+                                String lastLocationName = valueArray.getString(valueArray.length() - 1);
+                                String lastLocationId = getOpenMrsLocationId(openSrpContext, lastLocationName);
+                                fields.getJSONObject(i).put("value", lastLocationId);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, Log.getStackTraceString(e));
+                        }
+                    } else if ("Mother_Guardian_Date_Birth".equals(key)) {
+                        if (TextUtils.isEmpty(fields.getJSONObject(i).optString("value"))) {
+                            fields.getJSONObject(i).put("value", MOTHER_DEFAULT_DOB);
+                        }
+                    }
+                }
+
+                JSONObject lookUpJSONObject = getJSONObject(metadata, "look_up");
+                String lookUpEntityId = "";
+                String lookUpBaseEntityId = "";
+                if (lookUpJSONObject != null) {
+                    lookUpEntityId = getString(lookUpJSONObject, "entity_id");
+                    lookUpBaseEntityId = getString(lookUpJSONObject, "value");
+                }
+                Client baseClient = JsonFormUtils.createBaseClient(fields, entityId);
+                Event baseEvent = JsonFormUtils.createEvent(openSrpContext, fields, metadata, entityId, encounterType, providerId, bindType);
+
+                Client subformClient = null;
+                Event subformEvent = null;
+                if ("mother".equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
+                    Client motherClient = new Client(lookUpBaseEntityId);
+                    addRelationship(context, motherClient, baseClient);
+                } else {
+                    if (StringUtils.isNotBlank(subBindType)) {
+                        subformClient = JsonFormUtils.createSubformClient(context, fields, baseClient, subBindType, null);
+                    }
+
+                    if (subformClient != null && baseEvent != null) {
+                        JSONObject subBindTypeJson = getJSONObject(jsonForm, subBindType);
+                        if (subBindTypeJson != null) {
+                            String subBindTypeEncounter = getString(subBindTypeJson, ENCOUNTER_TYPE);
+                            if (StringUtils.isNotBlank(subBindTypeEncounter)) {
+                                subformEvent = JsonFormUtils.createSubFormEvent(null, metadata, baseEvent, subformClient.getBaseEntityId(), subBindTypeEncounter, providerId, subBindType);
+                            }
+                        }
+                    }
+                }
+
+                if (baseClient != null) {
+                    JSONObject clientJson = new JSONObject(gson.toJson(baseClient));
+                    ecUpdater.addClient(baseClient.getBaseEntityId(), clientJson);
+                }
+
+                if (baseEvent != null) {
+                    JSONObject eventJson = new JSONObject(gson.toJson(baseEvent));
+                    ecUpdater.addEvent(baseEvent.getBaseEntityId(), eventJson);
+                }
+
+                if (subformClient != null) {
+                    JSONObject clientJson = new JSONObject(gson.toJson(subformClient));
+                    ecUpdater.addClient(subformClient.getBaseEntityId(), clientJson);
+                }
+
+                if (subformEvent != null) {
+                    JSONObject eventJson = new JSONObject(gson.toJson(subformEvent));
+                    ecUpdater.addEvent(subformEvent.getBaseEntityId(), eventJson);
+                }
+
+                String zeirId = baseClient.getIdentifier(ZEIR_ID);
+                //mark zeir id as used
+                VaccinatorApplication.getInstance().uniqueIdRepository().close(zeirId);
+
+                String imageLocation = getFieldValue(fields, imageKey);
+                saveImage(context, providerId, entityId, imageLocation);
+
+                long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
+                Date lastSyncDate = new Date(lastSyncTimeStamp);
+                PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+                allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
