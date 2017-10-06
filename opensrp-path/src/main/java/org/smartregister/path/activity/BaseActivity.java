@@ -47,7 +47,6 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathAfterFetchListener;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
@@ -79,7 +78,6 @@ public abstract class BaseActivity extends AppCompatActivity
     private BaseToolbar toolbar;
     private Menu menu;
     private static final int REQUEST_CODE_GET_JSON = 3432;
-    private PathAfterFetchListener pathAfterFetchListener;
     private Snackbar syncStatusSnackbar;
     private ProgressDialog progressDialog;
     private ArrayList<Notification> notifications;
@@ -101,7 +99,6 @@ public abstract class BaseActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        pathAfterFetchListener = new PathAfterFetchListener();
         notifications = new ArrayList<>();
 
         initializeProgressDialog();

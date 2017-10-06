@@ -30,7 +30,6 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathAfterFetchListener;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
@@ -44,7 +43,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener {
 
     public static final String IS_REMOTE_LOGIN = "is_remote_login";
-    private PathAfterFetchListener pathAfterFetchListener;
     private Snackbar syncStatusSnackbar;
 
     @Override
@@ -72,8 +70,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        pathAfterFetchListener = new PathAfterFetchListener();
 
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
