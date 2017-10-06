@@ -28,6 +28,7 @@ import java.util.Map;
  * Created by keyman on 11/04/2017.
  */
 public class PathEditTextFactory extends EditTextFactory {
+    private static int HIA2_REPORT_FORM_HINT_FONT_SIZE = 51;
 
     @Override
     public void attachJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, MaterialEditText editText) throws Exception {
@@ -54,8 +55,8 @@ public class PathEditTextFactory extends EditTextFactory {
 
         if (jsonObject.has("hia2_indicator")) {
             editText.setTag(jsonObject.get("hia2_indicator"));
-            editText.setFloatingLabelTextSize(51);
-            editText.addTextChangedListener(new HI2ReportFormTextWatcher(formFragment, editText, jsonObject.get("hia2_indicator").toString()));
+            editText.setFloatingLabelTextSize(HIA2_REPORT_FORM_HINT_FONT_SIZE);
+            editText.addTextChangedListener(new HI2ReportFormTextWatcher(formFragment, jsonObject.get("hia2_indicator").toString()));
         }
     }
 

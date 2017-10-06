@@ -62,7 +62,7 @@ public class HIA2ReportsActivity extends BaseActivity {
     private static final int REQUEST_CODE_GET_JSON = 3432;
     public static final int MONTH_SUGGESTION_LIMIT = 3;
     private static final String FORM_KEY_CONFIRM = "confirm";
-    private static final List<String> readOnlyList = new ArrayList<>(Arrays.asList("CHN1-011", "CHN1-021", "CHN1-025", "CHN2-015", "CHN2-030", "CHN2-041", "CHN2-051", "CHN2-061"));
+    private static final List<String> readOnlyList = new ArrayList<>(Arrays.asList(HIA2Service.CHN1_011, HIA2Service.CHN1_021, HIA2Service.CHN1_025, HIA2Service.CHN2_015, HIA2Service.CHN2_030, HIA2Service.CHN2_041, HIA2Service.CHN2_051, HIA2Service.CHN2_061));
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -425,7 +425,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                 sections.put(confirmSection);
 
                 form.put(JsonFormConstants.REPORT_MONTH, HIA2Service.dfyymmdd.format(date));
-                form.put("identifier","HIA2ReportForm");
+                form.put("identifier", "HIA2ReportForm");
 
                 Intent intent = new Intent(baseActivity, PathJsonFormActivity.class);
                 intent.putExtra("json", form.toString());
