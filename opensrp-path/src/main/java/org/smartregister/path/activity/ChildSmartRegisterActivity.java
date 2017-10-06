@@ -1,5 +1,6 @@
 package org.smartregister.path.activity;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,6 +60,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private int currentPage;
     public static final int ADVANCED_SEARCH_POSITION = 1;
+    private ProgressDialog progressDialog;
 
     private android.support.v4.app.Fragment mBaseFragment = null;
 
@@ -86,7 +88,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         });
 
         Event.ON_DATA_FETCHED.addListener(onDataFetchedListener);
-
+        initializeProgressDialog();
     }
 
     @Override
@@ -346,5 +348,34 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), HIDE_NOT_ALWAYS);
     }
 
+    private void initializeProgressDialog() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle(getString(R.string.saving_dialog_title));
+        progressDialog.setMessage(getString(R.string.please_wait_message));
+    }
 
+    public void showProgressDialog(String title, String message) {
+        if (progressDialog != null) {
+            if (StringUtils.isNotBlank(title)) {
+                progressDialog.setTitle(title);
+            }
+
+            if (StringUtils.isNotBlank(message)) {
+                progressDialog.setMessage(message);
+            }
+
+            progressDialog.show();
+        }
+    }
+
+    public void showProgressDialog() {
+        showProgressDialog(getString(R.string.saving_dialog_title), getString(R.string.please_wait_message));
+    }
+
+    public void hideProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
+    }
 }
