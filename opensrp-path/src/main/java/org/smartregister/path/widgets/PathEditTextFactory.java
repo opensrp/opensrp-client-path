@@ -30,7 +30,6 @@ import util.PathConstants;
  * Created by keyman on 11/04/2017.
  */
 public class PathEditTextFactory extends EditTextFactory {
-    private static final int HIA2_REPORT_FORM_HINT_FONT_SIZE = 51;
 
     @Override
     public void attachJson(String stepName, Context context, JsonFormFragment formFragment, JSONObject jsonObject, MaterialEditText editText) throws Exception {
@@ -57,7 +56,9 @@ public class PathEditTextFactory extends EditTextFactory {
 
         if (jsonObject.has(PathConstants.KEY.HIA_2_INDICATOR)) {
             editText.setTag(jsonObject.get(PathConstants.KEY.HIA_2_INDICATOR));
-            editText.setFloatingLabelTextSize(HIA2_REPORT_FORM_HINT_FONT_SIZE);
+            editText.setFloatingLabelTextSize((int) context.getResources().getDimension(R.dimen.hia2_indicator_hint_font_size));
+            editText.setTextSize((int) context.getResources().getDimension(R.dimen.hia2_indicator_default_font_size));
+
             editText.addTextChangedListener(new HIA2ReportFormTextWatcher(formFragment, jsonObject.get(PathConstants.KEY.HIA_2_INDICATOR).toString()));
         }
     }

@@ -385,7 +385,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_PARENT, "");
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY, "");
                     jsonObject.put(JsonFormConstants.OPENMRS_ENTITY_ID, "");
-                    jsonObject.put("hia2_indicator", hia2Indicator.getIndicatorCode());
+                    jsonObject.put(PathConstants.KEY.HIA_2_INDICATOR, hia2Indicator.getIndicatorCode());
                     indicatorCategory = hia2Indicator.getCategory();
                     JSONArray fields = null;
                     if (fieldsMap.containsKey(indicatorCategory)) {
