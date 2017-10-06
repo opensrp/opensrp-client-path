@@ -428,13 +428,11 @@ public class PathJsonFormFragment extends JsonFormFragment {
         if (balancecheck && fillFormCheck) {
             return super.onOptionsItemSelected(item);
         } else {
-            String balanceCheckErrorMsg = "Please make sure the balance is not less than zero.",
-                    fillFormCheckErrorMsg = "Please register at least one service before saving",
-                    errorMessage = "";
+            String errorMessage = "";
             if (!balancecheck) {
-                errorMessage = balanceCheckErrorMsg;
+                errorMessage = getString(R.string.balance_error_msg);
             } else {
-                errorMessage = fillFormCheckErrorMsg;
+                errorMessage = getString(R.string.fill_form_check_error_msg);
             }
 
             final Snackbar snackbar = Snackbar

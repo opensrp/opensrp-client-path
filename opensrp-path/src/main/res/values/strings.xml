@@ -215,4 +215,10 @@
     <string name="to_from_key">to_from</string>
     <string name="date_updated_key">date_updated</string>
     <string name="vaccine_type_id_key">vaccine_type_id</string>
+    <string name="key">key</string>
+    <string name="is_vaccine_group_key">is_vaccine_group</string>
+    <string name="options_key">options</string>
+    <string name="title_key">title</string>
+    <string name="balance_error_msg">Please make sure the balance is not less than zero.</string>
+    <string name="fill_form_check_error_msg">Please register at least one service before saving</string>
 </resources>
