@@ -348,7 +348,6 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), HIDE_NOT_ALWAYS);
     }
 
-
     private void initializeProgressDialog() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -379,5 +378,4 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
             progressDialog.dismiss();
         }
     }
-
 }
