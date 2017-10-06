@@ -34,13 +34,13 @@ import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
-import org.smartregister.path.sync.PathUpdateActionsTask;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.sync.DrishtiSyncScheduler;
@@ -104,7 +104,7 @@ public class VaccinatorApplication extends DrishtiApplication
         cleanUpSyncState();
         initOfflineSchedules();
         setCrashlyticsUser(context);
-        PathUpdateActionsTask.setAlarms(this);
+        setAlarms(this);
 
     }
 
@@ -362,6 +362,16 @@ public class VaccinatorApplication extends DrishtiApplication
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
+    }
+
+    public static void setAlarms(android.content.Context context) {
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.IMAGE_UPLOAD);
+        VaccinatorAlarmReceiver.setAlarm(context, 5, PathConstants.ServiceType.PULL_UNIQUE_IDS);
+
     }
 
 }
