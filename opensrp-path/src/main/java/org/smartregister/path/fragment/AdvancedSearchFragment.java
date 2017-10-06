@@ -416,9 +416,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String zeirIdString = zeirId.getText().toString();
-        if (StringUtils.isNotBlank(zeirIdString))
-
-        {
+        if (StringUtils.isNotBlank(zeirIdString)) {
             searchCriteriaString += " ZEIR ID: \"" + bold(zeirIdString) + "\",";
             String key = ZEIR_ID;
             if (!outOfArea) {
@@ -428,9 +426,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String firstNameString = firstName.getText().toString();
-        if (StringUtils.isNotBlank(firstNameString))
-
-        {
+        if (StringUtils.isNotBlank(firstNameString)) {
             searchCriteriaString += " First name: \"" + bold(firstNameString) + "\",";
             String key = FIRST_NAME;
             if (!outOfArea) {
@@ -440,9 +436,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String lastNameString = lastName.getText().toString();
-        if (StringUtils.isNotBlank(lastNameString))
-
-        {
+        if (StringUtils.isNotBlank(lastNameString)) {
             searchCriteriaString += " Last name: \"" + bold(lastNameString) + "\",";
             String key = LAST_NAME;
             if (!outOfArea) {
@@ -452,9 +446,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String motherGuardianNameString = motherGuardianName.getText().toString();
-        if (StringUtils.isNotBlank(motherGuardianNameString))
-
-        {
+        if (StringUtils.isNotBlank(motherGuardianNameString)) {
             searchCriteriaString += " Mother/Guardian name: \"" + bold(motherGuardianNameString) + "\",";
             String key = MOTHER_GUARDIAN_FIRST_NAME;
             if (!outOfArea) {
@@ -470,9 +462,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String motherGuardianNrcString = motherGuardianNrc.getText().toString();
-        if (StringUtils.isNotBlank(motherGuardianNrcString))
-
-        {
+        if (StringUtils.isNotBlank(motherGuardianNrcString)) {
             searchCriteriaString += " Mother/Guardian nrc: \"" + bold(motherGuardianNrcString) + "\",";
             String key = MOTHER_GUARDIAN_NRC_NUMBER;
             if (!outOfArea) {
@@ -482,9 +472,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String motherGuardianPhoneNumberString = motherGuardianPhoneNumber.getText().toString();
-        if (StringUtils.isNotBlank(motherGuardianPhoneNumberString))
-
-        {
+        if (StringUtils.isNotBlank(motherGuardianPhoneNumberString)) {
             searchCriteriaString += " Mother/Guardian phone number: \"" + bold(motherGuardianPhoneNumberString) + "\",";
             String key = MOTHER_GUARDIAN_PHONE_NUMBER;
             if (!outOfArea) {
@@ -494,24 +482,30 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
 
         String startDateString = startDate.getText().toString();
-        if (StringUtils.isNotBlank(startDateString))
-
-        {
+        if (StringUtils.isNotBlank(startDateString)) {
             searchCriteriaString += " Start date: \"" + bold(startDateString) + "\",";
             editMap.put(START_DATE, startDateString.trim());
         }
 
         String endDateString = endDate.getText().toString();
-        if (StringUtils.isNotBlank(endDateString))
-
-        {
+        if (StringUtils.isNotBlank(endDateString)) {
             searchCriteriaString += " End date: \"" + bold(endDateString) + "\",";
             editMap.put(END_DATE, endDateString.trim());
         }
 
-        if (searchCriteria != null)
+        if (StringUtils.isNotBlank(startDateString) && StringUtils.isNotBlank(endDateString)) {
+            String dateFormat = "yyyy-MM-dd";
+            Date startDate = util.Utils.getDateFromString(startDateString, dateFormat);
+            Date endDate = util.Utils.getDateFromString(endDateString, dateFormat);
 
-        {
+            if (startDate.compareTo(endDate) > 0) {
+                showMessageDialog("For birth range please select an End Date which IS NOT earlier than the Start Date");
+                view.setClickable(true);
+                return;
+            }
+        }
+
+        if (searchCriteria != null) {
             searchCriteria.setText(Html.fromHtml(removeLastComma(searchCriteriaString)));
             searchCriteria.setVisibility(View.VISIBLE);
         }
@@ -620,28 +614,28 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
-                        tableName + ".relationalid",
-                        tableName + ".details",
-                        tableName + ".zeir_id",
-                        tableName + ".relational_id",
-                        tableName + ".first_name",
-                        tableName + ".last_name",
-                        tableName + ".gender",
-                        parentTableName + ".first_name as mother_first_name",
-                        parentTableName + ".last_name as mother_last_name",
-                        tableName + ".father_name",
-                        tableName + ".dob",
-                        tableName + ".epi_card_number",
-                        tableName + ".contact_phone_number",
-                        tableName + ".pmtct_status",
-                        tableName + ".provider_uc",
-                        tableName + ".provider_town",
-                        tableName + ".provider_id",
-                        tableName + ".provider_location_id",
-                        tableName + ".client_reg_date",
-                        tableName + ".last_interacted_with",
-                        tableName + ".inactive",
-                        tableName + ".lost_to_follow_up"}
+                tableName + ".relationalid",
+                tableName + ".details",
+                tableName + ".zeir_id",
+                tableName + ".relational_id",
+                tableName + ".first_name",
+                tableName + ".last_name",
+                tableName + ".gender",
+                parentTableName + ".first_name as mother_first_name",
+                parentTableName + ".last_name as mother_last_name",
+                tableName + ".father_name",
+                tableName + ".dob",
+                tableName + ".epi_card_number",
+                tableName + ".contact_phone_number",
+                tableName + ".pmtct_status",
+                tableName + ".provider_uc",
+                tableName + ".provider_town",
+                tableName + ".provider_id",
+                tableName + ".provider_location_id",
+                tableName + ".client_reg_date",
+                tableName + ".last_interacted_with",
+                tableName + ".inactive",
+                tableName + ".lost_to_follow_up"}
 
         );
         queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
@@ -926,7 +920,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private void updateMatchingResults(int count) {
         if (matchingResults != null) {
-            matchingResults.setText(String.format(getString(R.string.matching_results), count));
+            matchingResults.setText(String.format(getString(R.string.matching_results), String.valueOf(count)));
         }
     }
 
@@ -1117,6 +1111,19 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     @Override
     public void hideProgressView() {
         progressDialog.hide();
+    }
+
+    private void showMessageDialog(String message) {
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.validation_error))
+                .setMessage(message)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                })
+                .create();
+        dialog.show();
     }
 
 

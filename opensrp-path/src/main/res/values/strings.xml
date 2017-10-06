@@ -215,4 +215,5 @@
     <string name="to_from_key">to_from</string>
     <string name="date_updated_key">date_updated</string>
     <string name="vaccine_type_id_key">vaccine_type_id</string>
+    <string name="validation_error">Validation Error</string>
 </resources>
