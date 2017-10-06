@@ -196,24 +196,20 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
-                        if (questions.has(getString(R.string.key))) {
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_Issued")) {
-                                if (questions.has(getString(R.string.value_key))) {
-                                    label = questions.getString(getString(R.string.value_key));
-                                    if (label != null && StringUtils.isNotBlank(label)) {
-                                        Date dateTime = JsonFormUtils.formatDate(label, false);
-                                        if (dateTime != null) {
-                                            encounterDate = dateTime;
-                                        }
+                        if (questions.has(getString(R.string.key)) && questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_Issued")) {
+                            if (questions.has(getString(R.string.value_key))) {
+                                label = questions.getString(getString(R.string.value_key));
+                                if (label != null && StringUtils.isNotBlank(label)) {
+                                    Date dateTime = JsonFormUtils.formatDate(label, false);
+                                    if (dateTime != null) {
+                                        encounterDate = dateTime;
                                     }
-                                    existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
-                                    currentBalanceVaccineUsed = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
-
                                 }
+                                existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
+                                currentBalanceVaccineUsed = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
                             }
 
                             if (questions.getString(getString(R.string.key)).equalsIgnoreCase(getString(R.string.vials_wasted_key))) {
-
                                 if (questions.has(getString(R.string.value_key))) {
                                     if (!StringUtils.isBlank(questions.getString(getString(R.string.value_key)))) {
                                         wastedvials = questions.getString(getString(R.string.value_key));
