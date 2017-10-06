@@ -365,12 +365,15 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public static void setAlarms(android.content.Context context) {
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.IMAGE_UPLOAD);
-        VaccinatorAlarmReceiver.setAlarm(context, 5, PathConstants.ServiceType.PULL_UNIQUE_IDS);
+        final int TRIGGER_ITERATION_TWO_MINUTES = 2;
+        final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
+
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.PULL_UNIQUE_IDS);
 
     }
 
