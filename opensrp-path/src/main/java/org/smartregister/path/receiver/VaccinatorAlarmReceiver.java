@@ -11,6 +11,8 @@ import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.HIA2IntentService;
+import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -45,8 +47,7 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                     android.util.Log.i(TAG, "Started MONTHLY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     break;
                 case PathConstants.ServiceType.PULL_UNIQUE_IDS:
-                    //happens at pathupdateactionstask
-                    //serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
+                    serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
                     android.util.Log.i(TAG, "Started PULL_UNIQUE_IDS service at: " + dateFormatter.format(new Date()));
                     break;
                 case PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING:
@@ -60,6 +61,12 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                 case PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING:
                     serviceIntent = new Intent(context, RecurringIntentService.class);
                     android.util.Log.i(TAG, "Started RECURRING_SERVICES_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
+                    break;
+                case PathConstants.ServiceType.IMAGE_UPLOAD:
+                    serviceIntent = new Intent(context, ImageUploadSyncService.class);
+                    android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
+                    break;
+                default:
                     break;
             }
 
