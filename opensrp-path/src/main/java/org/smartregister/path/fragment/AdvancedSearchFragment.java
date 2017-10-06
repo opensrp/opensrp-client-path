@@ -63,6 +63,7 @@ import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
 
 public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
+    private static final String TAG = AdvancedSearchFragment.class.getCanonicalName();
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
     private RadioButton outsideInside;
     private RadioButton myCatchment;
@@ -712,7 +713,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             }
         }
 
-
         if (editMap.containsKey(motherFirstNameKey) && editMap.containsKey(motherLastNameKey)) {
             if (StringUtils.isBlank(mainConditionString)) {
                 mainConditionString += " " + motherFirstNameKey + " Like '%" + editMap.get(motherFirstNameKey) + "%' OR " + motherLastNameKey + " Like '%" + editMap.get(motherLastNameKey) + "%'";
@@ -720,7 +720,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                 mainConditionString += " AND  (" + motherFirstNameKey + " Like '%" + editMap.get(motherFirstNameKey) + "%' OR " + motherLastNameKey + " Like '%" + editMap.get(motherLastNameKey) + "%' ) ";
             }
         }
-
 
         String statusConditionString = "";
         for (Map.Entry<String, String> entry : editMap.entrySet()) {
@@ -1225,7 +1224,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             int mMonth = mcurrentDate.get(Calendar.MONTH);
             int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
 
-            DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), android.app.AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
+            DatePickerDialog mDatePicker = new DatePickerDialog(getActivity(), android.app.AlertDialog.THEME_DEVICE_DEFAULT_LIGHT, new DatePickerDialog.OnDateSetListener() {
                 public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.YEAR, selectedyear);
@@ -1240,7 +1239,11 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             mDatePicker.getDatePicker().setCalendarViewShown(false);
             mDatePicker.show();
 
-            DatePickerUtils.themeDatePicker(mDatePicker, new char[]{'d', 'm', 'y'});
+            try {
+                DatePickerUtils.themeDatePicker(mDatePicker, new char[]{'d', 'm', 'y'});
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
         }
 
     }
