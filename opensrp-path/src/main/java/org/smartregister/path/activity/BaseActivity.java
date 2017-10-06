@@ -45,13 +45,11 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathAfterFetchListener;
-import org.smartregister.path.sync.PathUpdateActionsTask;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.sync.SyncProgressIndicator;
 import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
@@ -80,7 +78,6 @@ public abstract class BaseActivity extends AppCompatActivity
     private BaseToolbar toolbar;
     private Menu menu;
     private static final int REQUEST_CODE_GET_JSON = 3432;
-    private PathAfterFetchListener pathAfterFetchListener;
     private Snackbar syncStatusSnackbar;
     private ProgressDialog progressDialog;
     private ArrayList<Notification> notifications;
@@ -102,7 +99,6 @@ public abstract class BaseActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        pathAfterFetchListener = new PathAfterFetchListener();
         notifications = new ArrayList<>();
 
         initializeProgressDialog();
@@ -508,11 +504,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
-                this, getOpenSRPContext().actionService(),
-                new SyncProgressIndicator(),
-                getOpenSRPContext().allFormVersionSyncService());
-        pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
+        startService(new Intent(getApplicationContext(), SyncIntentService.class));
     }
 
     /**
@@ -582,10 +574,10 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void showNotification(String message, Drawable notificationIcon, String positiveButtonText,
-                                    View.OnClickListener positiveButtonOnClick,
-                                    String negativeButtonText,
-                                    View.OnClickListener negativeButtonOnClick,
-                                    Object tag) {
+                                  View.OnClickListener positiveButtonOnClick,
+                                  String negativeButtonText,
+                                  View.OnClickListener negativeButtonOnClick,
+                                  Object tag) {
         Notification notification = new Notification(message, notificationIcon, positiveButtonText,
                 positiveButtonOnClick, negativeButtonText, negativeButtonOnClick, tag);
 
