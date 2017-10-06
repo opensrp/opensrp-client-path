@@ -32,6 +32,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private int generatedId = -1;
     private MaterialEditText balancetextview;
     private PathJsonFormFragment pathJsonFormFragment;
+    private final static String STOCK_ISSUED = "Stock Issued",
+            STOCK_LOSS_ADJUSTMENT = "Stock Loss/Adjustment", 
+            STOCK_RECEIVED = "Stock Received";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +73,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockDateEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Issued")) {
+            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Date_Stock_Issued") && value != null && !value.equalsIgnoreCase("")) {
                     if (balancetextview == null) {
@@ -91,26 +94,25 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = "0";
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Issued", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
                         if (questions.has(getString(R.string.key))) {
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_Issued")) {
-                                if (questions.has(getString(R.string.value_key))) {
-                                    label = questions.getString(getString(R.string.value_key));
-                                    if (label != null && StringUtils.isNotBlank(label)) {
-                                        Date dateTime = JsonFormUtils.formatDate(label, false);
-                                        if (dateTime != null) {
-                                            encounterDate = dateTime;
-                                        }
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_Issued") && questions.has(getString(R.string.value_key))) {
+                                label = questions.getString(getString(R.string.value_key));
+                                if (label != null && StringUtils.isNotBlank(label)) {
+                                    Date dateTime = JsonFormUtils.formatDate(label, false);
+                                    if (dateTime != null) {
+                                        encounterDate = dateTime;
                                     }
-
-                                    currentBalance = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
                                 }
+
+                                currentBalance = str.getVaccineUsedToday(encounterDate.getTime(), checkifmeasles(vaccineName.toLowerCase()));
+
                             }
 
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Vials_Wasted")) {
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase(getString(R.string.vials_wasted_key))) {
                                 if (questions.has(getString(R.string.value_key))) {
                                     if (!StringUtils.isBlank(questions.getString(getString(R.string.value_key)))) {
                                         wastedvials = questions.getString(getString(R.string.value_key));
@@ -169,7 +171,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockVialsEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Issued")) {
+            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Vials_Issued")) {
                     if (balancetextview == null) {
@@ -189,7 +191,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = "0";
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Issued", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
@@ -210,7 +212,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 }
                             }
 
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Vials_Wasted")) {
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase(getString(R.string.vials_wasted_key))) {
 
                                 if (questions.has(getString(R.string.value_key))) {
                                     if (!StringUtils.isBlank(questions.getString(getString(R.string.value_key)))) {
@@ -252,9 +254,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockWastedVialsEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Issued")) {
+            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
-                if (key.equalsIgnoreCase("Vials_Wasted")) {
+                if (key.equalsIgnoreCase(getString(R.string.vials_wasted_key))) {
                     if (balancetextview == null) {
                         ArrayList<View> views = getFormDataViews();
                         for (int i = 0; i < views.size(); i++) {
@@ -272,7 +274,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = value;
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Issued", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
 
                     JSONArray fields = object.getJSONArray("fields");
@@ -335,13 +337,13 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockDateEnteredinReceivedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Received")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_RECEIVED)) {
                 if (key.equalsIgnoreCase("Date_Stock_Received") && value != null && !value.equalsIgnoreCase("")) {
 //                    if(balancetextview == null) {
 //                        ArrayList<View> views = getFormDataViews();
 //                        for (int i = 0; i < views.size(); i++) {
 //                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase("Vials_Received")) {
+//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(getString(R.string.vials_received_key))) {
 //                                    balancetextview = (MaterialEditText) views.get(i);
 //                                }
 //                            }
@@ -366,12 +368,12 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
 
-                                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Received", "").trim();
+                                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_RECEIVED, "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Vials_Received")) {
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase(getString(R.string.vials_received_key))) {
                                 if (questions.has(getString(R.string.value_key))) {
                                     label = questions.getString(getString(R.string.value_key));
                                     vialsvalue = label;
@@ -402,8 +404,8 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockVialsenteredinReceivedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Received")) {
-                if (key.equalsIgnoreCase("Vials_Received") && value != null && !value.equalsIgnoreCase("")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_RECEIVED)) {
+                if (key.equalsIgnoreCase(getString(R.string.vials_received_key)) && value != null && !value.equalsIgnoreCase("")) {
 //                    if(balancetextview == null) {
 //                        ArrayList<View> views = getFormDataViews();
 //                        for (int i = 0; i < views.size(); i++) {
@@ -432,7 +434,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
 
-                                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Received", "").trim();
+                                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_RECEIVED, "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
@@ -474,7 +476,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 //                        ArrayList<View> views = getFormDataViews();
 //                        for (int i = 0; i < views.size(); i++) {
 //                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase("Vials_Received")) {
+//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(getString(R.string.vials_received_key))) {
 //                                    balancetextview = (MaterialEditText) views.get(i);
 //                                }
 //                            }
@@ -504,7 +506,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Vials_Adjustment")) {
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase(getString(R.string.vials_adjustment_key))) {
                                 if (questions.has(getString(R.string.value_key))) {
                                     label = questions.getString(getString(R.string.value_key));
                                     vialsvalue = label;
@@ -535,7 +537,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
         JSONObject object = getStep("step1");
         try {
             if (object.getString(getString(R.string.title_key)).contains("Stock Loss/Adjustment")) {
-                if (key.equalsIgnoreCase("Vials_Adjustment") && value != null && !value.equalsIgnoreCase("")) {
+                if (key.equalsIgnoreCase(getString(R.string.vials_adjustment_key)) && value != null && !value.equalsIgnoreCase("")) {
 //                    if(balancetextview == null) {
 //                        ArrayList<View> views = getFormDataViews();
 //                        for (int i = 0; i < views.size(); i++) {
@@ -629,10 +631,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has(getString(R.string.key)) && vaccineGroup.getString(getString(R.string.key)).equals("Weight_Kg")) {
-                        if (vaccineGroup.has(getString(R.string.value_key)) && vaccineGroup.getString(getString(R.string.value_key)).length() > 0) {
-                            return true;
-                        }
+                    } else if (vaccineGroup.has(getString(R.string.key)) && vaccineGroup.getString(getString(R.string.key)).equals("Weight_Kg")
+                            && vaccineGroup.has(getString(R.string.value_key)) && vaccineGroup.getString(getString(R.string.value_key)).length() > 0) {
+                        return true;
                     }
                 }
             }

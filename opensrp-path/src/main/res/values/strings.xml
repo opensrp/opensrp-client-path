@@ -221,4 +221,7 @@
     <string name="title_key">title</string>
     <string name="balance_error_msg">Please make sure the balance is not less than zero.</string>
     <string name="fill_form_check_error_msg">Please register at least one service before saving</string>
+    <string name="vials_received_key">Vials_Received</string>
+    <string name="vials_wasted_key">Vials_Wasted</string>
+    <string name="vials_adjustment_key">Vials_Adjustment</string>
 </resources>
