@@ -15,6 +15,7 @@ import org.smartregister.domain.DownloadStatus;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.Response;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
+import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -29,7 +30,6 @@ import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.service.ImageUploadSyncService;
-import org.smartregister.sync.AdditionalSyncService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
 import org.smartregister.view.LockingBackgroundTask;
@@ -46,13 +46,6 @@ import java.util.Map;
 import util.NetworkUtils;
 import util.PathConstants;
 
-import static java.text.MessageFormat.format;
-import static org.smartregister.domain.FetchStatus.fetched;
-import static org.smartregister.domain.FetchStatus.fetchedFailed;
-import static org.smartregister.domain.FetchStatus.nothingFetched;
-import static org.smartregister.util.Log.logError;
-import static org.smartregister.util.Log.logInfo;
-
 public class PathUpdateActionsTask {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
@@ -64,19 +57,16 @@ public class PathUpdateActionsTask {
     private final Context context;
     private final AllFormVersionSyncService allFormVersionSyncService;
     private final HTTPAgent httpAgent;
-    private AdditionalSyncService additionalSyncService;
     private PathAfterFetchListener pathAfterFetchListener;
-
+    private static final int EVENT_FETCH_LIMIT = 50;
 
     public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
                                  AllFormVersionSyncService allFormVersionSyncService) {
         this.actionService = actionService;
         this.context = context;
         this.allFormVersionSyncService = allFormVersionSyncService;
-        this.additionalSyncService = null;
         task = new LockingBackgroundTask(progressIndicator);
         this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-
     }
 
     public static void setAlarms(Context context) {
@@ -86,16 +76,12 @@ public class PathUpdateActionsTask {
         VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
     }
 
-    public void setAdditionalSyncService(AdditionalSyncService additionalSyncService) {
-        this.additionalSyncService = additionalSyncService;
-    }
-
     public void updateFromServer(final PathAfterFetchListener pathAfterFetchListener) {
         this.pathAfterFetchListener = pathAfterFetchListener;
 
         sendSyncStatusBroadcastMessage(context, FetchStatus.fetchStarted);
         if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
-            logInfo("Not updating from server as user is not logged in.");
+            drishtiLogInfo("Not updating from server as user is not logged in.");
             return;
         }
 
@@ -109,7 +95,6 @@ public class PathUpdateActionsTask {
                     startImageUploadIntentService(context);
                     startPullUniqueIdsIntentService(context);
 
-                    FetchStatus fetchStatusAdditional = additionalSyncService == null ? nothingFetched : additionalSyncService.sync();
 
                     if (VaccinatorApplication.getInstance().context().configuration().shouldSyncForm()) {
 
@@ -121,15 +106,13 @@ public class PathUpdateActionsTask {
                             allFormVersionSyncService.unzipAllDownloadedFormFile();
                         }
 
-                        if (fetchVersionStatus == fetched || downloadStatus == DownloadStatus.downloaded) {
-                            return fetched;
+                        if (fetchVersionStatus == FetchStatus.fetched || downloadStatus == DownloadStatus.downloaded) {
+                            return FetchStatus.fetched;
                         }
                     }
 
-                    if (fetchStatusForActions == fetched || fetchStatusForForms == fetched || fetchStatusAdditional == fetched)
-                        return fetched;
+                    return (fetchStatusForForms == FetchStatus.fetched) ? fetchStatusForActions : fetchStatusForForms;
 
-                    return fetchStatusForForms;
                 }
 
                 return FetchStatus.noConnection;
@@ -148,7 +131,6 @@ public class PathUpdateActionsTask {
         });
     }
 
-
     private FetchStatus sync() {
 
         try {
@@ -156,43 +138,50 @@ public class PathUpdateActionsTask {
             String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
 
             if (StringUtils.isBlank(locations)) {
-                return fetchedFailed;
+                return FetchStatus.fetchedFailed;
             }
 
-            int totalCount = 0;
             pushToServer();
-            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-
-            while (true) {
-                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
-                totalCount += eCount;
-                if (eCount <= 0) {
-                    if (eCount < 0) totalCount = eCount;
-                    break;
-                }
-
-                long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
-                Log.i(getClass().getName(), "!!!!! Sync count:  " + eCount);
-                pathAfterFetchListener.partialFetch(fetched);
-            }
+            FetchStatus formActionsFetctStatus = pullFormAndActionsFromServer(locations);
             pullStockFromServer();
 
-            if (totalCount == 0) {
-                return nothingFetched;
-            } else if (totalCount < 0) {
-                return fetchedFailed;
-            } else {
-                return fetched;
-            }
+            return formActionsFetctStatus;
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
-            return fetchedFailed;
+            return FetchStatus.fetchedFailed;
         }
 
     }
 
+    private FetchStatus pullFormAndActionsFromServer(String locations) throws Exception {
+        int totalCount = 0;
+        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+
+        while (true) {
+            long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+            totalCount += eCount;
+            if (eCount < 0) {
+                return FetchStatus.fetchedFailed;
+            } else if (eCount == 0) {
+                break;
+            }
+
+            long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
+            Log.i(getClass().getName(), "Sync count:  " + eCount);
+            pathAfterFetchListener.partialFetch(FetchStatus.fetched);
+        }
+
+
+        if (totalCount == 0) {
+            return FetchStatus.nothingFetched;
+        } else if (totalCount < 0) {
+            return FetchStatus.fetchedFailed;
+        } else {
+            return FetchStatus.fetched;
+        }
+    }
 
     private void pushToServer() {
         pushECToServer();
@@ -203,33 +192,32 @@ public class PathUpdateActionsTask {
     private void pushECToServer() {
         EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         boolean keepSyncing = true;
-        int limit = 50;
         try {
             // db.markAllAsUnSynced();
 
             while (keepSyncing) {
                 Map<String, Object> pendingEvents = null;
-                pendingEvents = db.getUnSyncedEvents(limit);
+                pendingEvents = db.getUnSyncedEvents(EVENT_FETCH_LIMIT);
 
                 if (pendingEvents.isEmpty()) {
                     return;
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
-                if (pendingEvents.containsKey("clients")) {
-                    request.put("clients", pendingEvents.get("clients"));
+                if (pendingEvents.containsKey(context.getString(R.string.clients_key))) {
+                    request.put(context.getString(R.string.clients_key), pendingEvents.get(context.getString(R.string.clients_key)));
                 }
-                if (pendingEvents.containsKey("events")) {
-                    request.put("events", pendingEvents.get("events"));
+                if (pendingEvents.containsKey(context.getString(R.string.events_key))) {
+                    request.put(context.getString(R.string.events_key), pendingEvents.get(context.getString(R.string.events_key)));
                 }
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
-                        format("{0}/{1}",
+                        MessageFormat.format("{0}/{1}",
                                 baseUrl,
                                 EVENTS_SYNC_PATH),
                         jsonPayload);
@@ -256,14 +244,14 @@ public class PathUpdateActionsTask {
         AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
         String anmId = allSharedPreferences.fetchRegisteredANM();
         String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-        if (baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+        if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
         }
 
         while (true) {
             long timestamp = preferences.getLong(LAST_STOCK_SYNC, 0);
             String timeStampString = String.valueOf(timestamp);
-            String uri = format("{0}/{1}?providerid={2}&serverVersion={3}",
+            String uri = MessageFormat.format("{0}/{1}?providerid={2}&serverVersion={3}",
                     baseUrl,
                     STOCK_SYNC_PATH,
                     anmId,
@@ -271,7 +259,7 @@ public class PathUpdateActionsTask {
             );
             Response<String> response = httpAgent.fetch(uri);
             if (response.isFailure()) {
-                logError(format("Stock pull failed."));
+                drishtiLogError("Stock pull failed.");
                 return;
             }
             String jsonPayload = response.payload();
@@ -304,13 +292,13 @@ public class PathUpdateActionsTask {
         Long toreturn = 0l;
         try {
             JSONObject stockContainer = new JSONObject(jsonPayload);
-            if (stockContainer.has("stocks")) {
-                JSONArray stockArray = stockContainer.getJSONArray("stocks");
+            if (stockContainer.has(context.getString(R.string.stocks_key))) {
+                JSONArray stockArray = stockContainer.getJSONArray(context.getString(R.string.stocks_key));
                 for (int i = 0; i < stockArray.length(); i++) {
 
                     JSONObject stockObject = stockArray.getJSONObject(i);
-                    if (stockObject.getLong("serverVersion") > toreturn) {
-                        toreturn = stockObject.getLong("serverVersion");
+                    if (stockObject.getLong(context.getString(R.string.server_version_key)) > toreturn) {
+                        toreturn = stockObject.getLong(context.getString(R.string.server_version_key));
                     }
 
                 }
@@ -325,19 +313,19 @@ public class PathUpdateActionsTask {
         ArrayList<Stock> Stock_arrayList = new ArrayList<>();
         try {
             JSONObject stockcontainer = new JSONObject(jsonPayload);
-            if (stockcontainer.has("stocks")) {
-                JSONArray stockArray = stockcontainer.getJSONArray("stocks");
+            if (stockcontainer.has(context.getString(R.string.stocks_key))) {
+                JSONArray stockArray = stockcontainer.getJSONArray(context.getString(R.string.stocks_key));
                 for (int i = 0; i < stockArray.length(); i++) {
                     JSONObject stockObject = stockArray.getJSONObject(i);
                     Stock stock = new Stock(null,
-                            stockObject.getString("transaction_type"),
-                            stockObject.getString("providerid"),
-                            stockObject.getInt("value"),
-                            stockObject.getLong("date_created"),
-                            stockObject.getString("to_from"),
+                            stockObject.getString(context.getString(R.string.transaction_type_key)),
+                            stockObject.getString(context.getString(R.string.providerid_key)),
+                            stockObject.getInt(context.getString(R.string.value_key)),
+                            stockObject.getLong(context.getString(R.string.date_created_key)),
+                            stockObject.getString(context.getString(R.string.to_from_key)),
                             BaseRepository.TYPE_Synced,
-                            stockObject.getLong("date_updated"),
-                            stockObject.getString("vaccine_type_id"));
+                            stockObject.getLong(context.getString(R.string.date_updated_key)),
+                            stockObject.getString(context.getString(R.string.vaccine_type_id_key)));
                     Stock_arrayList.add(stock);
                 }
             }
@@ -362,16 +350,16 @@ public class PathUpdateActionsTask {
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
-                request.put("stocks", stocksarray);
+                request.put(context.getString(R.string.stocks_key), stocksarray);
 
                 String jsonPayload = request.toString();
                 Response<String> response = httpAgent.post(
-                        format("{0}/{1}",
+                        MessageFormat.format("{0}/{1}",
                                 baseUrl,
                                 STOCK_Add_PATH),
                         jsonPayload);
@@ -393,13 +381,13 @@ public class PathUpdateActionsTask {
             JSONObject stock = new JSONObject();
             try {
                 stock.put("identifier", stocks.get(i).getId());
-                stock.put("vaccine_type_id", stocks.get(i).getVaccineTypeId());
-                stock.put("transaction_type", stocks.get(i).getTransactionType());
-                stock.put("providerid", stocks.get(i).getProviderid());
-                stock.put("date_created", stocks.get(i).getDateCreated());
-                stock.put("value", stocks.get(i).getValue());
-                stock.put("to_from", stocks.get(i).getToFrom());
-                stock.put("date_updated", stocks.get(i).getUpdatedAt());
+                stock.put(context.getString(R.string.vaccine_type_id_key), stocks.get(i).getVaccineTypeId());
+                stock.put(context.getString(R.string.transaction_type_key), stocks.get(i).getTransactionType());
+                stock.put(context.getString(R.string.providerid_key), stocks.get(i).getProviderid());
+                stock.put(context.getString(R.string.date_created_key), stocks.get(i).getDateCreated());
+                stock.put(context.getString(R.string.value_key), stocks.get(i).getValue());
+                stock.put(context.getString(R.string.to_from_key), stocks.get(i).getToFrom());
+                stock.put(context.getString(R.string.date_updated_key), stocks.get(i).getUpdatedAt());
                 array.put(stock);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -422,8 +410,8 @@ public class PathUpdateActionsTask {
                 }
 
                 String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
                 }
                 // create request body
                 JSONObject request = new JSONObject();
@@ -466,6 +454,14 @@ public class PathUpdateActionsTask {
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         context.sendBroadcast(intent);
+    }
+
+    private void drishtiLogInfo(String message) {
+        org.smartregister.util.Log.logInfo(message);
+    }
+
+    private void drishtiLogError(String message) {
+        org.smartregister.util.Log.logError(message);
     }
 
 }
