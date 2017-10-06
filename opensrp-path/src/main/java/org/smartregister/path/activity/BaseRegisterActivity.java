@@ -28,10 +28,8 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathAfterFetchListener;
-import org.smartregister.path.sync.PathUpdateActionsTask;
-import org.smartregister.sync.SyncProgressIndicator;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
@@ -45,7 +43,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener {
 
     public static final String IS_REMOTE_LOGIN = "is_remote_login";
-    private PathAfterFetchListener pathAfterFetchListener;
     private Snackbar syncStatusSnackbar;
 
     @Override
@@ -73,8 +70,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        pathAfterFetchListener = new PathAfterFetchListener();
 
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
@@ -104,10 +99,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
-                this, context().actionService(),
-                new SyncProgressIndicator(), context().allFormVersionSyncService());
-        pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
+        startService(new Intent(getApplicationContext(), SyncIntentService.class));
     }
 
     @Override
@@ -204,11 +196,14 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
+        Intent intent = new Intent(getApplicationContext(), SyncIntentService.class);
+        startService(intent);
+
+        /*PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
                 this, context().actionService(),
                 new SyncProgressIndicator(),
                 context().allFormVersionSyncService());
-        pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);
+        pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);*/
     }
 //////////////////////////////////for navigation menu items///////////////////////////
 //    private void refreshSyncStatusViews(FetchStatus fetchStatus) {
