@@ -32,9 +32,9 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private int generatedId = -1;
     private MaterialEditText balancetextview;
     private PathJsonFormFragment pathJsonFormFragment;
-    private final static String STOCK_ISSUED = "Stock Issued",
-            STOCK_LOSS_ADJUSTMENT = "Stock Loss/Adjustment", 
-            STOCK_RECEIVED = "Stock Received";
+    private static final String STOCK_ISSUED = "Stock Issued";
+    private static final String STOCK_LOSS_ADJUSTMENT = "Stock Loss/Adjustment";
+    private static final String STOCK_RECEIVED = "Stock Received";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +73,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockDateEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_ISSUED)) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Date_Stock_Issued") && value != null && !value.equalsIgnoreCase("")) {
                     if (balancetextview == null) {
@@ -94,7 +94,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = "0";
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_ISSUED, "").trim();
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
@@ -171,7 +171,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockVialsEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_ISSUED)) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase("Vials_Issued")) {
                     if (balancetextview == null) {
@@ -191,7 +191,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = "0";
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_ISSUED, "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                     JSONArray fields = object.getJSONArray("fields");
                     for (int i = 0; i < fields.length(); i++) {
@@ -254,7 +254,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockWastedVialsEnteredinIssuedForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("STOCK_ISSUED")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_ISSUED)) {
                 StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                 if (key.equalsIgnoreCase(getString(R.string.vials_wasted_key))) {
                     if (balancetextview == null) {
@@ -274,7 +274,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     Date encounterDate = new Date();
                     String vialsvalue = "";
                     String wastedvials = value;
-                    String vaccineName = object.getString(getString(R.string.title_key)).replace("STOCK_ISSUED", "").trim();
+                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_ISSUED, "").trim();
                     int existingbalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
 
                     JSONArray fields = object.getJSONArray("fields");
@@ -470,7 +470,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockDateEnteredinAdjustmentForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Loss/Adjustment")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_LOSS_ADJUSTMENT)) {
                 if (key.equalsIgnoreCase("Date_Stock_loss_adjustment") && value != null && !value.equalsIgnoreCase("")) {
 //                    if(balancetextview == null) {
 //                        ArrayList<View> views = getFormDataViews();
@@ -501,7 +501,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
 
-                                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Loss/Adjustment", "").trim();
+                                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_LOSS_ADJUSTMENT, "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
@@ -536,7 +536,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
     private void stockVialsenteredinAdjustmentForm(String key, String value) {
         JSONObject object = getStep("step1");
         try {
-            if (object.getString(getString(R.string.title_key)).contains("Stock Loss/Adjustment")) {
+            if (object.getString(getString(R.string.title_key)).contains(STOCK_LOSS_ADJUSTMENT)) {
                 if (key.equalsIgnoreCase(getString(R.string.vials_adjustment_key)) && value != null && !value.equalsIgnoreCase("")) {
 //                    if(balancetextview == null) {
 //                        ArrayList<View> views = getFormDataViews();
@@ -566,7 +566,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                         }
                                     }
 
-                                    String vaccineName = object.getString(getString(R.string.title_key)).replace("Stock Loss/Adjustment", "").trim();
+                                    String vaccineName = object.getString(getString(R.string.title_key)).replace(STOCK_LOSS_ADJUSTMENT, "").trim();
                                     StockRepository str = VaccinatorApplication.getInstance().stockRepository();
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
