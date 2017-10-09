@@ -33,7 +33,10 @@ import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.domain.EditWrapper;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -44,6 +47,7 @@ import java.util.Map;
 public class Utils {
 
     public final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String TAG = Utils.class.getCanonicalName();
 
     private Utils() {
     }
@@ -214,6 +218,16 @@ public class Utils {
             Log.e(Utils.class.getCanonicalName(), Log.getStackTraceString(e));
         }
 
+    }
+
+    public static Date getDateFromString(String date, String dateFormatPattern) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(dateFormatPattern);
+            return dateFormat.parse(date);
+        } catch (ParseException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        }
     }
 
 }

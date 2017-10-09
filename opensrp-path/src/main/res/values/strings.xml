@@ -202,4 +202,18 @@
     <string name="waiting_label">Waiting</string>
     <string name="fully_immunized_label">Fully\nimmunized</string>
     <string name="all_changes_saved">All changes saved</string>
+
+    <string name="url_separator">/</string>
+    <string name="clients_key">clients</string>
+    <string name="events_key">events</string>
+    <string name="stocks_key">stocks</string>
+    <string name="server_version_key">serverVersion</string>
+    <string name="transaction_type_key">transaction_type</string>
+    <string name="providerid_key">providerid</string>
+    <string name="value_key">value</string>
+    <string name="date_created_key">date_created</string>
+    <string name="to_from_key">to_from</string>
+    <string name="date_updated_key">date_updated</string>
+    <string name="vaccine_type_id_key">vaccine_type_id</string>
+    <string name="validation_error">Validation Error</string>
 </resources>

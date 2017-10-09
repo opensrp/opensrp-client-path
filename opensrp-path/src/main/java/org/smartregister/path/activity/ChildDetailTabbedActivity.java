@@ -240,8 +240,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             public void onClick(View v) {
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 android.app.Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-
-                StatusEditDialogFragment.newInstance(ChildDetailTabbedActivity.this, details).show(ft, DIALOG_TAG);
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
             }
         });
 
@@ -349,7 +351,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 // User chose the "Settings" item, show the app settings UI...
                 return true;
             case R.id.immunization_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(true, false, false);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -358,7 +362,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 return true;
 
             case R.id.recurring_services_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(false, true, false);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -366,7 +372,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 }
                 return true;
             case R.id.weight_data:
-                viewPager.setCurrentItem(1);
+                if (viewPager.getCurrentItem() != 1) {
+                    viewPager.setCurrentItem(1);
+                }
                 childUnderFiveFragment.loadView(false, false, true);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
@@ -381,8 +389,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             case R.id.change_status:
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
                 android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-
-                StatusEditDialogFragment.newInstance(this, details).show(ft, DIALOG_TAG);
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();

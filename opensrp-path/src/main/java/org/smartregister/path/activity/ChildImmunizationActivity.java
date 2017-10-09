@@ -410,10 +410,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
                 for (int i = 0; i < supportedVaccines.length(); i++) {
                     JSONObject vaccineGroupObject = supportedVaccines.getJSONObject(i);
-
-                    //Add BCG2 special vaccine to birth vaccine group
-                    VaccinateActionUtils.addBcg2SpecialVaccine(this, vaccineGroupObject, vaccineList);
-
                     addVaccineGroup(-1, vaccineGroupObject, vaccineList, alerts);
                 }
             } catch (JSONException e) {
