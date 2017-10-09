@@ -428,8 +428,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     for (int i = 0; i < fields.length(); i++) {
                         JSONObject questions = fields.getJSONObject(i);
                         if (questions.has(getString(R.string.key))) {
-                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_loss_adjustment")
-                                && questions.has(getString(R.string.value_key))) {
+                            if (questions.getString(getString(R.string.key)).equalsIgnoreCase("Date_Stock_loss_adjustment") && questions.has(getString(R.string.value_key))) {
                                 Date encounterDate = new Date();
                                 label = questions.getString(getString(R.string.value_key));
                                 if (label != null && StringUtils.isNotBlank(label)) {
@@ -549,8 +548,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 }
                             }
                         }
-                    } else if (vaccineGroup.has(getString(R.string.key)) && vaccineGroup.getString(getString(R.string.key)).equals("Weight_Kg")
-                            && vaccineGroup.has(getString(R.string.value_key)) && vaccineGroup.getString(getString(R.string.value_key)).length() > 0) {
+                    } else if (vaccineGroup.has(getString(R.string.key)) && vaccineGroup.getString(getString(R.string.key)).equals("Weight_Kg") && vaccineGroup.has(getString(R.string.value_key)) && vaccineGroup.getString(getString(R.string.value_key)).length() > 0) {
                         return true;
                     }
                 }
