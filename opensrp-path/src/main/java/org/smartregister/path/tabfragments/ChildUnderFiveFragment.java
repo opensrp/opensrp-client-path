@@ -67,6 +67,10 @@ public class ChildUnderFiveFragment extends Fragment {
     private Map<String, String> Detailsmap;
     private AlertService alertService;
     private LinearLayout fragmentContainer;
+    private Boolean curVaccineMode = null;
+    private Boolean curServiceMode = null;
+    private Boolean curWeightMode = null;
+
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -103,11 +107,21 @@ public class ChildUnderFiveFragment extends Fragment {
     public void loadView(boolean editVaccineMode, boolean editServiceMode, boolean editWeightMode) {
         try {
             if (fragmentContainer != null) {
-                createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
-                createWeightLayout(fragmentContainer, editWeightMode);
+                if (curWeightMode == null || !curWeightMode.equals(Boolean.valueOf(editWeightMode))) {
+                    createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
+                    createWeightLayout(fragmentContainer, editWeightMode);
+                    curWeightMode = editWeightMode;
+                }
 
-                updateVaccinationViews(fragmentContainer, editVaccineMode);
-                updateServiceViews(fragmentContainer, editServiceMode);
+                if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
+                    updateVaccinationViews(fragmentContainer, editVaccineMode);
+                    curVaccineMode = editVaccineMode;
+                }
+
+                if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
+                    updateServiceViews(fragmentContainer, editServiceMode);
+                    curServiceMode = editServiceMode;
+                }
             }
         } catch (Exception e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));
