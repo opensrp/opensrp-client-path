@@ -335,16 +335,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
         try {
             if (object.getString(getString(R.string.title_key)).contains(STOCK_RECEIVED)) {
                 if (key.equalsIgnoreCase("Date_Stock_Received") && value != null && !value.equalsIgnoreCase("")) {
-//                    if(balancetextview == null) {
-//                        ArrayList<View> views = getFormDataViews();
-//                        for (int i = 0; i < views.size(); i++) {
-//                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(getString(R.string.vials_received_key))) {
-//                                    balancetextview = (MaterialEditText) views.get(i);
-//                                }
-//                            }
-//                        }
-//                    }
                     String label = "";
                     int currentBalance = 0;
                     int displaybalance = 0;
@@ -375,10 +365,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             }
                             if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("")) {
                                 displaybalance = currentBalance + Integer.parseInt(vialsvalue);
-//                                if (balancetextview != null) {
-//                                    balancetextview.setErrorColor(getResources().getColor(R.color.dark_grey));
-//                                    balancetextview.setError("New balance : " + displaybalance);
-//                                }
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + displaybalance);
 
                             } else {
@@ -400,16 +386,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
         try {
             if (object.getString(getString(R.string.title_key)).contains(STOCK_RECEIVED)) {
                 if (key.equalsIgnoreCase(getString(R.string.vials_received_key)) && value != null && !value.equalsIgnoreCase("")) {
-//                    if(balancetextview == null) {
-//                        ArrayList<View> views = getFormDataViews();
-//                        for (int i = 0; i < views.size(); i++) {
-//                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(key)) {
-//                                    balancetextview = (MaterialEditText) views.get(i);
-//                                }
-//                            }
-//                        }
-//                    }
                     String label = "";
                     int currentBalance = 0;
                     int displaybalance = 0;
@@ -436,12 +412,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                             if (StringUtils.isNotBlank(value)) {
                                 displaybalance = currentBalance + Integer.parseInt(value);
-//                                if (balancetextview != null) {
-//                                    balancetextview.setErrorColor(Color.BLACK);
-//                                    balancetextview.setError("New balance : " + displaybalance);
-//                                }
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + displaybalance);
-
                             } else {
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "");
                             }
@@ -461,16 +432,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
         try {
             if (object.getString(getString(R.string.title_key)).contains(STOCK_LOSS_ADJUSTMENT)) {
                 if (key.equalsIgnoreCase("Date_Stock_loss_adjustment") && value != null && !value.equalsIgnoreCase("")) {
-//                    if(balancetextview == null) {
-//                        ArrayList<View> views = getFormDataViews();
-//                        for (int i = 0; i < views.size(); i++) {
-//                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(getString(R.string.vials_received_key))) {
-//                                    balancetextview = (MaterialEditText) views.get(i);
-//                                }
-//                            }
-//                        }
-//                    }
                     String label = "";
                     int currentBalance = 0;
                     int displaybalance = 0;
@@ -503,10 +464,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             }
                             if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("")) {
                                 displaybalance = currentBalance + Integer.parseInt(vialsvalue);
-//                                if (balancetextview != null) {
-//                                    balancetextview.setErrorColor(getResources().getColor(R.color.dark_grey));
-//                                    balancetextview.setError("New balance : " + displaybalance);
-//                                }
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + displaybalance);
 
                             } else {
@@ -527,16 +484,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
         try {
             if (object.getString(getString(R.string.title_key)).contains(STOCK_LOSS_ADJUSTMENT)) {
                 if (key.equalsIgnoreCase(getString(R.string.vials_adjustment_key)) && value != null && !value.equalsIgnoreCase("")) {
-//                    if(balancetextview == null) {
-//                        ArrayList<View> views = getFormDataViews();
-//                        for (int i = 0; i < views.size(); i++) {
-//                            if (views.get(i) instanceof MaterialEditText) {
-//                                if (((String) views.get(i).getTag(com.vijay.jsonwizard.R.id.key)).equalsIgnoreCase(key)) {
-//                                    balancetextview = (MaterialEditText) views.get(i);
-//                                }
-//                            }
-//                        }
-//                    }
                     String label = "";
                     int currentBalance = 0;
                     int displaybalance = 0;
@@ -562,10 +509,6 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             }
                             if (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("-")) {
                                 displaybalance = currentBalance + Integer.parseInt(value);
-//                                if (balancetextview != null) {
-//                                    balancetextview.setErrorColor(Color.BLACK);
-//                                    balancetextview.setError("New balance : " + displaybalance);
-//                                }
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + displaybalance);
 
                             } else {
