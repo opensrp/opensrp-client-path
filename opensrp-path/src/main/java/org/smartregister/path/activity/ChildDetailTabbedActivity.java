@@ -1415,7 +1415,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         ft.addToBackStack(null);
 
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers);
+        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -1525,7 +1525,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1558,6 +1558,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         @Override
         protected void onPostExecute(Void params) {
             super.onPostExecute(params);
+            hideProgressDialog();
 
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);
