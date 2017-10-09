@@ -132,7 +132,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     }
                     if (!StringUtils.isBlank(vialsValue)) {
                         newBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime()) - Integer.parseInt(vialsValue) - Integer.parseInt(wastedVials);
-                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + newBalance);
+                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + newBalance);
                     }
 
                     int vialsUsed = 0;
@@ -217,7 +217,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                     if (value != null && !StringUtils.isBlank(value)) {
                         newBalance = existingBalance - Integer.parseInt(value) - Integer.parseInt(wastedVials);
-                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + newBalance);
+                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + newBalance);
                     } else {
                         pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");
                     }
@@ -297,7 +297,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     if (vialsValue != null && !StringUtils.isBlank(vialsValue)) {
 
                         newBalance = existingBalance - Integer.parseInt(vialsValue) - Integer.parseInt(wastedVials);
-                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + newBalance);
+                        pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + newBalance);
                     } else {
                         pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");
                     }
@@ -354,7 +354,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                             if (vialsValue != null && !vialsValue.equalsIgnoreCase("")) {
                                 displayBalance = currentBalance + Integer.parseInt(vialsValue);
-                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + displayBalance);
+                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + displayBalance);
 
                             } else {
                                 pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");
@@ -400,7 +400,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                             if (StringUtils.isNotBlank(value)) {
                                 displayBalance = currentBalance + Integer.parseInt(value);
-                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + displayBalance);
+                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + displayBalance);
                             } else {
                                 pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");
                             }
@@ -450,7 +450,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                             if (vialsValue != null && !vialsValue.equalsIgnoreCase("")) {
                                 displayBalance = currentBalance + Integer.parseInt(vialsValue);
-                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + displayBalance);
+                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + displayBalance);
 
                             } else {
                                 pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");
@@ -494,7 +494,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                             if (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("-")) {
                                 displayBalance = currentBalance + Integer.parseInt(value);
-                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "New balance: " + displayBalance);
+                                pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), getString(R.string.new_balance) + displayBalance);
 
                             } else {
                                 pathJsonFormFragment.getLabelViewFromTag(getString(R.string.balance), "");

@@ -226,4 +226,5 @@
     <string name="vials_adjustment_key">Vials_Adjustment</string>
     <string name="vials_issued_key">Vials_Issued</string>
     <string name="balance">Balance</string>
+    <string name="new_balance">New Balance: </string>
 </resources>
