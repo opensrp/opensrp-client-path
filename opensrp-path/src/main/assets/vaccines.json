@@ -38,6 +38,7 @@
               "vaccine": "OPV 4"
             }
           ]
+          ]
         }
       },
       {
@@ -559,8 +560,7 @@
               {
                 "reference": "prerequisite",
                 "prerequisite": "MR 1",
-                "offset": "+9m",
-                "window": "+10d"
+                "offset": "+9m"
               }
             ],
             "conditions": [
@@ -574,11 +574,14 @@
             "due": [
               {
                 "reference": "prerequisite",
-                "prerequisite": "MR 1"
+                "prerequisite": "MR 1",
+                "offset": "+9m",
+                "window": "+10d"
               },
               {
                 "reference": "prerequisite",
-                "prerequisite": "Measles 1"
+                "prerequisite": "Measles 1",
+                "offset": "+9m"
               }
             ],
             "conditions": [
