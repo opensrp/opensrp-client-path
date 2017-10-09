@@ -107,6 +107,6 @@
     <dimen name="registerlinkheight">85dp</dimen>
     <dimen name="custom_navigation_icon_size">35dp</dimen>
     <dimen name="illustration_report_empty_state_size">175dp</dimen>
-    <dimen name="hia2_indicator_hint_font_size">18sp</dimen>
-    <dimen name="hia2_indicator_default_font_size">18sp</dimen>
+    <dimen name="hia2_indicator_hint_font_size">19.5sp</dimen>
+    <dimen name="hia2_indicator_default_font_size">11.5sp</dimen>
 </resources>
