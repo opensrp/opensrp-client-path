@@ -3,7 +3,8 @@ package org.smartregister.path.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.content.Context;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -15,25 +16,24 @@ import android.widget.LinearLayout;
 
 import org.smartregister.path.R;
 import org.smartregister.path.listener.StatusChangeListener;
+import org.smartregister.util.Utils;
 
 import java.util.Map;
 
 @SuppressLint("ValidFragment")
 public class StatusEditDialogFragment extends DialogFragment {
-    private final Context context;
+    private StatusChangeListener listener;
     private static Map<String, String> details;
     private static final String inactive = "inactive";
     private static final String lostToFollowUp = "lost_to_follow_up";
 
-    private StatusEditDialogFragment(Context context, Map<String, String> details) {
-        this.context = context;
+    private StatusEditDialogFragment(Map<String, String> details) {
         StatusEditDialogFragment.details = details;
     }
 
-    public static StatusEditDialogFragment newInstance(
-            Context context, Map<String, String> details) {
+    public static StatusEditDialogFragment newInstance(Map<String, String> details) {
 
-        return new StatusEditDialogFragment(context, details);
+        return new StatusEditDialogFragment(details);
     }
 
     @Override
@@ -86,83 +86,31 @@ public class StatusEditDialogFragment extends DialogFragment {
         activeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString()))) {
-                    ((StatusChangeListener) context).updateClientAttribute(inactive, false);
-                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, false);
-                    }
-                    activeImageView.setVisibility(View.VISIBLE);
-                    inactiveImageView.setVisibility(View.INVISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.INVISIBLE);
+                UpdateView updateView = new UpdateView(STATUS.ACTIVE, listener, details);
+                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                    ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, false);
-                    ((StatusChangeListener) context).updateClientAttribute(inactive, false);
+                Utils.startAsyncTask(updateView, null);
 
-                    activeImageView.setVisibility(View.VISIBLE);
-                    inactiveImageView.setVisibility(View.INVISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.INVISIBLE);
-
-                }
-
-                ((StatusChangeListener) context).updateStatus();
-                dismiss();
             }
         });
 
         inactiveLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(""))) {
-                    ((StatusChangeListener) context).updateClientAttribute(inactive, true);
-                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, false);
-                    }
-                    activeImageView.setVisibility(View.INVISIBLE);
-                    inactiveImageView.setVisibility(View.VISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.INVISIBLE);
+                UpdateView updateView = new UpdateView(STATUS.IN_ACTIVE, listener, details);
+                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                } else if (!details.containsKey(inactive)) {
-                    ((StatusChangeListener) context).updateClientAttribute(inactive, true);
-                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, false);
-                    }
-                    activeImageView.setVisibility(View.INVISIBLE);
-                    inactiveImageView.setVisibility(View.VISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.INVISIBLE);
-
-                }
-
-                ((StatusChangeListener) context).updateStatus();
-                dismiss();
+                Utils.startAsyncTask(updateView, null);
             }
         });
 
         lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(""))) {
-                    ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, true);
-                    if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        ((StatusChangeListener) context).updateClientAttribute(inactive, false);
-                    }
-                    activeImageView.setVisibility(View.INVISIBLE);
-                    inactiveImageView.setVisibility(View.INVISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.VISIBLE);
+                UpdateView updateView = new UpdateView(STATUS.LOST_TO_FOLLOW_UP, listener, details);
+                updateView.setImageView(activeImageView, inactiveImageView, lostToFollowUpImageView);
 
-                } else if (!details.containsKey(lostToFollowUp)) {
-                    ((StatusChangeListener) context).updateClientAttribute(lostToFollowUp, true);
-                    if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                        ((StatusChangeListener) context).updateClientAttribute(inactive, false);
-                    }
-                    activeImageView.setVisibility(View.INVISIBLE);
-                    inactiveImageView.setVisibility(View.INVISIBLE);
-                    lostToFollowUpImageView.setVisibility(View.VISIBLE);
-
-                }
-
-                ((StatusChangeListener) context).updateStatus();
-                dismiss();
+                Utils.startAsyncTask(updateView, null);
             }
         });
 
@@ -174,7 +122,14 @@ public class StatusEditDialogFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         // Verify that the host activity implements the callback interface
-
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = (StatusChangeListener) activity;
+        } catch (ClassCastException e) {
+            // The activity doesn't implement the interface, throw exception
+            throw new ClassCastException(activity.toString()
+                    + " must implement StatusChangeListener");
+        }
     }
 
 
@@ -192,4 +147,130 @@ public class StatusEditDialogFragment extends DialogFragment {
         });
 
     }
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
+    private class UpdateView extends AsyncTask<Void, Void, Boolean> {
+        private StatusChangeListener listener;
+        private STATUS status;
+        private Map<String, String> details;
+        private ImageView activeImageView;
+        private ImageView inactiveImageView;
+        private ImageView lostToFollowUpImageView;
+        private ProgressDialog progressDialog;
+
+        private UpdateView(STATUS status, StatusChangeListener listener, Map<String, String> details) {
+            this.status = status;
+            this.listener = listener;
+            this.details = details;
+
+            this.progressDialog = new ProgressDialog(getActivity());
+            this.progressDialog.setCancelable(false);
+            this.progressDialog.setTitle(getString(R.string.updating_dialog_title));
+            this.progressDialog.setMessage(getString(R.string.please_wait_message));
+        }
+
+        private void setImageView(ImageView activeImageView, ImageView inactiveImageView, ImageView lostToFollowUpImageView) {
+            this.activeImageView = activeImageView;
+            this.inactiveImageView = inactiveImageView;
+            this.lostToFollowUpImageView = lostToFollowUpImageView;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            boolean updateViews = false;
+            switch (status) {
+                case ACTIVE:
+                    if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                        listener.updateClientAttribute(inactive, false);
+                        updateViews = true;
+                    }
+
+                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                        listener.updateClientAttribute(lostToFollowUp, false);
+                        updateViews = true;
+                    }
+
+                    break;
+
+                case IN_ACTIVE:
+                    if ((details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(""))) {
+                        listener.updateClientAttribute(inactive, true);
+                        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                            listener.updateClientAttribute(lostToFollowUp, false);
+                        }
+                        updateViews = true;
+
+                    } else if (!details.containsKey(inactive)) {
+                        listener.updateClientAttribute(inactive, true);
+                        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                            listener.updateClientAttribute(lostToFollowUp, false);
+                        }
+                        updateViews = true;
+                    }
+                    break;
+                case LOST_TO_FOLLOW_UP:
+                    if ((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(""))) {
+                        listener.updateClientAttribute(lostToFollowUp, true);
+                        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                            listener.updateClientAttribute(inactive, false);
+                        }
+                        updateViews = true;
+                    } else if (!details.containsKey(lostToFollowUp)) {
+                        listener.updateClientAttribute(lostToFollowUp, true);
+                        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                            listener.updateClientAttribute(inactive, false);
+                        }
+                        updateViews = true;
+                    }
+                    break;
+                default:
+                    break;
+
+            }
+
+            return updateViews;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            this.progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean updateViews) {
+            this.progressDialog.dismiss();
+            if (updateViews) {
+                switch (status) {
+                    case ACTIVE:
+                        activeImageView.setVisibility(View.VISIBLE);
+                        inactiveImageView.setVisibility(View.INVISIBLE);
+                        lostToFollowUpImageView.setVisibility(View.INVISIBLE);
+                        break;
+                    case IN_ACTIVE:
+                        activeImageView.setVisibility(View.INVISIBLE);
+                        inactiveImageView.setVisibility(View.VISIBLE);
+                        lostToFollowUpImageView.setVisibility(View.INVISIBLE);
+                        break;
+                    case LOST_TO_FOLLOW_UP:
+                        activeImageView.setVisibility(View.INVISIBLE);
+                        inactiveImageView.setVisibility(View.INVISIBLE);
+                        lostToFollowUpImageView.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            listener.updateStatus();
+            dismiss();
+
+        }
+    }
+
+    private enum STATUS {
+        ACTIVE, IN_ACTIVE, LOST_TO_FOLLOW_UP
+    }
+
 }
