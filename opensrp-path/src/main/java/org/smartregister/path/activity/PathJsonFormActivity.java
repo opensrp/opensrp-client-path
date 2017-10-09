@@ -3,6 +3,7 @@ package org.smartregister.path.activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
@@ -151,7 +152,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -243,7 +244,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -326,7 +327,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -376,7 +377,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
 
     }
@@ -423,7 +424,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -475,7 +476,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -521,7 +522,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
@@ -570,7 +571,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
 
         return false;
