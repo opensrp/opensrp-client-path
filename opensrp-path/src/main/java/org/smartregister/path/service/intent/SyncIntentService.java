@@ -1,5 +1,6 @@
-package org.smartregister.path.sync;
+package org.smartregister.path.service.intent;
 
+import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,9 +20,10 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Stock;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.sync.PathAfterFetchListener;
+import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
@@ -29,11 +31,7 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.ActionService;
 import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
-import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Utils;
-import org.smartregister.view.BackgroundAction;
-import org.smartregister.view.LockingBackgroundTask;
-import org.smartregister.view.ProgressIndicator;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
@@ -44,40 +42,36 @@ import java.util.List;
 import java.util.Map;
 
 import util.NetworkUtils;
-import util.PathConstants;
 
-public class PathUpdateActionsTask {
+public class SyncIntentService extends IntentService {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
     private static final String REPORTS_SYNC_PATH = "/rest/report/add";
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
 
-    private final LockingBackgroundTask task;
-    private final ActionService actionService;
-    private final Context context;
-    private final AllFormVersionSyncService allFormVersionSyncService;
-    private final HTTPAgent httpAgent;
+    private Context context;
+    private ActionService actionService;
+    private AllFormVersionSyncService allFormVersionSyncService;
+    private HTTPAgent httpAgent;
     private PathAfterFetchListener pathAfterFetchListener;
     private static final int EVENT_FETCH_LIMIT = 50;
 
-    public PathUpdateActionsTask(Context context, ActionService actionService, ProgressIndicator progressIndicator,
-                                 AllFormVersionSyncService allFormVersionSyncService) {
-        this.actionService = actionService;
-        this.context = context;
-        this.allFormVersionSyncService = allFormVersionSyncService;
-        task = new LockingBackgroundTask(progressIndicator);
-        this.httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+    public SyncIntentService() {
+        super("SyncIntentService");
     }
 
-    public static void setAlarms(Context context) {
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, 2, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        context = getBaseContext();
+        actionService = VaccinatorApplication.getInstance().context().actionService();
+        allFormVersionSyncService = VaccinatorApplication.getInstance().context().allFormVersionSyncService();
+        httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+        pathAfterFetchListener = new PathAfterFetchListener();
+        return super.onStartCommand(intent, flags, startId);
     }
 
-    public void updateFromServer(final PathAfterFetchListener pathAfterFetchListener) {
-        this.pathAfterFetchListener = pathAfterFetchListener;
+    @Override
+    protected void onHandleIntent(Intent workIntent) {
 
         sendSyncStatusBroadcastMessage(context, FetchStatus.fetchStarted);
         if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
@@ -85,51 +79,48 @@ public class PathUpdateActionsTask {
             return;
         }
 
-        task.doActionInBackground(new BackgroundAction<FetchStatus>() {
-            public FetchStatus actionToDoInBackgroundThread() {
-                if (NetworkUtils.isNetworkAvailable()) {
-                    FetchStatus fetchStatusForForms = sync();
-                    FetchStatus fetchStatusForActions = actionService.fetchNewActions();
-                    pathAfterFetchListener.partialFetch(fetchStatusForActions);
+        FetchStatus fetchStatus = doSync();
 
-                    startImageUploadIntentService(context);
-                    startPullUniqueIdsIntentService(context);
+        Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
+        context.startService(intent);
+        if (fetchStatus.equals(FetchStatus.nothingFetched) || fetchStatus.equals(FetchStatus.fetched)) {
+            ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
+            ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
+        }
+        pathAfterFetchListener.afterFetch(fetchStatus);
+        sendSyncStatusBroadcastMessage(context, fetchStatus);
 
 
-                    if (VaccinatorApplication.getInstance().context().configuration().shouldSyncForm()) {
-
-                        allFormVersionSyncService.verifyFormsInFolder();
-                        FetchStatus fetchVersionStatus = allFormVersionSyncService.pullFormDefinitionFromServer();
-                        DownloadStatus downloadStatus = allFormVersionSyncService.downloadAllPendingFormFromServer();
-
-                        if (downloadStatus == DownloadStatus.downloaded) {
-                            allFormVersionSyncService.unzipAllDownloadedFormFile();
-                        }
-
-                        if (fetchVersionStatus == FetchStatus.fetched || downloadStatus == DownloadStatus.downloaded) {
-                            return FetchStatus.fetched;
-                        }
-                    }
-
-                    return (fetchStatusForForms == FetchStatus.fetched) ? fetchStatusForActions : fetchStatusForForms;
-
-                }
-
-                return FetchStatus.noConnection;
-            }
-
-            public void postExecuteInUIThread(FetchStatus result) {
-                Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
-                context.startService(intent);
-                if (result.equals(FetchStatus.nothingFetched) || result.equals(FetchStatus.fetched)) {
-                    ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
-                    ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
-                }
-                pathAfterFetchListener.afterFetch(result);
-                sendSyncStatusBroadcastMessage(context, result);
-            }
-        });
     }
+
+    private FetchStatus doSync() {
+        if (NetworkUtils.isNetworkAvailable()) {
+            FetchStatus fetchStatusForForms = sync();
+            FetchStatus fetchStatusForActions = actionService.fetchNewActions();
+            pathAfterFetchListener.partialFetch(fetchStatusForActions);
+
+            if (VaccinatorApplication.getInstance().context().configuration().shouldSyncForm()) {
+
+                allFormVersionSyncService.verifyFormsInFolder();
+                FetchStatus fetchVersionStatus = allFormVersionSyncService.pullFormDefinitionFromServer();
+                DownloadStatus downloadStatus = allFormVersionSyncService.downloadAllPendingFormFromServer();
+
+                if (downloadStatus == DownloadStatus.downloaded) {
+                    allFormVersionSyncService.unzipAllDownloadedFormFile();
+                }
+
+                if (fetchVersionStatus == FetchStatus.fetched || downloadStatus == DownloadStatus.downloaded) {
+                    return FetchStatus.fetched;
+                }
+            }
+
+            return (fetchStatusForForms == FetchStatus.fetched) ? fetchStatusForActions : fetchStatusForForms;
+
+        }
+
+        return FetchStatus.noConnection;
+    }
+
 
     private FetchStatus sync() {
 
@@ -437,16 +428,6 @@ public class PathUpdateActionsTask {
         } catch (UnsupportedEncodingException e) {
             Log.e(getClass().getName(), e.getMessage());
         }
-    }
-
-    private void startImageUploadIntentService(Context context) {
-        Intent intent = new Intent(context, ImageUploadSyncService.class);
-        context.startService(intent);
-    }
-
-    private void startPullUniqueIdsIntentService(Context context) {
-        Intent intent = new Intent(context, PullUniqueIdsIntentService.class);
-        context.startService(intent);
     }
 
     private void sendSyncStatusBroadcastMessage(Context context, FetchStatus fetchStatus) {

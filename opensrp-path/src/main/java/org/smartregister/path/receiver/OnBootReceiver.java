@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.smartregister.path.sync.PathUpdateActionsTask;
+import org.smartregister.path.application.VaccinatorApplication;
 
 public class OnBootReceiver extends BroadcastReceiver {
     private final Intent serviceIntent;
@@ -22,7 +22,7 @@ public class OnBootReceiver extends BroadcastReceiver {
     }
 
     private void restartAlarms(Context context) {
-        PathUpdateActionsTask.setAlarms(context);
+        VaccinatorApplication.setAlarms(context);
     }
 
 }
