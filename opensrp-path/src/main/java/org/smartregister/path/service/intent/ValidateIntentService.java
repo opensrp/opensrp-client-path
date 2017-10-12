@@ -49,7 +49,7 @@ public class ValidateIntentService extends IntentService {
                 fetchLimit -= clientIds.size();
             }
 
-            List<String> eventIds = new ArrayList<>();db.getWritableDatabase().rawQuery("select baseEntityId from client where syncStatus = \"Synced\"  AND ( validationStatus is NULL or validationStatus != \"Valid\" )  order by updatedAt asc limit 100", null)
+            List<String> eventIds = new ArrayList<>();
             if (fetchLimit > 0) {
                 eventIds = db.getUnValidatedEventFormSubmissionIds(fetchLimit);
             }
