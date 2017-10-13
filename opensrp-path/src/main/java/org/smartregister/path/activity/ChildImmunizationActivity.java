@@ -793,7 +793,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 .findByEntityId(childDetails.entityId());
         if (vaccineList == null) vaccineList = new ArrayList<>();
 
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers);
+        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -807,11 +807,16 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
+        DateTime dob = DateTime.now();
+        if (!TextUtils.isEmpty(dobString)) {
+            dob = new DateTime(dobString);
+        }
 
         List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
                 .findByEntityId(childDetails.entityId());
 
-        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(serviceRecordList, serviceWrapper);
+        ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -1352,7 +1357,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1383,6 +1388,7 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected void onPostExecute(Void params) {
             super.onPostExecute(params);
+            hideProgressDialog();
 
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);
@@ -1529,7 +1535,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
         }
 
         @Override
@@ -1554,6 +1560,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         @Override
         protected void onPostExecute(Void params) {
+            hideProgressDialog();
             super.onPostExecute(params);
 
             // Refresh the vaccine group with the updated vaccine
