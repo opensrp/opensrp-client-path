@@ -7,11 +7,14 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.domain.Response;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,8 @@ public class ValidateIntentService extends IntentService {
     private Context context;
     private HTTPAgent httpAgent;
     private static final int FETCH_LIMIT = 100;
+    private static final String VALIDATE_SYNC_PATH = "rest/validate/sync";
+
 
     public ValidateIntentService() {
         super("ValidateIntentService");
@@ -41,7 +46,7 @@ public class ValidateIntentService extends IntentService {
 
         try {
 
-            int fetchLimit = FETCH_LIMIT;
+             int fetchLimit = FETCH_LIMIT;
             EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             List<String> clientIds = db.getUnValidatedClientBaseEntityIds(fetchLimit);
@@ -65,10 +70,10 @@ public class ValidateIntentService extends IntentService {
             }
 
             String jsonPayload = request.toString();
-           /* Response<String> response = httpAgent.post(
+            Response<String> response = httpAgent.post(
                     MessageFormat.format("{0}/{1}",
                             baseUrl,
-                            EVENTS_SYNC_PATH),
+                            VALIDATE_SYNC_PATH),
                     jsonPayload);
             if (response.isFailure()) {
                 Log.e(getClass().getName(), "Events sync failed.");
@@ -100,11 +105,10 @@ public class ValidateIntentService extends IntentService {
                 }
             }
 
-
             for (String eventId : eventIds) {
                 db.markEventValidationStatus(BaseRepository.TYPE_Valid, eventId);
             }
-*/
+
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
         }
