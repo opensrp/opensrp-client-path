@@ -533,10 +533,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         if (birthFacilityName != null && birthFacilityName.equalsIgnoreCase("other")) {
                             birthFacilityHierarchy = new JSONArray();
                             birthFacilityHierarchy.put(birthFacilityName);
-                        } else {
-                            String birthFacilityId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(), birthFacilityName);
+                        } else if (birthFacilityName != null) {
                             birthFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                    getOpenSRPContext(), birthFacilityId);
+                                    getOpenSRPContext(), birthFacilityName);
                         }
 
                         if (birthFacilityHierarchy != null) {
