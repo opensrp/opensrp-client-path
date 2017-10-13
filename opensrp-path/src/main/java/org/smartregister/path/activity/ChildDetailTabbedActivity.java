@@ -530,12 +530,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         JSONArray birthFacilityHierarchy = null;
                         String birthFacilityName = getValue(detailmaps, "Birth_Facility_Name", false);
 
-                        if (birthFacilityName != null && birthFacilityName.equalsIgnoreCase("other")) {
-                            birthFacilityHierarchy = new JSONArray();
-                            birthFacilityHierarchy.put(birthFacilityName);
-                        } else {
-                            birthFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                    getOpenSRPContext(), birthFacilityName);
+                        if (birthFacilityName != null) {
+                            if (birthFacilityName.equalsIgnoreCase("other")) {
+                                birthFacilityHierarchy = new JSONArray();
+                                birthFacilityHierarchy.put(birthFacilityName);
+                            } else {
+                                birthFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
+                                        getOpenSRPContext(), birthFacilityName);
+                            }
                         }
 
                         if (birthFacilityHierarchy != null) {
@@ -583,7 +585,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
                         JSONArray homeFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
                                 getOpenSRPContext(), getValue(detailmaps,
-                                        "Home_Facility", true));
+                                        "Home_Facility", false));
                         if (homeFacilityHierarchy != null) {
                             jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchy.toString());
                         }
