@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.domain.Response;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 
@@ -46,7 +46,7 @@ public class ValidateIntentService extends IntentService {
 
         try {
 
-             int fetchLimit = FETCH_LIMIT;
+            int fetchLimit = FETCH_LIMIT;
             EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
 
             List<String> clientIds = db.getUnValidatedClientBaseEntityIds(fetchLimit);
@@ -70,13 +70,13 @@ public class ValidateIntentService extends IntentService {
             }
 
             String jsonPayload = request.toString();
-            Response<String> response = httpAgent.post(
+            Response<String> response = httpAgent.postWithJsonResponse(
                     MessageFormat.format("{0}/{1}",
                             baseUrl,
                             VALIDATE_SYNC_PATH),
                     jsonPayload);
-            if (response.isFailure()) {
-                Log.e(getClass().getName(), "Events sync failed.");
+            if (response.isFailure() || StringUtils.isBlank(response.payload())) {
+                Log.e(getClass().getName(), "Validation sync failed.");
                 return;
             }
 
@@ -87,12 +87,14 @@ public class ValidateIntentService extends IntentService {
 
                 for (int i = 0; i < inValidClients.length(); i++) {
                     String inValidClientId = inValidClients.getString(i);
-                    clientIds.remove(inValidClientId);
-                    db.markEventValidationStatus(BaseRepository.TYPE_InValid, inValidClientId);
+                    if(clientIds.contains(inValidClientId)) {
+                        clientIds.remove(inValidClientId);
+                    }
+                    db.markClientValidationStatus(inValidClientId, false);
                 }
 
                 for (String clientId : clientIds) {
-                    db.markClientValidationStatus(BaseRepository.TYPE_Valid, clientId);
+                    db.markClientValidationStatus(clientId, true);
                 }
             }
 
@@ -100,13 +102,15 @@ public class ValidateIntentService extends IntentService {
             if (inValidEvents.length() > 0) {
                 for (int i = 0; i < inValidEvents.length(); i++) {
                     String inValidEventId = inValidEvents.getString(i);
-                    eventIds.remove(inValidEventId);
-                    db.markEventValidationStatus(BaseRepository.TYPE_InValid, inValidEventId);
+                    if(eventIds.contains(inValidEventId)) {
+                        eventIds.remove(inValidEventId);
+                    }
+                    db.markEventValidationStatus(inValidEventId, false);
                 }
             }
 
             for (String eventId : eventIds) {
-                db.markEventValidationStatus(BaseRepository.TYPE_Valid, eventId);
+                db.markEventValidationStatus(eventId, true);
             }
 
         } catch (Exception e) {
