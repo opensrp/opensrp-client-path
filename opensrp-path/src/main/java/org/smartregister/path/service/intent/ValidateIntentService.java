@@ -87,7 +87,7 @@ public class ValidateIntentService extends IntentService {
 
                 for (int i = 0; i < inValidClients.length(); i++) {
                     String inValidClientId = inValidClients.getString(i);
-                    if(clientIds.contains(inValidClientId)) {
+                    if (clientIds.contains(inValidClientId)) {
                         clientIds.remove(inValidClientId);
                     }
                     db.markClientValidationStatus(inValidClientId, false);
@@ -98,19 +98,19 @@ public class ValidateIntentService extends IntentService {
                 }
             }
 
-            JSONArray inValidEvents = results.has("events") ? results.getJSONArray("events") : new JSONArray();
-            if (inValidEvents.length() > 0) {
+            if (results.has(getString(R.string.events_key))) {
+                JSONArray inValidEvents = results.getJSONArray(getString(R.string.events_key));
                 for (int i = 0; i < inValidEvents.length(); i++) {
                     String inValidEventId = inValidEvents.getString(i);
-                    if(eventIds.contains(inValidEventId)) {
+                    if (eventIds.contains(inValidEventId)) {
                         eventIds.remove(inValidEventId);
                     }
                     db.markEventValidationStatus(inValidEventId, false);
                 }
-            }
 
-            for (String eventId : eventIds) {
-                db.markEventValidationStatus(eventId, true);
+                for (String eventId : eventIds) {
+                    db.markEventValidationStatus(eventId, true);
+                }
             }
 
         } catch (Exception e) {
