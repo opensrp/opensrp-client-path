@@ -197,7 +197,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
             @Override
             public void onClick(View v) {
                 updateResults(map);
-                //updateResultTree(map);
             }
         });
         show(snackbar, 30000);
@@ -360,10 +359,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
     };
 
     public void getLabelViewFromTag(String labeltext, String todisplay) {
-//        super.getMainView();
         updateRelevantTextView(getMainView(), todisplay, labeltext);
-
-//        findViewWithTag("labelHeaderImage")).setText("is it possible");
     }
 
     private void updateRelevantTextView(LinearLayout mMainView, String textstring, String currentKey) {
@@ -378,9 +374,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
                         textView.setText(textstring);
                     }
                 }
-//            else if(view instanceof  ViewGroup){
-//                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-//            }
             }
         }
     }
@@ -398,9 +391,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
                         toreturn = textView.getText().toString();
                     }
                 }
-//            else if(view instanceof  ViewGroup){
-//                updateRelevantTextView((ViewGroup) view,textstring,currentKey);
-//            }
             }
         }
         return toreturn;
@@ -408,23 +398,30 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean balancecheck = true;
+        boolean balanceCheck = true,
+                fillFormCheck = true;
 
         if (item.getItemId() == com.vijay.jsonwizard.R.id.action_save) {
             JSONObject object = getStep("step1");
             try {
                 if (object.getString("title").contains("Stock Issued") || object.getString("title").contains("Stock Received") || object.getString("title").contains("Stock Loss/Adjustment")) {
-                    balancecheck = ((PathJsonFormActivity) getActivity()).checkIfBalanceNegative();
+                    balanceCheck = ((PathJsonFormActivity) getActivity()).checkIfBalanceNegative();
+                }
+
+                if (object.getString("title").contains("Record out of catchment area service")) {
+                    fillFormCheck = ((PathJsonFormActivity) getActivity()).checkIfAtLeastOneServiceGiven();
                 }
             } catch (Exception e) {
                 Log.e(getClass().getName(), e.toString(), e);
             }
         }
-        if (balancecheck) {
+        if (balanceCheck && fillFormCheck) {
             return super.onOptionsItemSelected(item);
         } else {
+            String errorMessage = getString((!balanceCheck) ? R.string.balance_error_msg : R.string.fill_form_check_error_msg);
+
             final Snackbar snackbar = Snackbar
-                    .make(getMainView(), "Please make sure the balance is not less than zero.", Snackbar.LENGTH_LONG);
+                    .make(getMainView(), errorMessage, Snackbar.LENGTH_LONG);
             snackbar.setAction("Close", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -432,7 +429,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
                 }
             });
 
-// Changing message text color
+            // Changing message text color
             snackbar.setActionTextColor(Color.WHITE);
             View sbView = snackbar.getView();
             TextView textView = (TextView) sbView.findViewById(android.support.design.R.id.snackbar_text);
@@ -442,8 +439,6 @@ public class PathJsonFormFragment extends JsonFormFragment {
             return true;
         }
     }
-
-
 }
 
 
