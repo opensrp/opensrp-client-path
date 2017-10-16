@@ -1,6 +1,7 @@
 package org.smartregister.path.tabfragments;
 
 import android.app.FragmentTransaction;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -113,15 +114,8 @@ public class ChildUnderFiveFragment extends Fragment {
                     curWeightMode = editWeightMode;
                 }
 
-                if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
-                    updateVaccinationViews(fragmentContainer, editVaccineMode);
-                    curVaccineMode = editVaccineMode;
-                }
-
-                if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
-                    updateServiceViews(fragmentContainer, editServiceMode);
-                    curServiceMode = editServiceMode;
-                }
+                AddVaccinationServiceViewsAsyncTask addVaccinationServiceViewsAsyncTask = new AddVaccinationServiceViewsAsyncTask(editVaccineMode, editServiceMode);
+                Utils.startAsyncTask(addVaccinationServiceViewsAsyncTask, null);
             }
         } catch (Exception e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));
@@ -379,6 +373,40 @@ public class ChildUnderFiveFragment extends Fragment {
 
     public void setAlertService(AlertService alertService) {
         this.alertService = alertService;
+    }
+
+    private class AddVaccinationServiceViewsAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private boolean editVaccineMode;
+        private boolean editServiceMode;
+
+        public AddVaccinationServiceViewsAsyncTask(boolean editVaccineMode, boolean editServiceMode) {
+            this.editVaccineMode = editVaccineMode;
+            this.editServiceMode = editServiceMode;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
+                updateVaccinationViews(fragmentContainer, editVaccineMode);
+                curVaccineMode = editVaccineMode;
+            }
+
+            if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
+                updateServiceViews(fragmentContainer, editServiceMode);
+                curServiceMode = editServiceMode;
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
     }
 
 }
