@@ -87,6 +87,9 @@ public class PathRepository extends Repository {
                     upgradeToVersion8RecurringServiceUpdate(db);
                     upgradeToVersion8ReportDeceased(db);
                     break;
+                case 9:
+                    upgradeToVersion9(db);
+                    break;
                 default:
                     break;
             }
@@ -264,6 +267,28 @@ public class PathRepository extends Repository {
             addFieldsToFTSTable(database, PathConstants.CHILD_TABLE_NAME, newlyAddedFields);
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion8ReportDeceased " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion9(SQLiteDatabase database) {
+        try {
+            String ALTER_EVENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.event + " ADD COLUMN " + EventClientRepository.event_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_EVENT_TABLE_VALIDATE_COLUMN);
+
+            String ALTER_CLIENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.client + " ADD COLUMN " + EventClientRepository.client_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_CLIENT_TABLE_VALIDATE_COLUMN);
+
+            String ALTER_REPORT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.path_reports + " ADD COLUMN " + EventClientRepository.report_column.validationStatus + " VARCHAR";
+            database.execSQL(ALTER_REPORT_TABLE_VALIDATE_COLUMN);
+
+            EventClientRepository.createIndex(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
+            EventClientRepository.createIndex(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
+            EventClientRepository.createIndex(database, EventClientRepository.Table.path_reports, EventClientRepository.report_column.values());
+            EventClientRepository.createIndex(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
+            EventClientRepository.createIndex(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
+
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
         }
     }
 
