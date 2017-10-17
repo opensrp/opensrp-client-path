@@ -28,7 +28,6 @@ public class ValidateIntentService extends IntentService {
     private static final int FETCH_LIMIT = 100;
     private static final String VALIDATE_SYNC_PATH = "rest/validate/sync";
 
-
     public ValidateIntentService() {
         super("ValidateIntentService");
     }
@@ -130,8 +129,7 @@ public class ValidateIntentService extends IntentService {
             if (!eventIds.isEmpty()) {
                 eventIdArray = new JSONArray(eventIds);
             }
-
-
+            
             if (clientIdArray != null || eventIdArray != null) {
                 JSONObject request = new JSONObject();
                 if (clientIdArray != null) {
@@ -151,6 +149,5 @@ public class ValidateIntentService extends IntentService {
         }
         return null;
     }
-
 
 }
