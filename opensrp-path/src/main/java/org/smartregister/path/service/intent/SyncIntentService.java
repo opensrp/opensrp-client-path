@@ -33,9 +33,7 @@ import org.smartregister.service.AllFormVersionSyncService;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.util.Utils;
 
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -178,15 +176,16 @@ public class SyncIntentService extends IntentService {
         pushECToServer();
         pushReportsToServer();
         pushStockToServer();
+
+        startSyncValidation();
     }
 
     private void pushECToServer() {
         EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
         boolean keepSyncing = true;
-        try {
-            // db.markAllAsUnSynced();
 
-            while (keepSyncing) {
+        while (keepSyncing) {
+            try {
                 Map<String, Object> pendingEvents = null;
                 pendingEvents = db.getUnSyncedEvents(EVENT_FETCH_LIMIT);
 
@@ -218,14 +217,11 @@ public class SyncIntentService extends IntentService {
                 }
                 db.markEventsAsSynced(pendingEvents);
                 Log.i(getClass().getName(), "Events synced successfully.");
+            } catch (Exception e) {
+                Log.e(getClass().getName(), e.getMessage());
             }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(), e.getMessage());
-        } catch (ParseException e) {
-            Log.e(getClass().getName(), e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            Log.e(getClass().getName(), e.getMessage());
         }
+
 
     }
 
@@ -421,11 +417,7 @@ public class SyncIntentService extends IntentService {
                 db.markReportsAsSynced(pendingReports);
                 Log.i(getClass().getName(), "Reports synced successfully.");
             }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(), e.getMessage());
-        } catch (ParseException e) {
-            Log.e(getClass().getName(), e.getMessage());
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage());
         }
     }
@@ -443,6 +435,11 @@ public class SyncIntentService extends IntentService {
 
     private void drishtiLogError(String message) {
         org.smartregister.util.Log.logError(message);
+    }
+
+    private void startSyncValidation() {
+        Intent intent = new Intent(context, ValidateIntentService.class);
+        startService(intent);
     }
 
 }
