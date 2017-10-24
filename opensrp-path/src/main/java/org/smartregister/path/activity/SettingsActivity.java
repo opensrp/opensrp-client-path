@@ -1,5 +1,8 @@
 package org.smartregister.path.activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -7,6 +10,9 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.webkit.URLUtil;
+import android.widget.Toast;
 
 import org.smartregister.path.R;
 import org.smartregister.repository.AllSharedPreferences;
@@ -35,7 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
 
             Preference baseUrlPreference = findPreference("DRISHTI_BASE_URL");
             if (baseUrlPreference != null) {
-                EditTextPreference baseUrlEditTextPreference = (EditTextPreference) baseUrlPreference;
+                final EditTextPreference baseUrlEditTextPreference = (EditTextPreference) baseUrlPreference;
                 baseUrlEditTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -43,6 +49,27 @@ public class SettingsActivity extends PreferenceActivity {
                             updateUrl(newValue.toString());
                         }
                         return true;
+                    }
+                });
+
+
+                baseUrlEditTextPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        final Dialog dialog = (baseUrlEditTextPreference.getDialog());
+                        ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                String newValue = baseUrlEditTextPreference.getEditText().getText().toString();
+                                if (newValue != null && URLUtil.isNetworkUrl(newValue)) {
+                                    baseUrlEditTextPreference.onClick(null, DialogInterface.BUTTON_POSITIVE);
+                                    dialog.dismiss();
+                                } else {
+                                    Toast.makeText(getActivity(), "Please enter a valid url!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        return false;
                     }
                 });
             }
