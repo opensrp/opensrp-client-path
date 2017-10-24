@@ -177,7 +177,7 @@ public class ChildRegistrationDataFragment extends Fragment {
                 tvChildsOtherBirthFacility.setText(Utils.getValue(detailsMap, "Birth_Facility_Name_Other", true));
             }
 
-            String childsResidentialArea = Utils.getValue(detailsMap, "address3", true);
+            String childsResidentialArea = Utils.getValue(detailsMap, "address3", false);
             tvChildsResidentialArea.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsResidentialArea)));
             if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName( VaccinatorApplication.getInstance().context(), childsResidentialArea)).equalsIgnoreCase("other")) {
                 tableRowChildsOtherResidentialArea.setVisibility(View.VISIBLE);
