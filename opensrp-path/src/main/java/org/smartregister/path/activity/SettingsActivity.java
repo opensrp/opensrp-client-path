@@ -14,6 +14,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Toast;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.smartregister.path.R;
 import org.smartregister.repository.AllSharedPreferences;
 
@@ -61,7 +62,8 @@ public class SettingsActivity extends PreferenceActivity {
                             @Override
                             public void onClick(View v) {
                                 String newValue = baseUrlEditTextPreference.getEditText().getText().toString();
-                                if (newValue != null && URLUtil.isNetworkUrl(newValue)) {
+                                UrlValidator urlValidator = new UrlValidator(new String[]{"http", "https"});
+                                if (newValue != null && urlValidator.isValid(newValue)) {
                                     baseUrlEditTextPreference.onClick(null, DialogInterface.BUTTON_POSITIVE);
                                     dialog.dismiss();
                                 } else {
