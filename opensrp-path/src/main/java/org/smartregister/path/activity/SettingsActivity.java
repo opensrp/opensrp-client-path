@@ -11,7 +11,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.View;
-import android.webkit.URLUtil;
 import android.widget.Toast;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -57,7 +56,7 @@ public class SettingsActivity extends PreferenceActivity {
                 baseUrlEditTextPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        final Dialog dialog = (baseUrlEditTextPreference.getDialog());
+                        final Dialog dialog = baseUrlEditTextPreference.getDialog();
                         ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
