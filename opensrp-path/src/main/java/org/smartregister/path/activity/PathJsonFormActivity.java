@@ -294,7 +294,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                             if (questions.getString("key").equalsIgnoreCase("Vials_Issued")) {
 
                                 if (questions.has("value")) {
-                                    if (!StringUtils.isBlank(questions.getString("value"))) {
+                                    if (!StringUtils.isBlank(questions.getString("value")) && StringUtils.isNumeric(questions.getString("value"))) {
                                         vialsvalue = questions.getString("value");
                                     }
                                 } else {
@@ -307,7 +307,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     if (wastedvials == null || StringUtils.isBlank(wastedvials)) {
                         wastedvials = "0";
                     }
-                    if (vialsvalue != null && !StringUtils.isBlank(vialsvalue)) {
+                    if (vialsvalue != null && !StringUtils.isBlank(vialsvalue) && StringUtils.isNumeric(wastedvials)) {
 
                         newBalance = existingbalance - Integer.parseInt(vialsvalue) - Integer.parseInt(wastedvials);
                         pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + newBalance);
