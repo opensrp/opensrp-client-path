@@ -922,6 +922,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     public static String getOpenMrsReadableName(String name) {
+        if (name == null) {
+            return "";
+        }
+
         String readableName = new String(name);
 
         Pattern prefixPattern = Pattern.compile("^[a-z]{2} (.*)$");
