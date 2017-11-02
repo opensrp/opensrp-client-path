@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -135,6 +136,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private CommonPersonObjectClient childDetails;
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
+    private boolean dialogOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -384,12 +386,20 @@ public class ChildImmunizationActivity extends BaseActivity
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
+                    if (dialogOpen) {
+                        return;
+                    }
+                    dialogOpen = true;
                     addServiceDialogFragment(serviceWrapper, serviceGroup);
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                    if (dialogOpen) {
+                        return;
+                    }
+                    dialogOpen = true;
                     addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
                 }
             });
@@ -462,12 +472,20 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
+                if (dialogOpen) {
+                    return;
+                }
+                dialogOpen = true;
                 addVaccinationDialogFragment(dueVaccines, vaccineGroup);
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
+                if (dialogOpen) {
+                    return;
+                }
+                dialogOpen = true;
                 ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                 vaccineWrappers.add(vaccine);
                 addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
@@ -476,6 +494,11 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
                 addVaccineUndoDialogFragment(vaccineGroup, vaccine);
             }
         });
@@ -510,6 +533,12 @@ public class ChildImmunizationActivity extends BaseActivity
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(ft, DIALOG_TAG);
+        undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
     }
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
@@ -524,6 +553,12 @@ public class ChildImmunizationActivity extends BaseActivity
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
         undoServiceDialogFragment.show(ft, DIALOG_TAG);
+        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
     }
 
     private void updateWeightViews(Weight lastUnsyncedWeight) {
@@ -795,6 +830,13 @@ public class ChildImmunizationActivity extends BaseActivity
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
+        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
@@ -818,6 +860,12 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
+        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
     }
 
     private void performRegisterActions() {
