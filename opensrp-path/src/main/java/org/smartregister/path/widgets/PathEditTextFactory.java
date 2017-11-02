@@ -8,7 +8,10 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.rengwuxian.materialedittext.validation.METValidator;
+import com.rengwuxian.materialedittext.validation.RegexpValidator;
 import com.rey.material.util.ViewUtil;
+import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
 import com.vijay.jsonwizard.interfaces.CommonListener;
 import com.vijay.jsonwizard.interfaces.JsonApi;
@@ -60,6 +63,30 @@ public class PathEditTextFactory extends EditTextFactory {
             editText.setTextSize((int) context.getResources().getDimension(R.dimen.hia2_indicator_default_font_size));
 
             editText.addTextChangedListener(new HIA2ReportFormTextWatcher(formFragment, jsonObject.get(PathConstants.KEY.HIA_2_INDICATOR).toString()));
+        }
+
+        if (jsonObject.has(PathConstants.KEY.VIALS_RECEIVED) || jsonObject.has(PathConstants.KEY.VIALS_ISSUED) || jsonObject.has(PathConstants.KEY.VIALS_WASTED)) {
+            editText.setInputType(InputType.TYPE_CLASS_NUMBER |
+                    InputType.TYPE_NUMBER_FLAG_SIGNED);
+
+            List<METValidator> validators = editText.getValidators();
+            METValidator regexpValidator = null;
+            if (validators != null) {
+                for (METValidator validator : validators) {
+                    if (validator instanceof RegexpValidator) {
+                        regexpValidator = validator;
+                    }
+                }
+
+                if (regexpValidator != null) {
+                    validators.remove(regexpValidator);
+                }
+            }
+
+            editText.addValidator(new RegexpValidator("Enter a valid vial number",
+                    "^[0-9.]+$"));
+
+
         }
     }
 

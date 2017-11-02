@@ -99,6 +99,9 @@ PathConstants extends AllConstants {
         public static final String HIA_2_INDICATOR = "hia2_indicator";
         public static final String LOOK_UP = "look_up";
         public static final String NUMBER_PICKER = "number_picker";
+        public static final String VIALS_WASTED = "Vials_Wasted";
+        public static final String VIALS_ISSUED = "Vials_Issued";
+        public static final String VIALS_RECEIVED = "Vials_Received";
     }
 
 }

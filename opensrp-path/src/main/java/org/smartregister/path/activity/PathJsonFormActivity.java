@@ -130,7 +130,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
 
                         }
                     }
-                    if (!StringUtils.isBlank(vialsvalue)) {
+                    if (!StringUtils.isBlank(vialsvalue) && StringUtils.isNumeric(vialsvalue) && StringUtils.isNumeric(wastedvials)) {
                         newBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime()) - Integer.parseInt(vialsvalue) - Integer.parseInt(wastedvials);
                         pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + newBalance);
                     }
@@ -158,7 +158,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
             if (currentBalance != 0) {
                 Typeface typeFace = Typeface.create(balanceTextView.getTypeface(), Typeface.ITALIC);
                 balanceTextView.setAccentTypeface(typeFace);
-                balanceTextView.setError(currentBalance +" child(ren) vaccinated today. Assuming " + vialsUsed + " vial(s) used.");
+                balanceTextView.setError(currentBalance + " child(ren) vaccinated today. Assuming " + vialsUsed + " vial(s) used.");
             } else {
                 balanceTextView.setError("");
             }
@@ -224,7 +224,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                     }
                     pathJsonFormFragment.getLabelViewFromTag("Balance", "");
 
-                    if (value != null && !StringUtils.isBlank(value) && StringUtils.isNumeric(value)) {
+                    if (value != null && !StringUtils.isBlank(value) && StringUtils.isNumeric(value) && StringUtils.isNumeric(wastedvials)) {
 
                         newBalance = existingbalance - Integer.parseInt(value) - Integer.parseInt(wastedvials);
                         pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + newBalance);
@@ -376,7 +376,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     vialsvalue = label;
                                 }
                             }
-                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("")) {
+                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("") && StringUtils.isNumeric(vialsvalue)) {
                                 displaybalance = currentBalance + Integer.parseInt(vialsvalue);
 //                                if (balancetextview != null) {
 //                                    balancetextview.setErrorColor(getResources().getColor(R.color.dark_grey));
@@ -505,7 +505,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     vialsvalue = label;
                                 }
                             }
-                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("")) {
+                            if (vialsvalue != null && !vialsvalue.equalsIgnoreCase("") && StringUtils.isNumeric(vialsvalue)) {
                                 displaybalance = currentBalance + Integer.parseInt(vialsvalue);
 //                                if (balancetextview != null) {
 //                                    balancetextview.setErrorColor(getResources().getColor(R.color.dark_grey));
@@ -564,7 +564,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                     currentBalance = str.getBalanceFromNameAndDate(vaccineName, encounterDate.getTime());
                                 }
                             }
-                            if (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("-")) {
+                            if (StringUtils.isNotBlank(value) && !value.equalsIgnoreCase("-") && StringUtils.isNumeric(value)) {
                                 displaybalance = currentBalance + Integer.parseInt(value);
 //                                if (balancetextview != null) {
 //                                    balancetextview.setErrorColor(Color.BLACK);
@@ -597,7 +597,7 @@ public class PathJsonFormActivity extends JsonFormActivity {
         boolean balancecheck = true;
         String balancestring = pathJsonFormFragment.getRelevantTextViewString("Balance");
 
-        if (balancestring.contains("New balance")) {
+        if (balancestring.contains("New balance") && StringUtils.isNumeric(balancestring)) {
             int balance = Integer.parseInt(balancestring.replace("New balance:", "").trim());
             if (balance < 0) {
                 balancecheck = false;
