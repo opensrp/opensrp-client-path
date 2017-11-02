@@ -437,12 +437,8 @@ public class PathJsonFormActivity extends JsonFormActivity {
                                 }
                             }
 
-                            if (StringUtils.isNotBlank(value)) {
+                            if (StringUtils.isNotBlank(value) && StringUtils.isNumeric(value)) {
                                 displaybalance = currentBalance + Integer.parseInt(value);
-//                                if (balancetextview != null) {
-//                                    balancetextview.setErrorColor(Color.BLACK);
-//                                    balancetextview.setError("New balance : " + displaybalance);
-//                                }
                                 pathJsonFormFragment.getLabelViewFromTag("Balance", "New balance: " + displaybalance);
 
                             } else {
