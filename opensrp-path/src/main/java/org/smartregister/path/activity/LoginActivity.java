@@ -444,6 +444,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void positionViews() {
         final ScrollView canvasSV = (ScrollView) findViewById(R.id.canvasSV);
+        if (canvasSV == null) {
+            return;
+        }
+
         final RelativeLayout canvasRL = (RelativeLayout) findViewById(R.id.canvasRL);
         final LinearLayout logoCanvasLL = (LinearLayout) findViewById(R.id.logoCanvasLL);
         final LinearLayout credentialsCanvasLL = (LinearLayout) findViewById(R.id.credentialsCanvasLL);
@@ -521,8 +525,10 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(LoginResponse loginResponse) {
             super.onPostExecute(loginResponse);
-            progressDialog.dismiss();
-            afterLoginCheck.onEvent(loginResponse);
+            if (!isDestroyed()) {
+                progressDialog.dismiss();
+                afterLoginCheck.onEvent(loginResponse);
+            }
         }
     }
 
