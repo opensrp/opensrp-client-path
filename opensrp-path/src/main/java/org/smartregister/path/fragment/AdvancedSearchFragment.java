@@ -777,7 +777,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
 
     private void setDatePicker(final EditText editText) {
-        editText.setOnClickListener(new DatePickerListener(editText));
+        editText.setOnClickListener(new DatePickerListener(editText, true));
     }
 
     private String removeLastComma(String str) {
@@ -1195,9 +1195,11 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private class DatePickerListener implements View.OnClickListener {
         private final EditText editText;
+        private boolean maxDateToday = false;
 
-        private DatePickerListener(EditText editText) {
+        private DatePickerListener(EditText editText, boolean maxDateToday) {
             this.editText = editText;
+            this.maxDateToday = maxDateToday;
         }
 
         @Override
@@ -1237,6 +1239,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                 }
             }, mYear, mMonth, mDay);
             mDatePicker.getDatePicker().setCalendarViewShown(false);
+            if (maxDateToday) {
+                mDatePicker.getDatePicker().setMaxDate(new Date().getTime());
+            }
             mDatePicker.show();
 
             try {
