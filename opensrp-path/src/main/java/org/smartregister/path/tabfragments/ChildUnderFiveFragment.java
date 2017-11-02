@@ -109,8 +109,7 @@ public class ChildUnderFiveFragment extends Fragment {
         try {
             if (fragmentContainer != null) {
                 if (curWeightMode == null || !curWeightMode.equals(Boolean.valueOf(editWeightMode))) {
-                    createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
-                    createWeightLayout(fragmentContainer, editWeightMode);
+                    loadWeightView(editWeightMode);
                     curWeightMode = editWeightMode;
                 }
 
@@ -119,6 +118,13 @@ public class ChildUnderFiveFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));
+        }
+    }
+
+    public void loadWeightView(boolean editWeightMode) {
+        if (fragmentContainer != null) {
+            createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
+            createWeightLayout(fragmentContainer, editWeightMode);
         }
     }
 
