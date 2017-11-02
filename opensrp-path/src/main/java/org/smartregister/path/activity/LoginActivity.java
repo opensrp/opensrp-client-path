@@ -525,8 +525,10 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(LoginResponse loginResponse) {
             super.onPostExecute(loginResponse);
-            progressDialog.dismiss();
-            afterLoginCheck.onEvent(loginResponse);
+            if (!isDestroyed()) {
+                progressDialog.dismiss();
+                afterLoginCheck.onEvent(loginResponse);
+            }
         }
     }
 
