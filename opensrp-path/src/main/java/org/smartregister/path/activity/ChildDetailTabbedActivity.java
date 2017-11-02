@@ -995,7 +995,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
 
             tag.setDbKey(weight.getId());
-            childUnderFiveFragment.loadView(false, false, true);
+            childUnderFiveFragment.loadWeightView(true);
 //            updateRecordWeightView(tag);
 //            setLastModified(true);
         } else {
