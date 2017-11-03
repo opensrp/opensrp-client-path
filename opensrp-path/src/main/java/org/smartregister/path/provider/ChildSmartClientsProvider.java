@@ -391,6 +391,9 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+
+                convertView.findViewById(R.id.child_profile_info_layout).setOnClickListener(null);
+
                 if (isWeightRecord) {
                     TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
                     recordWeightText.setText("Record\nservice");
