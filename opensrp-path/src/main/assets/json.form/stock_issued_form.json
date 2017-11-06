@@ -119,7 +119,7 @@
           "value": "1",
           "err": "issued vials must be greater than 0"
         },
-        "v_numeric": {
+        "v_numeric_integer": {
           "value": "true",
           "err": "Enter a valid vial number"
         },
@@ -140,7 +140,7 @@
           "value": "0",
           "err": "value cannot be less than zero"
         },
-        "v_numeric": {
+        "v_numeric_integer": {
           "value": "true",
           "err": "Enter a valid vial number"
         }
