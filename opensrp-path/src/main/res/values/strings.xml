@@ -216,4 +216,6 @@
     <string name="date_updated_key">date_updated</string>
     <string name="vaccine_type_id_key">vaccine_type_id</string>
     <string name="validation_error">Validation Error</string>
+
+    <string name="show_vaccine_card_disabled">Showing the vaccine card has been disabled for an out of area child.</string>
 </resources>

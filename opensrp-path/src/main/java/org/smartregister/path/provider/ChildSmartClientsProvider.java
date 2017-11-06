@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -391,6 +392,14 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
             moveToCatchment.setVisibility(View.GONE);
 
             if (commonPersonObject == null) { //Out of area -- doesn't exist in local database
+
+                convertView.findViewById(R.id.child_profile_info_layout).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, context.getString(R.string.show_vaccine_card_disabled), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 if (isWeightRecord) {
                     TextView recordWeightText = (TextView) convertView.findViewById(R.id.record_weight_text);
                     recordWeightText.setText("Record\nservice");
