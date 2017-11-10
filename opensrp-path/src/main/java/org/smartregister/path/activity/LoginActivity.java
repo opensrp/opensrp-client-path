@@ -29,6 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONException;
@@ -43,6 +45,7 @@ import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentServ
 import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
@@ -62,6 +65,9 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import io.ona.kujaku.exceptions.InvalidMapBoxStyleException;
+import io.ona.kujaku.helpers.converters.GeoJSONFeature;
+import io.ona.kujaku.helpers.converters.GeoJSONHelper;
 import util.PathConstants;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
@@ -118,6 +124,31 @@ public class LoginActivity extends AppCompatActivity {
         initializeProgressDialog();
 
         setLanguage();
+
+        //Sample start the map view
+        int children = 10;
+        GeoJSONFeature[] geoJSONFeatures = new GeoJSONFeature[children];
+        children--;
+        while (children > -1) {
+            double lat = Math.random() * 1;
+            double longitude = Math.random() * 1;
+            ArrayList<LatLng> points = new ArrayList<>();
+            points.add(new LatLng(lat, longitude));
+            geoJSONFeatures[children] = new GeoJSONFeature(points);
+            children--;
+        }
+
+        try {
+            String myGeoJsonData = new GeoJSONHelper(geoJSONFeatures).getGeoJsonData();
+            new MapHelper()
+                    .launchMap(this, "/sdcard/Dukto/my modified style json 1 (3).json", new String[]{myGeoJsonData}, new String[]{"qualcomm-kenya-sample-1"}, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (InvalidMapBoxStyleException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
