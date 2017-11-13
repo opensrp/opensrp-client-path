@@ -41,7 +41,7 @@ The OpenSRP Path App enables providers to:
  4. Record patient weights over time
  5. Review patient immunisation & weight history
  6. Determine patient health status based on weight
- 7. Determine patient health vulnerability based on adherance to immunisation schedule
+ 7. Determine patient health vulnerability based on adherance to immunization schedule
  8. Determine patient health from **above factors**
  9. Record side-effects caused by treatments
  10. Follow-up with patients in the field
