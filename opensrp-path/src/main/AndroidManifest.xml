@@ -84,6 +84,9 @@
             android:value="3f94f9c3caeff331b3a2bd8c2182b663ad6a955a" />
 
         <service android:name=".service.intent.SyncIntentService" />
+        <service android:name=".service.intent.SyncAlertIntentService" />
+        <service android:name=".service.intent.SyncStockIntentService" />
+        <service android:name=".service.intent.ProcessClientIntentService" />
         <service android:name=".service.intent.ValidateIntentService" />
         <service android:name=".service.intent.PullUniqueIdsIntentService" />
         <service android:name="org.smartregister.growthmonitoring.service.intent.WeightIntentService" />

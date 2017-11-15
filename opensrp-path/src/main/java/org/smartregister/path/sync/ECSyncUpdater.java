@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.domain.Response;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.util.Utils;
@@ -53,7 +54,7 @@ public class ECSyncUpdater {
         Long lastSyncDatetime = getLastSyncTimeStamp();
         Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
-        String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime;
+        String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_FETCH_LIMIT;
         Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
 
         if (httpAgent == null) {

@@ -12,6 +12,8 @@ import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.service.intent.SyncAlertIntentService;
+import org.smartregister.path.service.intent.SyncStockIntentService;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
@@ -35,16 +37,9 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
         if (!VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
             Intent serviceIntent = null;
             switch (serviceType) {
-                case PathConstants.ServiceType.DATA_SYNCHRONIZATION:
-                    //handled by pathupdateactionstask
-                    android.util.Log.i(TAG, "Started data synchronization service at: " + dateFormatter.format(new Date()));
-                    break;
                 case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
                     android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     serviceIntent = new Intent(context, HIA2IntentService.class);
-                    break;
-                case PathConstants.ServiceType.MONTHLY_TALLIES_GENERATION:
-                    android.util.Log.i(TAG, "Started MONTHLY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     break;
                 case PathConstants.ServiceType.PULL_UNIQUE_IDS:
                     serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
@@ -65,6 +60,14 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                 case PathConstants.ServiceType.IMAGE_UPLOAD:
                     serviceIntent = new Intent(context, ImageUploadSyncService.class);
                     android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
+                    break;
+                case PathConstants.ServiceType.STOCK_SYNC:
+                    serviceIntent = new Intent(context, SyncStockIntentService.class);
+                    android.util.Log.i(TAG, "Started STOCK_SYNC service at: " + dateFormatter.format(new Date()));
+                    break;
+                case PathConstants.ServiceType.ALERT_SYNC:
+                    serviceIntent = new Intent(context, SyncAlertIntentService.class);
+                    android.util.Log.i(TAG, "Started STOCK_SYNC service at: " + dateFormatter.format(new Date()));
                     break;
                 default:
                     break;
