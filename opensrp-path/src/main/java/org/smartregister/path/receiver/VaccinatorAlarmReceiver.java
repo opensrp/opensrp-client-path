@@ -12,8 +12,6 @@ import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
-import org.smartregister.path.service.intent.SyncAlertIntentService;
-import org.smartregister.path.service.intent.SyncStockIntentService;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
@@ -60,14 +58,6 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                 case PathConstants.ServiceType.IMAGE_UPLOAD:
                     serviceIntent = new Intent(context, ImageUploadSyncService.class);
                     android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.STOCK_SYNC:
-                    serviceIntent = new Intent(context, SyncStockIntentService.class);
-                    android.util.Log.i(TAG, "Started STOCK_SYNC service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.ALERT_SYNC:
-                    serviceIntent = new Intent(context, SyncAlertIntentService.class);
-                    android.util.Log.i(TAG, "Started STOCK_SYNC service at: " + dateFormatter.format(new Date()));
                     break;
                 default:
                     break;

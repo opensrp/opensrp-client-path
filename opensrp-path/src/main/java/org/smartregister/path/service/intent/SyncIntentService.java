@@ -10,11 +10,11 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.Response;
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
@@ -22,23 +22,17 @@ import org.smartregister.util.Utils;
 
 import java.text.MessageFormat;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Map;
 
 import util.NetworkUtils;
 
 public class SyncIntentService extends IntentService {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
-    private static final String REPORTS_SYNC_PATH = "/rest/report/add";
 
     private Context context;
     private HTTPAgent httpAgent;
 
     public static final int EVENT_FETCH_LIMIT = 50;
-    public static final String START_SYNC_TIMESTAMP = "startSyncTimeStamp";
-    public static final String LAST_SYNC_TIMESTAMP = "lastSyncTimeStamp";
-    public static final String FETCH_STATUS = "fetchStatus";
-
 
     public SyncIntentService() {
         super("SyncIntentService");
@@ -62,14 +56,12 @@ public class SyncIntentService extends IntentService {
 
         FetchStatus fetchStatus = doSync();
 
-        startZscoreRefresh();
-
         if (fetchStatus.equals(FetchStatus.nothingFetched) || fetchStatus.equals(FetchStatus.fetched)) {
             ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
             ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
         }
 
-        startProcessClient(fetchStatus);
+        sendSyncStatusBroadcastMessage(fetchStatus, true);
     }
 
     private FetchStatus doSync() {
@@ -111,11 +103,9 @@ public class SyncIntentService extends IntentService {
             Log.i(getClass().getName(), "Sync count:  " + eCount);
 
             long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-            startProcessClient(startSyncTimeStamp, lastSyncTimeStamp);
-
-            Thread.sleep(1000);
+            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
+            sendSyncStatusBroadcastMessage(FetchStatus.fetched);
         }
-
 
         if (totalCount == 0) {
             return FetchStatus.nothingFetched;
@@ -128,8 +118,6 @@ public class SyncIntentService extends IntentService {
 
     private void pushToServer() {
         pushECToServer();
-        pushReportsToServer();
-        startSyncValidation();
     }
 
     private void pushECToServer() {
@@ -176,72 +164,16 @@ public class SyncIntentService extends IntentService {
 
     }
 
-    private void pushReportsToServer() {
-        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-        try {
-            boolean keepSyncing = true;
-            int limit = 50;
-            while (keepSyncing) {
-                List<JSONObject> pendingReports = db.getUnSyncedReports(limit);
-
-                if (pendingReports.isEmpty()) {
-                    return;
-                }
-
-                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
-                }
-                // create request body
-                JSONObject request = new JSONObject();
-
-                request.put("reports", pendingReports);
-                String jsonPayload = request.toString();
-                Response<String> response = httpAgent.post(
-                        MessageFormat.format("{0}/{1}",
-                                baseUrl,
-                                REPORTS_SYNC_PATH),
-                        jsonPayload);
-                if (response.isFailure()) {
-                    Log.e(getClass().getName(), "Reports sync failed.");
-                    return;
-                }
-                db.markReportsAsSynced(pendingReports);
-                Log.i(getClass().getName(), "Reports synced successfully.");
-            }
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
-        }
-    }
-
-    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
+    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus, boolean isComplete) {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
+        intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, isComplete);
         sendBroadcast(intent);
     }
 
-    private void startProcessClient(long start, long end) {
-        Intent intent = new Intent(context, ProcessClientIntentService.class);
-        intent.putExtra(START_SYNC_TIMESTAMP, start);
-        intent.putExtra(LAST_SYNC_TIMESTAMP, end);
-        startService(intent);
-    }
-
-    private void startProcessClient(FetchStatus fetchStatus) {
-        Intent intent = new Intent(context, ProcessClientIntentService.class);
-        intent.putExtra(FETCH_STATUS, fetchStatus);
-        startService(intent);
-    }
-
-    private void startSyncValidation() {
-        Intent intent = new Intent(context, ValidateIntentService.class);
-        startService(intent);
-    }
-
-    private void startZscoreRefresh() {
-        Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
-        startService(intent);
+    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
+        sendSyncStatusBroadcastMessage(fetchStatus, false);
     }
 
     private void drishtiLogInfo(String message) {

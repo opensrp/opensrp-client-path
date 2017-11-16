@@ -104,8 +104,6 @@ public class VaccinatorApplication extends DrishtiApplication
         cleanUpSyncState();
         initOfflineSchedules();
         setCrashlyticsUser(context);
-        setAlarms(this);
-
     }
 
     public static synchronized VaccinatorApplication getInstance() {
@@ -365,23 +363,17 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public static void setAlarms(android.content.Context context) {
+
         final int TRIGGER_ITERATION_TWO_MINUTES = 2;
         final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
-        final int TRIGGER_ITERATION_SEVEN_MINUTES = 7;
         final int TRIGGER_ITERATION_TEN_MINUTES = 10;
-
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
 
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.STOCK_SYNC);
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.ALERT_SYNC);
-
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
-
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TEN_MINUTES, PathConstants.ServiceType.PULL_UNIQUE_IDS);
 
