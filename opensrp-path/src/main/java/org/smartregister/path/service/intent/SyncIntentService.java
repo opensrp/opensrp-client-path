@@ -15,7 +15,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathAfterFetchListener;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
@@ -34,11 +33,11 @@ public class SyncIntentService extends IntentService {
 
     private Context context;
     private HTTPAgent httpAgent;
-    private PathAfterFetchListener pathAfterFetchListener;
 
     public static final int EVENT_FETCH_LIMIT = 50;
     public static final String START_SYNC_TIMESTAMP = "startSyncTimeStamp";
     public static final String LAST_SYNC_TIMESTAMP = "lastSyncTimeStamp";
+    public static final String FETCH_STATUS = "fetchStatus";
 
 
     public SyncIntentService() {
@@ -49,7 +48,6 @@ public class SyncIntentService extends IntentService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         context = getBaseContext();
         httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-        pathAfterFetchListener = new PathAfterFetchListener();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -71,8 +69,7 @@ public class SyncIntentService extends IntentService {
             ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
         }
 
-        pathAfterFetchListener.afterFetch(fetchStatus);
-        sendSyncStatusBroadcastMessage(fetchStatus);
+        startProcessClient(fetchStatus);
     }
 
     private FetchStatus doSync() {
@@ -228,6 +225,12 @@ public class SyncIntentService extends IntentService {
         Intent intent = new Intent(context, ProcessClientIntentService.class);
         intent.putExtra(START_SYNC_TIMESTAMP, start);
         intent.putExtra(LAST_SYNC_TIMESTAMP, end);
+        startService(intent);
+    }
+
+    private void startProcessClient(FetchStatus fetchStatus) {
+        Intent intent = new Intent(context, ProcessClientIntentService.class);
+        intent.putExtra(FETCH_STATUS, fetchStatus);
         startService(intent);
     }
 
