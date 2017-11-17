@@ -24,6 +24,13 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Map;
 
+import rx.Observable;
+import rx.Scheduler;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import util.NetworkUtils;
 
 public class SyncIntentService extends IntentService {
@@ -88,11 +95,15 @@ public class SyncIntentService extends IntentService {
 
     private FetchStatus pullECFromServer(String locations) throws Exception {
         int totalCount = 0;
-        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
         while (true) {
-            long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            final long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+            Timer fetchTimer = new Timer();
+            fetchTimer.start();
             int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+            fetchTimer.stop();
+            fetchTimer.logDuration("Fetch clients and events");
             totalCount += eCount;
             if (eCount < 0) {
                 return FetchStatus.fetchedFailed;
@@ -102,9 +113,25 @@ public class SyncIntentService extends IntentService {
 
             Log.i(getClass().getName(), "Sync count:  " + eCount);
 
-            long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
-            sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+            final long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+
+            final Subscription subsc = Observable.
+                    just("")
+                    .subscribeOn(Schedulers.io())
+                    .map(new Func1<String, Object>() {
+                        @Override
+                        public Object call(String s) {
+                            processClients(ecUpdater, startSyncTimeStamp, lastSyncTimeStamp);
+                            return null;
+                        }
+                    })
+                    .subscribe(
+                            new Action1<Object>() {
+                                @Override
+                                public void call(Object o) {
+                                }
+                            }
+                    );
         }
 
         if (totalCount == 0) {
@@ -114,6 +141,21 @@ public class SyncIntentService extends IntentService {
         } else {
             return FetchStatus.fetched;
         }
+    }
+
+    private void processClients(ECSyncUpdater ecUpdater, long startSyncTimeStamp, long lastSyncTimeStamp) {
+
+        try {
+            Timer processClients = new Timer();
+            processClients.start();
+            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
+            processClients.stop();
+            processClients.logDuration("Process clients");
+            sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void pushToServer() {
@@ -180,5 +222,29 @@ public class SyncIntentService extends IntentService {
         org.smartregister.util.Log.logInfo(message);
     }
 
+
+    public static class Timer {
+        private long startTime;
+        private long stopTime = 0l;
+        private boolean stopped = false;
+
+        public void start() {
+            startTime = System.currentTimeMillis();
+        }
+
+        public long stop() {
+            stopTime = System.currentTimeMillis();
+            stopped = true;
+            return (stopTime - startTime);
+        }
+
+        public long getDuration() {
+            return (stopped) ? (stopTime - startTime) : System.currentTimeMillis() - startTime;
+        }
+
+        public void logDuration(String durationName) {
+            Log.e("TIMER ", durationName + ": " + getDuration());
+        }
+    }
 
 }

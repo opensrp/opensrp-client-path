@@ -72,7 +72,11 @@ public class ECSyncUpdater {
     public int fetchAllClientsAndEvents(String filterName, String filterValue) {
         try {
 
+            SyncIntentService.Timer fetchTimer = new SyncIntentService.Timer();
+            fetchTimer.start();
             JSONObject jsonObject = fetchAsJsonObject(filterName, filterValue);
+            fetchTimer.stop();
+            fetchTimer.logDuration("Fetch JSON ");
 
             int eventsCount = jsonObject.has("no_of_events") ? jsonObject.getInt("no_of_events") : 0;
             if (eventsCount == 0) {
@@ -82,7 +86,11 @@ public class ECSyncUpdater {
             JSONArray events = jsonObject.has("events") ? jsonObject.getJSONArray("events") : new JSONArray();
             JSONArray clients = jsonObject.has("clients") ? jsonObject.getJSONArray("clients") : new JSONArray();
 
+            SyncIntentService.Timer batchSaveTimer = new SyncIntentService.Timer();
+            batchSaveTimer.start();
             long lastSyncTimeStamp = batchSave(events, clients);
+            batchSaveTimer.stop();
+            batchSaveTimer.logDuration("Batch Save ");
             if (lastSyncTimeStamp > 0l) {
                 updateLastSyncTimeStamp(lastSyncTimeStamp);
             }
