@@ -43,63 +43,55 @@ public class ECSyncUpdater {
     }
 
 
-    private JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
-        HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-        String baseUrl = VaccinatorApplication.getInstance().context().
-                configuration().dristhiBaseURL();
-        if (baseUrl.endsWith("/")) {
-            baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+    public JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
+        try {
+            HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+            String baseUrl = VaccinatorApplication.getInstance().context().
+                    configuration().dristhiBaseURL();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+            }
+
+            Long lastSyncDatetime = getLastSyncTimeStamp();
+            Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
+
+            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime;
+            Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
+
+            if (httpAgent == null) {
+                throw new Exception(SEARCH_URL + " http agent is null");
+            }
+
+            Response resp = httpAgent.fetch(url);
+            if (resp.isFailure()) {
+                throw new Exception(SEARCH_URL + " not returned data");
+            }
+
+            return new JSONObject((String) resp.payload());
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+            return null;
         }
-
-        Long lastSyncDatetime = getLastSyncTimeStamp();
-        Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
-
-        String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_FETCH_LIMIT;
-        Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
-
-        if (httpAgent == null) {
-            throw new Exception(SEARCH_URL + " http agent is null");
-        }
-
-        Response resp = httpAgent.fetch(url);
-        if (resp.isFailure()) {
-            throw new Exception(SEARCH_URL + " not returned data");
-        }
-
-        return new JSONObject((String) resp.payload());
     }
 
-    public int fetchAllClientsAndEvents(String filterName, String filterValue) {
+    public boolean saveAllClientsAndEvents(JSONObject jsonObject) {
         try {
-
-            SyncIntentService.Timer fetchTimer = new SyncIntentService.Timer();
-            fetchTimer.start();
-            JSONObject jsonObject = fetchAsJsonObject(filterName, filterValue);
-            fetchTimer.stop();
-            fetchTimer.logDuration("Fetch JSON ");
-
-            int eventsCount = jsonObject.has("no_of_events") ? jsonObject.getInt("no_of_events") : 0;
-            if (eventsCount == 0) {
-                return eventsCount;
+            if (jsonObject == null) {
+                return false;
             }
 
             JSONArray events = jsonObject.has("events") ? jsonObject.getJSONArray("events") : new JSONArray();
             JSONArray clients = jsonObject.has("clients") ? jsonObject.getJSONArray("clients") : new JSONArray();
 
-            SyncIntentService.Timer batchSaveTimer = new SyncIntentService.Timer();
-            batchSaveTimer.start();
             long lastSyncTimeStamp = batchSave(events, clients);
-            batchSaveTimer.stop();
-            batchSaveTimer.logDuration("Batch Save ");
             if (lastSyncTimeStamp > 0l) {
                 updateLastSyncTimeStamp(lastSyncTimeStamp);
             }
 
-            return eventsCount;
-
+            return true;
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
-            return -1;
+            return false;
         }
     }
 

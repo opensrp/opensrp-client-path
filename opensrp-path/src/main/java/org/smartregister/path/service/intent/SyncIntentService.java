@@ -1,11 +1,19 @@
 package org.smartregister.path.service.intent;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Process;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
@@ -24,16 +32,15 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Map;
 
-import rx.Observable;
-import rx.Scheduler;
-import rx.Subscriber;
-import rx.Subscription;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import util.NetworkUtils;
 
-public class SyncIntentService extends IntentService {
+public class SyncIntentService extends Service {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
 
     private Context context;
@@ -41,19 +48,61 @@ public class SyncIntentService extends IntentService {
 
     public static final int EVENT_FETCH_LIMIT = 50;
 
-    public SyncIntentService() {
-        super("SyncIntentService");
+    private volatile HandlerThread mHandlerThread;
+    private ServiceHandler mServiceHandler;
+    private static boolean started = false;
+
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            if (!started) {
+                handleSync();
+            }
+
+            stopSelf(message.arg1);
+
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mHandlerThread = new HandlerThread("SyncIntentService.HandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
+        mHandlerThread.start();
+
+        mServiceHandler = new ServiceHandler(mHandlerThread.getLooper());
+
+        context = getBaseContext();
+        httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        context = getBaseContext();
-        httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-        return super.onStartCommand(intent, flags, startId);
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        mServiceHandler.sendMessage(msg);
+
+        return START_NOT_STICKY;
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     @Override
-    protected void onHandleIntent(Intent workIntent) {
+    public void onDestroy() {
+        mHandlerThread.quit();
+    }
+
+
+    protected void handleSync() {
 
         sendSyncStatusBroadcastMessage(FetchStatus.fetchStarted);
         if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
@@ -61,101 +110,115 @@ public class SyncIntentService extends IntentService {
             return;
         }
 
-        FetchStatus fetchStatus = doSync();
-
-        if (fetchStatus.equals(FetchStatus.nothingFetched) || fetchStatus.equals(FetchStatus.fetched)) {
-            ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
-            ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
-        }
-
-        sendSyncStatusBroadcastMessage(fetchStatus, true);
+        doSync();
     }
 
-    private FetchStatus doSync() {
+    private void doSync() {
         if (!NetworkUtils.isNetworkAvailable()) {
-            return FetchStatus.noConnection;
+            sendSyncStatusBroadcastMessage(FetchStatus.noConnection);
         }
 
         try {
-            // Fetch locations
-            String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
-            if (StringUtils.isBlank(locations)) {
-                return FetchStatus.fetchedFailed;
-            }
-
             pushToServer();
-            return pullECFromServer(locations);
+            pullECFromServer();
 
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
-            return FetchStatus.fetchedFailed;
+            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed);
         }
-
     }
 
-    private FetchStatus pullECFromServer(String locations) throws Exception {
-        int totalCount = 0;
+    private void pullECFromServer() throws Exception {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-        while (true) {
-            final long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-            Timer fetchTimer = new Timer();
-            fetchTimer.start();
-            int eCount = ecUpdater.fetchAllClientsAndEvents(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
-            fetchTimer.stop();
-            fetchTimer.logDuration("Fetch clients and events");
-            totalCount += eCount;
-            if (eCount < 0) {
-                return FetchStatus.fetchedFailed;
-            } else if (eCount == 0) {
-                break;
-            }
+        // Fetch locations
+        String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
+        if (StringUtils.isBlank(locations)) {
+            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed);
+        }
 
-            Log.i(getClass().getName(), "Sync count:  " + eCount);
+        Observable.just(locations)
+                .subscribeOn(Schedulers.io())
+                .flatMap(new Function<String, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(@NonNull String locations) throws Exception {
 
-            final long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-
-            final Subscription subsc = Observable.
-                    just("")
-                    .subscribeOn(Schedulers.io())
-                    .map(new Func1<String, Object>() {
-                        @Override
-                        public Object call(String s) {
-                            processClients(ecUpdater, startSyncTimeStamp, lastSyncTimeStamp);
-                            return null;
-                        }
-                    })
-                    .subscribe(
-                            new Action1<Object>() {
-                                @Override
-                                public void call(Object o) {
-                                }
+                        JSONObject jsonObject = ecUpdater.fetchAsJsonObject(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+                        if (jsonObject == null) {
+                            return Observable.just(FetchStatus.fetchedFailed);
+                        } else {
+                            int eCount = jsonObject.has("no_of_events") ? jsonObject.getInt("no_of_events") : 0;
+                            if (eCount < 0) {
+                                return Observable.just(FetchStatus.fetchedFailed);
+                            } else if (eCount == 0) {
+                                return Observable.just(FetchStatus.nothingFetched);
+                            } else {
+                                return Observable.just(jsonObject)
+                                        .subscribeOn(Schedulers.io())
+                                        .map(new Function<JSONObject, Object>() {
+                                            @Override
+                                            public Object apply(@NonNull JSONObject jsonObject) throws Exception {
+                                                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+                                                boolean success = ecUpdater.saveAllClientsAndEvents(jsonObject);
+                                                if (!success) {
+                                                    return FetchStatus.fetchedFailed;
+                                                } else {
+                                                    long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+                                                    return Pair.of(startSyncTimeStamp, lastSyncTimeStamp);
+                                                }
+                                            }
+                                        });
                             }
-                    );
-        }
+                        }
+                    }
+                })
+                .subscribe(new Consumer<Object>() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public void accept(Object o) throws Exception {
+                        if (o != null) {
+                            if (o instanceof FetchStatus) {
+                                FetchStatus fetchStatus = (FetchStatus) o;
 
-        if (totalCount == 0) {
-            return FetchStatus.nothingFetched;
-        } else if (totalCount < 0) {
-            return FetchStatus.fetchedFailed;
-        } else {
-            return FetchStatus.fetched;
-        }
+                                if (fetchStatus.equals(FetchStatus.nothingFetched)) {
+                                    ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
+                                    ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
+                                }
+
+                                sendSyncStatusBroadcastMessage(fetchStatus, true);
+                            } else if (o instanceof Pair) {
+                                Pair<Long, Long> pair = (Pair<Long, Long>) o;
+                                processECFromServer(pair);
+                                pullECFromServer();
+                            }
+
+                        }
+                    }
+                });
     }
 
-    private void processClients(ECSyncUpdater ecUpdater, long startSyncTimeStamp, long lastSyncTimeStamp) {
+    private void processECFromServer(Pair<Long, Long> pair) {
+        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-        try {
-            Timer processClients = new Timer();
-            processClients.start();
-            PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(startSyncTimeStamp, lastSyncTimeStamp));
-            processClients.stop();
-            processClients.logDuration("Process clients");
-            sendSyncStatusBroadcastMessage(FetchStatus.fetched);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        Observable.
+                just(pair)
+                .subscribeOn(Schedulers.io())
+                .map(new Function<Pair<Long, Long>, Object>() {
+                    @Override
+                    public Object apply(@NonNull Pair<Long, Long> longLongPair) throws Exception {
+                        PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(longLongPair.getLeft(), longLongPair.getRight()));
+                        return FetchStatus.fetched;
+                    }
+                })
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object o) throws Exception {
+                        if (o != null && o instanceof FetchStatus) {
+                            FetchStatus fetchStatus = (FetchStatus) o;
+                            sendSyncStatusBroadcastMessage(fetchStatus);
+                        }
+                    }
+                });
     }
 
     private void pushToServer() {
@@ -212,6 +275,12 @@ public class SyncIntentService extends IntentService {
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, isComplete);
         sendBroadcast(intent);
+
+        if (isComplete) {
+            started = false;
+        } else if (fetchStatus.equals(FetchStatus.fetchStarted)) {
+            started = true;
+        }
     }
 
     private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
@@ -220,31 +289,6 @@ public class SyncIntentService extends IntentService {
 
     private void drishtiLogInfo(String message) {
         org.smartregister.util.Log.logInfo(message);
-    }
-
-
-    public static class Timer {
-        private long startTime;
-        private long stopTime = 0l;
-        private boolean stopped = false;
-
-        public void start() {
-            startTime = System.currentTimeMillis();
-        }
-
-        public long stop() {
-            stopTime = System.currentTimeMillis();
-            stopped = true;
-            return (stopTime - startTime);
-        }
-
-        public long getDuration() {
-            return (stopped) ? (stopTime - startTime) : System.currentTimeMillis() - startTime;
-        }
-
-        public void logDuration(String durationName) {
-            Log.e("TIMER ", durationName + ": " + getDuration());
-        }
     }
 
 }
