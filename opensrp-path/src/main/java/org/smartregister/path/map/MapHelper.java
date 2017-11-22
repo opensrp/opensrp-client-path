@@ -1,13 +1,16 @@
 package org.smartregister.path.map;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.domain.Child;
-import org.smartregister.view.contract.ECClient;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +19,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import io.ona.kujaku.activities.MapActivity;
+import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.MapBoxStyleHelper;
@@ -39,24 +44,70 @@ public class MapHelper {
         convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
     }
 
-    public void launchMap(Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, String mapBoxAccessToken) throws JSONException
+    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
-        String finalStyle = combineStyleToGeoJSONStylePath(stylePath, geoJSONDataSources, attachmentLayers);
+        combineStyleToGeoJSONStylePath(activity, mapBoxAccessToken, stylePath, geoJSONDataSources, attachmentLayers, new OnCreateMapBoxStyle() {
+            @Override
+            public void onStyleJSONRetrieved(String styleJSON) {
+                callIntent(activity, mapBoxAccessToken, styleJSON);
+            }
 
-        Intent mapViewIntent = new Intent(Constants.INTENT_ACTION_SHOW_MAP);
+            @Override
+            public void onError(String error) {
+
+            }
+        });
+
+
+    }
+
+    private void callIntent(Activity activity, String mapBoxAccessToken, String finalStyle) {
+        Intent mapViewIntent = new Intent(activity, MapActivity.class);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_STYLES, new String[]{finalStyle});
 
         activity.startActivityForResult(mapViewIntent, MAP_ACTIVITY_REQUEST_CODE);
     }
 
-    private String combineStyleToGeoJSONStylePath(String stylePath, String[] geoJSONDataSources, String[] attachmentLayers) throws JSONException
+    private void combineStyleToGeoJSONStylePath(Activity activity, String mapBoxAccessToken, final String stylePath,final String[] geoJSONDataSources,final String[] attachmentLayers, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
         // Expected to be local for offline
-        String mapBoxStyle = readFile(stylePath);
-        return combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers);
+        String mapBoxStyle = "";
+        String mergedMapBoxStyle = "";
+        if (stylePath.startsWith("mapbox://")) {
+            MapBoxWebServiceApi mapBoxWebServiceApi = new MapBoxWebServiceApi(activity, mapBoxAccessToken);
+            mapBoxWebServiceApi.retrieveStyleJSON(stylePath, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    String myMergedStyle = "";
+                    try {
+                        myMergedStyle = combineStyleToGeoJSON(response, geoJSONDataSources, attachmentLayers);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (InvalidMapBoxStyleException e) {
+                        e.printStackTrace();
+                    }
+                    onCreateMapBoxStyle.onStyleJSONRetrieved(myMergedStyle);
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    onCreateMapBoxStyle.onError(error.getMessage());
+                }
+            });
+        } else if (stylePath.startsWith("file://")) {
+            mapBoxStyle = readFile(stylePath);
+            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers);
+            onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
+        } else if (stylePath.startsWith("asset://")) {
+            // Todo: Complete this
+            mapBoxStyle = "";
+            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers);
+            onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
+        }
     }
 
     private String combineStyleToGeoJSON(String mapboxStyle, String[] geoJSONDataSources, String[] attachmentLayers) throws JSONException, InvalidMapBoxStyleException {
@@ -96,5 +147,106 @@ public class MapHelper {
         }
 
         return "";
+    }
+
+    public LatLng generateRandomLatLng(LatLng topLeftBound, LatLng bottomRightBound) {
+        double latDisplacement = Math.random() * (topLeftBound.getLatitude() - bottomRightBound.getLatitude());
+        double lngDisplacement = Math.random() * (bottomRightBound.getLongitude() - topLeftBound.getLongitude());
+
+        return new LatLng(
+                bottomRightBound.getLatitude() + latDisplacement,
+                topLeftBound.getLongitude() + lngDisplacement
+        );
+    }
+
+    // Todo: Remove this coordinates for Livingstone area && Replace with world-limits
+    public LatLng generateRandomLatLng() {
+        return generateRandomLatLng(
+                new LatLng(
+                        -17.854564,
+                        25.854782
+                ),
+                new LatLng(
+                        -17.876469,
+                        25.877589
+                )
+        );
+    }
+
+    public LatLng[] getBounds(@NonNull LatLng[] points) {
+        if (points.length < 1) {
+            return null;
+        }
+
+        LatLng highestPoint = points[0];
+        LatLng lowestPoint = points[0];
+
+        for(LatLng latLng: points) {
+            if (isLatLngHigher(latLng, highestPoint)) {
+                highestPoint = latLng;
+            }
+
+            if (isLatLngLower(latLng, lowestPoint)) {
+                lowestPoint = latLng;
+            }
+        }
+
+        return (new LatLng[]{highestPoint, lowestPoint});
+    }
+
+    public LatLng getTopLeftBound(@NonNull LatLng[] points) {
+        if (points.length < 1) {
+            return null;
+        }
+
+        LatLng highestPoint = points[0];
+
+        for(LatLng latLng: points) {
+            if (isLatLngHigher(latLng, highestPoint)) {
+                highestPoint = latLng;
+            }
+        }
+
+        return highestPoint;
+    }
+
+    public LatLng getBottomRightBound(@NonNull LatLng[] points) {
+        if (points.length < 1) {
+            return null;
+        }
+
+        LatLng lowestPoint = points[0];
+
+        for (LatLng latLng : points) {
+            if (isLatLngLower(latLng, lowestPoint)) {
+                lowestPoint = latLng;
+            }
+        }
+
+        return lowestPoint;
+    }
+
+    public boolean isLatLngHigher(LatLng firstCoord, LatLng secondCoord) {
+        if ((firstCoord.getLatitude() >= secondCoord.getLatitude()) && (firstCoord.getLatitude() <= secondCoord.getLongitude()) ) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public boolean isLatLngLower(LatLng firstCoord, LatLng secondCoord) {
+        if ((firstCoord.getLatitude() <= secondCoord.getLatitude()) && (firstCoord.getLongitude() >= secondCoord.getLongitude())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public interface OnCreateMapBoxStyle {
+
+        void onStyleJSONRetrieved(String styleJSON);
+
+        void onError(String error);
     }
 }
