@@ -4,11 +4,12 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:1.2.3"
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'org.apache.commons:commons-lang3:3.3.2'
         classpath 'org.robolectric:robolectric-gradle-plugin:1.1.0'
         classpath 'io.fabric.tools:gradle:1.+'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
+        classpath "io.realm:realm-gradle-plugin:4.2.0"
     }
 }
 
@@ -24,6 +25,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: "realm-android"
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -45,7 +47,6 @@ android {
     }
 
     dexOptions {
-        incremental true
         javaMaxHeapSize "4g"
     }
 
@@ -90,6 +91,8 @@ android {
         exclude 'META-INF/dependencies.txt'
         exclude 'META-INF/LGPL2.1'
         exclude 'LICENSE.txt'
+        pickFirst "org/jacoco/agent/rt/internal_773e439/core/jacoco.properties"
+        pickFirst "org/jacoco/agent/rt/internal_773e439/asm/xml/asm-xml.dtd"
     }
 
 
@@ -110,6 +113,7 @@ dependencies {
     }
     compile('org.smartregister:opensrp-client-immunization:1.1.4-SNAPSHOT@aar') {
         transitive = true
+        exclude module: "jacoco"
     }
     compile('org.smartregister:opensrp-client-growth-monitoring:1.0.3-SNAPSHOT@aar') {
         transitive = true
@@ -165,8 +169,11 @@ dependencies {
     }
     compile 'com.cocoahero.android:geojson:1.0.1@jar'
     compile 'com.android.support:support-compat:24.2.1'
-    compile project(':kujaku-debug')
+    compile (project(':kujaku-debug')){
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+    }
     compile project(':utils-debug')
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 //Testing and coveralls

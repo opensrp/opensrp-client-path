@@ -1,6 +1,7 @@
 package org.smartregister.path.map;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 
 import io.ona.kujaku.activities.MapActivity;
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
+import io.ona.kujaku.services.MapboxOfflineDownloaderService;
 import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.MapBoxStyleHelper;
@@ -34,8 +36,6 @@ import utils.helpers.MapBoxStyleHelper;
 public class MapHelper {
 
     private static final int MAP_ACTIVITY_REQUEST_CODE = 9892;
-
-    public void callMap() {}
 
     public void convertChildrenToFeatures(Child[] childrenGroups, String[] layersToCombine, String[] childPropertiesToAdd) {
         // Add the child gps coordinates to geometry & child details to properties
@@ -75,6 +75,21 @@ public class MapHelper {
 
         activity.startActivityForResult(mapViewIntent, MAP_ACTIVITY_REQUEST_CODE);
     }
+
+    public void requestOfflineMap(Context context, String mapName, String mapboxStyleUrl, String mapBoxAccessToken, LatLng topLeftBound, LatLng bottomRightBound, double minZoom, double maxZoom) {
+        Intent intent = new Intent(context, MapboxOfflineDownloaderService.class);
+        intent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, Constants.SERVICE_ACTION.DOWNLOAD_MAP);
+        intent.putExtra(Constants.PARCELABLE_KEY_STYLE_URL, mapboxStyleUrl);
+        intent.putExtra(Constants.PARCELABLE_KEY_MAP_UNIQUE_NAME, mapName);
+        intent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
+        intent.putExtra(Constants.PARCELABLE_KEY_TOP_LEFT_BOUND, topLeftBound);
+        intent.putExtra(Constants.PARCELABLE_KEY_BOTTOM_RIGHT_BOUND, bottomRightBound);
+        intent.putExtra(Constants.PARCELABLE_KEY_MIN_ZOOM, minZoom);
+        intent.putExtra(Constants.PARCELABLE_KEY_MAX_ZOOM, maxZoom);
+
+        context.startService(intent);
+    }
+
 
     private void combineStyleToGeoJSONStylePath(Activity activity, String mapBoxAccessToken, final String stylePath, final String[] geoJSONDataSources, final String[] attachmentLayers, final String[] layersToHide, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
             , InvalidMapBoxStyleException
