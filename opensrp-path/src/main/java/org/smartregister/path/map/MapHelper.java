@@ -3,6 +3,7 @@ package org.smartregister.path.map;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -44,10 +45,10 @@ public class MapHelper {
         convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
     }
 
-    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
+    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken, @Nullable String[] layersToHide) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
-        combineStyleToGeoJSONStylePath(activity, mapBoxAccessToken, stylePath, geoJSONDataSources, attachmentLayers, new OnCreateMapBoxStyle() {
+        combineStyleToGeoJSONStylePath(activity, mapBoxAccessToken, stylePath, geoJSONDataSources, attachmentLayers, layersToHide, new OnCreateMapBoxStyle() {
             @Override
             public void onStyleJSONRetrieved(String styleJSON) {
                 callIntent(activity, mapBoxAccessToken, styleJSON);
@@ -55,11 +56,16 @@ public class MapHelper {
 
             @Override
             public void onError(String error) {
-
+                //Todo: Do something here
             }
         });
 
+    }
 
+    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
+            , InvalidMapBoxStyleException
+            , IOException {
+        launchMap(activity, stylePath, geoJSONDataSources, attachmentLayers, mapBoxAccessToken, null);
     }
 
     private void callIntent(Activity activity, String mapBoxAccessToken, String finalStyle) {
@@ -70,7 +76,7 @@ public class MapHelper {
         activity.startActivityForResult(mapViewIntent, MAP_ACTIVITY_REQUEST_CODE);
     }
 
-    private void combineStyleToGeoJSONStylePath(Activity activity, String mapBoxAccessToken, final String stylePath,final String[] geoJSONDataSources,final String[] attachmentLayers, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
+    private void combineStyleToGeoJSONStylePath(Activity activity, String mapBoxAccessToken, final String stylePath, final String[] geoJSONDataSources, final String[] attachmentLayers, final String[] layersToHide, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
         // Expected to be local for offline
@@ -83,7 +89,7 @@ public class MapHelper {
                 public void onResponse(String response) {
                     String myMergedStyle = "";
                     try {
-                        myMergedStyle = combineStyleToGeoJSON(response, geoJSONDataSources, attachmentLayers);
+                        myMergedStyle = combineStyleToGeoJSON(response, geoJSONDataSources, attachmentLayers, layersToHide);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (InvalidMapBoxStyleException e) {
@@ -100,29 +106,29 @@ public class MapHelper {
             });
         } else if (stylePath.startsWith("file://")) {
             mapBoxStyle = readFile(stylePath);
-            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers);
+            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers, layersToHide);
             onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
         } else if (stylePath.startsWith("asset://")) {
             // Todo: Complete this
             mapBoxStyle = "";
-            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers);
+            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers, layersToHide);
             onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
         }
     }
 
-    private String combineStyleToGeoJSON(String mapboxStyle, String[] geoJSONDataSources, String[] attachmentLayers) throws JSONException, InvalidMapBoxStyleException {
+    private String combineStyleToGeoJSON(String mapboxStyle, String[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
         JSONObject[] geoJsonDataSourceObjects = new JSONObject[geoJSONDataSources.length];
 
         for (int i = 0; i < geoJSONDataSources.length; i++) {
             geoJsonDataSourceObjects[i] = new JSONObject(geoJSONDataSources[i]);
         }
 
-        return combineStyleToGeoJSON(new JSONObject(mapboxStyle), geoJsonDataSourceObjects, attachmentLayers).toString();
+        return combineStyleToGeoJSON(new JSONObject(mapboxStyle), geoJsonDataSourceObjects, attachmentLayers, layersToHide).toString();
     }
 
-    private JSONObject combineStyleToGeoJSON(JSONObject styleObject, JSONObject[] geoJSONDataSources, String[] attachmentLayers) throws JSONException, InvalidMapBoxStyleException {
+    private JSONObject combineStyleToGeoJSON(JSONObject styleObject, JSONObject[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
         MapBoxStyleHelper mapBoxStyleHelper = new MapBoxStyleHelper(styleObject);
-
+        mapBoxStyleHelper.disableLayers(layersToHide);
         String sourceName = "opensrp-custom-data-source";
 
         for (int i = 0; i < geoJSONDataSources.length; i++) {

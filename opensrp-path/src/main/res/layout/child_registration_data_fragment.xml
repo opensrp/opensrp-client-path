@@ -559,7 +559,8 @@
                     <TableRow
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="5dp">
+                        android:layout_marginRight="5dp"
+                        android:layout_marginLeft="5dp">
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
                             android:layout_width="0dp"
@@ -570,15 +571,29 @@
                             android:text="Child's residential area"
                             android:layout_weight="1"/>
 
-                        <org.smartregister.view.customcontrols.CustomFontTextView
+                        <RelativeLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            style="@style/CustomFontTextViewStyle.ClientList"
-                            android:text=""
-                            android:id="@+id/value_childs_residential_area"
-                            android:layout_weight="1"
-                            android:textColor="@color/text_black" />
+                            android:layout_weight="1">
+                            <org.smartregister.view.customcontrols.CustomFontTextView
+                                android:layout_alignParentLeft="true"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                style="@style/CustomFontTextViewStyle.ClientList"
+                                android:text=""
+                                android:id="@+id/value_childs_residential_area"
+                                android:textColor="@color/text_black"
+                                android:layout_marginRight="20dp"/>
+
+                            <ImageView
+                                android:layout_alignParentRight="true"
+                                android:id="@+id/imgv_childRegistrationDataFragment_mapIcon"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_icon_map"
+                                android:layout_marginRight="20dp"/>
+                        </RelativeLayout>
                     </TableRow>
 
                     <TableRow
