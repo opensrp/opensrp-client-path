@@ -16,11 +16,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import io.ona.kujaku.activities.MapActivity;
-import io.ona.kujaku.exceptions.InvalidMapBoxStyleException;
-import io.ona.kujaku.helpers.MapBoxStyleHelper;
-import io.ona.kujaku.helpers.converters.GeoJSONHelper;
-import io.ona.kujaku.utils.Constants;
+import utils.Constants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.MapBoxStyleHelper;
+
 
 /**
  * Created by Ephraim Kigamba - ekigamba@ona.io on 09/11/2017.

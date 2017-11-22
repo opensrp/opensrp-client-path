@@ -65,10 +65,10 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import io.ona.kujaku.exceptions.InvalidMapBoxStyleException;
-import io.ona.kujaku.helpers.converters.GeoJSONFeature;
-import io.ona.kujaku.helpers.converters.GeoJSONHelper;
 import util.PathConstants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
@@ -125,6 +125,11 @@ public class LoginActivity extends AppCompatActivity {
 
         setLanguage();
 
+        startSampleMapView();
+
+    }
+
+    private void startSampleMapView() {
         //Sample start the map view
         int children = 10;
         GeoJSONFeature[] geoJSONFeatures = new GeoJSONFeature[children];
@@ -144,12 +149,11 @@ public class LoginActivity extends AppCompatActivity {
                     .launchMap(this, "/sdcard/Dukto/my modified style json 1 (3).json", new String[]{myGeoJsonData}, new String[]{"qualcomm-kenya-sample-1"}, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (InvalidMapBoxStyleException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InvalidMapBoxStyleException e) {
+            e.printStackTrace();
         }
-
     }
 
     @Override
