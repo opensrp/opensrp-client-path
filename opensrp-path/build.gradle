@@ -114,7 +114,6 @@ dependencies {
     compile('org.smartregister:opensrp-client-growth-monitoring:1.0.3-SNAPSHOT@aar') {
         transitive = true
     }
-
     compile('com.android.support:design:24.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
 
@@ -131,7 +130,6 @@ dependencies {
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
-
     testCompile('org.robolectric:robolectric:3.4.2') {
 
         exclude group: 'com.google.guava', module: 'guava'
@@ -139,11 +137,9 @@ dependencies {
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
     }
-
-    testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
+    testCompile('org.robolectric:shadows-multidex:3.4-rc2') {
         exclude group: 'com.google.guava', module: 'guava'
     }
-
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.+') {
 
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -158,9 +154,7 @@ dependencies {
 
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
-
     testCompile 'org.apache.maven:maven-ant-tasks:2.1.3'
-
     // Kujaku dependencies
     compile('com.mapbox.mapboxsdk:mapbox-android-sdk:5.2.0-beta.3@aar') {
         transitive = true
@@ -169,10 +163,10 @@ dependencies {
         exclude group: "com.android.support", module: "support-core-utils"
         exclude group: "com.android.support", module: "support-fragment"
     }
-
     compile 'com.cocoahero.android:geojson:1.0.1@jar'
     compile 'com.android.support:support-compat:24.2.1'
-    compile project(":kujaku-debug")
+    compile project(':kujaku-debug')
+    compile project(':utils-debug')
 }
 
 //Testing and coveralls
