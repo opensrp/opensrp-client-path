@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +46,7 @@ import org.smartregister.view.viewpager.OpenSRPViewPager;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import util.JsonFormUtils;
 import util.barcode.Barcode;
 import util.barcode.BarcodeIntentIntegrator;
@@ -262,14 +265,27 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
                         25.854782
                 ),
                 new LatLng(
-                        -17.876469,
-                        25.877589
+                        -17.875469,
+                        25.876589
                 )
         };
 
         String mapName = "ZEIR Services Coverage";
 
         mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
+        // Cache the style
+        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
+                .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
     }
 
     @Override

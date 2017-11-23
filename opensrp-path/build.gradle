@@ -57,7 +57,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            zipAlignEnabled true
+            zipAlignEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue "string", 'opensrp_url', '""'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
@@ -77,6 +77,8 @@ android {
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
             testCoverageEnabled true
+            zipAlignEnabled false
+            minifyEnabled false
         }
     }
     packagingOptions {
@@ -93,6 +95,7 @@ android {
         exclude 'LICENSE.txt'
         pickFirst "org/jacoco/agent/rt/internal_773e439/core/jacoco.properties"
         pickFirst "org/jacoco/agent/rt/internal_773e439/asm/xml/asm-xml.dtd"
+        pickFirst "org/ei/drishti/dto/ActionData.java"
     }
 
 
@@ -110,18 +113,22 @@ dependencies {
     compile('org.smartregister:opensrp-client-core:1.1.1-KUJAKU-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
+        exclude group: "org.ei.drishti", module: "drishti-interface"
     }
     compile('org.smartregister:opensrp-client-immunization:1.1.4-SNAPSHOT@aar') {
         transitive = true
-        exclude module: "jacoco"
+        exclude group: "org.ei.drishti", module: "drishti-interface"
     }
     compile('org.smartregister:opensrp-client-growth-monitoring:1.0.3-SNAPSHOT@aar') {
         transitive = true
+        exclude group: "org.ei.drishti", module: "drishti-interface"
     }
     compile('com.android.support:design:24.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
 
     }
+
+    compile 'org.ei.drishti:drishti-interface:0.1-SNAPSHOT'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:cardview-v7:24.2.1'
     compile 'com.android.support:leanback-v17:24.2.1'

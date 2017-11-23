@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -20,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 import io.ona.kujaku.activities.MapActivity;
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
@@ -36,6 +39,7 @@ import utils.helpers.MapBoxStyleHelper;
 public class MapHelper {
 
     private static final int MAP_ACTIVITY_REQUEST_CODE = 9892;
+    private static final String TAG = MapHelper.class.getSimpleName();
 
     public void convertChildrenToFeatures(Child[] childrenGroups, String[] layersToCombine, String[] childPropertiesToAdd) {
         // Add the child gps coordinates to geometry & child details to properties
@@ -57,6 +61,7 @@ public class MapHelper {
             @Override
             public void onError(String error) {
                 //Todo: Do something here
+                Log.e(TAG, "Error occured Combining GeoJSON Style Path : " + error);
             }
         });
 
@@ -188,8 +193,8 @@ public class MapHelper {
                         25.854782
                 ),
                 new LatLng(
-                        -17.876469,
-                        25.877589
+                        -17.875469,
+                        25.876589
                 )
         );
     }
@@ -213,6 +218,30 @@ public class MapHelper {
         }
 
         return (new LatLng[]{highestPoint, lowestPoint});
+    }
+
+    public String[] getLayersToHide(String[] layersBeingUsed) {
+        String[] allLayers = new String[] {
+                "red kids",
+                "white kids",
+                "blue kids",
+                "light blue kids",
+                "green kids"
+        };
+
+        ArrayList<String> layersList = new ArrayList<>(Arrays.asList(allLayers));
+
+        for (Iterator<String> layersIterator = layersList.iterator(); layersIterator.hasNext();) {
+            String layer = layersIterator.next();
+
+            for (String layerBeingUsed: layersBeingUsed) {
+                if (layerBeingUsed.equals(layer)) {
+                    layersIterator.remove();
+                }
+            }
+        }
+
+        return layersList.toArray(new String[layersList.size()]);
     }
 
     public LatLng getTopLeftBound(@NonNull LatLng[] points) {
