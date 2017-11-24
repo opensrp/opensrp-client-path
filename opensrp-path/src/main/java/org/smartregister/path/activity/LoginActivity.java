@@ -603,15 +603,4 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void requestForOfflineMap() {
-        int blueKids = 2
-                , redKids = 3
-                , greenKids = 5
-                , whiteKids = 7
-                , lightBlueKids = 0;
-
-
-
-    }
-
 }

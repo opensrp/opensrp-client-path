@@ -54,6 +54,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
+import io.ona.kujaku.data.realm.RealmDatabase;
 import util.PathConstants;
 
 import static org.smartregister.util.Log.logError;
@@ -105,6 +106,8 @@ public class VaccinatorApplication extends DrishtiApplication
         initOfflineSchedules();
         setCrashlyticsUser(context);
         setAlarms(this);
+
+        RealmDatabase.init(this);
 
     }
 

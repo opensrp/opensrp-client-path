@@ -26,7 +26,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
-import org.smartregister.path.provider.ChildSmartClientsProvider;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.service.AlertService;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -238,7 +236,7 @@ public class ChildRegistrationDataFragment extends Fragment {
 
         String[] attachmentLayers = getLayers(entityId, dobString);
         try {
-            mapHelper.launchMap(getActivity(), "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", getGeoJSONData(), attachmentLayers, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", getLayersToHide(attachmentLayers));
+            mapHelper.launchMap(getActivity(), "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", getGeoJSONData(), attachmentLayers, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", mapHelper.getLayersToHide(attachmentLayers));
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (InvalidMapBoxStyleException e) {
@@ -358,27 +356,4 @@ public class ChildRegistrationDataFragment extends Fragment {
         return "green kids";
     }
 
-    public String[] getLayersToHide(String[] layersBeingUsed) {
-        String[] allLayers = new String[] {
-                "red kids",
-                "white kids",
-                "blue kids",
-                "light blue kids",
-                "green kids"
-        };
-
-        ArrayList<String> layersList = new ArrayList<>(Arrays.asList(allLayers));
-
-        for (Iterator<String> layersIterator = layersList.iterator(); layersIterator.hasNext();) {
-            String layer = layersIterator.next();
-
-            for (String layerBeingUsed: layersBeingUsed) {
-                if (layerBeingUsed.equals(layer)) {
-                    layersIterator.remove();
-                }
-            }
-        }
-
-        return layersList.toArray(new String[layersList.size()]);
-    }
 }

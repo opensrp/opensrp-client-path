@@ -18,22 +18,35 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cocoahero.android.geojson.FeatureCollection;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.json.JSONException;
 import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+
+import lecho.lib.hellocharts.model.Line;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
 
 /**
  * Base activity class for path regiters views
@@ -188,6 +201,8 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         } else if (id == R.id.nav_hia2) {
             Intent intent = new Intent(this, HIA2ReportsActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_clients_map) {
+            openMapViewOfChildren();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -356,6 +371,15 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         });
 
+        LinearLayout clientLocations = (LinearLayout) drawer.findViewById(R.id.nav_clients_map);
+        clientLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.closeDrawer(GravityCompat.START);
+                openMapViewOfChildren();
+            }
+        });
+
     }
 
     private void updateLastSyncText() {
@@ -394,6 +418,149 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         }
         return lastSync;
+    }
+
+    private void openMapViewOfChildren() {
+        try {
+            String[] geoJSONData = getChildrenGeoJSON();
+            String[] attachmentLayers = getAttachmentLayers();
+
+            MapHelper mapHelper = new MapHelper();
+            mapHelper.launchMap(this, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", geoJSONData, attachmentLayers, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", getLayersToDisable(attachmentLayers));
+        } catch (JSONException | InvalidMapBoxStyleException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String[] getChildrenGeoJSON()  throws JSONException{
+        int blueKids = 2
+                , redKids = 3
+                , greenKids = 5
+                , whiteKids = 7
+                , lightBlueKids = 0;
+
+        ArrayList<String> childrenGeoJSON = new ArrayList<>();
+        
+        MapHelper mapHelper = new MapHelper();
+        ArrayList<GeoJSONFeature> geoJSONFeatures = new ArrayList<>();
+        FeatureCollection featureCollection = new FeatureCollection();
+
+        boolean added = false;
+        
+        while (blueKids > 0) {
+            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(randomCoordinate);
+            
+            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
+            added = true;
+            blueKids--;
+        }
+
+        if (added) {
+            added = false;
+            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            geoJSONFeatures.clear();
+        }
+
+        while (redKids > 0) {
+            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(randomCoordinate);
+
+            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
+            redKids--;
+            added = true;
+        }
+        if (added) {
+            added = false;
+            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            geoJSONFeatures.clear();
+        }
+
+        while (greenKids > 0) {
+            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(randomCoordinate);
+
+            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
+            added = true;
+            greenKids--;
+        }
+        if (added) {
+            added = false;
+            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            geoJSONFeatures.clear();
+        }
+
+        while (whiteKids > 0) {
+            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(randomCoordinate);
+
+            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
+            added = true;
+            whiteKids--;
+        }
+        if (added) {
+            added = false;
+            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            geoJSONFeatures.clear();
+        }
+
+        while (lightBlueKids > 0) {
+            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(randomCoordinate);
+
+            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
+            added = true;
+            lightBlueKids--;
+        }
+        if (added) {
+            added = false;
+            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            geoJSONFeatures.clear();
+        }
+        
+        return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
+    }
+
+    private String[] getAttachmentLayers() {
+        int blueKids = 2
+                , redKids = 3
+                , greenKids = 5
+                , whiteKids = 7
+                , lightBlueKids = 0;
+
+        ArrayList<String> attachmentLayersList = new ArrayList<>();
+
+        if (blueKids > 0) {
+            attachmentLayersList.add("blue kids");
+        }
+
+        if (redKids > 0) {
+            attachmentLayersList.add("red kids");
+        }
+
+        if (greenKids > 0) {
+            attachmentLayersList.add("green kids");
+        }
+
+        if (whiteKids > 0) {
+            attachmentLayersList.add("white kids");
+        }
+
+        if (lightBlueKids > 0) {
+            attachmentLayersList.add("light blue kids");
+        }
+
+        return attachmentLayersList.toArray(new String[attachmentLayersList.size()]);
+    }
+
+    private String[] getLayersToDisable(String[] attachmentLayers) {
+        return (new MapHelper())
+                .getLayersToHide(attachmentLayers);
     }
 
     @Override

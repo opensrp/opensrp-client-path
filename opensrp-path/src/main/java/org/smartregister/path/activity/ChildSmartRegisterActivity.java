@@ -18,6 +18,10 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.smartregister.adapter.SmartRegisterPaginatedAdapter;
@@ -30,6 +34,7 @@ import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.fragment.BaseSmartRegisterFragment;
 import org.smartregister.path.fragment.ChildSmartRegisterFragment;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
@@ -41,6 +46,7 @@ import org.smartregister.view.viewpager.OpenSRPViewPager;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import util.JsonFormUtils;
 import util.barcode.Barcode;
 import util.barcode.BarcodeIntentIntegrator;
@@ -72,6 +78,8 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         ButterKnife.bind(this);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        requestForOfflineMap(getChildrenLocations());
 
         mBaseFragment = new ChildSmartRegisterFragment();
         Fragment[] otherFragments = {new AdvancedSearchFragment()};
@@ -232,6 +240,52 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
                 refreshList(data);
             }
         });
+    }
+
+    private LatLng[] getChildrenLocations() {
+        int childNo = 20;
+        LatLng[] childrenLocations = new LatLng[childNo];
+        MapHelper mapHelper = new MapHelper();
+
+        for(int i = 0; i < childNo; i++) {
+            childrenLocations[i] = mapHelper.generateRandomLatLng();
+        }
+
+        return childrenLocations;
+    }
+
+    private void requestForOfflineMap(LatLng[] mapPoints) {
+        boolean isBoundsChanged = true;
+
+        MapHelper mapHelper = new MapHelper();
+        //LatLng[] bounds = mapHelper.getBounds(mapPoints);
+        LatLng[] bounds = new LatLng[]{
+                new LatLng(
+                        -17.854564,
+                        25.854782
+                ),
+                new LatLng(
+                        -17.875469,
+                        25.876589
+                )
+        };
+
+        String mapName = "ZEIR Services Coverage";
+
+        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
+        // Cache the style
+        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
+                .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
     }
 
     @Override

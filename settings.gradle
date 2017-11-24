@@ -1,2 +1,2 @@
 rootProject.name = 'opensrp-app-path'
-include ':opensrp-path', ':kujaku-debug', ':utils-debug'
+include ':opensrp-path'
