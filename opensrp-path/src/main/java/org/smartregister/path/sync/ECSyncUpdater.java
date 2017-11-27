@@ -70,7 +70,7 @@ public class ECSyncUpdater {
             return new JSONObject((String) resp.payload());
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
-            return null;
+            throw new Exception(SEARCH_URL + " threw exception", e);
         }
     }
 
