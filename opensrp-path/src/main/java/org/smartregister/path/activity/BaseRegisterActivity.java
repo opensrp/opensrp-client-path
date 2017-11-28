@@ -2,6 +2,8 @@ package org.smartregister.path.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
@@ -10,6 +12,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +20,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cocoahero.android.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -26,15 +30,36 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.smartregister.Context;
+import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
+import org.smartregister.domain.Alert;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.ServiceRecord;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
+import org.smartregister.repository.EventClientRepository;
+import org.smartregister.service.AlertService;
+import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
@@ -42,11 +67,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import lecho.lib.hellocharts.model.Line;
+import util.PathConstants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
+
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
 
 /**
  * Base activity class for path regiters views
@@ -421,141 +454,119 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void openMapViewOfChildren() {
-        try {
-            String[] geoJSONData = getChildrenGeoJSON();
-            String[] attachmentLayers = getAttachmentLayers();
-
-            MapHelper mapHelper = new MapHelper();
-            mapHelper.launchMap(this, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", geoJSONData, attachmentLayers, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", getLayersToDisable(attachmentLayers));
-        } catch (JSONException | InvalidMapBoxStyleException | IOException e) {
-            e.printStackTrace();
-        }
+        new DataTask().execute();
     }
 
-    private String[] getChildrenGeoJSON()  throws JSONException{
-        int blueKids = 2
-                , redKids = 3
-                , greenKids = 5
-                , whiteKids = 7
-                , lightBlueKids = 0;
-
-        ArrayList<String> childrenGeoJSON = new ArrayList<>();
-        
-        MapHelper mapHelper = new MapHelper();
-        ArrayList<GeoJSONFeature> geoJSONFeatures = new ArrayList<>();
-        FeatureCollection featureCollection = new FeatureCollection();
-
-        boolean added = false;
-        
-        while (blueKids > 0) {
-            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
+    private GeoJSONFeature constructGeoJsonFeature(Map<String, String> clientDetails) {
+        String latLng = Utils.getValue(clientDetails, "geopoint", false);
+        if (!TextUtils.isEmpty(latLng)) {
+            String[] coords = latLng.split(" ");
+            LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
             ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(randomCoordinate);
-            
-            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
-            added = true;
-            blueKids--;
+            featurePoints.add(coordinates);
+            GeoJSONFeature feature = new GeoJSONFeature(featurePoints);
+            for (String curKey : clientDetails.keySet()) {
+                feature.addProperty(curKey, clientDetails.get(curKey));
+            }
+            return feature;
         }
-
-        if (added) {
-            added = false;
-            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
-            geoJSONFeatures.clear();
-        }
-
-        while (redKids > 0) {
-            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
-            ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(randomCoordinate);
-
-            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
-            redKids--;
-            added = true;
-        }
-        if (added) {
-            added = false;
-            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
-            geoJSONFeatures.clear();
-        }
-
-        while (greenKids > 0) {
-            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
-            ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(randomCoordinate);
-
-            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
-            added = true;
-            greenKids--;
-        }
-        if (added) {
-            added = false;
-            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
-            geoJSONFeatures.clear();
-        }
-
-        while (whiteKids > 0) {
-            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
-            ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(randomCoordinate);
-
-            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
-            added = true;
-            whiteKids--;
-        }
-        if (added) {
-            added = false;
-            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
-            geoJSONFeatures.clear();
-        }
-
-        while (lightBlueKids > 0) {
-            LatLng randomCoordinate = mapHelper.generateRandomLatLng();
-            ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(randomCoordinate);
-
-            geoJSONFeatures.add(new GeoJSONFeature(featurePoints));
-            added = true;
-            lightBlueKids--;
-        }
-        if (added) {
-            added = false;
-            childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
-            geoJSONFeatures.clear();
-        }
-        
-        return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
+        return null;
     }
 
-    private String[] getAttachmentLayers() {
-        int blueKids = 2
-                , redKids = 3
-                , greenKids = 5
-                , whiteKids = 7
-                , lightBlueKids = 0;
+    private class DataTask extends AsyncTask<Void, Void, Void> {
+        String[] childGeoJson;
+        ArrayList<String> attachmentLayers;
 
-        ArrayList<String> attachmentLayersList = new ArrayList<>();
-
-        if (blueKids > 0) {
-            attachmentLayersList.add("blue kids");
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            attachmentLayers = new ArrayList<>();
         }
 
-        if (redKids > 0) {
-            attachmentLayersList.add("red kids");
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                childGeoJson = getChildrenGeoJSON();
+                for (int i = 0; i < childGeoJson.length; i++) {
+                    Log.e("geoJson", childGeoJson[i]);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
         }
 
-        if (greenKids > 0) {
-            attachmentLayersList.add("green kids");
+        private String[] getChildrenGeoJSON()  throws JSONException {
+            ArrayList<String> childrenGeoJSON = new ArrayList<>();
+            ArrayList<GeoJSONFeature> geoJSONFeatures = new ArrayList<>();
+
+            boolean added = false;
+            Cursor cursor = null;
+            try {
+                // Get all children
+                SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+                queryBUilder.SelectInitiateMainTable(PathConstants.CHILD_TABLE_NAME, new String[]{ PathConstants.CHILD_TABLE_NAME + ".base_entity_id"});
+                String query = queryBUilder.mainCondition(" dod is NULL OR dod = '' ");
+                cursor = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME).rawCustomQueryForAdapter(query);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast()) {
+                        String entityId = cursor.getString(0);
+                        Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
+                        GeoJSONFeature feature = constructGeoJsonFeature(details);
+                        if (feature != null) {
+                            geoJSONFeatures.add(feature);
+                            added = true;
+
+                            String dobString = Utils.getValue(details, PathConstants.KEY.DOB, false);
+                            String alert = ChildRegistrationDataFragment.getCurrentAlertLayer(entityId, dobString);
+                            if (!attachmentLayers.contains(alert)) {
+                                attachmentLayers.add(alert);
+                            }
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            if (added) {
+                childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+            }
+
+            return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
         }
 
-        if (whiteKids > 0) {
-            attachmentLayersList.add("white kids");
-        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
 
-        if (lightBlueKids > 0) {
-            attachmentLayersList.add("light blue kids");
-        }
+            if (childGeoJson != null && attachmentLayers != null) {
+                MapHelper mapHelper = new MapHelper();
+                try {
+                    String[] attachmentLayerArray = attachmentLayers.toArray(new String[attachmentLayers.size()]);
 
-        return attachmentLayersList.toArray(new String[attachmentLayersList.size()]);
+                    mapHelper.launchMap(
+                            BaseRegisterActivity.this,
+                            "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
+                            mapHelper.constructKujakuConfig(attachmentLayerArray),
+                            childGeoJson,
+                            attachmentLayerArray,
+                            "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                            getLayersToDisable(attachmentLayerArray));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InvalidMapBoxStyleException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private String[] getLayersToDisable(String[] attachmentLayers) {

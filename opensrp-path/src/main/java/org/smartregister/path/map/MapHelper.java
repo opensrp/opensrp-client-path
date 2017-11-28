@@ -11,6 +11,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.domain.Child;
@@ -49,10 +50,10 @@ public class MapHelper {
         convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
     }
 
-    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken, @Nullable String[] layersToHide) throws JSONException
+    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken, @Nullable String[] layersToHide) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
-        combineStyleToGeoJSONStylePath(activity, mapBoxAccessToken, stylePath, geoJSONDataSources, attachmentLayers, layersToHide, new OnCreateMapBoxStyle() {
+        combineMapBoxStyleSubSections(activity, mapBoxAccessToken, stylePath, kujakuConfig, geoJSONDataSources, attachmentLayers, layersToHide, new OnCreateMapBoxStyle() {
             @Override
             public void onStyleJSONRetrieved(String styleJSON) {
                 callIntent(activity, mapBoxAccessToken, styleJSON);
@@ -67,10 +68,28 @@ public class MapHelper {
 
     }
 
-    public void launchMap(final Activity activity, String stylePath, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
+    public JSONObject constructKujakuConfig(String[] attachmentLayerArray) throws JSONException {
+        JSONArray dataSourceLayers = new JSONArray();
+        for (int i = 0; i < attachmentLayerArray.length; i++) {
+            dataSourceLayers.put(attachmentLayerArray[i]);
+        }
+        JSONArray sortFields = new JSONArray();
+        JSONObject dateAddedSortField = new JSONObject();
+        dateAddedSortField.put("type", "date");
+        dateAddedSortField.put("data_field", "client_reg_date");
+        sortFields.put(dateAddedSortField);
+
+        JSONObject kujakuConfig = new JSONObject();
+        kujakuConfig.put("sort_fields", sortFields);
+        kujakuConfig.put("data_source_names", dataSourceLayers);
+
+        return kujakuConfig;
+    }
+
+    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
-        launchMap(activity, stylePath, geoJSONDataSources, attachmentLayers, mapBoxAccessToken, null);
+        launchMap(activity, stylePath, kujakuConfig, geoJSONDataSources, attachmentLayers, mapBoxAccessToken, null);
     }
 
     private void callIntent(Activity activity, String mapBoxAccessToken, String finalStyle) {
@@ -96,7 +115,7 @@ public class MapHelper {
     }
 
 
-    private void combineStyleToGeoJSONStylePath(Activity activity, String mapBoxAccessToken, final String stylePath, final String[] geoJSONDataSources, final String[] attachmentLayers, final String[] layersToHide, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
+    private void combineMapBoxStyleSubSections(Activity activity, String mapBoxAccessToken, final String stylePath, final JSONObject kujakuConfig, final String[] geoJSONDataSources, final String[] attachmentLayers, final String[] layersToHide, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
         // Expected to be local for offline
@@ -109,7 +128,7 @@ public class MapHelper {
                 public void onResponse(String response) {
                     String myMergedStyle = "";
                     try {
-                        myMergedStyle = combineStyleToGeoJSON(response, geoJSONDataSources, attachmentLayers, layersToHide);
+                        myMergedStyle = combineMapBoxStyleSubSections(response, kujakuConfig, geoJSONDataSources, attachmentLayers, layersToHide);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } catch (InvalidMapBoxStyleException e) {
@@ -126,33 +145,37 @@ public class MapHelper {
             });
         } else if (stylePath.startsWith("file://")) {
             mapBoxStyle = readFile(stylePath);
-            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers, layersToHide);
+            mergedMapBoxStyle = combineMapBoxStyleSubSections(mapBoxStyle, kujakuConfig, geoJSONDataSources, attachmentLayers, layersToHide);
             onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
         } else if (stylePath.startsWith("asset://")) {
             // Todo: Complete this
             mapBoxStyle = "";
-            mergedMapBoxStyle = combineStyleToGeoJSON(mapBoxStyle, geoJSONDataSources, attachmentLayers, layersToHide);
+            mergedMapBoxStyle = combineMapBoxStyleSubSections(mapBoxStyle, kujakuConfig, geoJSONDataSources, attachmentLayers, layersToHide);
             onCreateMapBoxStyle.onStyleJSONRetrieved(mergedMapBoxStyle);
         }
     }
 
-    private String combineStyleToGeoJSON(String mapboxStyle, String[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
+    private String combineMapBoxStyleSubSections(String mapboxStyle, JSONObject kujakuConfig, String[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
         JSONObject[] geoJsonDataSourceObjects = new JSONObject[geoJSONDataSources.length];
 
         for (int i = 0; i < geoJSONDataSources.length; i++) {
             geoJsonDataSourceObjects[i] = new JSONObject(geoJSONDataSources[i]);
         }
 
-        return combineStyleToGeoJSON(new JSONObject(mapboxStyle), geoJsonDataSourceObjects, attachmentLayers, layersToHide).toString();
+        return combineMapBoxStyleSubSections(new JSONObject(mapboxStyle), kujakuConfig, geoJsonDataSourceObjects, attachmentLayers, layersToHide).toString();
     }
 
-    private JSONObject combineStyleToGeoJSON(JSONObject styleObject, JSONObject[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
+    private JSONObject combineMapBoxStyleSubSections(JSONObject styleObject, JSONObject kujakuConfig, JSONObject[] geoJSONDataSources, String[] attachmentLayers, @Nullable String[] layersToHide) throws JSONException, InvalidMapBoxStyleException {
         MapBoxStyleHelper mapBoxStyleHelper = new MapBoxStyleHelper(styleObject);
         mapBoxStyleHelper.disableLayers(layersToHide);
         String sourceName = "opensrp-custom-data-source";
 
         for (int i = 0; i < geoJSONDataSources.length; i++) {
             mapBoxStyleHelper.insertGeoJsonDataSource(sourceName + "-" + i, geoJSONDataSources[i], attachmentLayers[i]);
+        }
+
+        if (kujakuConfig != null) {
+            mapBoxStyleHelper.insertKujakuConfig(kujakuConfig);
         }
 
         return mapBoxStyleHelper.getStyleObject();

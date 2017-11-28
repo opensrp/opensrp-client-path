@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
         try {
             String myGeoJsonData = new GeoJSONHelper(geoJSONFeatures).getGeoJsonData();
             new MapHelper()
-                    .launchMap(this, "/sdcard/Dukto/my modified style json 1 (3).json", new String[]{myGeoJsonData}, new String[]{"qualcomm-kenya-sample-1"}, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
+                    .launchMap(this, "/sdcard/Dukto/my modified style json 1 (3).json", null, new String[]{myGeoJsonData}, new String[]{"qualcomm-kenya-sample-1"}, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IOException e) {

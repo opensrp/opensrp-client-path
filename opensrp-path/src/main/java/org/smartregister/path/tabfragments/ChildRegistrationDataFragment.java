@@ -58,7 +58,6 @@ import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccin
 public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
-    private Map<String, Object> currentAlert = null;
 
     public ChildRegistrationDataFragment() {
         // Required empty public constructor
@@ -236,7 +235,12 @@ public class ChildRegistrationDataFragment extends Fragment {
 
         String[] attachmentLayers = getLayers(entityId, dobString);
         try {
-            mapHelper.launchMap(getActivity(), "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", getGeoJSONData(), attachmentLayers, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", mapHelper.getLayersToHide(attachmentLayers));
+            mapHelper.launchMap(getActivity(), "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
+                    mapHelper.constructKujakuConfig(attachmentLayers),
+                    getGeoJSONData(),
+                    attachmentLayers,
+                    "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                    mapHelper.getLayersToHide(attachmentLayers));
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (InvalidMapBoxStyleException e) {
@@ -280,7 +284,7 @@ public class ChildRegistrationDataFragment extends Fragment {
         };
     }
 
-    private String getCurrentAlertLayer(String entityId, String dobString) {
+    public static String getCurrentAlertLayer(String entityId, String dobString) {
         AlertService alertService;
         VaccineRepository vaccineRepository;
 
@@ -299,6 +303,8 @@ public class ChildRegistrationDataFragment extends Fragment {
         Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
 
         List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(dobString), receivedVaccines, alerts);
+
+        Map<String, Object> currentAlert = null;
 
         if (vaccines.isEmpty()) {
             List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
