@@ -50,13 +50,15 @@ public class MapHelper {
         convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
     }
 
-    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken, @Nullable String[] layersToHide) throws JSONException
+    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig,
+                          String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken,
+                          @Nullable String[] layersToHide, @Nullable final LatLng topLeftBound, final @Nullable LatLng bottomRightBound) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
         combineMapBoxStyleSubSections(activity, mapBoxAccessToken, stylePath, kujakuConfig, geoJSONDataSources, attachmentLayers, layersToHide, new OnCreateMapBoxStyle() {
             @Override
             public void onStyleJSONRetrieved(String styleJSON) {
-                callIntent(activity, mapBoxAccessToken, styleJSON);
+                callIntent(activity, mapBoxAccessToken, styleJSON, topLeftBound, bottomRightBound);
             }
 
             @Override
@@ -81,21 +83,29 @@ public class MapHelper {
 
         JSONObject kujakuConfig = new JSONObject();
         kujakuConfig.put("sort_fields", sortFields);
-        kujakuConfig.put("data_source_names", dataSourceLayers);
+        // Should convert these dataSourceLayers to dataSourceNames
+        //kujakuConfig.put("data_source_names", dataSourceLayers);
 
         return kujakuConfig;
     }
 
-    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig, String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken) throws JSONException
+    public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig,
+                          String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken,
+                          @Nullable LatLng topLeftBound, @Nullable LatLng bottomRightBound) throws JSONException
             , InvalidMapBoxStyleException
             , IOException {
-        launchMap(activity, stylePath, kujakuConfig, geoJSONDataSources, attachmentLayers, mapBoxAccessToken, null);
+        launchMap(activity, stylePath, kujakuConfig, geoJSONDataSources, attachmentLayers, mapBoxAccessToken, null, topLeftBound, bottomRightBound);
     }
 
-    private void callIntent(Activity activity, String mapBoxAccessToken, String finalStyle) {
+    private void callIntent(Activity activity, String mapBoxAccessToken, String finalStyle, @Nullable LatLng topLeftBound, @Nullable LatLng bottomRightBound) {
         Intent mapViewIntent = new Intent(activity, MapActivity.class);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_STYLES, new String[]{finalStyle});
+
+        if (topLeftBound != null & bottomRightBound != null) {
+            mapViewIntent.putExtra(Constants.PARCELABLE_KEY_TOP_LEFT_BOUND, topLeftBound);
+            mapViewIntent.putExtra(Constants.PARCELABLE_KEY_BOTTOM_RIGHT_BOUND, bottomRightBound);
+        }
 
         activity.startActivityForResult(mapViewIntent, MAP_ACTIVITY_REQUEST_CODE);
     }
@@ -169,12 +179,17 @@ public class MapHelper {
         MapBoxStyleHelper mapBoxStyleHelper = new MapBoxStyleHelper(styleObject);
         mapBoxStyleHelper.disableLayers(layersToHide);
         String sourceName = "opensrp-custom-data-source";
+        JSONArray kujakuDataSourceNames = new JSONArray();
 
         for (int i = 0; i < geoJSONDataSources.length; i++) {
-            mapBoxStyleHelper.insertGeoJsonDataSource(sourceName + "-" + i, geoJSONDataSources[i], attachmentLayers[i]);
+            String dataSourceName = sourceName + "-" + i;
+            mapBoxStyleHelper.insertGeoJsonDataSource(dataSourceName, geoJSONDataSources[i], attachmentLayers[i]);
+            kujakuDataSourceNames.put(dataSourceName);
         }
 
         if (kujakuConfig != null) {
+            // Add correct source layer names
+            kujakuConfig.put("data_source_names", kujakuDataSourceNames);
             mapBoxStyleHelper.insertKujakuConfig(kujakuConfig);
         }
 
@@ -222,6 +237,10 @@ public class MapHelper {
         );
     }
 
+    public LatLng[] getBounds(@NonNull ArrayList<LatLng> points) {
+        return getBounds(points.toArray(new LatLng[points.size()]));
+    }
+
     public LatLng[] getBounds(@NonNull LatLng[] points) {
         if (points.length < 1) {
             return null;
@@ -229,6 +248,23 @@ public class MapHelper {
 
         LatLng highestPoint = points[0];
         LatLng lowestPoint = points[0];
+
+        if (points.length == 1) {
+            // Create a default 0.021103 bound length
+            double defaultBoundLength = 0.021103;
+            double halfBoundLength = defaultBoundLength/2;
+            highestPoint = new LatLng(
+                    highestPoint.getLatitude() + halfBoundLength,
+                    highestPoint.getLongitude() - halfBoundLength
+            );
+
+            lowestPoint = new LatLng(
+                    lowestPoint.getLatitude() - halfBoundLength,
+                    lowestPoint.getLongitude() + halfBoundLength
+            );
+
+            return (new LatLng[]{highestPoint, lowestPoint});
+        }
 
         for(LatLng latLng: points) {
             if (isLatLngHigher(latLng, highestPoint)) {
@@ -238,6 +274,22 @@ public class MapHelper {
             if (isLatLngLower(latLng, lowestPoint)) {
                 lowestPoint = latLng;
             }
+        }
+
+        // If the bounds are less than 0.021103 apart either longitude or latitude, then increase the bound to a minimum of that
+        double defaultBoundDifference = 0.021103;
+        double latDifference = highestPoint.getLatitude() - lowestPoint.getLatitude();
+        double lngDifference = highestPoint.getLongitude() - lowestPoint.getLongitude();
+        if (latDifference < defaultBoundDifference) {
+            double increaseDifference = (defaultBoundDifference - latDifference)/2;
+            highestPoint.setLatitude(highestPoint.getLatitude() + increaseDifference);
+            lowestPoint.setLatitude(lowestPoint.getLatitude() - increaseDifference);
+        }
+
+        if (lngDifference < defaultBoundDifference) {
+            double increaseDifference = (defaultBoundDifference - lngDifference)/2;
+            highestPoint.setLongitude(highestPoint.getLongitude() - increaseDifference);
+            lowestPoint.setLongitude(lowestPoint.getLongitude() + increaseDifference);
         }
 
         return (new LatLng[]{highestPoint, lowestPoint});

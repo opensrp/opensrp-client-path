@@ -105,7 +105,6 @@ public class LoginActivity extends AppCompatActivity {
             res.updateConfiguration(conf, dm);
         } catch (Exception e) {
             logError("Error onCreate: " + e);
-
         }
 
         setContentView(R.layout.login);
@@ -124,36 +123,6 @@ public class LoginActivity extends AppCompatActivity {
         initializeProgressDialog();
 
         setLanguage();
-
-        startSampleMapView();
-
-    }
-
-    private void startSampleMapView() {
-        //Sample start the map view
-        int children = 10;
-        GeoJSONFeature[] geoJSONFeatures = new GeoJSONFeature[children];
-        children--;
-        while (children > -1) {
-            double lat = Math.random() * 1;
-            double longitude = Math.random() * 1;
-            ArrayList<LatLng> points = new ArrayList<>();
-            points.add(new LatLng(lat, longitude));
-            geoJSONFeatures[children] = new GeoJSONFeature(points);
-            children--;
-        }
-
-        try {
-            String myGeoJsonData = new GeoJSONHelper(geoJSONFeatures).getGeoJsonData();
-            new MapHelper()
-                    .launchMap(this, "/sdcard/Dukto/my modified style json 1 (3).json", null, new String[]{myGeoJsonData}, new String[]{"qualcomm-kenya-sample-1"}, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidMapBoxStyleException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

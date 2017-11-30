@@ -79,8 +79,6 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        requestForOfflineMap(getChildrenLocations());
-
         mBaseFragment = new ChildSmartRegisterFragment();
         Fragment[] otherFragments = {new AdvancedSearchFragment()};
 
@@ -242,51 +240,6 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         });
     }
 
-    private LatLng[] getChildrenLocations() {
-        int childNo = 20;
-        LatLng[] childrenLocations = new LatLng[childNo];
-        MapHelper mapHelper = new MapHelper();
-
-        for(int i = 0; i < childNo; i++) {
-            childrenLocations[i] = mapHelper.generateRandomLatLng();
-        }
-
-        return childrenLocations;
-    }
-
-    private void requestForOfflineMap(LatLng[] mapPoints) {
-        boolean isBoundsChanged = true;
-
-        MapHelper mapHelper = new MapHelper();
-        //LatLng[] bounds = mapHelper.getBounds(mapPoints);
-        LatLng[] bounds = new LatLng[]{
-                new LatLng(
-                        -17.854564,
-                        25.854782
-                ),
-                new LatLng(
-                        -17.875469,
-                        25.876589
-                )
-        };
-
-        String mapName = "ZEIR Services Coverage";
-
-        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
-        // Cache the style
-        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
-                .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                });
-    }
 
     @Override
     public void onBackPressed() {

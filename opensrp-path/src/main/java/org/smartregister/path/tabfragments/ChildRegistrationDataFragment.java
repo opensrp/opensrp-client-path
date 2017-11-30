@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import util.JsonFormUtils;
 import util.PathConstants;
 import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.MapBoxStyleHelper;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
 
@@ -58,6 +59,7 @@ import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccin
 public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
+    private static final String TAG = ChildRegistrationDataFragment.class.getSimpleName();
 
     public ChildRegistrationDataFragment() {
         // Required empty public constructor
@@ -216,150 +218,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChwName.setText(Utils.getValue(detailsMap, "CHW_Name", true));
             tvChwPhoneNumber.setText(Utils.getValue(detailsMap, "CHW_Phone_Number", true));
             tvHivExposure.setText(Utils.getValue(childDetailsColumnMaps, "pmtct_status", true));
-
-            final String entityId = childDetails.entityId();
-
-            ImageView mapIcon = (ImageView) fragmentView.findViewById(R.id.imgv_childRegistrationDataFragment_mapIcon);
-            mapIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showMyPositionOnMapView(entityId, dobString);
-                }
-            });
         }
-    }
-
-    private void showMyPositionOnMapView(String entityId, String dobString) {
-
-        MapHelper mapHelper = new MapHelper();
-
-        String[] attachmentLayers = getLayers(entityId, dobString);
-        try {
-            mapHelper.launchMap(getActivity(), "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
-                    mapHelper.constructKujakuConfig(attachmentLayers),
-                    getGeoJSONData(),
-                    attachmentLayers,
-                    "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
-                    mapHelper.getLayersToHide(attachmentLayers));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (InvalidMapBoxStyleException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        /*Intent intent = new Intent(getActivity(), MapActivity.class);
-        intent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ");
-        startActivity(intent);*/
-    }
-
-    private String[] getGeoJSONData() throws JSONException {
-
-        LatLng myPosition = new MapHelper().generateRandomLatLng();
-
-        GeoJSONFeature myPositionFeature = new GeoJSONFeature();
-        myPositionFeature.addPoint(myPosition);
-
-
-        GeoJSONHelper geoJSONHelper = new GeoJSONHelper(myPositionFeature);
-
-        GeoJSONFeature geoJSONFeature = new GeoJSONFeature();
-        GeoJSONFeature geoJSONFeature2 = new GeoJSONFeature();
-        GeoJSONFeature geoJSONFeature3 = new GeoJSONFeature();
-        GeoJSONFeature geoJSONFeature4 = new GeoJSONFeature();
-
-        return new String[]{
-                geoJSONHelper.getGeoJsonData()/*,
-                new GeoJSONHelper(geoJSONFeature).getGeoJsonData(),
-                new GeoJSONHelper(geoJSONFeature2).getGeoJsonData(),
-                new GeoJSONHelper(geoJSONFeature3).getGeoJsonData(),
-                new GeoJSONHelper(geoJSONFeature4).getGeoJsonData()*/
-        };
-    }
-
-    private String[] getLayers(final String entityId, String dobString) {
-        return new String[]{
-                getCurrentAlertLayer(entityId, dobString)
-        };
-    }
-
-    public static String getCurrentAlertLayer(String entityId, String dobString) {
-        AlertService alertService;
-        VaccineRepository vaccineRepository;
-
-        List<Vaccine> vaccines = new ArrayList<>();
-        SmartRegisterClient client;
-        Cursor cursor;
-        
-        Context context = VaccinatorApplication.getInstance().context();
-        alertService = context.alertService();
-        vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-
-
-        vaccines = vaccineRepository.findByEntityId(entityId);
-        List<Alert> alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
-
-        Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
-
-        List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(dobString), receivedVaccines, alerts);
-
-        Map<String, Object> currentAlert = null;
-
-        if (vaccines.isEmpty()) {
-            List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
-            currentAlert = nextVaccineDue(sch, vList);
-        }
-
-        if (currentAlert == null) {
-            Date lastVaccine = null;
-            if (!vaccines.isEmpty()) {
-                Vaccine vaccine = vaccines.get(vaccines.size() - 1);
-                lastVaccine = vaccine.getDate();
-            }
-
-            currentAlert = nextVaccineDue(sch, lastVaccine);
-        }
-
-        if (currentAlert != null) {
-
-            Alert alert = (Alert) currentAlert.get(PathConstants.KEY.ALERT);
-            if (alert == null) {
-                return "white kids";
-            }
-
-            DateTime dueDate = (DateTime) currentAlert.get(PathConstants.KEY.DATE);
-            Calendar today = Calendar.getInstance();
-            today.set(Calendar.HOUR_OF_DAY, 0);
-            today.set(Calendar.MINUTE, 0);
-            today.set(Calendar.SECOND, 0);
-            today.set(Calendar.MILLISECOND, 0);
-
-            String alertValue = alert.status().value();
-
-            switch (alertValue) {
-                case PathConstants.KEY.URGENT:
-                    return "red kids";
-
-                case PathConstants.KEY.NORMAL:
-                    return "blue kids";
-
-                case PathConstants.KEY.UPCOMING:
-                    if (dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
-                        return "light blue kids";
-                    } else {
-                        return "white kids";
-                    }
-
-                case PathConstants.KEY.EXPIRED:
-                    return "red kids";
-
-                default:
-                    return "green kids";
-            }
-        }
-
-        return "green kids";
     }
 
 }

@@ -19,9 +19,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.cocoahero.android.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
@@ -72,7 +75,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import lecho.lib.hellocharts.model.Line;
 import util.PathConstants;
 import utils.exceptions.InvalidMapBoxStyleException;
@@ -90,6 +95,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
     public static final String IS_REMOTE_LOGIN = "is_remote_login";
     private Snackbar syncStatusSnackbar;
+    private ArrayList<LatLng> childPoints = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -413,6 +419,70 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         });
 
+        LinearLayout offlineModeSwitch = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
+        clientLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
+                offlineSwitch.toggle();
+
+                if (offlineSwitch.isActivated()) {
+                    requestForOfflineMap(getChildrenLocations());
+                } else {
+                    // Request for a delete of the offline map or something
+                }
+
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+
+    }
+
+    private LatLng[] getChildrenLocations() {
+        int childNo = 20;
+        LatLng[] childrenLocations = new LatLng[childNo];
+        MapHelper mapHelper = new MapHelper();
+
+        for(int i = 0; i < childNo; i++) {
+            childrenLocations[i] = mapHelper.generateRandomLatLng();
+        }
+
+        return childrenLocations;
+    }
+
+    private void requestForOfflineMap(LatLng[] mapPoints) {
+        boolean isBoundsChanged = true;
+
+        MapHelper mapHelper = new MapHelper();
+        //LatLng[] bounds = mapHelper.getBounds(mapPoints);
+        LatLng[] bounds = new LatLng[]{
+                new LatLng(
+                        -17.854564,
+                        25.854782
+                ),
+                new LatLng(
+                        -17.875469,
+                        25.876589
+                )
+        };
+
+        String mapName = "ZEIR Services Coverage";
+
+        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
+        // Cache the style
+        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
+                .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
     }
 
     private void updateLastSyncText() {
@@ -462,11 +532,18 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         if (!TextUtils.isEmpty(latLng)) {
             String[] coords = latLng.split(" ");
             LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
+            childPoints.add(coordinates);
             ArrayList featurePoints = new ArrayList<LatLng>();
             featurePoints.add(coordinates);
             GeoJSONFeature feature = new GeoJSONFeature(featurePoints);
             for (String curKey : clientDetails.keySet()) {
                 feature.addProperty(curKey, clientDetails.get(curKey));
+            }
+
+            if (!feature.hasId()) {
+                String id = UUID.randomUUID().toString();
+                feature.setId(id);
+                feature.addProperty("id", id);
             }
             return feature;
         }
@@ -499,7 +576,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
         private String[] getChildrenGeoJSON()  throws JSONException {
             ArrayList<String> childrenGeoJSON = new ArrayList<>();
-            ArrayList<GeoJSONFeature> geoJSONFeatures = new ArrayList<>();
+            LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
 
             boolean added = false;
             Cursor cursor = null;
@@ -516,13 +593,22 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                         Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
                         GeoJSONFeature feature = constructGeoJsonFeature(details);
                         if (feature != null) {
-                            geoJSONFeatures.add(feature);
                             added = true;
 
                             String dobString = Utils.getValue(details, PathConstants.KEY.DOB, false);
-                            String alert = ChildRegistrationDataFragment.getCurrentAlertLayer(entityId, dobString);
-                            if (!attachmentLayers.contains(alert)) {
-                                attachmentLayers.add(alert);
+                            String alertLayer = ChildDetailTabbedActivity.getCurrentAlertLayer(entityId, dobString);
+
+                            // Add GeoJSON Feature to Appropriate feature collection
+                            ArrayList<GeoJSONFeature> layerFeatures = new ArrayList<>();
+                            if (geoJSONFeatureCollection.containsKey(alertLayer)) {
+                                layerFeatures = geoJSONFeatureCollection.get(alertLayer);
+                            }
+
+                            layerFeatures.add(feature);
+                            geoJSONFeatureCollection.put(alertLayer, layerFeatures);
+
+                            if (!attachmentLayers.contains(alertLayer)) {
+                                attachmentLayers.add(alertLayer);
                             }
                         }
                         cursor.moveToNext();
@@ -535,7 +621,16 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
 
             if (added) {
-                childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+                //childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+                for(String attachmentLayer: attachmentLayers) {
+                    if (geoJSONFeatureCollection.containsKey(attachmentLayer)) {
+                        ArrayList<GeoJSONFeature> geoJSONFeatures = geoJSONFeatureCollection.get(attachmentLayer);
+                        childrenGeoJSON.add(
+                                new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()]))
+                                .getGeoJsonData()
+                        );
+                    }
+                }
             }
 
             return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
@@ -549,6 +644,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 MapHelper mapHelper = new MapHelper();
                 try {
                     String[] attachmentLayerArray = attachmentLayers.toArray(new String[attachmentLayers.size()]);
+                    LatLng[] bounds = mapHelper.getBounds(childPoints);
 
                     mapHelper.launchMap(
                             BaseRegisterActivity.this,
@@ -557,13 +653,12 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                             childGeoJson,
                             attachmentLayerArray,
                             "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
-                            getLayersToDisable(attachmentLayerArray));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (InvalidMapBoxStyleException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                            getLayersToDisable(attachmentLayerArray),
+                            bounds[0],
+                            bounds[1]
+                    );
+                } catch (JSONException | InvalidMapBoxStyleException | IOException e) {
+                    Log.e("BaseRegisterActivity", Log.getStackTraceString(e));
                 }
             }
         }

@@ -119,7 +119,7 @@
                 android:layout_width="@dimen/custom_navigation_icon_size"
                 android:layout_height="@dimen/custom_navigation_icon_size"
                 android:id="@+id/nav_clientsMapImageview"
-                android:src="@drawable/ic_icon_map"
+                android:src="@drawable/ic_action_view_map"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
@@ -130,6 +130,35 @@
                 style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                 android:text="View Client Locations"
                 android:id="@+id/nav_clientMapTextview"
+                android:textColor="@color/white"
+                android:textSize="@dimen/table_contents_text_size"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/nav_offline_download"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/nav_offlineModeSwitch"
+                android:src="@drawable/ic_action_view_map"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginRight="5dp" />
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
+                android:text="Offline Mode"
                 android:textColor="@color/white"
                 android:textSize="@dimen/table_contents_text_size"
                 android:layout_weight="1"
