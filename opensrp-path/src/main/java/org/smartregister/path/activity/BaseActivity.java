@@ -899,7 +899,7 @@ public abstract class BaseActivity extends AppCompatActivity
                             added = true;
 
                             String dobString = Utils.getValue(details, PathConstants.KEY.DOB, false);
-                            String alertLayer = ChildRegistrationDataFragment.getCurrentAlertLayer(entityId, dobString);
+                            String alertLayer = ChildDetailTabbedActivity.getCurrentAlertLayer(entityId, dobString);
 
                             // Add GeoJSON Feature to Appropriate feature collection
                             ArrayList<GeoJSONFeature> layerFeatures = new ArrayList<>();
