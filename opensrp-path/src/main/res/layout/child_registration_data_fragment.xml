@@ -572,8 +572,7 @@
                             android:layout_weight="1"/>
 
                         <org.smartregister.view.customcontrols.CustomFontTextView
-                            android:layout_alignParentLeft="true"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                             style="@style/CustomFontTextViewStyle.ClientList"
