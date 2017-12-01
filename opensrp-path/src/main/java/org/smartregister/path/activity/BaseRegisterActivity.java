@@ -420,19 +420,19 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         });
 
         LinearLayout offlineModeSwitch = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
-        clientLocations.setOnClickListener(new View.OnClickListener() {
+        offlineModeSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
                 offlineSwitch.toggle();
 
-                if (offlineSwitch.isActivated()) {
+                if (offlineSwitch.isChecked()) {
                     requestForOfflineMap(getChildrenLocations());
                 } else {
                     // Request for a delete of the offline map or something
                 }
 
-                drawer.closeDrawer(GravityCompat.START);
+                //drawer.closeDrawer(GravityCompat.START);
 
             }
         });
