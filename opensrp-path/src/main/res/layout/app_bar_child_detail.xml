@@ -92,7 +92,7 @@
                     android:id="@+id/imgv_childRegistrationDataFragment_mapIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_icon_map"
+                    android:src="@drawable/ic_action_view_map_grey"
                     android:layout_marginRight="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
