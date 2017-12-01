@@ -1,13 +1,17 @@
 package org.smartregister.path.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -78,8 +82,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
+import io.ona.kujaku.services.MapboxOfflineDownloaderService;
 import lecho.lib.hellocharts.model.Line;
 import util.PathConstants;
+import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
@@ -93,9 +99,19 @@ import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue
 public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener {
 
+    public static final String TAG = BaseRegisterActivity.class.getSimpleName();
     public static final String IS_REMOTE_LOGIN = "is_remote_login";
     private Snackbar syncStatusSnackbar;
     private ArrayList<LatLng> childPoints = new ArrayList<>();
+    private Toast toast;
+
+    private enum SERVICE_ACTION_RESULT {
+        SUCCESSFUL,
+        FAILED
+    }
+    private static final String RESULT_STATUS = "RESULT_STATUS";
+    private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
+    private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -405,7 +421,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
-
 //                finish();
             }
         });
@@ -419,44 +434,109 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         });
 
-        LinearLayout offlineModeSwitch = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
-        offlineModeSwitch.setOnClickListener(new View.OnClickListener() {
+        final LinearLayout offlineModeSwitchLayout = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
+        final Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
+        offlineSwitch.setChecked(getOfflineModeStatus());
+
+        offlineSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                offlineSwitchClicked(offlineSwitch);
+            }
+        });
+        offlineModeSwitchLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
                 offlineSwitch.toggle();
-
-                if (offlineSwitch.isChecked()) {
-                    requestForOfflineMap(getChildrenLocations());
-                } else {
-                    // Request for a delete of the offline map or something
-                }
-
-                //drawer.closeDrawer(GravityCompat.START);
-
+                offlineSwitchClicked(offlineSwitch);
             }
         });
 
     }
 
-    private LatLng[] getChildrenLocations() {
-        int childNo = 20;
-        LatLng[] childrenLocations = new LatLng[childNo];
-        MapHelper mapHelper = new MapHelper();
+    private void offlineSwitchClicked(Switch offlineSwitch) {
+        updateOfflineModeStatus(offlineSwitch.isChecked());
+        if (getOfflineModeStatus()) {
 
-        for(int i = 0; i < childNo; i++) {
-            childrenLocations[i] = mapHelper.generateRandomLatLng();
+            // Show a toast that I have started downloading based on response from the LocalBroadcastManager
+            BroadcastReceiver offlineMapDownloadUpdatesReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context context, Intent intent) {
+                    Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
+
+                    if (intent.hasExtra(RESULT_STATUS)) {
+                        String resultStatus = intent.getStringExtra(RESULT_STATUS);
+                        if (resultStatus.equals(SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
+                            showInfoToast("Offline Map has started downloading");
+                        } else if (resultStatus.equals(SERVICE_ACTION_RESULT.FAILED.name())) {
+                            //An error occurred trying to download the map
+                            String message = "Oops! Offline map cannot be downloaded";
+                            if (intent.hasExtra(RESULT_MESSAGE)) {
+                                message = intent.getStringExtra(RESULT_MESSAGE);
+                            }
+
+                            showInfoToast(message);
+                        }
+                    } else {
+                        Log.e(TAG, "Unknown OfflineMapDownloadService Message : \n" + intent.getExtras().toString());
+                    }
+
+                    unregisterOfflineMapDownloadUpdatesReceiver(this);
+                }
+            };
+            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            requestForOfflineMap(getChildrenLocations());
+        } else {
+            // Request for a delete of the offline map or something
         }
 
-        return childrenLocations;
+        //drawer.closeDrawer(GravityCompat.START);
     }
 
-    private void requestForOfflineMap(LatLng[] mapPoints) {
+    private LatLng[] getChildrenLocations() {
+        ArrayList<LatLng> childrenLocations = new ArrayList<>();
+
+        ArrayList<String> childrenGeoJSON = new ArrayList<>();
+        LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
+
+        boolean added = false;
+        Cursor cursor = null;
+        try {
+            // Get all children
+            SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+            queryBUilder.SelectInitiateMainTable(PathConstants.CHILD_TABLE_NAME, new String[]{ PathConstants.CHILD_TABLE_NAME + ".base_entity_id"});
+            String query = queryBUilder.mainCondition(" dod is NULL OR dod = '' ");
+            cursor = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME).rawCustomQueryForAdapter(query);
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while(!cursor.isAfterLast()) {
+                    String entityId = cursor.getString(0);
+                    Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
+                    GeoJSONFeature feature = constructGeoJsonFeature(details);
+                    if (feature != null) {
+                        List<LatLng> points = feature.getFeaturePoints();
+                        if (points != null && points.size() > 0) {
+                            childrenLocations.add(points.get(0));
+                        }
+                    }
+                    cursor.moveToNext();
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return childrenLocations.toArray(new LatLng[childrenLocations.size()]);
+    }
+
+    private void requestForOfflineMap(@NonNull LatLng[] mapPoints) {
         boolean isBoundsChanged = true;
 
         MapHelper mapHelper = new MapHelper();
-        //LatLng[] bounds = mapHelper.getBounds(mapPoints);
-        LatLng[] bounds = new LatLng[]{
+        LatLng[] bounds = mapHelper.getBounds(mapPoints);
+        /*LatLng[] bounds = new LatLng[]{
                 new LatLng(
                         -17.854564,
                         25.854782
@@ -465,7 +545,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                         -17.875469,
                         25.876589
                 )
-        };
+        };*/
 
         String mapName = "ZEIR Services Coverage";
 
@@ -483,6 +563,14 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
                     }
                 });
+    }
+
+    private void showInfoToast(String text) {
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void updateLastSyncText() {
@@ -667,6 +755,26 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private String[] getLayersToDisable(String[] attachmentLayers) {
         return (new MapHelper())
                 .getLayersToHide(attachmentLayers);
+    }
+
+    private void updateOfflineModeStatus(boolean offlineModeStatus) {
+        Utils.writePreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(offlineModeStatus));
+    }
+
+    private boolean getOfflineModeStatus() {
+        boolean defaultOfflineModeStatus = false;
+
+        return Boolean.valueOf(Utils.getPreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(defaultOfflineModeStatus)));
+    }
+
+    private void registerOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(broadcastReceiver, new IntentFilter(Constants.INTENT_ACTION_MAP_DOWNLOAD_SERVICE_STATUS_UPDATES));
+    }
+
+    private void unregisterOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(broadcastReceiver);
     }
 
     @Override

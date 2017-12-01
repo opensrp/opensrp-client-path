@@ -34,6 +34,8 @@ import utils.helpers.MapBoxStyleHelper;
 
 
 /**
+ * It interfaces with Kujaku library and simplifies calls to the library
+ *
  * Created by Ephraim Kigamba - ekigamba@ona.io on 09/11/2017.
  */
 
@@ -50,6 +52,22 @@ public class MapHelper {
         convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
     }
 
+    /**
+     * Opens the MapActivity which renders the MapBox Style
+     *
+     * @param activity
+     * @param stylePath
+     * @param kujakuConfig
+     * @param geoJSONDataSources
+     * @param attachmentLayers
+     * @param mapBoxAccessToken
+     * @param layersToHide
+     * @param topLeftBound
+     * @param bottomRightBound
+     * @throws JSONException
+     * @throws InvalidMapBoxStyleException
+     * @throws IOException
+     */
     public void launchMap(final Activity activity, String stylePath, JSONObject kujakuConfig,
                           String[] geoJSONDataSources, String[] attachmentLayers, final String mapBoxAccessToken,
                           @Nullable String[] layersToHide, @Nullable final LatLng topLeftBound, final @Nullable LatLng bottomRightBound) throws JSONException
@@ -101,6 +119,11 @@ public class MapHelper {
         Intent mapViewIntent = new Intent(activity, MapActivity.class);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_STYLES, new String[]{finalStyle});
+
+        // This should be changed sometime later and/or configurable via some JSON file
+        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_BEARING, 34.33);
+        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_TILT, 80.0);
+        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_ZOOM, 13.6);
 
         if (topLeftBound != null & bottomRightBound != null) {
             mapViewIntent.putExtra(Constants.PARCELABLE_KEY_TOP_LEFT_BOUND, topLeftBound);
@@ -295,6 +318,12 @@ public class MapHelper {
         return (new LatLng[]{highestPoint, lowestPoint});
     }
 
+    /**
+     * Returns the array of layers to be hidden given the layers that have data
+     *
+     * @param layersBeingUsed
+     * @return
+     */
     public String[] getLayersToHide(String[] layersBeingUsed) {
         String[] allLayers = new String[] {
                 "red kids",
