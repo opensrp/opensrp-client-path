@@ -268,11 +268,11 @@ public class MapHelper {
 
         for(LatLng latLng: points) {
             if (isLatLngHigher(latLng, highestPoint)) {
-                highestPoint = latLng;
+                highestPoint = new LatLng(latLng.getLatitude(), latLng.getLongitude());
             }
 
             if (isLatLngLower(latLng, lowestPoint)) {
-                lowestPoint = latLng;
+                lowestPoint = new LatLng(latLng.getLatitude(), latLng.getLongitude());
             }
         }
 
