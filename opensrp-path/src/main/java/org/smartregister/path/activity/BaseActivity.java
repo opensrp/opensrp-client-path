@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import util.JsonFormUtils;
+import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
 
@@ -460,7 +461,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        startService(new Intent(getApplicationContext(), SyncIntentService.class));
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     /**

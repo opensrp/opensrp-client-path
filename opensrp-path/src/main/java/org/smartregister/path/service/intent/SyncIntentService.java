@@ -53,9 +53,7 @@ public class SyncIntentService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    private boolean onCreateCalled = false;
-    private int serviceId = 0;
-    private List<Observable<FetchStatus>> observables;
+    private List<Observable<?>> observables;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -79,21 +77,13 @@ public class SyncIntentService extends Service {
 
         context = getBaseContext();
         httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-
-        onCreateCalled = true;
-
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (onCreateCalled) {
-            onCreateCalled = false;
-
-            serviceId = startId;
-            Message msg = mServiceHandler.obtainMessage();
-            msg.arg1 = startId;
-            mServiceHandler.sendMessage(msg);
-        }
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        mServiceHandler.sendMessage(msg);
 
         return START_NOT_STICKY;
     }
@@ -162,14 +152,7 @@ public class SyncIntentService extends Service {
                             } else if (eCount == 0) {
                                 return Observable.just(FetchStatus.nothingFetched);
                             } else {
-                                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                                boolean success = ecUpdater.saveAllClientsAndEvents(jsonObject);
-                                if (!success) {
-                                    return Observable.just(FetchStatus.fetchedFailed);
-                                } else {
-                                    long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                                    return Observable.just(Pair.of(startSyncTimeStamp, lastSyncTimeStamp));
-                                }
+                                return Observable.just(jsonObject);
                             }
                         }
                     }
@@ -179,13 +162,13 @@ public class SyncIntentService extends Service {
                     @Override
                     public void accept(Object o) throws Exception {
                         if (o != null) {
-                            if (o instanceof Pair) {
-                                Pair<Long, Long> pair = (Pair<Long, Long>) o;
-                                processECFromServer(pair);
+                            if (o instanceof JSONObject) {
+                                JSONObject jsonObject = (JSONObject) o;
+                                saveToSyncTables(jsonObject);
                                 pullECFromServer();
                             } else if (o instanceof FetchStatus) {
                                 final FetchStatus fetchStatus = (FetchStatus) o;
-                                if (observables != null && !observables.isEmpty() && fetchStatus.equals(FetchStatus.nothingFetched)) {
+                                if (observables != null && !observables.isEmpty()) {
                                     Observable.zip(observables, new Function<Object[], Object>() {
                                         @Override
                                         public Object apply(@NonNull Object[] objects) throws Exception {
@@ -207,7 +190,33 @@ public class SyncIntentService extends Service {
                 });
     }
 
-    private void processECFromServer(Pair<Long, Long> pair) {
+    private void saveToSyncTables(JSONObject jsonObject) {
+        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+        Observable<Pair<Long, Long>> observable = Observable.just(jsonObject)
+                .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
+                .subscribeOn(Schedulers.io()).
+                        map(new Function<JSONObject, Pair<Long, Long>>() {
+                            @Override
+                            public Pair<Long, Long> apply(@NonNull JSONObject jsonObject) throws Exception {
+                                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+                                ecUpdater.saveAllClientsAndEvents(jsonObject);
+                                long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+                                return Pair.of(startSyncTimeStamp, lastSyncTimeStamp);
+
+                            }
+                        });
+
+        observable.subscribe(new Consumer<Pair<Long, Long>>() {
+            @Override
+            public void accept(Pair<Long, Long> longLongPair) throws Exception {
+                clientProcessor(longLongPair);
+            }
+        });
+
+        observables.add(observable);
+    }
+
+    private void clientProcessor(Pair<Long, Long> pair) {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
         Observable<FetchStatus> observable = Observable.
@@ -234,12 +243,22 @@ public class SyncIntentService extends Service {
     }
 
     private JSONObject fetchRetry(String locations, int count) throws Exception {
+        // Request spacing
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ie) {
+            Log.e(getClass().getName(), ie.getMessage());
+        }
+
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+
         try {
             return ecUpdater.fetchAsJsonObject(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+
         } catch (Exception e) {
+            Log.e(getClass().getName(), e.getMessage());
             if (count >= 2) {
-                throw e;
+                return null;
             } else {
                 return fetchRetry(locations, ++count);
             }
@@ -256,7 +275,7 @@ public class SyncIntentService extends Service {
         sendSyncStatusBroadcastMessage(fetchStatus, true);
     }
 
-    // PUSH TO SERVER
+// PUSH TO SERVER
 
     private void pushToServer() {
         pushECToServer();
@@ -314,7 +333,7 @@ public class SyncIntentService extends Service {
         sendBroadcast(intent);
 
         if (isComplete) {
-            stopSelf(serviceId);
+            stopSelf();
         }
     }
 

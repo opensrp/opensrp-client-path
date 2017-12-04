@@ -1,6 +1,7 @@
 package org.smartregister.path.activity;
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
@@ -34,6 +35,8 @@ import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
 import java.util.Calendar;
+
+import util.ServiceTools;
 
 /**
  * Base activity class for path regiters views
@@ -106,7 +109,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        startService(new Intent(getApplicationContext(), SyncIntentService.class));
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     @Override
@@ -203,8 +206,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        Intent intent = new Intent(getApplicationContext(), SyncIntentService.class);
-        startService(intent);
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////
