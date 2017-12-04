@@ -44,16 +44,8 @@ public class MapHelper {
     private static final int MAP_ACTIVITY_REQUEST_CODE = 9892;
     private static final String TAG = MapHelper.class.getSimpleName();
 
-    public void convertChildrenToFeatures(Child[] childrenGroups, String[] layersToCombine, String[] childPropertiesToAdd) {
-        // Add the child gps coordinates to geometry & child details to properties
-    }
-
-    public void convertChildrenToFeatures(ArrayList<Child> childrenGroups, ArrayList<String> layersToCombine) {
-        convertChildrenToFeatures(childrenGroups.toArray(new Child[childrenGroups.size()]), layersToCombine.toArray(new String[layersToCombine.size()]), new String[]{});
-    }
-
     /**
-     * Opens the MapActivity which renders the MapBox Style
+     * Opens the MapActivity on Kujaku which renders the MapBox Style
      *
      * @param activity
      * @param stylePath
@@ -146,7 +138,6 @@ public class MapHelper {
 
         context.startService(intent);
     }
-
 
     private void combineMapBoxStyleSubSections(Activity activity, String mapBoxAccessToken, final String stylePath, final JSONObject kujakuConfig, final String[] geoJSONDataSources, final String[] attachmentLayers, final String[] layersToHide, final OnCreateMapBoxStyle onCreateMapBoxStyle) throws JSONException
             , InvalidMapBoxStyleException
@@ -387,7 +378,6 @@ public class MapHelper {
 
         return false;
     }
-
 
     public boolean isLatLngLower(LatLng firstCoord, LatLng secondCoord) {
         if ((firstCoord.getLatitude() <= secondCoord.getLatitude()) && (firstCoord.getLongitude() >= secondCoord.getLongitude())) {
