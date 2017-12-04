@@ -257,7 +257,15 @@ public class MapHelper {
 
     public LatLng[] getBounds(@NonNull LatLng[] points) {
         if (points.length < 1) {
-            return null;
+            return new LatLng[]{
+                    new LatLng(
+                            -17.854564,
+                            25.854782
+                    ),
+                    new LatLng(
+                            -17.875469,
+                            25.876589
+                    )};
         }
 
         LatLng highestPoint = points[0];
@@ -341,7 +349,10 @@ public class MapHelper {
 
     public LatLng getTopLeftBound(@NonNull LatLng[] points) {
         if (points.length < 1) {
-            return null;
+            return new LatLng(
+                    -17.854564,
+                    25.854782
+            );
         }
 
         LatLng highestPoint = points[0];
@@ -357,7 +368,10 @@ public class MapHelper {
 
     public LatLng getBottomRightBound(@NonNull LatLng[] points) {
         if (points.length < 1) {
-            return null;
+            return new LatLng(
+                    -17.875469,
+                    25.876589
+            );
         }
 
         LatLng lowestPoint = points[0];
