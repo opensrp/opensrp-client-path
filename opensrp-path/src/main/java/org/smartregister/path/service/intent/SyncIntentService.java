@@ -11,9 +11,10 @@ import android.os.Message;
 import android.os.Process;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
@@ -53,7 +54,8 @@ public class SyncIntentService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    private List<Observable<?>> observables;
+    private List<Observable<?>> processObservables;
+    private List<Observable<?>> saveObservables;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -62,7 +64,8 @@ public class SyncIntentService extends Service {
 
         @Override
         public void handleMessage(Message message) {
-            observables = new ArrayList<>();
+            saveObservables = new ArrayList<>();
+            processObservables = new ArrayList<>();
             handleSync();
         }
     }
@@ -126,7 +129,7 @@ public class SyncIntentService extends Service {
         }
     }
 
-    private void pullECFromServer() throws Exception {
+    private void pullECFromServer()  {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
         // Fetch locations
@@ -152,7 +155,13 @@ public class SyncIntentService extends Service {
                             } else if (eCount == 0) {
                                 return Observable.just(FetchStatus.nothingFetched);
                             } else {
-                                return Observable.just(jsonObject);
+                                Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
+                                long lastServerVersion = serverVersionPair.second - 1;
+                                if (eCount < EVENT_FETCH_LIMIT) {
+                                    lastServerVersion = serverVersionPair.second;
+                                }
+                                ecUpdater.updateLastSyncTimeStamp(lastServerVersion);
+                                return Observable.just(new ResponseParcel(jsonObject, serverVersionPair));
                             }
                         }
                     }
@@ -162,14 +171,39 @@ public class SyncIntentService extends Service {
                     @Override
                     public void accept(Object o) throws Exception {
                         if (o != null) {
-                            if (o instanceof JSONObject) {
-                                JSONObject jsonObject = (JSONObject) o;
-                                saveToSyncTables(jsonObject);
-                                pullECFromServer();
+                            if (o instanceof ResponseParcel) {
+                                ResponseParcel responseParcel = (ResponseParcel) o;
+                                saveToSyncTables(responseParcel);
                             } else if (o instanceof FetchStatus) {
                                 final FetchStatus fetchStatus = (FetchStatus) o;
-                                if (observables != null && !observables.isEmpty()) {
-                                    Observable.zip(observables, new Function<Object[], Object>() {
+                                if (saveObservables != null && !saveObservables.isEmpty()) {
+                                    Observable.zip(saveObservables, new Function<Object[], Object>() {
+                                        @Override
+                                        public Object apply(@NonNull Object[] objects) throws Exception {
+                                            return FetchStatus.fetched;
+                                        }
+                                    }).subscribe(new Consumer<Object>() {
+                                        @Override
+                                        public void accept(Object o) throws Exception {
+                                            if (processObservables != null && !processObservables.isEmpty()) {
+                                                Observable.zip(processObservables, new Function<Object[], Object>() {
+                                                    @Override
+                                                    public Object apply(@NonNull Object[] objects) throws Exception {
+                                                        return FetchStatus.fetched;
+                                                    }
+                                                }).subscribe(new Consumer<Object>() {
+                                                    @Override
+                                                    public void accept(Object o) throws Exception {
+                                                        complete(fetchStatus);
+                                                    }
+                                                });
+                                            } else {
+                                                complete(fetchStatus);
+                                            }
+                                        }
+                                    });
+                                } else if (processObservables != null && !processObservables.isEmpty()) {
+                                    Observable.zip(processObservables, new Function<Object[], Object>() {
                                         @Override
                                         public Object apply(@NonNull Object[] objects) throws Exception {
                                             return FetchStatus.fetched;
@@ -190,18 +224,17 @@ public class SyncIntentService extends Service {
                 });
     }
 
-    private void saveToSyncTables(JSONObject jsonObject) {
+    private void saveToSyncTables(final ResponseParcel responseParcel) {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-        Observable<Pair<Long, Long>> observable = Observable.just(jsonObject)
+        final Observable<Pair<Long, Long>> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
                 .subscribeOn(Schedulers.io()).
-                        map(new Function<JSONObject, Pair<Long, Long>>() {
+                        map(new Function<ResponseParcel, Pair<Long, Long>>() {
                             @Override
-                            public Pair<Long, Long> apply(@NonNull JSONObject jsonObject) throws Exception {
-                                long startSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
+                            public Pair<Long, Long> apply(@NonNull ResponseParcel responseParcel) throws Exception {
+                                JSONObject jsonObject = responseParcel.getJsonObject();
                                 ecUpdater.saveAllClientsAndEvents(jsonObject);
-                                long lastSyncTimeStamp = ecUpdater.getLastSyncTimeStamp();
-                                return Pair.of(startSyncTimeStamp, lastSyncTimeStamp);
+                                return responseParcel.getServerVersionPair();
 
                             }
                         });
@@ -210,23 +243,26 @@ public class SyncIntentService extends Service {
             @Override
             public void accept(Pair<Long, Long> longLongPair) throws Exception {
                 clientProcessor(longLongPair);
+                saveObservables.remove(observable);
             }
         });
 
-        observables.add(observable);
+        saveObservables.add(observable);
+
+        pullECFromServer();
     }
 
-    private void clientProcessor(Pair<Long, Long> pair) {
+    private void clientProcessor(final Pair<Long, Long> serverVersionPair) {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
-        Observable<FetchStatus> observable = Observable.
-                just(pair)
+        final Observable<FetchStatus> observable = Observable.
+                just(serverVersionPair)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Pair<Long, Long>, FetchStatus>() {
                     @Override
-                    public FetchStatus apply(@NonNull Pair<Long, Long> longLongPair) throws Exception {
-                        PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(longLongPair.getLeft(), longLongPair.getRight()));
+                    public FetchStatus apply(@NonNull Pair<Long, Long> serverVersionPair) throws Exception {
+                        PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(serverVersionPair.first, serverVersionPair.second));
                         return FetchStatus.fetched;
                     }
                 });
@@ -236,10 +272,11 @@ public class SyncIntentService extends Service {
             @Override
             public void accept(FetchStatus fetchStatus) throws Exception {
                 sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+                processObservables.remove(observable);
             }
         });
 
-        observables.add(observable);
+        processObservables.add(observable);
     }
 
     private JSONObject fetchRetry(String locations, int count) throws Exception {
@@ -343,6 +380,58 @@ public class SyncIntentService extends Service {
 
     private void drishtiLogInfo(String message) {
         org.smartregister.util.Log.logInfo(message);
+    }
+
+    private Pair<Long, Long> getMinMaxServerVersions(JSONObject jsonObject) {
+        final String EVENTS = "events";
+        final String SERVER_VERSION = "serverVersion";
+        try {
+            if (jsonObject != null && jsonObject.has(EVENTS)) {
+                JSONArray events = jsonObject.getJSONArray(EVENTS);
+
+                long maxServerVersion = Long.MIN_VALUE;
+                long minServerVersion = Long.MAX_VALUE;
+
+                for (int i = 0; i < events.length(); i++) {
+                    Object o = events.get(i);
+                    if (o instanceof JSONObject) {
+                        JSONObject jo = (JSONObject) o;
+                        if (jo.has(SERVER_VERSION)) {
+                            long serverVersion = jo.getLong(SERVER_VERSION);
+                            if (serverVersion > maxServerVersion) {
+                                maxServerVersion = serverVersion;
+                            }
+
+                            if (serverVersion < minServerVersion) {
+                                minServerVersion = serverVersion;
+                            }
+                        }
+                    }
+                }
+                return Pair.create(minServerVersion, maxServerVersion);
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.getMessage());
+        }
+        return Pair.create(0L, 0L);
+    }
+
+    private class ResponseParcel {
+        private JSONObject jsonObject;
+        private Pair<Long, Long> serverVersionPair;
+
+        public ResponseParcel(JSONObject jsonObject, Pair<Long, Long> serverVersionPair) {
+            this.jsonObject = jsonObject;
+            this.serverVersionPair = serverVersionPair;
+        }
+
+        public JSONObject getJsonObject() {
+            return jsonObject;
+        }
+
+        public Pair<Long, Long> getServerVersionPair() {
+            return serverVersionPair;
+        }
     }
 
 }

@@ -55,7 +55,7 @@ public class ECSyncUpdater {
             Long lastSyncDatetime = getLastSyncTimeStamp();
             Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
-            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime;
+            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_FETCH_LIMIT;
             Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
 
             if (httpAgent == null) {
@@ -83,10 +83,8 @@ public class ECSyncUpdater {
             JSONArray events = jsonObject.has("events") ? jsonObject.getJSONArray("events") : new JSONArray();
             JSONArray clients = jsonObject.has("clients") ? jsonObject.getJSONArray("clients") : new JSONArray();
 
-            long lastSyncTimeStamp = batchSave(events, clients);
-            if (lastSyncTimeStamp > 0l) {
-                updateLastSyncTimeStamp(lastSyncTimeStamp);
-            }
+            batchSave(events, clients);
+
 
             return true;
         } catch (Exception e) {
@@ -168,7 +166,7 @@ public class ECSyncUpdater {
         return Long.parseLong(Utils.getPreference(context, LAST_SYNC_TIMESTAMP, "0"));
     }
 
-    private void updateLastSyncTimeStamp(long lastSyncTimeStamp) {
+    public void updateLastSyncTimeStamp(long lastSyncTimeStamp) {
         Utils.writePreference(context, LAST_SYNC_TIMESTAMP, lastSyncTimeStamp + "");
     }
 
@@ -180,9 +178,9 @@ public class ECSyncUpdater {
         Utils.writePreference(context, LAST_CHECK_TIMESTAMP, lastSyncTimeStamp + "");
     }
 
-    public long batchSave(JSONArray events, JSONArray clients) throws Exception {
+    public void batchSave(JSONArray events, JSONArray clients) throws Exception {
         db.batchInsertClients(clients);
-        return db.batchInsertEvents(events, getLastSyncTimeStamp());
+        db.batchInsertEvents(events, getLastSyncTimeStamp());
     }
 
     public <T> T convert(JSONObject jo, Class<T> t) {
