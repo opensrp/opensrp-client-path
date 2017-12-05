@@ -55,7 +55,7 @@ public class ECSyncUpdater {
             Long lastSyncDatetime = getLastSyncTimeStamp();
             Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
-            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_FETCH_LIMIT;
+            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_PULL_LIMIT;
             Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
 
             if (httpAgent == null) {

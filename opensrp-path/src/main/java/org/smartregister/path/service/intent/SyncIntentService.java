@@ -50,7 +50,8 @@ public class SyncIntentService extends Service {
     private Context context;
     private HTTPAgent httpAgent;
 
-    public static final int EVENT_FETCH_LIMIT = 50;
+    public static final int EVENT_PULL_LIMIT = 100;
+    private static final int EVENT_PUSH_LIMIT = 50;
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
@@ -129,7 +130,7 @@ public class SyncIntentService extends Service {
         }
     }
 
-    private void pullECFromServer()  {
+    private void pullECFromServer() {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
 
         // Fetch locations
@@ -157,7 +158,7 @@ public class SyncIntentService extends Service {
                             } else {
                                 Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
                                 long lastServerVersion = serverVersionPair.second - 1;
-                                if (eCount < EVENT_FETCH_LIMIT) {
+                                if (eCount < EVENT_PULL_LIMIT) {
                                     lastServerVersion = serverVersionPair.second;
                                 }
                                 ecUpdater.updateLastSyncTimeStamp(lastServerVersion);
@@ -324,7 +325,7 @@ public class SyncIntentService extends Service {
 
         while (keepSyncing) {
             try {
-                Map<String, Object> pendingEvents = db.getUnSyncedEvents(EVENT_FETCH_LIMIT);
+                Map<String, Object> pendingEvents = db.getUnSyncedEvents(EVENT_PUSH_LIMIT);
 
                 if (pendingEvents.isEmpty()) {
                     return;
