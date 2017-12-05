@@ -107,14 +107,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private ArrayList<LatLng> childPoints = new ArrayList<>();
     private Toast toast;
 
-    private enum SERVICE_ACTION_RESULT {
-        SUCCESSFUL,
-        FAILED
-    }
-    private static final String RESULT_STATUS = "RESULT_STATUS";
-    private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
-    private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -443,15 +435,15 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 public void onReceive(android.content.Context context, Intent intent) {
                     Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
 
-                    if (intent.hasExtra(RESULT_STATUS)) {
-                        String resultStatus = intent.getStringExtra(RESULT_STATUS);
-                        if (resultStatus.equals(SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
+                    if (intent.hasExtra(MapboxOfflineDownloaderService.RESULT_STATUS)) {
+                        String resultStatus = intent.getStringExtra(MapboxOfflineDownloaderService.RESULT_STATUS);
+                        if (resultStatus.equals(MapboxOfflineDownloaderService.SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
                             showInfoToast("Offline Map has started downloading");
-                        } else if (resultStatus.equals(SERVICE_ACTION_RESULT.FAILED.name())) {
+                        } else if (resultStatus.equals(MapboxOfflineDownloaderService.SERVICE_ACTION_RESULT.FAILED.name())) {
                             //An error occurred trying to download the map
                             String message = "Oops! Offline map cannot be downloaded";
-                            if (intent.hasExtra(RESULT_MESSAGE)) {
-                                message = intent.getStringExtra(RESULT_MESSAGE);
+                            if (intent.hasExtra(MapboxOfflineDownloaderService.RESULT_MESSAGE)) {
+                                message = intent.getStringExtra(MapboxOfflineDownloaderService.RESULT_MESSAGE);
                             }
 
                             showInfoToast(message);
