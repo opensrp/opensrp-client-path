@@ -9,7 +9,7 @@ env:
     - ANDROID_TARGET=android-24 ANDROID_ABI=armeabi-v7a
   global:
     # wait up to 10 minutes for adb to connect to emulator
-    - ADB_INSTALL_TIMEOUT=10
+    - ADB_INSTALL_TIMEOUT=15
     - MALLOC_ARENA_MAX=2
 
 android:
