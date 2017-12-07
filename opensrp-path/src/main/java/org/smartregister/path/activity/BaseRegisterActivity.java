@@ -1,7 +1,6 @@
 package org.smartregister.path.activity;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
@@ -29,7 +28,7 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
@@ -109,7 +108,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
 
     @Override
@@ -206,7 +205,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////

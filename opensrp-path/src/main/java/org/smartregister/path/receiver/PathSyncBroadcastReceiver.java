@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.SyncService;
 
 import util.ServiceTools;
 
@@ -15,7 +15,7 @@ public class PathSyncBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         logInfo("Sync alarm triggered. Trying to Sync.");
 
-        ServiceTools.startService(context, SyncIntentService.class);
+        ServiceTools.startService(context, SyncService.class);
     }
 }
 

@@ -44,7 +44,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import util.NetworkUtils;
 
-public class SyncIntentService extends Service {
+public class SyncService extends Service {
     private static final String EVENTS_SYNC_PATH = "/rest/event/add";
 
     private Context context;
@@ -55,8 +55,7 @@ public class SyncIntentService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    private List<Observable<?>> processObservables;
-    private List<Observable<?>> saveObservables;
+    private List<Observable<?>> observables;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -65,8 +64,7 @@ public class SyncIntentService extends Service {
 
         @Override
         public void handleMessage(Message message) {
-            saveObservables = new ArrayList<>();
-            processObservables = new ArrayList<>();
+            observables = new ArrayList<>();
             handleSync();
         }
     }
@@ -74,7 +72,7 @@ public class SyncIntentService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mHandlerThread = new HandlerThread("SyncIntentService.HandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
+        mHandlerThread = new HandlerThread("SyncService.HandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
         mHandlerThread.start();
 
         mServiceHandler = new ServiceHandler(mHandlerThread.getLooper());
@@ -161,6 +159,7 @@ public class SyncIntentService extends Service {
                                 if (eCount < EVENT_PULL_LIMIT) {
                                     lastServerVersion = serverVersionPair.second;
                                 }
+
                                 ecUpdater.updateLastSyncTimeStamp(lastServerVersion);
                                 return Observable.just(new ResponseParcel(jsonObject, serverVersionPair));
                             }
@@ -174,37 +173,11 @@ public class SyncIntentService extends Service {
                         if (o != null) {
                             if (o instanceof ResponseParcel) {
                                 ResponseParcel responseParcel = (ResponseParcel) o;
-                                saveToSyncTables(responseParcel);
+                                saveResponseParcel(responseParcel);
                             } else if (o instanceof FetchStatus) {
                                 final FetchStatus fetchStatus = (FetchStatus) o;
-                                if (saveObservables != null && !saveObservables.isEmpty()) {
-                                    Observable.zip(saveObservables, new Function<Object[], Object>() {
-                                        @Override
-                                        public Object apply(@NonNull Object[] objects) throws Exception {
-                                            return FetchStatus.fetched;
-                                        }
-                                    }).subscribe(new Consumer<Object>() {
-                                        @Override
-                                        public void accept(Object o) throws Exception {
-                                            if (processObservables != null && !processObservables.isEmpty()) {
-                                                Observable.zip(processObservables, new Function<Object[], Object>() {
-                                                    @Override
-                                                    public Object apply(@NonNull Object[] objects) throws Exception {
-                                                        return FetchStatus.fetched;
-                                                    }
-                                                }).subscribe(new Consumer<Object>() {
-                                                    @Override
-                                                    public void accept(Object o) throws Exception {
-                                                        complete(fetchStatus);
-                                                    }
-                                                });
-                                            } else {
-                                                complete(fetchStatus);
-                                            }
-                                        }
-                                    });
-                                } else if (processObservables != null && !processObservables.isEmpty()) {
-                                    Observable.zip(processObservables, new Function<Object[], Object>() {
+                                if (observables != null && !observables.isEmpty()) {
+                                    Observable.zip(observables, new Function<Object[], Object>() {
                                         @Override
                                         public Object apply(@NonNull Object[] objects) throws Exception {
                                             return FetchStatus.fetched;
@@ -225,60 +198,45 @@ public class SyncIntentService extends Service {
                 });
     }
 
-    private void saveToSyncTables(final ResponseParcel responseParcel) {
+    private void saveResponseParcel(final ResponseParcel responseParcel) {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-        final Observable<Pair<Long, Long>> observable = Observable.just(responseParcel)
+        final Observable<FetchStatus> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.io()).
-                        map(new Function<ResponseParcel, Pair<Long, Long>>() {
+                .subscribeOn(Schedulers.computation()).
+                        flatMap(new Function<ResponseParcel, ObservableSource<FetchStatus>>() {
                             @Override
-                            public Pair<Long, Long> apply(@NonNull ResponseParcel responseParcel) throws Exception {
+                            public ObservableSource<FetchStatus> apply(@NonNull ResponseParcel responseParcel) throws Exception {
                                 JSONObject jsonObject = responseParcel.getJsonObject();
                                 ecUpdater.saveAllClientsAndEvents(jsonObject);
-                                return responseParcel.getServerVersionPair();
+                                return Observable.
+                                        just(responseParcel.getServerVersionPair())
+                                        .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
+                                        .subscribeOn(Schedulers.computation())
+                                        .map(new Function<Pair<Long, Long>, FetchStatus>() {
+                                            @Override
+                                            public FetchStatus apply(@NonNull Pair<Long, Long> serverVersionPair) throws Exception {
+                                                PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(serverVersionPair.first - 1, serverVersionPair.second));
+                                                return FetchStatus.fetched;
+                                            }
+                                        });
 
                             }
                         });
-
-        observable.subscribe(new Consumer<Pair<Long, Long>>() {
-            @Override
-            public void accept(Pair<Long, Long> longLongPair) throws Exception {
-                clientProcessor(longLongPair);
-                saveObservables.remove(observable);
-            }
-        });
-
-        saveObservables.add(observable);
-
-        pullECFromServer();
-    }
-
-    private void clientProcessor(final Pair<Long, Long> serverVersionPair) {
-        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-
-        final Observable<FetchStatus> observable = Observable.
-                just(serverVersionPair)
-                .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.io())
-                .map(new Function<Pair<Long, Long>, FetchStatus>() {
-                    @Override
-                    public FetchStatus apply(@NonNull Pair<Long, Long> serverVersionPair) throws Exception {
-                        PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(serverVersionPair.first, serverVersionPair.second));
-                        return FetchStatus.fetched;
-                    }
-                });
-
 
         observable.subscribe(new Consumer<FetchStatus>() {
             @Override
             public void accept(FetchStatus fetchStatus) throws Exception {
                 sendSyncStatusBroadcastMessage(FetchStatus.fetched);
-                processObservables.remove(observable);
+                observables.remove(observable);
             }
         });
 
-        processObservables.add(observable);
+        observables.add(observable);
+
+        pullECFromServer();
+
     }
+
 
     private JSONObject fetchRetry(String locations, int count) throws Exception {
         // Request spacing

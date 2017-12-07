@@ -45,7 +45,7 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
@@ -461,7 +461,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
 
     /**
