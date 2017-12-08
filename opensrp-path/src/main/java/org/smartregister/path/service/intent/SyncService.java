@@ -190,7 +190,7 @@ public class SyncService extends Service {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
         final Observable<FetchStatus> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.computation()).
+                .subscribeOn(Schedulers.io()).
                         flatMap(new Function<ResponseParcel, ObservableSource<FetchStatus>>() {
                             @Override
                             public ObservableSource<FetchStatus> apply(@NonNull ResponseParcel responseParcel) throws Exception {
@@ -199,7 +199,7 @@ public class SyncService extends Service {
                                 return Observable.
                                         just(responseParcel.getServerVersionPair())
                                         .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                                        .subscribeOn(Schedulers.computation())
+                                        .subscribeOn(Schedulers.io())
                                         .map(new Function<Pair<Long, Long>, FetchStatus>() {
                                             @Override
                                             public FetchStatus apply(@NonNull Pair<Long, Long> serverVersionPair) throws Exception {
