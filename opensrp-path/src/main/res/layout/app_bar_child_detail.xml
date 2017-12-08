@@ -36,8 +36,8 @@
                         android:adjustViewBounds="true" />
 
                     <ImageView
-                        android:layout_width="@dimen/navigation_icon_size"
-                        android:layout_height="@dimen/navigation_icon_size"
+                        android:layout_width="@dimen/design_navigation_icon_size"
+                        android:layout_height="@dimen/design_navigation_icon_size"
                         android:id="@+id/imageView2"
                         android:src="@drawable/ic_icon_edit"
                         android:layout_gravity="left|top" />
