@@ -41,8 +41,7 @@ public class ECSyncUpdater {
         this.context = context;
         db = VaccinatorApplication.getInstance().eventClientRepository();
     }
-
-
+    
     public JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
         try {
             HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();

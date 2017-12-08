@@ -275,7 +275,6 @@ public class ExtendedSyncIntentService extends IntentService {
         startService(intent);
     }
 
-
     private void startZscoreRefresh() {
         Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
         startService(intent);

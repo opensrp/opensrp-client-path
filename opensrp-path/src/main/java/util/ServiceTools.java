@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ServiceTools {
 
-    public static boolean isServiceRunning(Class<?> serviceClass) {
+    private static boolean isServiceRunning(Class<?> serviceClass) {
         final ActivityManager activityManager = (ActivityManager) VaccinatorApplication.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
 
@@ -25,7 +25,6 @@ public class ServiceTools {
         }
         return false;
     }
-
 
     public static void startService(Context context, Class<?> serviceClass) {
         if (context == null || serviceClass == null) {

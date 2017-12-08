@@ -57,18 +57,6 @@ public class SyncService extends Service {
     private ServiceHandler mServiceHandler;
     private List<Observable<?>> observables;
 
-    private final class ServiceHandler extends Handler {
-        public ServiceHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message message) {
-            observables = new ArrayList<>();
-            handleSync();
-        }
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -100,7 +88,6 @@ public class SyncService extends Service {
     public void onDestroy() {
         mHandlerThread.quit();
     }
-
 
     protected void handleSync() {
 
@@ -148,7 +135,8 @@ public class SyncService extends Service {
                         if (jsonObject == null) {
                             return Observable.just(FetchStatus.fetchedFailed);
                         } else {
-                            int eCount = jsonObject.has("no_of_events") ? jsonObject.getInt("no_of_events") : 0;
+                            final String NO_OF_EVENTS = "no_of_events";
+                            int eCount = jsonObject.has(NO_OF_EVENTS) ? jsonObject.getInt(NO_OF_EVENTS) : 0;
                             if (eCount < 0) {
                                 return Observable.just(FetchStatus.fetchedFailed);
                             } else if (eCount == 0) {
@@ -237,11 +225,11 @@ public class SyncService extends Service {
 
     }
 
-
     private JSONObject fetchRetry(String locations, int count) throws Exception {
         // Request spacing
         try {
-            Thread.sleep(1000);
+            final int ONE_SECOND = 1000;
+            Thread.sleep(ONE_SECOND);
         } catch (InterruptedException ie) {
             Log.e(getClass().getName(), ie.getMessage());
         }
@@ -256,7 +244,8 @@ public class SyncService extends Service {
             if (count >= 2) {
                 return null;
             } else {
-                return fetchRetry(locations, ++count);
+                int newCount = count++;
+                return fetchRetry(locations, count);
             }
 
         }
@@ -375,20 +364,34 @@ public class SyncService extends Service {
         return Pair.create(0L, 0L);
     }
 
+
+    // inner classes
+    private final class ServiceHandler extends Handler {
+        private ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message message) {
+            observables = new ArrayList<>();
+            handleSync();
+        }
+    }
+
     private class ResponseParcel {
         private JSONObject jsonObject;
         private Pair<Long, Long> serverVersionPair;
 
-        public ResponseParcel(JSONObject jsonObject, Pair<Long, Long> serverVersionPair) {
+        private ResponseParcel(JSONObject jsonObject, Pair<Long, Long> serverVersionPair) {
             this.jsonObject = jsonObject;
             this.serverVersionPair = serverVersionPair;
         }
 
-        public JSONObject getJsonObject() {
+        private JSONObject getJsonObject() {
             return jsonObject;
         }
 
-        public Pair<Long, Long> getServerVersionPair() {
+        private Pair<Long, Long> getServerVersionPair() {
             return serverVersionPair;
         }
     }
