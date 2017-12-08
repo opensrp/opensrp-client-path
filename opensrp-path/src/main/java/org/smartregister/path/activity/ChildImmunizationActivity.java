@@ -468,7 +468,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private void addVaccineGroup(int canvasId, JSONObject vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
-        curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts);
+        curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
@@ -972,7 +972,7 @@ public class ChildImmunizationActivity extends BaseActivity
         if (Looper.myLooper() == Looper.getMainLooper()) {
             if (undo) {
                 vaccineGroup.setVaccineList(vaccineList);
-                vaccineGroup.updateWrapperStatus(wrappers);
+                vaccineGroup.updateWrapperStatus(wrappers, PathConstants.KEY.CHILD);
             }
             vaccineGroup.updateViews(wrappers);
 
@@ -983,7 +983,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 public void run() {
                     if (undo) {
                         vaccineGroup.setVaccineList(vaccineList);
-                        vaccineGroup.updateWrapperStatus(wrappers);
+                        vaccineGroup.updateWrapperStatus(wrappers, PathConstants.KEY.CHILD);
                     }
                     vaccineGroup.updateViews(wrappers);
                 }
