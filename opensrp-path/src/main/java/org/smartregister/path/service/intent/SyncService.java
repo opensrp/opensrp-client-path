@@ -102,7 +102,8 @@ public class SyncService extends Service {
 
     private void doSync() {
         if (!NetworkUtils.isNetworkAvailable()) {
-            sendSyncStatusBroadcastMessage(FetchStatus.noConnection);
+            sendSyncStatusBroadcastMessage(FetchStatus.noConnection, true);
+            return;
         }
 
         try {
@@ -111,7 +112,7 @@ public class SyncService extends Service {
 
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
-            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed);
+            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
         }
     }
 
@@ -121,7 +122,8 @@ public class SyncService extends Service {
         // Fetch locations
         String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
         if (StringUtils.isBlank(locations)) {
-            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed);
+            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
+            return;
         }
 
         Observable.just(locations)
@@ -244,8 +246,8 @@ public class SyncService extends Service {
             if (count >= 2) {
                 return null;
             } else {
-                int newCount = count++;
-                return fetchRetry(locations, count);
+                int newCount = count + 1;
+                return fetchRetry(locations, newCount);
             }
 
         }
