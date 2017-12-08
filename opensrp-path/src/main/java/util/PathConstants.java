@@ -34,6 +34,8 @@ PathConstants extends AllConstants {
         public static final int WEIGHT_SYNC_PROCESSING = 6;
         public static final int RECURRING_SERVICES_SYNC_PROCESSING = 7;
         public static final int IMAGE_UPLOAD = 8;
+        public static final int EXTENDED_DATA_SYNCHRONIZATION = 9;
+
     }
 
     public static final class EventType {

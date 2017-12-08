@@ -3,7 +3,6 @@ package org.smartregister.path.fragment;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -56,10 +55,6 @@ import util.PathConstants;
 
 public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implements SyncStatusBroadcastReceiver.SyncStatusListener {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
-    private LocationPickerView clinicSelection;
-    private static final long NO_RESULT_SHOW_DIALOG_DELAY = 1000l;
-    private Handler showNoResultDialogHandler;
-    private NotInCatchmentDialogFragment notInCatchmentDialogFragment;
     private TextView filterCount;
     private View filterSection;
     private ImageView backButton;
@@ -349,7 +344,13 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     }
 
     @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        refreshListView();
+    }
+
+    @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
+        refreshListView();
         refreshSyncStatusViews();
     }
 
@@ -374,45 +375,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         clientsView.setEmptyView(getActivity().findViewById(R.id.empty_view));
 
     }
-
-    /*@Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        super.onLoadFinished(loader, cursor);
-        // Check if query was issued
-        if (searchView != null && searchView.getText().toString().length() > 0) {
-            if (cursor.getCount() == 0) { // No search result found
-                if (showNoResultDialogHandler != null) {
-                    showNoResultDialogHandler.removeCallbacksAndMessages(null);
-                    showNoResultDialogHandler = null;
-                }
-
-                showNoResultDialogHandler = new Handler();
-                showNoResultDialogHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (notInCatchmentDialogFragment == null) {
-                            notInCatchmentDialogFragment = new NotInCatchmentDialogFragment();
-                        }
-
-                        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-                        Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
-                        if (prev != null) {
-                            ft.remove(prev);
-                        }
-                        ft.addToBackStack(null);
-                        if(!notInCatchmentDialogFragment.isVisible()) {
-                            notInCatchmentDialogFragment.show(ft, DIALOG_TAG);
-                        }
-                    }
-                }, NO_RESULT_SHOW_DIALOG_DELAY);
-            } else {
-                if (showNoResultDialogHandler != null) {
-                    showNoResultDialogHandler.removeCallbacksAndMessages(null);
-                    showNoResultDialogHandler = null;
-                }
-            }
-        }
-    }*/
 
     private String filterSelectionCondition(boolean urgentOnly) {
         String mainCondition = " (inactive != 'true' and lost_to_follow_up != 'true') AND ( ";
