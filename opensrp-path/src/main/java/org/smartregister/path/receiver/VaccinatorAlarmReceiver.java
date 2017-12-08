@@ -35,16 +35,9 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
         if (!VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
             Intent serviceIntent = null;
             switch (serviceType) {
-                case PathConstants.ServiceType.DATA_SYNCHRONIZATION:
-                    //handled by pathupdateactionstask
-                    android.util.Log.i(TAG, "Started data synchronization service at: " + dateFormatter.format(new Date()));
-                    break;
                 case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
                     android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     serviceIntent = new Intent(context, HIA2IntentService.class);
-                    break;
-                case PathConstants.ServiceType.MONTHLY_TALLIES_GENERATION:
-                    android.util.Log.i(TAG, "Started MONTHLY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     break;
                 case PathConstants.ServiceType.PULL_UNIQUE_IDS:
                     serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
