@@ -605,7 +605,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
 
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("gps")) {
-                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "gps", false));
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "geopoint", false));
                     }
 
                 }
