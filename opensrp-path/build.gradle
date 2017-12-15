@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:1.2.3"
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath "com.android.tools.build:gradle:2.3.3"
         classpath 'org.apache.commons:commons-lang3:3.3.2'
         classpath 'org.robolectric:robolectric-gradle-plugin:1.1.0'
         classpath 'io.fabric.tools:gradle:1.+'
@@ -42,6 +42,7 @@ android {
         versionCode 13
         versionName "1.3.3"
         multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     dexOptions {
@@ -184,6 +185,18 @@ dependencies {
     }
 
     testCompile 'org.apache.maven:maven-ant-tasks:2.1.3'
+
+    //Instrumentation test
+    androidTestCompile('com.android.support.test:rules:0.5'){
+
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+
+    androidTestCompile('com.android.support.test:runner:0.5'){
+
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+
 }
 
 //Testing and coveralls
