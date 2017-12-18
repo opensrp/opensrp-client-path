@@ -22,6 +22,8 @@ PathConstants extends AllConstants {
 
     public static final String DEFAULT_DATE_STRING = "1970-1-1";
 
+    public static final String PREFERENCE_OFFLINE_MODE = "offline mode preference";
+
     public static final String ID = "id";
 
     public static final class ServiceType {

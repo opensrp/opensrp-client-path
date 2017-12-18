@@ -1,11 +1,17 @@
 package org.smartregister.path.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,34 +23,62 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.cocoahero.android.geojson.FeatureCollection;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.growthmonitoring.domain.Weight;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.ServiceRecord;
+import org.smartregister.immunization.domain.ServiceType;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineSchedule;
+import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
+
 import org.smartregister.path.view.StatusSnackbar;
+
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+
 import java.util.Map;
 
 import util.PathConstants;
 import utils.Constants;
+
 
 /**
  * Base activity class for path regiters views
@@ -53,8 +87,19 @@ import utils.Constants;
 public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterActivity
         implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener {
 
+    public static final String TAG = BaseRegisterActivity.class.getSimpleName();
     public static final String IS_REMOTE_LOGIN = "is_remote_login";
     private Snackbar syncStatusSnackbar;
+    private ArrayList<LatLng> childPoints = new ArrayList<>();
+    private Toast toast;
+
+    private enum SERVICE_ACTION_RESULT {
+        SUCCESSFUL,
+        FAILED
+    }
+    private static final String RESULT_STATUS = "RESULT_STATUS";
+    private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
+    private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,6 +244,8 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         } else if (id == R.id.nav_hia2) {
             Intent intent = new Intent(this, HIA2ReportsActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_clients_map) {
+            openMapViewOfChildren();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -362,11 +409,156 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
-
 //                finish();
             }
         });
 
+        LinearLayout clientLocations = (LinearLayout) drawer.findViewById(R.id.nav_clients_map);
+        clientLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.closeDrawer(GravityCompat.START);
+                openMapViewOfChildren();
+            }
+        });
+
+        final LinearLayout offlineModeSwitchLayout = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
+        final Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
+        offlineSwitch.setChecked(getOfflineModeStatus());
+
+        offlineSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                offlineSwitchClicked(offlineSwitch);
+            }
+        });
+        offlineModeSwitchLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                offlineSwitch.toggle();
+                offlineSwitchClicked(offlineSwitch);
+            }
+        });
+
+    }
+
+    private void offlineSwitchClicked(Switch offlineSwitch) {
+        updateOfflineModeStatus(offlineSwitch.isChecked());
+        if (getOfflineModeStatus()) {
+
+            // Show a toast that I have started downloading based on response from the LocalBroadcastManager
+            BroadcastReceiver offlineMapDownloadUpdatesReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context context, Intent intent) {
+                    Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
+
+                    if (intent.hasExtra(RESULT_STATUS)) {
+                        String resultStatus = intent.getStringExtra(RESULT_STATUS);
+                        if (resultStatus.equals(SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
+                            showInfoToast("Offline Map has started downloading");
+                        } else if (resultStatus.equals(SERVICE_ACTION_RESULT.FAILED.name())) {
+                            //An error occurred trying to download the map
+                            String message = "Oops! Offline map cannot be downloaded";
+                            if (intent.hasExtra(RESULT_MESSAGE)) {
+                                message = intent.getStringExtra(RESULT_MESSAGE);
+                            }
+
+                            showInfoToast(message);
+                        }
+                    } else {
+                        Log.e(TAG, "Unknown OfflineMapDownloadService Message : \n" + intent.getExtras().toString());
+                    }
+
+                    unregisterOfflineMapDownloadUpdatesReceiver(this);
+                }
+            };
+            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            requestForOfflineMap(getChildrenLocations());
+        } else {
+            // Request for a delete of the offline map or something
+        }
+
+        //drawer.closeDrawer(GravityCompat.START);
+    }
+
+    private LatLng[] getChildrenLocations() {
+        ArrayList<LatLng> childrenLocations = new ArrayList<>();
+
+        ArrayList<String> childrenGeoJSON = new ArrayList<>();
+        LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
+
+        boolean added = false;
+        Cursor cursor = null;
+        try {
+            // Get all children
+            SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+            queryBUilder.SelectInitiateMainTable(PathConstants.CHILD_TABLE_NAME, new String[]{ PathConstants.CHILD_TABLE_NAME + ".base_entity_id"});
+            String query = queryBUilder.mainCondition(" dod is NULL OR dod = '' ");
+            cursor = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME).rawCustomQueryForAdapter(query);
+            if (cursor != null) {
+                cursor.moveToFirst();
+                while(!cursor.isAfterLast()) {
+                    String entityId = cursor.getString(0);
+                    Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
+                    GeoJSONFeature feature = constructGeoJsonFeature(details);
+                    if (feature != null) {
+                        List<LatLng> points = feature.getFeaturePoints();
+                        if (points != null && points.size() > 0) {
+                            childrenLocations.add(points.get(0));
+                        }
+                    }
+                    cursor.moveToNext();
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return childrenLocations.toArray(new LatLng[childrenLocations.size()]);
+    }
+
+    private void requestForOfflineMap(@NonNull LatLng[] mapPoints) {
+        boolean isBoundsChanged = true;
+
+        MapHelper mapHelper = new MapHelper();
+        LatLng[] bounds = mapHelper.getBounds(mapPoints);
+        /*LatLng[] bounds = new LatLng[]{
+                new LatLng(
+                        -17.854564,
+                        25.854782
+                ),
+                new LatLng(
+                        -17.875469,
+                        25.876589
+                )
+        };*/
+
+        String mapName = "ZEIR Services Coverage";
+
+        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
+        // Cache the style
+        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
+                .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+    }
+
+    private void showInfoToast(String text) {
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private void updateLastSyncText() {
@@ -405,6 +597,172 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             }
         }
         return lastSync;
+    }
+
+    private void openMapViewOfChildren() {
+        new DataTask().execute();
+    }
+
+    private GeoJSONFeature constructGeoJsonFeature(Map<String, String> clientDetails) {
+        String latLng = Utils.getValue(clientDetails, "geopoint", false);
+        if (!TextUtils.isEmpty(latLng)) {
+            String[] coords = latLng.split(" ");
+            LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
+            childPoints.add(coordinates);
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(coordinates);
+            GeoJSONFeature feature = new GeoJSONFeature(featurePoints);
+            for (String curKey : clientDetails.keySet()) {
+                feature.addProperty(curKey, clientDetails.get(curKey));
+            }
+
+            if (!feature.hasId()) {
+                String id = UUID.randomUUID().toString();
+                feature.setId(id);
+                feature.addProperty("id", id);
+            }
+            return feature;
+        }
+        return null;
+    }
+
+    private class DataTask extends AsyncTask<Void, Void, Void> {
+        String[] childGeoJson;
+        ArrayList<String> attachmentLayers;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            attachmentLayers = new ArrayList<>();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                childGeoJson = getChildrenGeoJSON();
+                for (int i = 0; i < childGeoJson.length; i++) {
+                    Log.e("geoJson", childGeoJson[i]);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        private String[] getChildrenGeoJSON()  throws JSONException {
+            ArrayList<String> childrenGeoJSON = new ArrayList<>();
+            LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
+
+            boolean added = false;
+            Cursor cursor = null;
+            try {
+                // Get all children
+                SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+                queryBUilder.SelectInitiateMainTable(PathConstants.CHILD_TABLE_NAME, new String[]{ PathConstants.CHILD_TABLE_NAME + ".base_entity_id"});
+                String query = queryBUilder.mainCondition(" dod is NULL OR dod = '' ");
+                cursor = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME).rawCustomQueryForAdapter(query);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast()) {
+                        String entityId = cursor.getString(0);
+                        Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
+                        GeoJSONFeature feature = constructGeoJsonFeature(details);
+                        if (feature != null) {
+                            added = true;
+
+                            String dobString = Utils.getValue(details, PathConstants.KEY.DOB, false);
+                            String alertLayer = ChildDetailTabbedActivity.getCurrentAlertLayer(entityId, dobString);
+
+                            // Add GeoJSON Feature to Appropriate feature collection
+                            ArrayList<GeoJSONFeature> layerFeatures = new ArrayList<>();
+                            if (geoJSONFeatureCollection.containsKey(alertLayer)) {
+                                layerFeatures = geoJSONFeatureCollection.get(alertLayer);
+                            }
+
+                            layerFeatures.add(feature);
+                            geoJSONFeatureCollection.put(alertLayer, layerFeatures);
+
+                            if (!attachmentLayers.contains(alertLayer)) {
+                                attachmentLayers.add(alertLayer);
+                            }
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            if (added) {
+                //childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+                for(String attachmentLayer: attachmentLayers) {
+                    if (geoJSONFeatureCollection.containsKey(attachmentLayer)) {
+                        ArrayList<GeoJSONFeature> geoJSONFeatures = geoJSONFeatureCollection.get(attachmentLayer);
+                        childrenGeoJSON.add(
+                                new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()]))
+                                .getGeoJsonData()
+                        );
+                    }
+                }
+            }
+
+            return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            if (childGeoJson != null && attachmentLayers != null) {
+                MapHelper mapHelper = new MapHelper();
+                try {
+                    String[] attachmentLayerArray = attachmentLayers.toArray(new String[attachmentLayers.size()]);
+                    LatLng[] bounds = mapHelper.getBounds(childPoints);
+
+                    mapHelper.launchMap(
+                            BaseRegisterActivity.this,
+                            "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
+                            mapHelper.constructKujakuConfig(attachmentLayerArray),
+                            childGeoJson,
+                            attachmentLayerArray,
+                            "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                            getLayersToDisable(attachmentLayerArray),
+                            bounds[0],
+                            bounds[1]
+                    );
+                } catch (JSONException | InvalidMapBoxStyleException | IOException e) {
+                    Log.e("BaseRegisterActivity", Log.getStackTraceString(e));
+                }
+            }
+        }
+    }
+
+    private String[] getLayersToDisable(String[] attachmentLayers) {
+        return (new MapHelper())
+                .getLayersToHide(attachmentLayers);
+    }
+
+    private void updateOfflineModeStatus(boolean offlineModeStatus) {
+        Utils.writePreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(offlineModeStatus));
+    }
+
+    private boolean getOfflineModeStatus() {
+        boolean defaultOfflineModeStatus = false;
+
+        return Boolean.valueOf(Utils.getPreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(defaultOfflineModeStatus)));
+    }
+
+    private void registerOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(broadcastReceiver, new IntentFilter(Constants.INTENT_ACTION_MAP_DOWNLOAD_SERVICE_STATUS_UPDATES));
+    }
+
+    private void unregisterOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(broadcastReceiver);
     }
 
     @Override

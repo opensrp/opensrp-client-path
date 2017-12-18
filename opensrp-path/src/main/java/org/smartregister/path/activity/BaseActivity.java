@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -33,29 +35,44 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import util.JsonFormUtils;
+import util.PathConstants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
 
 import static org.smartregister.util.Log.logError;
 
@@ -82,6 +99,8 @@ public abstract class BaseActivity extends AppCompatActivity
     private ProgressDialog progressDialog;
     private ArrayList<Notification> notifications;
     private BaseActivityToggle toggle;
+
+    private ArrayList<LatLng> childPoints = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -302,6 +321,15 @@ public abstract class BaseActivity extends AppCompatActivity
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
 
+            }
+        });
+
+        LinearLayout clientLocations = (LinearLayout) drawer.findViewById(R.id.nav_clients_map);
+        clientLocations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawer.closeDrawer(GravityCompat.START);
+                openMapViewOfChildren();
             }
         });
 
@@ -793,6 +821,159 @@ public abstract class BaseActivity extends AppCompatActivity
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
+    }
+
+    // Kujaku implementation classes
+
+
+    private void openMapViewOfChildren() {
+        new BaseActivity.DataTask().execute();
+    }
+
+    private GeoJSONFeature constructGeoJsonFeature(Map<String, String> clientDetails) {
+        String latLng = Utils.getValue(clientDetails, "geopoint", false);
+        if (!TextUtils.isEmpty(latLng)) {
+            String[] coords = latLng.split(" ");
+            LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
+            childPoints.add(coordinates);
+            ArrayList featurePoints = new ArrayList<LatLng>();
+            featurePoints.add(coordinates);
+            GeoJSONFeature feature = new GeoJSONFeature(featurePoints);
+            for (String curKey : clientDetails.keySet()) {
+                feature.addProperty(curKey, clientDetails.get(curKey));
+            }
+
+            if (!feature.hasId()) {
+                String id = UUID.randomUUID().toString();
+                feature.setId(id);
+                feature.addProperty("id", id);
+            }
+            return feature;
+        }
+        return null;
+    }
+
+    private class DataTask extends AsyncTask<Void, Void, Void> {
+        String[] childGeoJson;
+        ArrayList<String> attachmentLayers;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            attachmentLayers = new ArrayList<>();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                childGeoJson = getChildrenGeoJSON();
+                for (int i = 0; i < childGeoJson.length; i++) {
+                    Log.e("geoJson", childGeoJson[i]);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        private String[] getChildrenGeoJSON()  throws JSONException {
+            ArrayList<String> childrenGeoJSON = new ArrayList<>();
+            LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
+
+            boolean added = false;
+            Cursor cursor = null;
+            try {
+                // Get all children
+                SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+                queryBUilder.SelectInitiateMainTable(PathConstants.CHILD_TABLE_NAME, new String[]{ PathConstants.CHILD_TABLE_NAME + ".base_entity_id"});
+                String query = queryBUilder.mainCondition(" dod is NULL OR dod = '' ");
+                cursor = VaccinatorApplication.getInstance().context().commonrepository(PathConstants.CHILD_TABLE_NAME).rawCustomQueryForAdapter(query);
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    while(!cursor.isAfterLast()) {
+                        String entityId = cursor.getString(0);
+                        Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
+                        GeoJSONFeature feature = constructGeoJsonFeature(details);
+                        if (feature != null) {
+                            added = true;
+
+                            String dobString = Utils.getValue(details, PathConstants.KEY.DOB, false);
+                            String alertLayer = ChildDetailTabbedActivity.getCurrentAlertLayer(entityId, dobString);
+
+                            // Add GeoJSON Feature to Appropriate feature collection
+                            ArrayList<GeoJSONFeature> layerFeatures = new ArrayList<>();
+                            if (geoJSONFeatureCollection.containsKey(alertLayer)) {
+                                layerFeatures = geoJSONFeatureCollection.get(alertLayer);
+                            }
+
+                            layerFeatures.add(feature);
+                            geoJSONFeatureCollection.put(alertLayer, layerFeatures);
+
+                            if (!attachmentLayers.contains(alertLayer)) {
+                                attachmentLayers.add(alertLayer);
+                            }
+                        }
+                        cursor.moveToNext();
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+
+            if (added) {
+                //childrenGeoJSON.add(new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()])).getGeoJsonData().toString());
+                for(String attachmentLayer: attachmentLayers) {
+                    if (geoJSONFeatureCollection.containsKey(attachmentLayer)) {
+                        ArrayList<GeoJSONFeature> geoJSONFeatures = geoJSONFeatureCollection.get(attachmentLayer);
+                        childrenGeoJSON.add(
+                                new GeoJSONHelper(geoJSONFeatures.toArray(new GeoJSONFeature[geoJSONFeatures.size()]))
+                                        .getGeoJsonData()
+                        );
+                    }
+                }
+            }
+
+            return childrenGeoJSON.toArray(new String[childrenGeoJSON.size()]);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            if (childGeoJson != null && attachmentLayers != null) {
+                MapHelper mapHelper = new MapHelper();
+                try {
+                    String[] attachmentLayerArray = attachmentLayers.toArray(new String[attachmentLayers.size()]);
+                    LatLng[] bounds = mapHelper.getBounds(childPoints);
+
+                    mapHelper.launchMap(
+                            BaseActivity.this,
+                            "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
+                            mapHelper.constructKujakuConfig(attachmentLayerArray),
+                            childGeoJson,
+                            attachmentLayerArray,
+                            "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                            getLayersToDisable(attachmentLayerArray),
+                            bounds[0],
+                            bounds[1]
+                    );
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InvalidMapBoxStyleException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private String[] getLayersToDisable(String[] attachmentLayers) {
+        return (new MapHelper())
+                .getLayersToHide(attachmentLayers);
     }
 
     ////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@ import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -32,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -73,6 +76,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.listener.StatusChangeListener;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
@@ -89,6 +93,7 @@ import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
 import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
+import org.smartregister.view.contract.SmartRegisterClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,16 +102,24 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
 
+import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
 
@@ -591,6 +604,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         }
                     }
 
+                    if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("gps")) {
+                        jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, "geopoint", false));
+                    }
+
                 }
 //            intent.putExtra("json", form.toString());
 //            startActivityForResult(intent, REQUEST_CODE_GET_JSON);
@@ -779,6 +796,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         updateProfilePicture(gender);
         updateStatus();
+        updateGPSButton(childDetails);
     }
 
     @Override
@@ -809,6 +827,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             status_name.setVisibility(View.VISIBLE);
             status.setText(R.string.status);
         }
+
+        // Check if this variable is updated on ActivityResult
+        updateGPSButton(childDetails);
     }
 
     private String updateActivityTitle() {
@@ -1635,5 +1656,154 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+    // KUJAKU STUFF
+    private void showMyPositionOnMapView(String entityId, String dobString, LatLng childGPSPosition) {
+        MapHelper mapHelper = new MapHelper();
+
+        String[] attachmentLayers = getLayers(entityId, dobString);
+        LatLng[] latLngBounds = mapHelper.getBounds(new LatLng[]{childGPSPosition});
+
+        try {
+            mapHelper.launchMap(ChildDetailTabbedActivity.this, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9",
+                    mapHelper.constructKujakuConfig(attachmentLayers),
+                    getGeoJSONData(childGPSPosition),
+                    attachmentLayers,
+                    "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                    mapHelper.getLayersToHide(attachmentLayers),
+                    latLngBounds[0],
+                    latLngBounds[1]
+            );
+        } catch (JSONException | InvalidMapBoxStyleException | IOException e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    private void updateGPSButton(CommonPersonObjectClient childDetails) {
+        final String entityId = childDetails.entityId();
+        Map<String, String> detailsMap = childDetails.getColumnmaps();
+        final String dobString = getValue(detailsMap, "dob", false);;
+        ImageView mapIcon = (ImageView) findViewById(R.id.imgv_childRegistrationDataFragment_mapIcon);
+
+        // Disable map icon if the child does not have location(GPS) data
+        final LatLng childGPSPosition = getChildGPS(detailsMap);
+
+        if (childGPSPosition == null) {
+            mapIcon.setVisibility(View.GONE);
+        } else {
+            mapIcon.setVisibility(View.VISIBLE);
+            mapIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showMyPositionOnMapView(entityId, dobString, childGPSPosition);
+                }
+            });
+        }
+    }
+
+    private String[] getGeoJSONData(LatLng childGPSPosition) throws JSONException {
+        GeoJSONFeature myPositionFeature = new GeoJSONFeature();
+        myPositionFeature.addPoint(childGPSPosition);
+
+        GeoJSONHelper geoJSONHelper = new GeoJSONHelper(myPositionFeature);
+        return new String[]{
+                geoJSONHelper.getGeoJsonData()
+        };
+    }
+
+    private LatLng getChildGPS(Map<String, String> detailsMap) {
+        String latLng = Utils.getValue(detailsMap, "geopoint", false);
+        if (!TextUtils.isEmpty(latLng)) {
+            String[] coords = latLng.split(" ");
+            LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
+            return coordinates;
+        }
+
+        return null;
+    }
+
+    private String[] getLayers(final String entityId, String dobString) {
+        return new String[]{
+                getCurrentAlertLayer(entityId, dobString)
+        };
+    }
+
+    public static String getCurrentAlertLayer(String entityId, String dobString) {
+        AlertService alertService;
+        VaccineRepository vaccineRepository;
+
+        List<Vaccine> vaccines = new ArrayList<>();
+        SmartRegisterClient client;
+        Cursor cursor;
+
+        Context context = VaccinatorApplication.getInstance().context();
+        alertService = context.alertService();
+        vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+
+
+        vaccines = vaccineRepository.findByEntityId(entityId);
+        List<Alert> alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+
+        Map<String, Date> receivedVaccines = receivedVaccines(vaccines);
+
+        List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(dobString), receivedVaccines, alerts);
+
+        Map<String, Object> currentAlert = null;
+
+        if (vaccines.isEmpty()) {
+            List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
+            currentAlert = nextVaccineDue(sch, vList);
+        }
+
+        if (currentAlert == null) {
+            Date lastVaccine = null;
+            if (!vaccines.isEmpty()) {
+                Vaccine vaccine = vaccines.get(vaccines.size() - 1);
+                lastVaccine = vaccine.getDate();
+            }
+
+            currentAlert = nextVaccineDue(sch, lastVaccine);
+        }
+
+        if (currentAlert != null) {
+
+            Alert alert = (Alert) currentAlert.get(PathConstants.KEY.ALERT);
+            if (alert == null) {
+                return "white kids";
+            }
+
+            DateTime dueDate = (DateTime) currentAlert.get(PathConstants.KEY.DATE);
+            Calendar today = Calendar.getInstance();
+            today.set(Calendar.HOUR_OF_DAY, 0);
+            today.set(Calendar.MINUTE, 0);
+            today.set(Calendar.SECOND, 0);
+            today.set(Calendar.MILLISECOND, 0);
+
+            String alertValue = alert.status().value();
+
+            switch (alertValue) {
+                case PathConstants.KEY.URGENT:
+                    return "red kids";
+
+                case PathConstants.KEY.NORMAL:
+                    return "blue kids";
+
+                case PathConstants.KEY.UPCOMING:
+                    if (dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
+                        return "light blue kids";
+                    } else {
+                        return "white kids";
+                    }
+
+                case PathConstants.KEY.EXPIRED:
+                    return "red kids";
+
+                default:
+                    return "green kids";
+            }
+        }
+
+        return "green kids";
     }
 }

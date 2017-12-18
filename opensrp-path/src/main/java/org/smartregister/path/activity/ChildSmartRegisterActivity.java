@@ -18,6 +18,10 @@ import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.smartregister.adapter.SmartRegisterPaginatedAdapter;
@@ -30,6 +34,7 @@ import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.fragment.BaseSmartRegisterFragment;
 import org.smartregister.path.fragment.ChildSmartRegisterFragment;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
@@ -41,6 +46,7 @@ import org.smartregister.view.viewpager.OpenSRPViewPager;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import util.JsonFormUtils;
 import util.barcode.Barcode;
 import util.barcode.BarcodeIntentIntegrator;
@@ -235,6 +241,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
             }
         });
     }
+
 
     @Override
     public void onBackPressed() {

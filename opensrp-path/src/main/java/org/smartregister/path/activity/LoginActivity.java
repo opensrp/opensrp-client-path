@@ -29,6 +29,8 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONException;
@@ -43,6 +45,7 @@ import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentServ
 import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
@@ -63,6 +66,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import util.PathConstants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
@@ -99,7 +105,6 @@ public class LoginActivity extends AppCompatActivity {
             res.updateConfiguration(conf, dm);
         } catch (Exception e) {
             logError("Error onCreate: " + e);
-
         }
 
         setContentView(R.layout.login);
@@ -118,7 +123,6 @@ public class LoginActivity extends AppCompatActivity {
         initializeProgressDialog();
 
         setLanguage();
-
     }
 
     @Override

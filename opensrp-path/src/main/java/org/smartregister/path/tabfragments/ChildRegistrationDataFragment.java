@@ -1,5 +1,6 @@
 package org.smartregister.path.tabfragments;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -7,30 +8,58 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TableRow;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.domain.Alert;
+import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
+import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
+import org.smartregister.view.contract.SmartRegisterClient;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import util.JsonFormUtils;
+import util.PathConstants;
+import utils.exceptions.InvalidMapBoxStyleException;
+import utils.helpers.MapBoxStyleHelper;
+import utils.helpers.converters.GeoJSONFeature;
+import utils.helpers.converters.GeoJSONHelper;
+
+import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
+import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
+import static org.smartregister.immunization.util.VaccinatorUtils.receivedVaccines;
 
 
 public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
+    private static final String TAG = ChildRegistrationDataFragment.class.getSimpleName();
 
     public ChildRegistrationDataFragment() {
         // Required empty public constructor
@@ -112,7 +141,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChildsDOB.setText(childsDateOfBirth);
 
             String formattedAge = "";
-            String dobString = Utils.getValue(childDetailsColumnMaps, "dob", false);
+            final String dobString = Utils.getValue(childDetailsColumnMaps, "dob", false);
             if (!TextUtils.isEmpty(dobString)) {
                 DateTime dateTime = new DateTime(dobString);
                 Date dob = dateTime.toDate();
@@ -191,4 +220,5 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvHivExposure.setText(Utils.getValue(childDetailsColumnMaps, "pmtct_status", true));
         }
     }
+
 }

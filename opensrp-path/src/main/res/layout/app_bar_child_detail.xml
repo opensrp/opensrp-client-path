@@ -36,8 +36,8 @@
                         android:adjustViewBounds="true" />
 
                     <ImageView
-                        android:layout_width="@dimen/navigation_icon_size"
-                        android:layout_height="@dimen/navigation_icon_size"
+                        android:layout_width="@dimen/design_navigation_icon_size"
+                        android:layout_height="@dimen/design_navigation_icon_size"
                         android:id="@+id/imageView2"
                         android:src="@drawable/ic_icon_edit"
                         android:layout_gravity="left|top" />
@@ -86,6 +86,17 @@
                             android:layout_marginLeft="5dp" />
                     </LinearLayout>
                 </LinearLayout>
+
+
+                <ImageView
+                    android:id="@+id/imgv_childRegistrationDataFragment_mapIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_view_map_grey"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_gravity="center_vertical"/>
 
                 <LinearLayout
                     android:orientation="vertical"

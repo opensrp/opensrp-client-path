@@ -1755,6 +1755,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             this.imageKey = imageKey;
             this.bindType = bindType;
             this.subBindType = subBindType;
+            Log.e("JsonData", jsonString);
         }
 
         @Override
@@ -1779,7 +1780,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                 AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
+                Log.d(TAG, jsonString);
                 JSONObject jsonForm = new JSONObject(jsonString);
 
                 String entityId = getString(jsonForm, ENTITY_ID);

@@ -15,6 +15,8 @@ buildscript {
 allprojects {
     repositories {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://maven.google.com" }
+        maven { url "http://dl.bintray.com/jasonrogena/kujaku" }
         mavenLocal()
     }
 }
@@ -31,7 +33,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 24
     buildToolsVersion "26.0.1"
 
     defaultConfig {
@@ -74,7 +76,7 @@ android {
             buildConfigField "int", "DATABASE_VERSION", '9'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
-            testCoverageEnabled true
+            testCoverageEnabled false
         }
     }
     packagingOptions {
@@ -99,11 +101,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['commons-validator-1.6.jar'], dir: 'libs')
-    compile('org.smartregister:opensrp-client-native-form:1.0.3-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-native-form:1.0.3-KUJAKU-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.1.1-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.1.1-KUJAKU-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
@@ -113,25 +115,25 @@ dependencies {
     compile('org.smartregister:opensrp-client-growth-monitoring:1.0.3-SNAPSHOT@aar') {
         transitive = true
     }
-
-    compile('com.android.support:design:22.2.1') {
+    compile('com.android.support:design:24.2.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
 
     }
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:cardview-v7:22.2.1'
-    compile 'com.android.support:leanback-v17:22.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:cardview-v7:24.2.1'
+    compile 'com.android.support:leanback-v17:24.2.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
     compile 'com.jjoe64:graphview:4.2.1'
-    compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:support-v4:24.2.1'
     compile 'id.zelory:compressor:1.0.4'
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
 
     // Kujaku dependencies
+
     compile('io.ona.kujaku:library:0.1.4-info-window-click-action') {
         transitive = true
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
@@ -151,15 +153,14 @@ dependencies {
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
     }
-
-    testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
+    testCompile('org.robolectric:shadows-multidex:3.4-rc2') {
         exclude group: 'com.google.guava', module: 'guava'
     }
-
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.+') {
 
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'junit', module: 'junit'
+        exclude group: "com.google.code.findbugs"
     }
     // PowerMock
     def powerMockVersion = '1.7.1'
@@ -170,7 +171,6 @@ dependencies {
 
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
-
     testCompile 'org.apache.maven:maven-ant-tasks:2.1.3'
 }
 
