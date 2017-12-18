@@ -6,12 +6,13 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
-    <!-- The main content view -->
 
-    <org.smartregister.view.viewpager.OpenSRPViewPager
-        android:id="@+id/view_pager"
+    <include
+        layout="@layout/app_coverage_reports"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include layout="@layout/custom_nav_view_base" />
+    <include layout="@layout/custom_nav_view_base"/>
+
+
 </android.support.v4.widget.DrawerLayout>

@@ -162,7 +162,7 @@ public class StockControlActivity extends AppCompatActivity {
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,10 +182,30 @@ public class StockControlActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
                 drawer.closeDrawer(GravityCompat.START);
-
-//                finish();
             }
         });
+
+        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
+        coverage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        dropout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+
         stockregister.setBackgroundColor(getResources().getColor(R.color.tintcolor));
 
     }

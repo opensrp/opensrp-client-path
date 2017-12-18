@@ -109,9 +109,16 @@
         <activity
             android:name=".activity.StockControlActivity"
             android:label="@string/title_activity_stock_control"
-            android:theme="@style/AppThemeNoTitle.NoActionBar">
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.CoverageReportsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.DropoutReportsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
-        </activity>
     </application>
 
 </manifest>
