@@ -218,4 +218,9 @@
     <string name="validation_error">Validation Error</string>
 
     <string name="show_vaccine_card_disabled">Showing the vaccine card has been disabled for an out of area child.</string>
+
+    <!-- SNACKBAR MESSAGES -->
+    <string name="error_insufficient_patient_info">Sorry! The selected patient has missing information</string>
+    <string name="error_could_not_find_patient">Sorry but we cannot seem to find the patient</string>
+
 </resources>

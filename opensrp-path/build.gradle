@@ -131,6 +131,19 @@ dependencies {
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
 
+    // Kujaku dependencies
+    compile('io.ona.kujaku:library:0.1.4-info-window-click-action') {
+        transitive = true
+        exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
+        exclude group: 'com.android.support'
+        exclude group: 'com.android.volley'
+        exclude group: 'org.jacoco'
+    }
+    compile('com.mapbox.mapboxsdk:mapbox-android-sdk:5.2.0-beta.3@aar') {
+        transitive = true
+        exclude group: "com.android.support"
+    }
+
     testCompile('org.robolectric:robolectric:3.4.2') {
 
         exclude group: 'com.google.guava', module: 'guava'
