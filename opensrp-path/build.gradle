@@ -133,7 +133,8 @@ dependencies {
     compile 'junit:junit:4.12'
 
     // Kujaku dependencies
-    compile('io.ona.kujaku:library:0.1.3-info-window') {
+
+    compile('io.ona.kujaku:library:0.1.4-info-window-click-action') {
         transitive = true
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
         exclude group: 'com.android.support'
