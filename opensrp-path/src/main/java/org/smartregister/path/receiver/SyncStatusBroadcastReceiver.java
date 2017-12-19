@@ -7,7 +7,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.service.intent.ExtendedSyncIntentService;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static org.smartregister.util.Log.logError;
@@ -19,8 +22,11 @@ import static org.smartregister.util.Log.logError;
 public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
     public static final String ACTION_SYNC_STATUS = "sync_status";
     public static final String EXTRA_FETCH_STATUS = "fetch_status";
+    public static final String EXTRA_COMPLETE_STATUS = "complete_status";
+
     private static SyncStatusBroadcastReceiver singleton;
     private boolean isSyncing;
+    private boolean alarmsTriggered = false;
 
     private final ArrayList<SyncStatusListener> syncStatusListeners;
 
@@ -72,23 +78,62 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle data = intent.getExtras();
         if (data != null) {
-            FetchStatus fetchStatus = (FetchStatus) data.getSerializable(EXTRA_FETCH_STATUS);
-            if (fetchStatus.equals(FetchStatus.fetchStarted)) {
-                isSyncing = true;
-                for (SyncStatusListener syncStatusListener : syncStatusListeners) {
-                    syncStatusListener.onSyncStart();
-                }
-            } else {
-                isSyncing = false;
-                for (SyncStatusListener syncStatusListener : syncStatusListeners) {
-                    syncStatusListener.onSyncComplete(fetchStatus);
+            Serializable fetchStatusSerializable = data.getSerializable(EXTRA_FETCH_STATUS);
+            if (fetchStatusSerializable != null && fetchStatusSerializable instanceof FetchStatus) {
+                FetchStatus fetchStatus = (FetchStatus) fetchStatusSerializable;
+                if (fetchStatus.equals(FetchStatus.fetchStarted)) {
+                    started();
+                } else {
+                    boolean isComplete = data.getBoolean(EXTRA_COMPLETE_STATUS);
+                    if (isComplete) {
+                        complete(fetchStatus);
+                        startExtendedSyncAndAlarms(context);
+                    } else {
+                        inProgress(fetchStatus);
+                    }
                 }
             }
         }
     }
 
+    private void started() {
+        isSyncing = true;
+        for (SyncStatusListener syncStatusListener : syncStatusListeners) {
+            syncStatusListener.onSyncStart();
+        }
+    }
+
+    private void inProgress(FetchStatus fetchStatus) {
+        isSyncing = true;
+        for (SyncStatusListener syncStatusListener : syncStatusListeners) {
+            syncStatusListener.onSyncInProgress(fetchStatus);
+        }
+    }
+
+    private void complete(FetchStatus fetchStatus) {
+        isSyncing = false;
+        for (SyncStatusListener syncStatusListener : syncStatusListeners) {
+            syncStatusListener.onSyncComplete(fetchStatus);
+        }
+    }
+
+    private void startExtendedSyncAndAlarms(Context context) {
+        startExtendedSync(context);
+        if (!alarmsTriggered) {
+            VaccinatorApplication.setAlarms(context);
+            alarmsTriggered = true;
+        }
+    }
+
+    private void startExtendedSync(Context context) {
+        Intent intent = new Intent(context, ExtendedSyncIntentService.class);
+        context.startService(intent);
+    }
+
     public interface SyncStatusListener {
         void onSyncStart();
+
+        void onSyncInProgress(FetchStatus fetchStatus);
 
         void onSyncComplete(FetchStatus fetchStatus);
     }

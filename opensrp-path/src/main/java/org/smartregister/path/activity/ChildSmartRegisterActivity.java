@@ -23,8 +23,6 @@ import org.json.JSONObject;
 import org.smartregister.adapter.SmartRegisterPaginatedAdapter;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.form.FormSubmission;
-import org.smartregister.event.Event;
-import org.smartregister.event.Listener;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
@@ -87,14 +85,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
             }
         });
 
-        Event.ON_DATA_FETCHED.addListener(onDataFetchedListener);
         initializeProgressDialog();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Event.ON_DATA_FETCHED.removeListener(onDataFetchedListener);
     }
 
     @Override
@@ -300,13 +291,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         }
     }
 
-    private final Listener<FetchStatus> onDataFetchedListener = new Listener<FetchStatus>() {
-        @Override
-        public void onEvent(FetchStatus fetchStatus) {
-            refreshList(fetchStatus);
-        }
-    };
-
+    @Override
     public void refreshList(final FetchStatus fetchStatus) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             BaseSmartRegisterFragment registerFragment = (BaseSmartRegisterFragment) findFragmentByPosition(0);
