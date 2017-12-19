@@ -12,10 +12,9 @@ import org.smartregister.path.R;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 /**
- * Created by coder on 6/7/17.
+ * Created by keyman on 18/12/17.
  */
 public class DropoutReportsActivity extends BaseActivity {
-    private static final String TAG = DropoutReportsActivity.class.getCanonicalName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +34,6 @@ public class DropoutReportsActivity extends BaseActivity {
                 openDrawer();
             }
         });
-
     }
 
     @Override
@@ -47,7 +45,6 @@ public class DropoutReportsActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        // TODO: This should go to the base class?
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
     }
@@ -56,7 +53,6 @@ public class DropoutReportsActivity extends BaseActivity {
     public void onSyncComplete(FetchStatus fetchStatus) {
         super.onSyncComplete(fetchStatus);
     }
-
 
     @Override
     protected int getContentView() {
@@ -77,6 +73,5 @@ public class DropoutReportsActivity extends BaseActivity {
     protected Class onBackActivity() {
         return null;
     }
-
 
 }
