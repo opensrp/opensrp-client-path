@@ -40,8 +40,9 @@ public class StockControlActivity extends BaseActivity {
         vaccineType = (VaccineType) getIntent().getSerializableExtra("vaccine_type");
         setTitle("");
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

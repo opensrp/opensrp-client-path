@@ -30,8 +30,9 @@ public class ReportSummaryActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         SimpleToolbar toolbar = (SimpleToolbar) getToolbar();
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {

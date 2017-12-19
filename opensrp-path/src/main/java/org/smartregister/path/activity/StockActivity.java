@@ -20,7 +20,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
-import org.smartregister.repository.AllSharedPreferences;
 
 import java.util.ArrayList;
 
@@ -57,8 +56,9 @@ public class StockActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("Stock Control");
 
-        if (getSupportActionBar() != null)
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         TextView nameInitials = (TextView) findViewById(R.id.name_inits);
         nameInitials.setText(getLoggedInUserInitials());

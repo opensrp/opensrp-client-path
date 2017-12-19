@@ -54,8 +54,7 @@ public class CoverageReportsActivity extends BaseActivity {
     public void onSyncComplete(FetchStatus fetchStatus) {
         super.onSyncComplete(fetchStatus);
     }
-
-
+    
     @Override
     protected int getContentView() {
         return R.layout.activity_coverage_reports;
