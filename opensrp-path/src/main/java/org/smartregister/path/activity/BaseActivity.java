@@ -387,51 +387,6 @@ public abstract class BaseActivity extends AppCompatActivity
         initializeCustomNavbarLIsteners();
     }
 
-    //FIXME this method conflicts with raihan's don't know what the difference is
-//    public void initViews() {
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
-//        logoutButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrishtiApplication application = (DrishtiApplication) getApplication();
-//                application.logoutCurrentUser();
-//                finish();
-//            }
-//        });
-//
-//        ImageButton cancelButton = (ImageButton) navigationView.findViewById(R.id.cancel_b);
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrawerLayout drawer = (DrawerLayout) BaseActivity.this.findViewById(getDrawerLayoutId());
-//                if (drawer.isDrawerOpen(GravityCompat.START)) {
-//                    drawer.closeDrawer(GravityCompat.START);
-//                }
-//            }
-//        });
-//
-//        TextView initialsTV = (TextView) navigationView.findViewById(R.id.initials_tv);
-//        String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-//                getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-//        if (!TextUtils.isEmpty(preferredName)) {
-//            String[] initialsArray = preferredName.split(" ");
-//            String initials = "";
-//            if (initialsArray.length > 0) {
-//                initials = initialsArray[0].substring(0, 1);
-//                if (initialsArray.length > 1) {
-//                    initials = initials + initialsArray[1].substring(0, 1);
-//                }
-//            }
-//
-//            initialsTV.setText(initials.toUpperCase());
-//        }
-//
-//        TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
-//        nameTV.setText(preferredName);
-//        refreshSyncStatusViews(null);
-//        initializeCustomNavbarLIsteners();
-//    }
     protected String getLoggedInUserInitials() {
 
         try {

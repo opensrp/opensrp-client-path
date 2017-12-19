@@ -3,22 +3,15 @@ package org.smartregister.path.activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,10 +23,9 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.tabfragments.CurrentStock;
 import org.smartregister.path.tabfragments.PlanningStockFragment;
-import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.view.activity.DrishtiApplication;
+import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-public class StockControlActivity extends AppCompatActivity {
+public class StockControlActivity extends BaseActivity {
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -44,16 +36,25 @@ public class StockControlActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stock_control);
+
         vaccineType = (VaccineType) getIntent().getSerializableExtra("vaccine_type");
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        toolbar.setTitle("");
         setTitle("");
 
-        ((TextView) toolbar.findViewById(R.id.title)).setText("Stock Control > " + vaccineType.getName());
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(StockControlActivity.this, StockActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        ((TextView) toolbar.findViewById(R.id.title)).setText("Stock Control > " + vaccineType.getName());
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -63,175 +64,47 @@ public class StockControlActivity extends AppCompatActivity {
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
         TextView nameInitials = (TextView) findViewById(R.id.name_inits);
+        nameInitials.setText(getLoggedInUserInitials());
         nameInitials.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                if (!drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.openDrawer(GravityCompat.START);
-                }
+                openDrawer();
             }
         });
-
-        AllSharedPreferences allSharedPreferences = VaccinatorApplication.getInstance().context().allSharedPreferences();
-        String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
-        if (!preferredName.isEmpty()) {
-            String[] preferredNameArray = preferredName.split(" ");
-            String initials = "";
-            if (preferredNameArray.length > 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0)) + String.valueOf(preferredNameArray[1].charAt(0));
-            } else if (preferredNameArray.length == 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0));
-            }
-            nameInitials.setText(initials);
-        }
-
-        initializeCustomNavbarLIsteners();
-
     }
 
-    private void initializeCustomNavbarLIsteners() {
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+    @Override
+    protected void onResume() {
+        super.onResume();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DrishtiApplication application = (DrishtiApplication) getApplication();
-                application.logoutCurrentUser();
-                finish();
-            }
-        });
-
-        ImageButton cancelButton = (ImageButton) navigationView.findViewById(R.id.cancel_b);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
-                }
-            }
-        });
-
-        TextView initialsTV = (TextView) navigationView.findViewById(R.id.initials_tv);
-        String preferredName = VaccinatorApplication.getInstance().context().allSharedPreferences().getANMPreferredName(
-                VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM());
-        if (!TextUtils.isEmpty(preferredName)) {
-            String[] initialsArray = preferredName.split(" ");
-            String initials = "";
-            if (initialsArray.length > 0) {
-                initials = initialsArray[0].substring(0, 1);
-                if (initialsArray.length > 1) {
-                    initials = initials + initialsArray[1].substring(0, 1);
-                }
-            }
-
-            initialsTV.setText(initials.toUpperCase());
-        }
-
-        TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
-        nameTV.setText(preferredName);
-
-
-        LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
-        syncMenuItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                startSync();
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        });
-        LinearLayout addchild = (LinearLayout) drawer.findViewById(R.id.nav_register);
-        addchild.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                startJsonForm("child_enrollment", null);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
-        LinearLayout outofcatchment = (LinearLayout) drawer.findViewById(R.id.nav_record_vaccination_out_catchment);
-        outofcatchment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                startJsonForm("out_of_catchment_service", null);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
         LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
-        stockregister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), StockActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
-        LinearLayout childregister = (LinearLayout) drawer.findViewById(R.id.child_register);
-        childregister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                VaccinatorApplication.setCrashlyticsUser(VaccinatorApplication.getInstance().context());
-                Intent intent = new Intent(getApplicationContext(), ChildSmartRegisterActivity.class);
-                intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
-                startActivity(intent);
-                finish();
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        });
-
-        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        coverage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
-        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
-        dropout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
-
         stockregister.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
     }
 
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_stock_control;
+    }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-////        getMenuInflater().inflate(R.menu.menu_stock_control, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    protected int getDrawerLayoutId() {
+        return R.id.drawer_layout;
+    }
+
+    @Override
+    protected int getToolbarId() {
+        return LocationSwitcherToolbar.TOOLBAR_ID;
+    }
+
+    @Override
+    protected Class onBackActivity() {
+        return StockActivity.class;
+    }
+
 
     public int getcurrentVialNumber() {
         net.sqlcipher.database.SQLiteDatabase db = VaccinatorApplication.getInstance().getRepository().getReadableDatabase();
