@@ -8,10 +8,11 @@
     tools:openDrawer="start">
 
     <include
-        layout="@layout/app_bar_stock_control"
+        layout="@layout/app_dropout_reports"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include layout="@layout/custom_nav_view_base" />
+    <include layout="@layout/custom_nav_view_base"/>
+
 
 </android.support.v4.widget.DrawerLayout>

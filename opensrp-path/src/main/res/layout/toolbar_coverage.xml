@@ -10,33 +10,48 @@
         android:layout_height="?attr/actionBarSize"
         android:background="#494949">
 
-        <LinearLayout
-            android:id="@+id/btn_back_to_home"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true">
+        <RelativeLayout
+            android:id="@+id/back_btn_layout"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true">
 
-            <TextView
-                android:id="@+id/name_inits"
-                android:layout_width="47dp"
-                android:layout_height="47dp"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="1dp"
-                android:background="@drawable/name_inits_bg"
-                android:gravity="center"
-                android:text="RW"
-                android:textAllCaps="true"
-                android:textColor="@color/actionbar"
-                android:textSize="25sp" />
-
-            <ImageView
-                android:id="@+id/back_button"
+            <LinearLayout
+                android:id="@+id/btn_back_to_home"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="center"
-                android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+                android:layout_centerInParent="true">
+
+                <TextView
+                    android:id="@+id/name_inits"
+                    android:layout_width="47dp"
+                    android:layout_height="47dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="1dp"
+                    android:background="@drawable/name_inits_bg"
+                    android:gravity="center"
+                    android:text="RW"
+                    android:textAllCaps="true"
+                    android:textColor="@color/actionbar"
+                    android:textSize="25sp" />
+
+                <ImageView
+                    android:id="@+id/back_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:src="@drawable/abc_ic_ab_back_mtrl_am_alpha"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/sync_progress_bar"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
                 android:visibility="gone" />
-        </LinearLayout>
+        </RelativeLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -48,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:text="@string/stock_title" />
+                android:text="@string/side_nav_coverage" />
 
             <View
                 android:id="@+id/separator_v"
