@@ -218,4 +218,11 @@
     <string name="validation_error">Validation Error</string>
 
     <string name="show_vaccine_card_disabled">Showing the vaccine card has been disabled for an out of area child.</string>
+
+    <string name="side_nav_add">Add new child</string>
+    <string name="side_nav_out_of_catchment">Record out of catchment vaccination</string>
+    <string name="side_nav_sync">Sync</string>
+    <string name="side_nav_coverage">Coverage Reports</string>
+    <string name="side_nav_dropout">Dropout Reports</string>
+
 </resources>

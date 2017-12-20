@@ -142,7 +142,10 @@ public class ChildImmunizationActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         detailsRepository = getOpenSRPContext().detailsRepository();
 
         toolbar = (LocationSwitcherToolbar) getToolbar();
