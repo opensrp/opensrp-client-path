@@ -10,29 +10,22 @@
         android:id="@+id/location_switching_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#494949"
+        android:background="@color/status_bar_bg_dark_grey"
         app:popupTheme="@style/AppTheme.PopupOverlay">
 
-        <TextView
-            android:id="@+id/name_inits"
-            android:layout_width="47dp"
-            android:layout_height="47dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="1dp"
-            android:background="@drawable/name_inits_bg"
-            android:gravity="center"
-            android:text="RW"
-            android:textAllCaps="true"
-            android:textColor="@color/actionbar"
-            android:textSize="25sp" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <org.smartregister.view.customcontrols.CustomFontTextView
-            android:id="@+id/title"
-            style="@style/CustomFontTextViewStyle.NavBar.Black"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:text="@string/stock_title" />
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/title"
+                style="@style/CustomFontTextViewStyle.NavBar.Black"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:text="@string/stock_title" />
+
+        </FrameLayout>
 
     </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 

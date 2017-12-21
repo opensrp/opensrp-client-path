@@ -1,5 +1,6 @@
 package org.smartregister.path.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,28 +13,33 @@ import org.smartregister.path.R;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 /**
- * Created by keyman on 18/12/17.
+ * Created by keyman on 21/12/17.
  */
-public class DropoutReportsActivity extends BaseActivity {
+public class AnnualCoverageReportZeirActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBarDrawerToggle toggle = getDrawerToggle();
-        toggle.setDrawerIndicatorEnabled(false);
-        toggle.setHomeAsUpIndicator(null);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
+        setTitle("");
 
         LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
-        toolbar.setTitle(getString(R.string.side_nav_dropout));
-
-        TextView initialsTV = (TextView) findViewById(R.id.name_inits);
-        initialsTV.setText(getLoggedInUserInitials());
-        initialsTV.setOnClickListener(new View.OnClickListener() {
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openDrawer();
+                Intent intent = new Intent(AnnualCoverageReportZeirActivity.this, CoverageReportsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
         });
+
+        ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.annual_coverage_report_zeir));
+
     }
 
     @Override
@@ -45,7 +51,7 @@ public class DropoutReportsActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
     }
 
@@ -56,7 +62,7 @@ public class DropoutReportsActivity extends BaseActivity {
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_dropout_reports;
+        return R.layout.activity_annual_coverage_report_zeir;
     }
 
     @Override

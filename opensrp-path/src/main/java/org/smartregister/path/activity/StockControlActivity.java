@@ -38,6 +38,7 @@ public class StockControlActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         vaccineType = (VaccineType) getIntent().getSerializableExtra("vaccine_type");
+
         setTitle("");
 
         if (getSupportActionBar() != null) {
@@ -68,14 +69,6 @@ public class StockControlActivity extends BaseActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        TextView nameInitials = (TextView) findViewById(R.id.name_inits);
-        nameInitials.setText(getLoggedInUserInitials());
-        nameInitials.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDrawer();
-            }
-        });
     }
 
     @Override
@@ -116,7 +109,7 @@ public class StockControlActivity extends BaseActivity {
             if (c.getString(0) != null && !StringUtils.isBlank(c.getString(0))) {
                 stockvalue = c.getString(0);
             }
-            c.close();
+            c.close(); 
         } else {
             c.close();
         }
