@@ -17,7 +17,7 @@
         android:background="@color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/content_cohort_coverage_report" />
+        <include layout="@layout/coverage_report_list" />
     </FrameLayout>
 
     <include layout="@layout/notification_base" />

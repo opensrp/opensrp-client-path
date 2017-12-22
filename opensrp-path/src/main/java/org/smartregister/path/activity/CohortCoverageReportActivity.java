@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +17,15 @@ import android.widget.TextView;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
+import org.smartregister.path.adapter.SpinnerAdapter;
 import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -35,8 +36,6 @@ import util.PathConstants;
  * Created by keyman on 21/12/17.
  */
 public class CohortCoverageReportActivity extends BaseActivity {
-
-    private static final SimpleDateFormat MMMYYYY = new SimpleDateFormat("MMMM yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,12 +119,30 @@ public class CohortCoverageReportActivity extends BaseActivity {
     private void updateListViewHeader() {
         // Add header
         ListView listView = (ListView) findViewById(R.id.list_view);
-        View view = getLayoutInflater().inflate(R.layout.cohort_coverage_report_header, null);
+        View view = getLayoutInflater().inflate(R.layout.coverage_report_header, null);
         listView.addHeaderView(view);
     }
 
     private void updateReportList() {
+
         final List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
+        Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
+            @Override
+            public int compare(VaccineRepo.Vaccine lhs, VaccineRepo.Vaccine rhs) {
+                return lhs.display().compareToIgnoreCase(rhs.display());
+            }
+        });
+
+        vaccineList.remove(VaccineRepo.Vaccine.bcg2);
+        vaccineList.remove(VaccineRepo.Vaccine.ipv);
+        vaccineList.remove(VaccineRepo.Vaccine.measles1);
+        vaccineList.remove(VaccineRepo.Vaccine.measles2);
+        vaccineList.remove(VaccineRepo.Vaccine.mr1);
+        vaccineList.remove(VaccineRepo.Vaccine.mr2);
+
+
+        vaccineList.add(VaccineRepo.Vaccine.measles1);
+        vaccineList.add(VaccineRepo.Vaccine.measles2);
 
 
         if (vaccineList == null || vaccineList.isEmpty()) {
@@ -160,9 +177,17 @@ public class CohortCoverageReportActivity extends BaseActivity {
                 }
 
                 VaccineRepo.Vaccine vaccine = vaccineList.get(position);
+                String display = vaccine.display();
+                if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
+                    display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
+                }
+
+                if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
+                    display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
+                }
 
                 TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
-                vaccineTextView.setText(vaccine.display());
+                vaccineTextView.setText(display);
 
                 Random r = new Random();
                 int Low = 0;
@@ -189,7 +214,7 @@ public class CohortCoverageReportActivity extends BaseActivity {
             View reportDateSpinnerView = findViewById(R.id.cohort_spinner);
             if (reportDateSpinnerView != null) {
                 SpinnerHelper reportDateSpinner = new SpinnerHelper(reportDateSpinnerView);
-                SpinnerAdapter dataAdapter = new SpinnerAdapter(this, R.layout.item_spinner, dates);
+                SpinnerAdapter dataAdapter = new SpinnerAdapter(this, R.layout.item_spinner, dates, new SimpleDateFormat("MMMM yyyy"));
                 dataAdapter.setDropDownViewResource(R.layout.item_spinner_drop_down);
                 reportDateSpinner.setAdapter(dataAdapter);
 
@@ -211,55 +236,4 @@ public class CohortCoverageReportActivity extends BaseActivity {
         }
     }
 
-
-    ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
-
-    private class SpinnerAdapter extends ArrayAdapter<Date> {
-
-        SpinnerAdapter(Context context, int resource, List<Date> objects) {
-            super(context, resource, objects);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view;
-            if (convertView == null) {
-                view = getLayoutInflater().inflate(R.layout.item_spinner, parent, false);
-            } else {
-                view = convertView;
-            }
-
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                Date date = getItem(position);
-
-                String dateString = MMMYYYY.format(date);
-                textView.setText(dateString);
-                textView.setTag(date);
-            }
-            return view;
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            View view;
-            if (convertView == null) {
-                view = getLayoutInflater().inflate(R.layout.item_spinner_drop_down, parent, false);
-            } else {
-                view = convertView;
-            }
-
-            if (view instanceof TextView) {
-                TextView textView = (TextView) view;
-                Date date = getItem(position);
-
-                String dateString = MMMYYYY.format(date);
-                textView.setText(dateString);
-                textView.setTag(date);
-            }
-            return view;
-        }
-    }
 }
