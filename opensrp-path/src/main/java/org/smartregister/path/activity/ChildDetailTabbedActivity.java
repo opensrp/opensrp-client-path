@@ -72,6 +72,7 @@ import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
+import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
@@ -1673,7 +1674,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     mapHelper.constructKujakuConfig(attachmentLayers),
                     getGeoJSONData(childGPSPosition),
                     attachmentLayers,
-                    "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                    BuildConfig.MAPBOX_SDK_ACCESS_TOKEN,
                     mapHelper.getLayersToHide(attachmentLayers),
                     latLngBounds[0],
                     latLngBounds[1]
