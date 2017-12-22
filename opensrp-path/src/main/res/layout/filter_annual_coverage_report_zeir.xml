@@ -34,7 +34,7 @@
                 style="@style/PathSpinnerUnderLined"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:minWidth="220dp"
+                android:minWidth="150dp"
                 android:padding="10dp"
                 android:spinnerMode="dropdown"
                 android:theme="@style/ThemePathSpinner" />
@@ -57,7 +57,7 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
-                android:text="@string/filter_cso_target"
+                android:text="@string/filter_zeir_target"
                 android:textColor="@color/text_black"
                 android:textSize="20sp" />
 

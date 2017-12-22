@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -8,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -171,7 +169,7 @@ public class CohortCoverageReportActivity extends BaseActivity {
                 LayoutInflater inflater =
                         CohortCoverageReportActivity.this.getLayoutInflater();
                 if (convertView == null) {
-                    view = inflater.inflate(R.layout.cohort_coverage_report_item, null);
+                    view = inflater.inflate(R.layout.coverage_report_item, null);
                 } else {
                     view = convertView;
                 }

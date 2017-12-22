@@ -22,5 +22,4 @@
 
     <include layout="@layout/notification_base" />
 
-
 </android.support.design.widget.CoordinatorLayout>

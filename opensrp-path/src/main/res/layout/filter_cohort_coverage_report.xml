@@ -28,7 +28,7 @@
                 android:gravity="center_vertical"
                 android:text="@string/filter_cohort"
                 android:textColor="@color/text_black"
-                android:textSize="19sp" />
+                android:textSize="20sp" />
 
             <Spinner
                 android:id="@+id/cohort_spinner"
@@ -60,7 +60,7 @@
                 android:gravity="center_vertical"
                 android:text="@string/filter_cohort_size"
                 android:textColor="@color/text_black"
-                android:textSize="19sp" />
+                android:textSize="20sp" />
 
 
             <org.smartregister.view.customcontrols.CustomFontTextView
@@ -72,7 +72,7 @@
                 android:gravity="center_vertical"
                 android:text="100 Children"
                 android:textColor="@color/text_black"
-                android:textSize="19sp" />
+                android:textSize="20sp" />
 
         </LinearLayout>
 

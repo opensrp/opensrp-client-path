@@ -25,7 +25,7 @@
     </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 
     <include
-        layout="@layout/filter_annual_coverage_report_cso"
+        layout="@layout/filter_annual_coverage_report_zeir"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </android.support.design.widget.AppBarLayout>
