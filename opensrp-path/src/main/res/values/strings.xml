@@ -229,4 +229,11 @@
     <string name="annual_coverage_report_cso">Annual Coverage Report - CSO</string>
     <string name="annual_coverage_report_zeir">Annual Coverage Report - ZEIR</string>
 
+    <string name="cohort">Cohort: </string>
+    <string name="cohort_size">Cohort Size: </string>
+
+    <string name="vaccine">Vaccine</string>
+    <string name="vaccinated">Vaccinated</string>
+    <string name="coverage">Coverage</string>
+    <string name="coverage_percentage">%1$d%%</string>
 </resources>
