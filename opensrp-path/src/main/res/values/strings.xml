@@ -255,4 +255,8 @@
     <string name="total_vaccine">Total\n%1$s</string>
     <string name="total_cum">Cum.\n%1$s</string>
 
+    <string name="delete_maps_dialog_title">"Do you want to delete downloaded maps?"</string>
+    <string name="delete_maps_dialog_message">This will make the maps inaccessible when offline.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
