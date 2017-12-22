@@ -2,6 +2,7 @@ package org.smartregister.path.activity;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -15,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
@@ -29,7 +31,6 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.cocoahero.android.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.joda.time.DateTime;
@@ -37,25 +38,11 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.smartregister.Context;
-import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.Alert;
 import org.smartregister.domain.FetchStatus;
-import org.smartregister.growthmonitoring.domain.Weight;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.domain.ServiceRecord;
-import org.smartregister.immunization.domain.ServiceType;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.VaccineSchedule;
-import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
-import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.immunization.util.VaccinatorUtils;
+import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
@@ -63,27 +50,21 @@ import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
-import org.smartregister.repository.EventClientRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.ona.kujaku.data.realm.objects.MapBoxOfflineQueueTask;
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import io.ona.kujaku.services.MapboxOfflineDownloaderService;
-import lecho.lib.hellocharts.model.Line;
 import util.PathConstants;
 import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
@@ -111,9 +92,12 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         SUCCESSFUL,
         FAILED
     }
-    private static final String RESULT_STATUS = "RESULT_STATUS";
-    private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
-    private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
+    private static final String OFFLINE_MAP_NAME = "ZEIR Services Coverage";
+    private boolean waitingForDownloadToStart = false;
+    private boolean isDownloading = false;
+
+    private AlertDialog deleteMapsDialog;
+    private BroadcastReceiver offlineMapDownloadUpdatesReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +131,44 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             if (isRemote) {
                 updateFromServer();
             }
+        }
+
+        offlineMapDownloadUpdatesReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(android.content.Context context, Intent intent) {
+                Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
+
+                if (intent.hasExtra(MapboxOfflineDownloaderService.KEY_RESULT_STATUS)) {
+                    String resultStatus = intent.getStringExtra(MapboxOfflineDownloaderService.KEY_RESULT_STATUS);
+                    MapboxOfflineDownloaderService.SERVICE_ACTION serviceAction = (MapboxOfflineDownloaderService.SERVICE_ACTION) intent.getExtras().get(MapboxOfflineDownloaderService.KEY_RESULTS_PARENT_ACTION);
+
+                    if (serviceAction == MapboxOfflineDownloaderService.SERVICE_ACTION.DOWNLOAD_MAP) {
+                        if (resultStatus.equals(SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
+                            //Todo: Figure out how to better tell if the Service and/or SDK is downloading
+                            isDownloading = true;
+                            if (waitingForDownloadToStart) {
+                                showInfoToast("Offline Map has started downloading");
+                                waitingForDownloadToStart = false;
+                            }
+                        } else if (resultStatus.equals(SERVICE_ACTION_RESULT.FAILED.name())) {
+                            //An error occurred trying to download the map
+                            String message = "Oops! Offline map cannot be downloaded";
+                            if (intent.hasExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE)) {
+                                message = intent.getStringExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE);
+                            }
+                            isDownloading = false;
+                            showInfoToast(message);
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Unknown OfflineMapDownloadService Message : \n" + intent.getExtras().toString());
+                }
+            }
+        };
+
+        if (isOfflineModeSwitchedOn()) {
+            // Show a toast that I have started downloading based on response from the LocalBroadcastManager
+            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
         }
     }
 
@@ -415,7 +437,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
         final LinearLayout offlineModeSwitchLayout = (LinearLayout) drawer.findViewById(R.id.nav_offline_download);
         final Switch offlineSwitch = (Switch) drawer.findViewById(R.id.nav_offlineModeSwitch);
-        offlineSwitch.setChecked(getOfflineModeStatus());
+        offlineSwitch.setChecked(isOfflineModeSwitchedOn());
 
         offlineSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -435,41 +457,43 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
     private void offlineSwitchClicked(Switch offlineSwitch) {
         updateOfflineModeStatus(offlineSwitch.isChecked());
-        if (getOfflineModeStatus()) {
-
-            // Show a toast that I have started downloading based on response from the LocalBroadcastManager
-            BroadcastReceiver offlineMapDownloadUpdatesReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(android.content.Context context, Intent intent) {
-                    Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
-
-                    if (intent.hasExtra(RESULT_STATUS)) {
-                        String resultStatus = intent.getStringExtra(RESULT_STATUS);
-                        if (resultStatus.equals(SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
-                            showInfoToast("Offline Map has started downloading");
-                        } else if (resultStatus.equals(SERVICE_ACTION_RESULT.FAILED.name())) {
-                            //An error occurred trying to download the map
-                            String message = "Oops! Offline map cannot be downloaded";
-                            if (intent.hasExtra(RESULT_MESSAGE)) {
-                                message = intent.getStringExtra(RESULT_MESSAGE);
-                            }
-
-                            showInfoToast(message);
-                        }
-                    } else {
-                        Log.e(TAG, "Unknown OfflineMapDownloadService Message : \n" + intent.getExtras().toString());
-                    }
-
-                    unregisterOfflineMapDownloadUpdatesReceiver(this);
-                }
-            };
+        if (isOfflineModeSwitchedOn()) {
             registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
             requestForOfflineMap(getChildrenLocations());
         } else {
             // Request for a delete of the offline map or something
+            if (isDownloading) {
+                callStopDownloadIntent(isDownloading);
+            } else {
+                // Ask whether to delete the already downloaded offline maps
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.delete_maps_dialog_title)
+                        .setMessage(R.string.delete_maps_dialog_message)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                callStopDownloadIntent(false);
+                                dismissDeleteMapsDialog();
+                            }
+                        }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dismissDeleteMapsDialog();
+                            }
+                });
+
+                deleteMapsDialog = builder.create();
+                deleteMapsDialog.show();
+            }
         }
 
         //drawer.closeDrawer(GravityCompat.START);
+    }
+
+    private void dismissDeleteMapsDialog() {
+        if (deleteMapsDialog != null && deleteMapsDialog.isShowing()) {
+            deleteMapsDialog.dismiss();
+        }
     }
 
     private LatLng[] getChildrenLocations() {
@@ -526,11 +550,12 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 )
         };*/
 
-        String mapName = "ZEIR Services Coverage";
+        String mapName = OFFLINE_MAP_NAME;
 
-        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ", bounds[0], bounds[1], 11.1, 20.0);
+        waitingForDownloadToStart = true;
+        mapHelper.requestOfflineMap(this, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", BuildConfig.MAPBOX_SDK_ACCESS_TOKEN, bounds[0], bounds[1], 11.1, 20.0);
         // Cache the style
-        (new MapBoxWebServiceApi(this, "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ"))
+        (new MapBoxWebServiceApi(this, BuildConfig.MAPBOX_SDK_ACCESS_TOKEN))
                 .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -719,7 +744,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                             mapHelper.constructKujakuConfig(attachmentLayerArray),
                             childGeoJson,
                             attachmentLayerArray,
-                            "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                            BuildConfig.MAPBOX_SDK_ACCESS_TOKEN,
                             getLayersToDisable(attachmentLayerArray),
                             bounds[0],
                             bounds[1]
@@ -740,7 +765,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         Utils.writePreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(offlineModeStatus));
     }
 
-    private boolean getOfflineModeStatus() {
+    private boolean isOfflineModeSwitchedOn() {
         boolean defaultOfflineModeStatus = false;
 
         return Boolean.valueOf(Utils.getPreference(this, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(defaultOfflineModeStatus)));
@@ -754,6 +779,18 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private void unregisterOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
         LocalBroadcastManager.getInstance(this)
                 .unregisterReceiver(broadcastReceiver);
+    }
+
+    private void callStopDownloadIntent(boolean isMapDownloading) {
+        Intent stopDownloadIntent = new Intent(this, MapboxOfflineDownloaderService.class);
+        stopDownloadIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, BuildConfig.MAPBOX_SDK_ACCESS_TOKEN);
+        stopDownloadIntent.putExtra(Constants.PARCELABLE_KEY_MAP_UNIQUE_NAME, OFFLINE_MAP_NAME);
+        stopDownloadIntent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, ((isMapDownloading) ? MapboxOfflineDownloaderService.SERVICE_ACTION.STOP_CURRENT_DOWNLOAD : MapboxOfflineDownloaderService.SERVICE_ACTION.DELETE_MAP));
+        if (isMapDownloading) {
+            stopDownloadIntent.putExtra(Constants.PARCELABLE_KEY_DELETE_TASK_TYPE, MapBoxOfflineQueueTask.TASK_TYPE_DOWNLOAD);
+        }
+
+        startService(stopDownloadIntent);
     }
 
     @Override
