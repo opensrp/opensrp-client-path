@@ -303,7 +303,7 @@ public class HIA2Service {
     private void getCHN2005() {
         try {
             String query = "select count(*) as count," + ageQuery() + " from ec_child child inner join event e on e.baseEntityId=child.base_entity_id " +
-                    "where e.eventType='%Growth Monitoring%' and age <23 and " + eventDateEqualsCurrentMonthQuery();
+                    "where e.eventType like '%Growth Monitoring%' and age <23 and " + eventDateEqualsCurrentMonthQuery();
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_005, count);
         } catch (Exception e) {
