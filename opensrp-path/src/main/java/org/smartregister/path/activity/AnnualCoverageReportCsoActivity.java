@@ -8,14 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.SpinnerAdapter;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.fragment.SetCsoDialogFragment;
 import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
@@ -33,7 +37,7 @@ import util.PathConstants;
 /**
  * Created by keyman on 21/12/17.
  */
-public class AnnualCoverageReportCsoActivity extends BaseActivity {
+public class AnnualCoverageReportCsoActivity extends BaseActivity implements SetCsoDialogFragment.OnSetCsoListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +77,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
 
-        updateReportList();
+        updateReportList(new Date());
 
         List<Date> dates = new ArrayList<>();
 
@@ -83,7 +87,6 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
         for (int i = 0; i < 5; i++) {
             c.add(Calendar.YEAR, -1);
             dates.add(c.getTime());
-
         }
 
         updateReportDates(dates);
@@ -121,7 +124,32 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
         listView.addHeaderView(view);
     }
 
-    private void updateReportList() {
+    private void updateCsoUnder1Population(final int year, final Long value) {
+        EditText csoValue = (EditText) findViewById(R.id.cso_value);
+        csoValue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, BaseRegisterActivity.DIALOG_TAG, year, value);
+            }
+        });
+        if (value == null) {
+            csoValue.setText(getString(R.string.not_defined));
+            csoValue.setTextColor(getResources().getColor(R.color.cso_error_red));
+        } else {
+            csoValue.setText(String.format(getString(R.string.cso_population_value), value));
+            csoValue.setTextColor(getResources().getColor(R.color.text_black));
+        }
+    }
+
+    private void updateReportList(Date date) {
+        final Long csoValue = getCsoPopulation(date);
+        int year = yearFromDate(date);
+        if (csoValue == null) {
+            SetCsoDialogFragment.launchDialog(this, BaseRegisterActivity.DIALOG_TAG, year, null);
+        }
+
+        updateCsoUnder1Population(year, csoValue);
+
         final List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
         Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
             @Override
@@ -138,10 +166,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
         vaccineList.remove(VaccineRepo.Vaccine.mr2);
 
         vaccineList.add(VaccineRepo.Vaccine.measles1);
-
-        if (vaccineList == null || vaccineList.isEmpty()) {
-            return;
-        }
+        vaccineList.add(VaccineRepo.Vaccine.measles2);
 
         BaseAdapter baseAdapter = new BaseAdapter() {
             @Override
@@ -176,6 +201,10 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
                     display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
                 }
 
+                if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
+                    display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
+                }
+
                 TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
                 vaccineTextView.setText(display);
 
@@ -188,8 +217,14 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
                 vaccinatedTextView.setText(String.valueOf(result));
 
                 TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);
-                coverageTextView.setText(String.format(getString(R.string.coverage_percentage),
-                        result));
+                if (csoValue == null) {
+                    coverageTextView.setText(getString(R.string.no_cso_target));
+                    coverageTextView.setTextColor(getResources().getColor(R.color.cso_error_red));
+                } else {
+                    coverageTextView.setText(String.format(getString(R.string.coverage_percentage),
+                            result));
+                    coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
+                }
 
                 return view;
             }
@@ -214,7 +249,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         Object tag = view.getTag();
                         if (tag != null && tag instanceof Date) {
-                            updateReportList();
+                            updateReportList((Date) tag);
                         }
                     }
 
@@ -227,4 +262,27 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity {
         }
     }
 
+    private Long getCsoPopulation(Date date) {
+        int year = yearFromDate(date);
+        String prefKey = PathConstants.CSO_UNDER_1_POPULATION + "_" + year;
+        String csoUnder1Population = VaccinatorApplication.getInstance().context().allSharedPreferences().getPreference(prefKey);
+        if (StringUtils.isBlank(csoUnder1Population) || !StringUtils.isNumeric(csoUnder1Population)) {
+            return null;
+        } else {
+            return Long.valueOf(csoUnder1Population);
+        }
+    }
+
+    private int yearFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
+    }
+
+    @Override
+    public void updateCsoTargetView(int year, Long csoValue) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        updateReportList(calendar.getTime());
+    }
 }

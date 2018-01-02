@@ -44,4 +44,5 @@
     <color name="snackbar_action_color">#eeff1c</color>
 
     <color name="filter_bar_light_grey">#EEEEEE</color>
+    <color name="cso_error_red">#BC0000</color>
 </resources>

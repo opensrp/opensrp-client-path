@@ -241,5 +241,11 @@
     <string name="coverage_percentage">%1$d%%</string>
 
     <string name="in_progress">(In Progress)</string>
+    <string name="enter_cso_hint">Enter %1$s CSO Under 1 Population</string>
+    <string name="set_cso_title">Set CSO Under 1 Population &#8211; %1$d</string>
+    <string name="cso_population_value">%1$d Children</string>
+    <string name="not_defined">Not defined</string>
+    <string name="no_cso_target">Error: No CSO target</string>
+    <string name="cso_target_cannot_be_blank">CSO target cannot be blank.</string>
 
 </resources>

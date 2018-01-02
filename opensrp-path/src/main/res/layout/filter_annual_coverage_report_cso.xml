@@ -51,7 +51,6 @@
             android:paddingRight="30dp">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
-                android:id="@+id/cohort_size_label"
                 style="@style/CustomFontTextViewStyle.ClientList.Light"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -62,14 +61,17 @@
                 android:textSize="20sp" />
 
 
-            <org.smartregister.view.customcontrols.CustomFontTextView
-                android:id="@+id/cohort_size_value"
-                style="@style/CustomFontTextViewStyle.ClientList.Light"
+            <EditText
+                android:id="@+id/cso_value"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
+                android:cursorVisible="false"
+                android:drawableEnd="@drawable/ic_icon_edit_dark"
+                android:drawablePadding="20dp"
                 android:gravity="center_vertical"
+                android:padding="10dp"
                 android:text="100 Children"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/text_black"
                 android:textSize="20sp" />
 
