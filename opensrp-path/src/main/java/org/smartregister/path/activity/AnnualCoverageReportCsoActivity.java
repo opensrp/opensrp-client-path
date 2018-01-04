@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Random;
 
 import util.PathConstants;
+import util.Utils;
 
 /**
  * Created by keyman on 21/12/17.
@@ -143,7 +144,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
 
     private void updateReportList(Date date) {
         final Long csoValue = getCsoPopulation(date);
-        int year = yearFromDate(date);
+        final int year = Utils.yearFromDate(date);
         if (csoValue == null) {
             SetCsoDialogFragment.launchDialog(this, BaseRegisterActivity.DIALOG_TAG, year, null);
         }
@@ -187,7 +188,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view;
-                LayoutInflater inflater =
+                final LayoutInflater inflater =
                         AnnualCoverageReportCsoActivity.this.getLayoutInflater();
                 if (convertView == null) {
                     view = inflater.inflate(R.layout.coverage_report_item, null);
@@ -195,7 +196,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
                     view = convertView;
                 }
 
-                VaccineRepo.Vaccine vaccine = vaccineList.get(position);
+                final VaccineRepo.Vaccine vaccine = vaccineList.get(position);
                 String display = vaccine.display();
                 if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
                     display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
@@ -225,6 +226,16 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
                             result));
                     coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
                 }
+
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(AnnualCoverageReportCsoActivity.this, FacilityCumulativeCoverageReportActivity.class);
+                        intent.putExtra(FacilityCumulativeCoverageReportActivity.YEAR, year);
+                        intent.putExtra(FacilityCumulativeCoverageReportActivity.VACCINE, vaccine);
+                        startActivity(intent);
+                    }
+                });
 
                 return view;
             }
@@ -263,7 +274,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
     }
 
     private Long getCsoPopulation(Date date) {
-        int year = yearFromDate(date);
+        int year = Utils.yearFromDate(date);
         String prefKey = PathConstants.CSO_UNDER_1_POPULATION + "_" + year;
         String csoUnder1Population = VaccinatorApplication.getInstance().context().allSharedPreferences().getPreference(prefKey);
         if (StringUtils.isBlank(csoUnder1Population) || !StringUtils.isNumeric(csoUnder1Population)) {
@@ -271,12 +282,6 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
         } else {
             return Long.valueOf(csoUnder1Population);
         }
-    }
-
-    private int yearFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar.get(Calendar.YEAR);
     }
 
     @Override

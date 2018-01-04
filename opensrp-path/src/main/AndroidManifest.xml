@@ -131,6 +131,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
+        <activity
+            android:name=".activity.FacilityCumulativeCoverageReportActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+
     </application>
 
 </manifest>

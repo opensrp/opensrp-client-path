@@ -45,4 +45,6 @@
 
     <color name="filter_bar_light_grey">#EEEEEE</color>
     <color name="cso_error_red">#BC0000</color>
+    <color name="cumulative_red_line">#A81601</color>
+    <color name="cumulative_blue_line">#000AD5</color>
 </resources>

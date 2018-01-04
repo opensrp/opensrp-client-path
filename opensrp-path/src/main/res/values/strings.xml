@@ -228,6 +228,7 @@
     <string name="cohort_coverage_report">Cohort Coverage Report</string>
     <string name="annual_coverage_report_cso">Annual Coverage Report - CSO</string>
     <string name="annual_coverage_report_zeir">Annual Coverage Report - ZEIR</string>
+    <string name="facility_cumulative_coverage_report">Facility Cumulative Coverage Report</string>
 
     <string name="filter_cohort">Cohort: </string>
     <string name="filter_cohort_size">Cohort Size: </string>
@@ -247,5 +248,11 @@
     <string name="not_defined">Not defined</string>
     <string name="no_cso_target">Error: No CSO target</string>
     <string name="cso_target_cannot_be_blank">CSO target cannot be blank.</string>
+    <string name="cso_target_label">CSO Target: </string>
+    <string name="cso_target_monthly">CSO Target Monthly: </string>
+    <string name="facility_cumulative_title">Immunization Monitoring Chart - %1$d - </string>
+
+    <string name="total_vaccine">Total\n%1$s</string>
+    <string name="total_cum">Cum.\n%1$s</string>
 
 </resources>
