@@ -20,7 +20,7 @@
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/cohort_label"
-                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                style="@style/CustomFontTextViewStyle.ClientList"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
@@ -51,7 +51,7 @@
             android:paddingRight="30dp">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
-                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                style="@style/CustomFontTextViewStyle.ClientList"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"

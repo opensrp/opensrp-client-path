@@ -12,7 +12,7 @@
         android:layout_weight="0.8">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
-            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            style="@style/CustomFontTextViewStyle.ClientList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
@@ -31,7 +31,7 @@
         android:layout_weight="0.7">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
-            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            style="@style/CustomFontTextViewStyle.ClientList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
@@ -51,7 +51,7 @@
         android:layout_weight="0.5">
 
         <org.smartregister.view.customcontrols.CustomFontTextView
-            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            style="@style/CustomFontTextViewStyle.ClientList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
