@@ -266,7 +266,7 @@ public class AnnualCoverageReportCsoActivity extends BaseActivity implements Set
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-
+                        // Do nothing
                     }
                 });
             }

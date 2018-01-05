@@ -1,44 +1,22 @@
 package org.smartregister.path.activity;
 
 import android.content.Intent;
-import android.graphics.DashPathEffect;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
-import org.opensrp.api.constants.Gender;
 import org.smartregister.domain.FetchStatus;
-import org.smartregister.growthmonitoring.domain.ZScore;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
-import org.smartregister.path.adapter.SpinnerAdapter;
-import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.fragment.SetCsoDialogFragment;
-import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
-import org.w3c.dom.Text;
 
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
-import lecho.lib.hellocharts.formatter.SimpleColumnChartValueFormatter;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
@@ -47,7 +25,6 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
-import util.PathConstants;
 import util.Utils;
 
 /**

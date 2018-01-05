@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -24,14 +23,10 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.view.LocationPickerView;
-import org.w3c.dom.Text;
-
-import java.util.Calendar;
 
 import util.JsonFormUtils;
 import util.PathConstants;
@@ -50,10 +45,6 @@ public class SetCsoDialogFragment extends DialogFragment {
         f.setYear(year);
         f.setPreviousValue(previousValue);
         return f;
-    }
-
-    public SetCsoDialogFragment() {
-        super();
     }
 
     public void setYear(int year) {

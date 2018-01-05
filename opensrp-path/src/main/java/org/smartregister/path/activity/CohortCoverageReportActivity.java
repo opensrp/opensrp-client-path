@@ -227,7 +227,7 @@ public class CohortCoverageReportActivity extends BaseActivity {
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-
+                        // Do Nothing
                     }
                 });
             }
