@@ -9,6 +9,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.path.R;
 
 import java.util.ArrayList;
@@ -65,10 +66,12 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
             convertView.setTag(R.id.item_data, childObject.getTagData());
         }
 
-        String text = null;
-        String details = null;
-
         if (childObject != null) {
+
+            String text = null;
+            String details = null;
+            String other = null;
+
             if (childObject.getLabelData() instanceof String) {
                 text = (String) getChild(groupPosition, childPosition).getLabelData();
 
@@ -76,6 +79,12 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
                 Pair<String, String> pair = (Pair<String, String>) getChild(groupPosition, childPosition).getLabelData();
                 text = pair.first;
                 details = pair.second;
+            } else if (childObject.getLabelData() instanceof Triple) {
+                Triple<String, String, String> triple = (Triple<String, String, String>) getChild(groupPosition, childPosition).getLabelData();
+                text = triple.getLeft();
+                details = triple.getMiddle();
+                other = triple.getRight();
+
             }
 
             View tvView = convertView.findViewById(R.id.tv);
@@ -90,16 +99,23 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
                 TextView detailTextView = (TextView) detailView;
                 detailTextView.setText(details);
             }
+
+            View otherView = convertView.findViewById(R.id.other);
+            if (otherView != null && other != null) {
+                TextView otherTextView = (TextView) otherView;
+                otherTextView.setText(other);
+            }
         }
 
-        boolean lastChild = (getChildrenCount(groupPosition) - 1) == childPosition;
         View dividerBottom = convertView.findViewById(R.id.adapter_divider_bottom);
-        if (lastChild) {
-            dividerBottom.setVisibility(View.VISIBLE);
-        } else {
-            dividerBottom.setVisibility(View.GONE);
+        if (dividerBottom != null) {
+            boolean lastChild = (getChildrenCount(groupPosition) - 1) == childPosition;
+            if (lastChild) {
+                dividerBottom.setVisibility(View.VISIBLE);
+            } else {
+                dividerBottom.setVisibility(View.GONE);
+            }
         }
-
 
         return convertView;
     }
@@ -125,6 +141,7 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
         return groupPosition;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
@@ -134,14 +151,35 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
             convertView = inflater.inflate(headerLayout, null);
         }
 
-        View tvView = convertView.findViewById(R.id.tv);
-        if (tvView != null) {
-            TextView tv = (TextView) tvView;
-            String text = (String) getGroup(groupPosition);
-            tv.setText(text);
+        Object group = getGroup(groupPosition);
 
-            convertView.setTag(text);
+        if (group != null) {
+            String header = null;
+            String details = null;
+
+            if (group instanceof String) {
+                header = group.toString();
+            } else if (group instanceof Pair) {
+                Pair<String, String> pair = (Pair<String, String>) group;
+                header = pair.first;
+                details = pair.second;
+            }
+
+            View tvView = convertView.findViewById(R.id.tv);
+            if (tvView != null) {
+                TextView tv = (TextView) tvView;
+                tv.setText(header);
+                convertView.setTag(header);
+            }
+
+            View detailView = convertView.findViewById(R.id.details);
+            if (detailView != null && details != null) {
+                TextView detailTextView = (TextView) detailView;
+                detailTextView.setText(details);
+            }
+
         }
+
 
         ExpandableListView mExpandableListView = (ExpandableListView) parent;
         mExpandableListView.expandGroup(groupPosition);
