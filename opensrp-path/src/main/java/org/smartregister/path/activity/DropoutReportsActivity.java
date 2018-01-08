@@ -24,7 +24,7 @@ public class DropoutReportsActivity extends BaseActivity {
         toggle.setHomeAsUpIndicator(null);
 
         LocationSwitcherToolbar toolbar = (LocationSwitcherToolbar) getToolbar();
-        toolbar.setTitle(getString(R.string.side_nav_coverage));
+        toolbar.setTitle(getString(R.string.side_nav_dropout));
 
         TextView initialsTV = (TextView) findViewById(R.id.name_inits);
         initialsTV.setText(getLoggedInUserInitials());

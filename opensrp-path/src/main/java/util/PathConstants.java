@@ -24,6 +24,8 @@ PathConstants extends AllConstants {
 
     public static final String ID = "id";
 
+    public static final String CSO_UNDER_1_POPULATION = "cso_under_1_population";
+
     public static final class ServiceType {
 
         public static final int DATA_SYNCHRONIZATION = 1;

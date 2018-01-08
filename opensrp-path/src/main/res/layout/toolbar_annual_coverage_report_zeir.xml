@@ -1,17 +1,14 @@
 <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/appbar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/transparent"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    android:theme="@style/AppThemeNoTitle.AppBarOverlay">
 
     <org.smartregister.path.toolbar.LocationSwitcherToolbar
         android:id="@+id/location_switching_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/status_bar_bg_dark_grey"
-        app:popupTheme="@style/AppTheme.PopupOverlay">
+        android:background="@color/status_bar_bg_dark_grey">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -22,24 +19,13 @@
                 style="@style/CustomFontTextViewStyle.NavBar.Black"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:text="@string/stock_title" />
+                android:background="@android:color/transparent" />
 
         </FrameLayout>
-
     </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="fill_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:tabGravity="fill"
-        app:tabIndicatorColor="#389CC8"
-        app:tabIndicatorHeight="4dp"
-        app:tabMaxWidth="0dp"
-        app:tabMode="fixed"
-        app:tabSelectedTextColor="#404040"
-        app:tabTextAppearance="@style/CustomFontTextViewStyle.tabIndicator" />
-
-
+    <include
+        layout="@layout/filter_annual_coverage_report_zeir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </android.support.design.widget.AppBarLayout>

@@ -1,14 +1,14 @@
 <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="#494949"
+    android:background="@color/status_bar_bg_dark_grey"
     android:theme="@style/AppThemeNoTitle.AppBarOverlay">
 
     <org.smartregister.path.toolbar.LocationSwitcherToolbar
         android:id="@+id/location_switching_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#494949">
+        android:background="@color/status_bar_bg_dark_grey">
 
         <RelativeLayout
             android:id="@+id/back_btn_layout"

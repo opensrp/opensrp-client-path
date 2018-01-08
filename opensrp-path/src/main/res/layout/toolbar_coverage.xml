@@ -1,14 +1,14 @@
 <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="#494949"
+    android:background="@color/status_bar_bg_dark_grey"
     android:theme="@style/AppThemeNoTitle.AppBarOverlay">
 
     <org.smartregister.path.toolbar.LocationSwitcherToolbar
         android:id="@+id/location_switching_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#494949">
+        android:background="@color/status_bar_bg_dark_grey">
 
         <RelativeLayout
             android:id="@+id/back_btn_layout"
@@ -64,15 +64,6 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:text="@string/side_nav_coverage" />
-
-            <View
-                android:id="@+id/separator_v"
-                android:layout_width="@dimen/smart_register_nav_bar_separator"
-                android:layout_height="match_parent"
-                android:layout_gravity="right|center_vertical"
-                android:background="@drawable/vertical_separator_male"
-                android:scaleType="fitXY"
-                android:visibility="invisible" />
         </FrameLayout>
     </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 

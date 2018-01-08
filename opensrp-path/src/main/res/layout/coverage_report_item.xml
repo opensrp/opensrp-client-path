@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent"
+    android:orientation="horizontal"
+    android:weightSum="2">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:orientation="vertical">
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/vaccine"
+            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ellipsize="marquee"
+            android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
+            android:paddingLeft="@dimen/cohort_coverage_report_padding_left"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
+            android:text="@string/vaccine"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.7"
+        android:orientation="vertical">
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/vaccinated"
+            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ellipsize="marquee"
+            android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
+            android:paddingLeft="@dimen/cohort_coverage_report_padding_left"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
+            android:text="100"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:orientation="vertical">
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/coverage"
+            style="@style/CustomFontTextViewStyle.ClientList.Light"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ellipsize="marquee"
+            android:paddingBottom="@dimen/cohort_coverage_report_vertical_margin"
+            android:paddingLeft="@dimen/cohort_coverage_report_padding_left"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
+            android:text="100%"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -225,4 +225,34 @@
     <string name="side_nav_coverage">Coverage Reports</string>
     <string name="side_nav_dropout">Dropout Reports</string>
 
+    <string name="cohort_coverage_report">Cohort Coverage Report</string>
+    <string name="annual_coverage_report_cso">Annual Coverage Report - CSO</string>
+    <string name="annual_coverage_report_zeir">Annual Coverage Report - ZEIR</string>
+    <string name="facility_cumulative_coverage_report">Facility Cumulative Coverage Report</string>
+
+    <string name="filter_cohort">Cohort: </string>
+    <string name="filter_cohort_size">Cohort Size: </string>
+    <string name="filter_year">Year: </string>
+    <string name="filter_cso_target">CSO Target: </string>
+    <string name="filter_zeir_target">ZEIR Target: </string>
+
+    <string name="vaccine">Vaccine</string>
+    <string name="vaccinated">Vaccinated</string>
+    <string name="coverage">Coverage</string>
+    <string name="coverage_percentage">%1$d%%</string>
+
+    <string name="in_progress">(In Progress)</string>
+    <string name="enter_cso_hint">Enter %1$s CSO Under 1 Population</string>
+    <string name="set_cso_title">Set CSO Under 1 Population &#8211; %1$d</string>
+    <string name="cso_population_value">%1$d Children</string>
+    <string name="not_defined">Not defined</string>
+    <string name="no_cso_target">Error: No CSO target</string>
+    <string name="cso_target_cannot_be_blank">CSO target cannot be blank.</string>
+    <string name="cso_target_label">CSO Target: </string>
+    <string name="cso_target_monthly">CSO Target Monthly: </string>
+    <string name="facility_cumulative_title">Immunization Monitoring Chart - %1$d - %2$s</string>
+
+    <string name="total_vaccine">Total\n%1$s</string>
+    <string name="total_cum">Cum.\n%1$s</string>
+
 </resources>
