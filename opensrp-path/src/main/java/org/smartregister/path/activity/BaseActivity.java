@@ -227,7 +227,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -247,15 +247,33 @@ public abstract class BaseActivity extends AppCompatActivity
                 startActivity(intent);
                 finish();
                 drawer.closeDrawer(GravityCompat.START);
-
-//                finish();
             }
         });
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), HIA2ReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
+        coverage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        dropout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
 
@@ -369,51 +387,6 @@ public abstract class BaseActivity extends AppCompatActivity
         initializeCustomNavbarLIsteners();
     }
 
-    //FIXME this method conflicts with raihan's don't know what the difference is
-//    public void initViews() {
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
-//        logoutButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrishtiApplication application = (DrishtiApplication) getApplication();
-//                application.logoutCurrentUser();
-//                finish();
-//            }
-//        });
-//
-//        ImageButton cancelButton = (ImageButton) navigationView.findViewById(R.id.cancel_b);
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrawerLayout drawer = (DrawerLayout) BaseActivity.this.findViewById(getDrawerLayoutId());
-//                if (drawer.isDrawerOpen(GravityCompat.START)) {
-//                    drawer.closeDrawer(GravityCompat.START);
-//                }
-//            }
-//        });
-//
-//        TextView initialsTV = (TextView) navigationView.findViewById(R.id.initials_tv);
-//        String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-//                getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-//        if (!TextUtils.isEmpty(preferredName)) {
-//            String[] initialsArray = preferredName.split(" ");
-//            String initials = "";
-//            if (initialsArray.length > 0) {
-//                initials = initialsArray[0].substring(0, 1);
-//                if (initialsArray.length > 1) {
-//                    initials = initials + initialsArray[1].substring(0, 1);
-//                }
-//            }
-//
-//            initialsTV.setText(initials.toUpperCase());
-//        }
-//
-//        TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
-//        nameTV.setText(preferredName);
-//        refreshSyncStatusViews(null);
-//        initializeCustomNavbarLIsteners();
-//    }
     protected String getLoggedInUserInitials() {
 
         try {

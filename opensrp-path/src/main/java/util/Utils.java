@@ -35,6 +35,7 @@ import org.smartregister.path.domain.EditWrapper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -229,5 +230,12 @@ public class Utils {
             return null;
         }
     }
+
+    public static int yearFromDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
+    }
+
 
 }
