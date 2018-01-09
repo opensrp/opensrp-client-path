@@ -22,9 +22,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Created by keyman on 08/01/18.
+ * Created by keyman on 09/01/18.
  */
-public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
+public class PentaCohortDropoutReportActivity extends BaseActivity {
     private ExpandableListView expandableListView;
 
     @Override
@@ -41,14 +41,14 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(BcgMeaslesCumulativeDropoutReportActivity.this, DropoutReportsActivity.class);
+                Intent intent = new Intent(PentaCohortDropoutReportActivity.this, DropoutReportsActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
             }
         });
 
-        ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.bcg_measles_cumulative_dropout_report));
+        ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.penta_cohort_dropout_report));
 
         expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
         expandableListView.setDivider(null);
@@ -100,7 +100,7 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
     private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
 
 
-        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
+        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(PentaCohortDropoutReportActivity.this, map, R.layout.dropout_report_cohort_penta_header, R.layout.dropout_report_item);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }
@@ -110,7 +110,8 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
 
         List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
         String[] months = new DateFormatSymbols().getMonths();
-        for (String month : months) {
+        for (int i = 11; i >= 0; i--) {
+            String month = months[i];
             ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(month, "14 / 100", "14%"), new Date());
             itemDataList.add(itemData);
         }

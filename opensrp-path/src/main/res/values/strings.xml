@@ -270,6 +270,7 @@
     <string name="dropout_month_header">Month</string>
     <string name="dropout_started_completed_header">(Started - Completed) / Started </string>
     <string name="dropout_percentage_header">Dropout Percent</string>
-    <string name="dropout_cohort_size_header">(Cohort Size - %1$s) / Cohort Size </string>
+    <string name="dropout_cohort_bcg_size_header">(Cohort Size - M/MR 1) / Cohort Size </string>
+    <string name="dropout_cohort_penta_size_header">(Cohort Size - Penta 3) / Cohort Size </string>
 
 </resources>

@@ -100,7 +100,7 @@ public class MeaslesCumulativeDropoutReportActivity extends BaseActivity {
     private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
 
 
-        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(MeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_header, R.layout.dropout_report_item);
+        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(MeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }

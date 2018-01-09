@@ -174,9 +174,22 @@ public class DropoutReportsActivity extends BaseActivity {
                 tvName.setText(currentItem);
 
                 if (currentItem.equals(getString(R.string.bcg_measles_cohort))) {
+                    rev2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(DropoutReportsActivity.this, BcgMeaslesCohortDropoutReportActivity.class);
+                            startActivity(intent);
+                        }
+                    });
 
                 } else if (currentItem.equals(getString(R.string.penta_cohort))) {
-
+                    rev2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(DropoutReportsActivity.this, PentaCohortDropoutReportActivity.class);
+                            startActivity(intent);
+                        }
+                    });
                 }
             } else {
                 rev2.setVisibility(View.GONE);

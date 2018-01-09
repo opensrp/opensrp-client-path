@@ -146,6 +146,14 @@
             android:name=".activity.MeaslesCumulativeDropoutReportActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.BcgMeaslesCohortDropoutReportActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.PentaCohortDropoutReportActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
     </application>
 
