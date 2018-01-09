@@ -109,9 +109,33 @@
         <activity
             android:name=".activity.StockControlActivity"
             android:label="@string/title_activity_stock_control"
-            android:theme="@style/AppThemeNoTitle.NoActionBar">
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.CoverageReportsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.DropoutReportsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.CohortCoverageReportActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.AnnualCoverageReportCsoActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name=".activity.AnnualCoverageReportZeirActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
-        </activity>
+        <activity
+            android:name=".activity.FacilityCumulativeCoverageReportActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+
     </application>
 
 </manifest>

@@ -20,7 +20,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
-import org.smartregister.repository.AllSharedPreferences;
 
 import java.util.ArrayList;
 
@@ -57,9 +56,12 @@ public class StockActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("Stock Control");
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         TextView nameInitials = (TextView) findViewById(R.id.name_inits);
+        nameInitials.setText(getLoggedInUserInitials());
         nameInitials.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,24 +71,6 @@ public class StockActivity extends BaseActivity {
                 }
             }
         });
-
-
-        AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
-        String preferredName = allSharedPreferences.getANMPreferredName(allSharedPreferences.fetchRegisteredANM());
-        if (!preferredName.isEmpty()) {
-            String[] preferredNameArray = preferredName.split(" ");
-            String initials = "";
-            if (preferredNameArray.length > 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0)) + String.valueOf(preferredNameArray[1].charAt(0));
-            } else if (preferredNameArray.length == 1) {
-                initials = String.valueOf(preferredNameArray[0].charAt(0));
-            }
-            nameInitials.setText(initials);
-        }
-
-//        toolbar.setOnLocationChangeListener(this);
-//
-
 
         stockGrid = (GridView) findViewById(R.id.stockgrid);
     }
@@ -105,7 +89,7 @@ public class StockActivity extends BaseActivity {
         super.onResume();
         refreshadapter();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setBackgroundColor(getResources().getColor(R.color.tintcolor));
     }
 

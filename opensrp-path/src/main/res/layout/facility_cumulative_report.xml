@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:orientation="vertical">
+
+        <org.smartregister.view.customcontrols.CustomFontTextView
+            android:id="@+id/report_title"
+            style="@style/CustomFontTextViewStyle.ClientList.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:text="title"
+            android:textColor="@color/text_black"
+            android:textSize="22sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cso_target_label"
+                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="@string/cso_target_label"
+                android:textColor="@color/text_black"
+                android:textSize="18sp" />
+
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cso_target_value"
+                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="209"
+                android:textColor="@color/text_black"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cso_target_monthly"
+                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="@string/cso_target_monthly"
+                android:textColor="@color/text_black"
+                android:textSize="18sp" />
+
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cohort_size_value"
+                style="@style/CustomFontTextViewStyle.ClientList.Light"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="17"
+                android:textColor="@color/text_black"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+        <lecho.lib.hellocharts.view.LineChartView
+            android:id="@+id/monitoring_chart"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_margin="20dp"
+            android:paddingLeft="20dp" />
+
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/client_list_grey"
+            android:stretchColumns="0">
+
+            <TableRow android:id="@+id/total_1">
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center_vertical"
+                    android:padding="10dp"
+                    android:text="Total\nPenta1"
+                    android:textColor="@color/cumulative_blue_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="17"
+                    android:textColor="@color/cumulative_blue_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="22"
+                    android:textColor="@color/cumulative_blue_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="12"
+                    android:textColor="@color/cumulative_blue_line" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="4"
+                    android:textColor="@color/cumulative_blue_line" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:layout_marginTop="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+            </TableRow>
+
+            <TableRow android:id="@+id/cum_1">
+
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginLeft="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center_vertical"
+                    android:padding="10dp"
+                    android:text="Cum.\nPenta1"
+                    android:textColor="@color/cumulative_red_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="24"
+                    android:textColor="@color/cumulative_red_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="34"
+                    android:textColor="@color/cumulative_red_line" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="22"
+                    android:textColor="@color/cumulative_red_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:text="6"
+                    android:textColor="@color/cumulative_red_line" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+                <TextView
+                    android:layout_width="@dimen/facility_cumulative_text_width"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp"
+                    android:background="@color/white"
+                    android:gravity="center" />
+
+
+            </TableRow>
+        </TableLayout>
+
+
+    </LinearLayout>
+
+</android.support.v4.widget.NestedScrollView>

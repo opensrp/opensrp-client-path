@@ -283,7 +283,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -293,7 +293,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
             }
         });
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -312,8 +312,26 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
+            }
+        });
+        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
+        coverage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
 
-//                finish();
+            }
+        });
+        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        dropout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
             }
         });
 
