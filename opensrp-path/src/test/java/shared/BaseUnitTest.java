@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import shared.customshadows.FontTextViewShadow;
+import shared.customshadows.ShadowRealmDatabase;
 
 /**
  * Created by onadev on 13/06/2017.
@@ -23,7 +24,7 @@ import shared.customshadows.FontTextViewShadow;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = VaccinatorApplicationTestVersion.class, shadows = {FontTextViewShadow.class})
+@Config(constants = BuildConfig.class, application = VaccinatorApplicationTestVersion.class, shadows = {FontTextViewShadow.class, ShadowRealmDatabase.class})
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*"})
 public abstract class BaseUnitTest {
     public static class INT_TEST_CONSTANTS {
