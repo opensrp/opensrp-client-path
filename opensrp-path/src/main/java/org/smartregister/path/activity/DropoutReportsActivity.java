@@ -59,12 +59,6 @@ public class DropoutReportsActivity extends BaseActivity {
 
         DropoutArrayAdapter arrayAdapter = new DropoutArrayAdapter(DropoutReportsActivity.this, list);
         listView.setAdapter(arrayAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });
     }
 
     @Override
@@ -118,24 +112,27 @@ public class DropoutReportsActivity extends BaseActivity {
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View view;
             String[] items = getItem(position);
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.dropout_reports_item, parent, false);
+                view = LayoutInflater.from(getContext()).inflate(R.layout.dropout_reports_item, parent, false);
+            } else {
+                view = convertView;
             }
 
             if (items == null) {
-                return convertView;
+                return view;
             }
 
-            View rev1 = convertView.findViewById(R.id.rev1);
-            View rev2 = convertView.findViewById(R.id.rev2);
-            View divider = convertView.findViewById(R.id.adapter_divider_bottom);
+            View rev1 = view.findViewById(R.id.rev1);
+            View rev2 = view.findViewById(R.id.rev2);
+            View divider = view.findViewById(R.id.adapter_divider_bottom);
             rev2.setVisibility(View.VISIBLE);
 
             if (items.length > 0) {
                 String currentItem = items[0];
-                TextView tvName = (TextView) convertView.findViewById(R.id.tv);
+                TextView tvName = (TextView) view.findViewById(R.id.tv);
                 tvName.setText(currentItem);
 
                 if (currentItem.equals(getString(R.string.bcg_measles_cumulative))) {
@@ -170,7 +167,7 @@ public class DropoutReportsActivity extends BaseActivity {
 
             if (items.length > 1) {
                 String currentItem = items[1];
-                TextView tvName = (TextView) convertView.findViewById(R.id.tv2);
+                TextView tvName = (TextView) view.findViewById(R.id.tv2);
                 tvName.setText(currentItem);
 
                 if (currentItem.equals(getString(R.string.bcg_measles_cohort))) {
@@ -196,7 +193,7 @@ public class DropoutReportsActivity extends BaseActivity {
                 divider.setVisibility(View.GONE);
             }
             // Lookup view for data population
-            return convertView;
+            return view;
         }
     }
 
