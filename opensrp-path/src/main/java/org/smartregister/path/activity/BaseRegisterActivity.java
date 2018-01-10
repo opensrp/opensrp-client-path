@@ -93,6 +93,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         FAILED
     }
     private static final String OFFLINE_MAP_NAME = "ZEIR Services Coverage";
+    private boolean isOfflineMapUpdatesReceiverRegistered = false;
     private boolean waitingForDownloadToStart = false;
     private boolean isDownloading = false;
 
@@ -167,8 +168,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         };
 
         if (isOfflineModeSwitchedOn()) {
-            // Show a toast that I have started downloading based on response from the LocalBroadcastManager
-            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            isOfflineMapUpdatesReceiverRegistered = true;
         }
     }
 
@@ -215,12 +215,18 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     protected void onResume() {
         super.onResume();
         registerSyncStatusBroadcastReceiver();
+        if (isOfflineMapUpdatesReceiverRegistered) {
+            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+        }
         initViews();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (isOfflineMapUpdatesReceiverRegistered) {
+            unregisterOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+        }
         unregisterSyncStatusBroadcastReceiver();
     }
 
