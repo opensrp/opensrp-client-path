@@ -113,6 +113,9 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
     private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
 
+    private static final String KEY_PROPERTIES = "properties";
+    private static final String KEY_BASE_ENTITY_ID = "base_entity_id";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -802,10 +805,10 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                     try {
                         geoJSONFeatureJSON = new JSONObject(geoJSONFeature);
                         // Get the base_entity_id from the properties JSONObject
-                        if (geoJSONFeatureJSON != null && geoJSONFeatureJSON.has("properties")) {
-                            JSONObject properties = geoJSONFeatureJSON.getJSONObject("properties");
-                            if (properties.has("base_entity_id")) {
-                                String baseEntityId = properties.getString("base_entity_id");
+                        if (geoJSONFeatureJSON != null && geoJSONFeatureJSON.has(KEY_PROPERTIES)) {
+                            JSONObject properties = geoJSONFeatureJSON.getJSONObject(KEY_PROPERTIES);
+                            if (properties.has(KEY_BASE_ENTITY_ID)) {
+                                String baseEntityId = properties.getString(KEY_BASE_ENTITY_ID);
 
                                 CommonPersonObject selectedPatientCPO = VaccinatorApplication.getInstance()
                                         .context()
