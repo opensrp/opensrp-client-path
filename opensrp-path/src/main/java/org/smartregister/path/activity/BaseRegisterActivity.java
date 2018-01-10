@@ -37,13 +37,14 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.Context;
-import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.Alert;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
@@ -63,9 +64,9 @@ import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
-import org.smartregister.repository.EventClientRepository;
-import org.smartregister.service.AlertService;
+
+import org.smartregister.path.view.StatusSnackbar;
+
 import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
@@ -74,16 +75,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
-import io.ona.kujaku.services.MapboxOfflineDownloaderService;
-import lecho.lib.hellocharts.model.Line;
 import util.PathConstants;
 import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
@@ -114,6 +112,9 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     private static final String RESULT_STATUS = "RESULT_STATUS";
     private static final String RESULT_MESSAGE = "RESULT_MESSAGE";
     private static final String RESULTS_PARENT_ACTION = "RESULTS_PARENT_ACTION";
+
+    private static final String KEY_PROPERTIES = "properties";
+    private static final String KEY_BASE_ENTITY_ID = "base_entity_id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -788,6 +789,68 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
+        switch (requestCode) {
+            case MapHelper.MAP_ACTIVITY_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    String geoJSONFeature = "";
+                    if (data.hasExtra(Constants.PARCELABLE_KEY_GEOJSON_FEATURE)) {
+                        geoJSONFeature = data.getStringExtra(Constants.PARCELABLE_KEY_GEOJSON_FEATURE);
+                    }
+
+                    JSONObject geoJSONFeatureJSON = null;
+                    try {
+                        geoJSONFeatureJSON = new JSONObject(geoJSONFeature);
+                        // Get the base_entity_id from the properties JSONObject
+                        if (geoJSONFeatureJSON != null && geoJSONFeatureJSON.has(KEY_PROPERTIES)) {
+                            JSONObject properties = geoJSONFeatureJSON.getJSONObject(KEY_PROPERTIES);
+                            if (properties.has(KEY_BASE_ENTITY_ID)) {
+                                String baseEntityId = properties.getString(KEY_BASE_ENTITY_ID);
+
+                                CommonPersonObject selectedPatientCPO = VaccinatorApplication.getInstance()
+                                        .context()
+                                        .commonrepository(PathConstants.CHILD_TABLE_NAME)
+                                        .findByBaseEntityId(baseEntityId);
+
+                                Map<String, String> selectedPatientDetails = VaccinatorApplication.getInstance()
+                                        .context()
+                                        .detailsRepository()
+                                        .getAllDetailsForClient(baseEntityId);
+
+                                if (selectedPatientCPO != null && selectedPatientDetails != null) {
+                                    CommonPersonObjectClient selectedPatientCPOC = new CommonPersonObjectClient(selectedPatientCPO.getCaseId(), selectedPatientDetails, selectedPatientDetails.get("FWHOHFNAME"));
+                                    selectedPatientCPOC.setColumnmaps(selectedPatientCPO.getColumnmaps());
+
+                                    ChildImmunizationActivity.launchActivity(this, selectedPatientCPOC, null);
+                                } else {
+                                    if (syncStatusSnackbar != null) {
+                                        syncStatusSnackbar.dismiss();
+                                    }
+
+                                    syncStatusSnackbar = StatusSnackbar.showError(rootView, getString(R.string.error_could_not_find_patient), Snackbar.LENGTH_LONG);
+                                }
+                            } else {
+                                if (syncStatusSnackbar != null) {
+                                    syncStatusSnackbar.dismiss();
+                                }
+
+                                syncStatusSnackbar = StatusSnackbar.showError(rootView, getString(R.string.error_insufficient_patient_info), Snackbar.LENGTH_LONG);
+                            }
+                        }
+
+
+                    } catch (JSONException e) {
+                        Log.e(TAG, Log.getStackTraceString(e));
+                    }
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 

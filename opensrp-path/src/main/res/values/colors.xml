@@ -47,4 +47,7 @@
     <color name="cso_error_red">#BC0000</color>
     <color name="cumulative_red_line">#A81601</color>
     <color name="cumulative_blue_line">#000AD5</color>
+    <!-- org.smartregister.path.view.StatusSnackbar colors -->
+    <color name="snackbar_success_bg">#388E3C</color>
+    <color name="snackbar_error_bg">#D50000</color>
 </resources>

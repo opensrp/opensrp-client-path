@@ -41,7 +41,7 @@ import utils.helpers.MapBoxStyleHelper;
 
 public class MapHelper {
 
-    private static final int MAP_ACTIVITY_REQUEST_CODE = 9892;
+    public static final int MAP_ACTIVITY_REQUEST_CODE = 9892;
     private static final String TAG = MapHelper.class.getSimpleName();
 
     /**

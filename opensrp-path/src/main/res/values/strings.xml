@@ -254,5 +254,8 @@
 
     <string name="total_vaccine">Total\n%1$s</string>
     <string name="total_cum">Cum.\n%1$s</string>
+    <!-- SNACKBAR MESSAGES -->
+    <string name="error_insufficient_patient_info">Sorry! The selected patient has missing information</string>
+    <string name="error_could_not_find_patient">Sorry but we cannot seem to find the patient</string>
 
 </resources>
