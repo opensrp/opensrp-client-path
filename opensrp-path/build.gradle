@@ -132,8 +132,12 @@ dependencies {
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
 
-    // Kujaku dependencies
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+// Because RxAndroid releases are few and far between, it is recommended you also
+// explicitly depend on RxJava's latest version for bug fixes and new features.
+    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
 
+    // Kujaku dependencies
     compile('io.ona.kujaku:library:0.1.4-info-window-click-action') {
         transitive = true
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
@@ -153,11 +157,6 @@ dependencies {
         exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
         exclude group: 'com.android.support'
     }
-
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-// Because RxAndroid releases are few and far between, it is recommended you also
-// explicitly depend on RxJava's latest version for bug fixes and new features.
-    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
 
     testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
         exclude group: 'com.google.guava', module: 'guava'
