@@ -138,7 +138,7 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
 
     // Kujaku dependencies
-    compile('io.ona.kujaku:library:0.1.4-info-window-click-action') {
+    compile('io.ona.kujaku:library:0.1.4-info-window-click-action.b2') {
         transitive = true
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
         exclude group: 'com.android.support'
