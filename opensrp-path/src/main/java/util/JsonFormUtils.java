@@ -869,8 +869,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
     private static JSONArray getDefaultLocationHierarchy(String defaultLocationUuid, JSONObject openMrsLocationData, JSONArray parents, ArrayList<String> allowedLevels) throws JSONException {
-        if (allowedLevels.contains(openMrsLocationData.getJSONObject("node").getJSONArray("tags").getString(0))) {
-            parents.put(openMrsLocationData.getJSONObject("node").getString("name"));
+        JSONArray levels = openMrsLocationData.getJSONObject("node").getJSONArray("tags");
+        for (int i = 0; i < levels.length(); i++) {
+            if (allowedLevels.contains(levels.getString(i))) {
+                parents.put(openMrsLocationData.getJSONObject("node").getString("name"));
+            }
         }
 
         if (openMrsLocationData.getJSONObject("node").getString("locationId").equals(defaultLocationUuid)) {

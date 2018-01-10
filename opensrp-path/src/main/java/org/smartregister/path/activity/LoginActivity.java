@@ -33,6 +33,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.Context;
@@ -486,10 +487,13 @@ public class LoginActivity extends AppCompatActivity {
         final String NODE = "node";
         final String CHILDREN = "children";
         String name = rawLocationData.getJSONObject(NODE).getString("locationId");
-        String level = rawLocationData.getJSONObject(NODE).getJSONArray("tags").getString(0);
+        JSONArray levels = rawLocationData.getJSONObject(NODE).getJSONArray("tags");
+        for (int i = 0; i < levels.length(); i++) {
+            String level = levels.getString(i);
 
-        if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
-            locationList.add(name);
+            if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
+                locationList.add(name);
+            }
         }
         if (rawLocationData.has(CHILDREN)) {
             Iterator<String> childIterator = rawLocationData.getJSONObject(CHILDREN).keys();

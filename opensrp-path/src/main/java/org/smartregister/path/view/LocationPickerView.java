@@ -138,15 +138,18 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
                                   String defaultLocation)
             throws JSONException {
         String name = rawLocationData.getJSONObject("node").getString("name");
-        String level = rawLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
+        JSONArray levels = rawLocationData.getJSONObject("node").getJSONArray("tags");
+        for (int i = 0; i < levels.length(); i++) {
+            String level = levels.getString(i);
+            if (ALLOWED_LEVELS.contains(level)) {
+                if (level.equals(DEFAULT_LOCATION_LEVEL) && !name.equals(defaultLocation)) {
+                    return;
+                }
 
-        if (ALLOWED_LEVELS.contains(level)) {
-            if (level.equals(DEFAULT_LOCATION_LEVEL) && !name.equals(defaultLocation)) {
-                return;
+                locationList.add(name);
             }
-
-            locationList.add(name);
         }
+
 
         if (rawLocationData.has("children")) {
             Iterator<String> childIterator = rawLocationData.getJSONObject("children").keys();

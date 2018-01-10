@@ -127,7 +127,7 @@ public class HIA2ReportsActivity extends BaseActivity {
         super.onResume();
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         // TODO: This should go to the base class?
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
     }
 

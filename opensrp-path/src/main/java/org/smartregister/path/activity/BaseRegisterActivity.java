@@ -62,6 +62,7 @@ import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.repository.EventClientRepository;
@@ -91,6 +92,8 @@ import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
 
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
+
+import util.ServiceTools;
 
 /**
  * Base activity class for path regiters views
@@ -154,9 +157,16 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        refreshSyncStatusViews(fetchStatus);
+    }
+
+    @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         refreshSyncStatusViews(fetchStatus);
     }
+
+    public abstract void refreshList(FetchStatus fetchStatus);
 
     private void registerSyncStatusBroadcastReceiver() {
         SyncStatusBroadcastReceiver.getInstance().addSyncStatusListener(this);
@@ -167,7 +177,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        startService(new Intent(getApplicationContext(), SyncIntentService.class));
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
 
     @Override
@@ -266,56 +276,8 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        Intent intent = new Intent(getApplicationContext(), SyncIntentService.class);
-        startService(intent);
-
-        /*PathUpdateActionsTask pathUpdateActionsTask = new PathUpdateActionsTask(
-                this, context().actionService(),
-                new SyncProgressIndicator(),
-                context().allFormVersionSyncService());
-        pathUpdateActionsTask.updateFromServer(pathAfterFetchListener);*/
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
-//////////////////////////////////for navigation menu items///////////////////////////
-//    private void refreshSyncStatusViews(FetchStatus fetchStatus) {
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        if (navigationView != null && navigationView.getMenu() != null) {
-//            MenuItem syncMenuItem = navigationView.getMenu().findItem(R.id.nav_sync);
-//            if (syncMenuItem != null) {
-//                if (SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-//                    ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-//                    if (syncStatusSnackbar != null) syncStatusSnackbar.dismiss();
-//                    syncStatusSnackbar = Snackbar.make(rootView, R.string.syncing,
-//                            Snackbar.LENGTH_LONG);
-//                    syncStatusSnackbar.show();
-//                    syncMenuItem.setTitle(R.string.syncing);
-//                } else {
-//                    if (fetchStatus != null) {
-//                        if (syncStatusSnackbar != null) syncStatusSnackbar.dismiss();
-//                        ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-//                        if (fetchStatus.equals(FetchStatus.fetchedFailed)) {
-//                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_failed, Snackbar.LENGTH_INDEFINITE);
-//                            syncStatusSnackbar.setAction(R.string.retry, new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View v) {
-//                                    startSync();
-//                                }
-//                            });
-//                        } else if (fetchStatus.equals(FetchStatus.fetched)
-//                                || fetchStatus.equals(FetchStatus.nothingFetched)) {
-//                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_complete, Snackbar.LENGTH_LONG);
-//                        }
-//                        syncStatusSnackbar.show();
-//                    }
-//                    String lastSync = getLastSyncTime();
-//
-//                    if (!TextUtils.isEmpty(lastSync)) {
-//                        lastSync = " " + String.format(getString(R.string.last_sync), lastSync);
-//                    }
-//                    syncMenuItem.setTitle(String.format(getString(R.string.sync_), lastSync));
-//                }
-//            }
-//        }
-//    }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////
     private void refreshSyncStatusViews(FetchStatus fetchStatus) {
@@ -392,7 +354,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -402,7 +364,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
             }
         });
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -421,7 +383,25 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
-//                finish();
+            }
+        });
+        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
+        coverage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        dropout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
             }
         });
 

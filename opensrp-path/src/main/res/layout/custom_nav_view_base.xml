@@ -11,100 +11,109 @@
     app:itemIconTint="@android:color/white"
     app:itemTextColor="@android:color/white"
     app:theme="@style/AppThemeNoTitle.NoActionBar.NavigationDrawerStyle">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <include layout="@layout/nav_header_base" />
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="@dimen/smart_register_client_divider_height"
-            android:src="#474747"/>
+            android:src="#474747" />
+
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/nav_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
+            android:orientation="horizontal">
+
             <ImageView
+                android:id="@+id/add_child_image_view"
                 android:layout_width="@dimen/custom_navigation_icon_size"
                 android:layout_height="@dimen/custom_navigation_icon_size"
-                android:id="@+id/addchildImageview"
-                android:src="@drawable/ic_action_add"
                 android:layout_gravity="center_vertical"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
                 android:paddingTop="5dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginRight="5dp" />
+                android:src="@drawable/ic_action_add" />
+
             <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/add_child_text_view"
+                style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                android:text="Add new child"
-                android:id="@+id/addchildtextview"
-                android:textColor="@color/white"
-                android:textSize="@dimen/table_contents_text_size"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical" />
+                android:text="@string/side_nav_add"
+                android:textColor="@color/white"
+                android:textSize="@dimen/table_contents_text_size" />
         </LinearLayout>
+
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/nav_record_vaccination_out_catchment"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
-
-            <ImageView
-                android:layout_width="@dimen/custom_navigation_icon_size"
-                android:layout_height="@dimen/custom_navigation_icon_size"
-                android:id="@+id/outofareaImageview"
-                android:src="@drawable/ic_action_out_catchment"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginRight="5dp" />
-            <org.smartregister.view.customcontrols.CustomFontTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                android:text="Record out of catchment vaccination"
-                android:id="@+id/outofareatextview"
-                android:textColor="@color/white"
-                android:textSize="@dimen/table_contents_text_size"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical" />
-        </LinearLayout>
-        <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/nav_sync"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
+            android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/outofareaImageview"
                 android:layout_width="@dimen/custom_navigation_icon_size"
                 android:layout_height="@dimen/custom_navigation_icon_size"
-                android:id="@+id/nav_syncImageview"
-                android:src="@drawable/ic_action_sync"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginRight="5dp" />
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_action_out_catchment" />
+
             <org.smartregister.view.customcontrols.CustomFontTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/outofareatextview"
                 style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                android:text="Sync"
-                android:id="@+id/nav_synctextview"
-                android:textColor="@color/white"
-                android:textSize="@dimen/table_contents_text_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical" />
+                android:text="@string/side_nav_out_of_catchment"
+                android:textColor="@color/white"
+                android:textSize="@dimen/table_contents_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_sync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/nav_syncImageview"
+                android:layout_width="@dimen/custom_navigation_icon_size"
+                android:layout_height="@dimen/custom_navigation_icon_size"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_action_sync" />
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/nav_synctextview"
+                style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/side_nav_sync"
+                android:textColor="@color/white"
+                android:textSize="@dimen/table_contents_text_size" />
         </LinearLayout>
 
         <LinearLayout
@@ -166,99 +175,160 @@
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#373737">
+            android:background="#373737"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/child_register"
-                android:layout_marginTop="5dp">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
 
                 <ImageView
-                    android:layout_width="@dimen/registerlinkwidth"
-                    android:layout_height="@dimen/registerlinkheight"
                     android:id="@+id/child_registerImageview"
-                    android:src="@drawable/zeirbig"
-                    android:paddingTop="10dp"
+                    android:layout_width="@dimen/registerlinkwidth"
+                    android:layout_height="@dimen/registerlinkheight"
+                    android:layout_margin="5dp"
                     android:paddingBottom="10dp"
                     android:paddingRight="10dp"
-                    android:layout_margin="5dp" />
+                    android:paddingTop="10dp"
+                    android:src="@drawable/zeir_big" />
+
                 <org.smartregister.view.customcontrols.CustomFontTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                    android:text="ZEIR"
                     android:id="@+id/child_registertextview"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/label_text_size"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/hia2reports"
-                android:layout_marginTop="5dp">
-
-                <ImageView
-                    android:layout_width="@dimen/registerlinkwidth"
-                    android:layout_height="@dimen/registerlinkheight"
-                    android:id="@+id/hia2reportsImageview"
-                    android:src="@drawable/hia_big"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
-                    android:paddingRight="10dp"
-                    android:layout_margin="5dp" />
-                <org.smartregister.view.customcontrols.CustomFontTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                    android:id="@+id/hia2reportstextview"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/label_text_size"
-                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="HIA 2 Reports" />
+                    android:layout_weight="1"
+                    android:text="@string/app_name"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/label_text_size" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
+                android:id="@+id/hia2_reports"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/stockcontrol"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/hia2_reports_image_view"
                     android:layout_width="@dimen/registerlinkwidth"
                     android:layout_height="@dimen/registerlinkheight"
-                    android:id="@+id/stockcontrolImageview"
-                    android:src="@drawable/stockreg"
-                    android:paddingTop="10dp"
+                    android:layout_margin="5dp"
                     android:paddingBottom="10dp"
                     android:paddingRight="10dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="5dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/hia_big" />
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
+                    android:id="@+id/hia2_reports_text_view"
+                    style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="@string/side_nav_hia2"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/label_text_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/coverage_reports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/coverage_reports_image_view"
+                    android:layout_width="@dimen/registerlinkwidth"
+                    android:layout_height="@dimen/registerlinkheight"
+                    android:layout_margin="5dp"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/coverage_big" />
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
+                    android:id="@+id/coverage_reports_text_view"
+                    style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="@string/side_nav_coverage"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/label_text_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/dropout_reports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/dropout_reports_image_view"
+                    android:layout_width="@dimen/registerlinkwidth"
+                    android:layout_height="@dimen/registerlinkheight"
+                    android:layout_margin="5dp"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/dropout_big" />
+
+                <org.smartregister.view.customcontrols.CustomFontTextView
+                    android:id="@+id/dropout_text_view"
+                    style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="@string/side_nav_dropout"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/label_text_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/stock_control"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/stock_control_image_view"
+                    android:layout_width="@dimen/registerlinkwidth"
+                    android:layout_height="@dimen/registerlinkheight"
                     android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="7dp" />
+                    android:layout_marginLeft="7dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginTop="5dp"
+                    android:paddingBottom="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/stockreg" />
+
                 <org.smartregister.view.customcontrols.CustomFontTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/stock_control_text_view"
                     style="@style/CustomFontTextViewStyle.ClientList.Light.twoline"
-                    android:id="@+id/stockcontroltextview"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/label_text_size"
-                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="Stock Control" />
+                    android:layout_weight="1"
+                    android:text="@string/stock_title"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/label_text_size" />
             </LinearLayout>
         </LinearLayout>
 
 
     </LinearLayout>
-    </android.support.design.widget.NavigationView>
+</android.support.design.widget.NavigationView>

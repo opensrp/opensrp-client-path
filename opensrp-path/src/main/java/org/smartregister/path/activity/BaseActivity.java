@@ -52,7 +52,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.path.toolbar.BaseToolbar;
@@ -73,6 +73,7 @@ import util.PathConstants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
+import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
 
@@ -129,6 +130,11 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        refreshSyncStatusViews(fetchStatus);
+    }
+
+    @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         refreshSyncStatusViews(fetchStatus);
     }
@@ -144,49 +150,6 @@ public abstract class BaseActivity extends AppCompatActivity
     public BaseToolbar getBaseToolbar() {
         return toolbar;
     }
-
-
-    ///////////////////////////////// navigation bar with menu
-//    private void refreshSyncStatusViews(FetchStatus fetchStatus) {
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        if (navigationView != null && navigationView.getMenu() != null) {
-//            MenuItem syncMenuItem = navigationView.getMenu().findItem(R.id.nav_sync);
-//            if (syncMenuItem != null) {
-//                if (SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
-//                    syncMenuItem.setTitle(R.string.syncing);
-//                    ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-//                    if (syncStatusSnackbar != null) syncStatusSnackbar.dismiss();
-//                    syncStatusSnackbar = Snackbar.make(rootView, R.string.syncing,
-//                            Snackbar.LENGTH_LONG);
-//                    syncStatusSnackbar.show();
-//                } else {
-//                    if (fetchStatus != null) {
-//                        if (syncStatusSnackbar != null) syncStatusSnackbar.dismiss();
-//                        ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-//                        if (fetchStatus.equals(FetchStatus.fetchedFailed)) {
-//                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_failed, Snackbar.LENGTH_INDEFINITE);
-//                            syncStatusSnackbar.setAction(R.string.retry, new View.OnClickListener() {
-//                                @Override
-//                                public void onClick(View v) {
-//                                    startSync();
-//                                }
-//                            });
-//                        } else if (fetchStatus.equals(FetchStatus.fetched)
-//                                || fetchStatus.equals(FetchStatus.nothingFetched)) {
-//                            syncStatusSnackbar = Snackbar.make(rootView, R.string.sync_complete, Snackbar.LENGTH_LONG);
-//                        }
-//                        syncStatusSnackbar.show();
-//                    }
-//                    String lastSync = getLastSyncTime();
-//
-//                    if (!TextUtils.isEmpty(lastSync)) {
-//                        lastSync = " " + String.format(getString(R.string.last_sync), lastSync);
-//                    }
-//                    syncMenuItem.setTitle(String.format(getString(R.string.sync_), lastSync));
-//                }
-//            }
-//        }
-//    }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////
     private void refreshSyncStatusViews(FetchStatus fetchStatus) {
@@ -223,12 +186,6 @@ public abstract class BaseActivity extends AppCompatActivity
                         syncStatusSnackbar.show();
                     }
 
-//<<<<<<< HEAD
-//                    if (!TextUtils.isEmpty(lastSync)) {
-//                        lastSync = " " + String.format(getString(R.string.last_sync), lastSync);
-//                    }
-//                    ((TextView)syncMenuItem.findViewById(R.id.nav_synctextview)).setText(String.format(getString(R.string.sync_), lastSync));
-//=======
                     updateLastSyncText();
                 }
             }
@@ -289,7 +246,7 @@ public abstract class BaseActivity extends AppCompatActivity
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stockcontrol);
+        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -309,15 +266,33 @@ public abstract class BaseActivity extends AppCompatActivity
                 startActivity(intent);
                 finish();
                 drawer.closeDrawer(GravityCompat.START);
-
-//                finish();
             }
         });
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2reports);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), HIA2ReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
+        coverage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
+                startActivity(intent);
+                drawer.closeDrawer(GravityCompat.START);
+
+            }
+        });
+        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
+        dropout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
 
@@ -440,51 +415,6 @@ public abstract class BaseActivity extends AppCompatActivity
         initializeCustomNavbarLIsteners();
     }
 
-    //FIXME this method conflicts with raihan's don't know what the difference is
-//    public void initViews() {
-//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-//        Button logoutButton = (Button) navigationView.findViewById(R.id.logout_b);
-//        logoutButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrishtiApplication application = (DrishtiApplication) getApplication();
-//                application.logoutCurrentUser();
-//                finish();
-//            }
-//        });
-//
-//        ImageButton cancelButton = (ImageButton) navigationView.findViewById(R.id.cancel_b);
-//        cancelButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                DrawerLayout drawer = (DrawerLayout) BaseActivity.this.findViewById(getDrawerLayoutId());
-//                if (drawer.isDrawerOpen(GravityCompat.START)) {
-//                    drawer.closeDrawer(GravityCompat.START);
-//                }
-//            }
-//        });
-//
-//        TextView initialsTV = (TextView) navigationView.findViewById(R.id.initials_tv);
-//        String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-//                getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-//        if (!TextUtils.isEmpty(preferredName)) {
-//            String[] initialsArray = preferredName.split(" ");
-//            String initials = "";
-//            if (initialsArray.length > 0) {
-//                initials = initialsArray[0].substring(0, 1);
-//                if (initialsArray.length > 1) {
-//                    initials = initials + initialsArray[1].substring(0, 1);
-//                }
-//            }
-//
-//            initialsTV.setText(initials.toUpperCase());
-//        }
-//
-//        TextView nameTV = (TextView) navigationView.findViewById(R.id.name_tv);
-//        nameTV.setText(preferredName);
-//        refreshSyncStatusViews(null);
-//        initializeCustomNavbarLIsteners();
-//    }
     protected String getLoggedInUserInitials() {
 
         try {
@@ -532,7 +462,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        startService(new Intent(getApplicationContext(), SyncIntentService.class));
+        ServiceTools.startService(getApplicationContext(), SyncService.class);
     }
 
     /**

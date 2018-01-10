@@ -212,9 +212,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         setSupportActionBar(detailtoolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-//        getSupportActionBar().
+
         initiallization();
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {

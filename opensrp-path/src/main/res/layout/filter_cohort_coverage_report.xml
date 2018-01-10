@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/default_filter"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/ec_main_header_nav_layout_height"
+        android:background="@color/filter_bar_light_grey"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/ec_main_header_search_layout_height"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:orientation="horizontal">
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cohort_label"
+                style="@style/CustomFontTextViewStyle.ClientList"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="@string/filter_cohort"
+                android:textColor="@color/text_black"
+                android:textSize="20sp" />
+
+            <Spinner
+                android:id="@+id/cohort_spinner"
+                style="@style/PathSpinnerUnderLined"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:minWidth="200dp"
+                android:padding="10dp"
+                android:spinnerMode="dropdown"
+                android:theme="@style/ThemePathSpinner" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/ec_main_header_search_layout_height"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="30dp"
+            android:orientation="horizontal"
+            android:paddingRight="30dp">
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cohort_size_label"
+                style="@style/CustomFontTextViewStyle.ClientList"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="@string/filter_cohort_size"
+                android:textColor="@color/text_black"
+                android:textSize="20sp" />
+
+
+            <org.smartregister.view.customcontrols.CustomFontTextView
+                android:id="@+id/cohort_size_value"
+                style="@style/CustomFontTextViewStyle.ClientList"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:text="100 Children"
+                android:textColor="@color/text_black"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
