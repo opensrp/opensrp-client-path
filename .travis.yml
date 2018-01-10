@@ -27,7 +27,7 @@ android:
     - addon-google_apis-google-19
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-22
+    - sys-img-armeabi-v7a-android-24
 
 
 addons:
@@ -37,7 +37,7 @@ addons:
 before_script:
   # Emulator Management: Create, Start and Wait
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+  - emulator -avd test -no-skin -no-window &
   - adb wait-for-device
   - adb shell input keyevent 82 &
 
