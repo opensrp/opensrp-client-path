@@ -61,7 +61,6 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.repository.StockRepository;
-import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
