@@ -48,6 +48,7 @@ import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
@@ -885,7 +886,7 @@ public abstract class BaseActivity extends AppCompatActivity
                             mapHelper.constructKujakuConfig(attachmentLayerArray),
                             childGeoJson,
                             attachmentLayerArray,
-                            "pk.eyJ1Ijoib25hIiwiYSI6IlVYbkdyclkifQ.0Bz-QOOXZZK01dq4MuMImQ",
+                            BuildConfig.MAPBOX_SDK_ACCESS_TOKEN,
                             getLayersToDisable(attachmentLayerArray),
                             bounds[0],
                             bounds[1]

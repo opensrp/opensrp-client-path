@@ -127,7 +127,7 @@ public class MapHelper {
 
     public void requestOfflineMap(Context context, String mapName, String mapboxStyleUrl, String mapBoxAccessToken, LatLng topLeftBound, LatLng bottomRightBound, double minZoom, double maxZoom) {
         Intent intent = new Intent(context, MapboxOfflineDownloaderService.class);
-        intent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, Constants.SERVICE_ACTION.DOWNLOAD_MAP);
+        intent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, MapboxOfflineDownloaderService.SERVICE_ACTION.DOWNLOAD_MAP);
         intent.putExtra(Constants.PARCELABLE_KEY_STYLE_URL, mapboxStyleUrl);
         intent.putExtra(Constants.PARCELABLE_KEY_MAP_UNIQUE_NAME, mapName);
         intent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
