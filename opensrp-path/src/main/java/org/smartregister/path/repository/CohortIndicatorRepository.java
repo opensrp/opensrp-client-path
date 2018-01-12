@@ -1,6 +1,7 @@
 package org.smartregister.path.repository;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -35,14 +36,15 @@ public class CohortIndicatorRepository extends BaseRepository {
     };
 
     private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
-            " (" + COLUMN_ID + " INTEGER NOT NULL, " +
+            " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
             COLUMN_VACCINE + " VARCHAR NOT NULL," +
             COLUMN_END_DATE + " DATETIME NOT NULL," +
             COLUMN_VALUE + " INTEGER NOT NULL DEFAULT 0," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
-    private static final String VACCINE_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_VACCINE + "_index ON " + TABLE_NAME + "(" + COLUMN_VACCINE + " COLLATE NOCASE);";
+    private static final String COHORT_VACCINE_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_" + COLUMN_VACCINE + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ", " + COLUMN_VACCINE + " COLLATE NOCASE );";
+    private static final String COHORT_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ");";
 
     public CohortIndicatorRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -51,41 +53,66 @@ public class CohortIndicatorRepository extends BaseRepository {
 
     protected static void createTable(SQLiteDatabase database) {
         database.execSQL(COHORT_SQL);
-        database.execSQL(VACCINE_INDEX);
+        database.execSQL(COHORT_VACCINE_INDEX);
+        database.execSQL(COHORT_INDEX);
     }
 
     public void add(CohortIndicator cohortIndicator) {
         if (cohortIndicator == null) {
             return;
         }
+        try {
 
-        if (cohortIndicator.getUpdatedAt() == null) {
-            cohortIndicator.setUpdatedAt(new Date());
-        }
+            if (cohortIndicator.getUpdatedAt() == null) {
+                cohortIndicator.setUpdatedAt(new Date());
+            }
 
-        SQLiteDatabase database = getWritableDatabase();
-        if (cohortIndicator.getId() == null) {
-            cohortIndicator.setCreatedAt(new Date());
-            cohortIndicator.setId(database.insert(TABLE_NAME, null, createValuesFor(cohortIndicator)));
-        } else {
-            //mark the vaccine as unsynced for processing as an updated stock
-            String idSelection = COLUMN_ID + " = ?";
-            database.update(TABLE_NAME, createValuesFor(cohortIndicator), idSelection, new String[]{cohortIndicator.getId().toString()});
+            SQLiteDatabase database = getWritableDatabase();
+            if (cohortIndicator.getId() == null) {
+                cohortIndicator.setCreatedAt(new Date());
+                cohortIndicator.setId(database.insert(TABLE_NAME, null, createValuesFor(cohortIndicator)));
+            } else {
+                //mark the vaccine as unsynced for processing as an updated stock
+                String idSelection = COLUMN_ID + " = ?";
+                database.update(TABLE_NAME, createValuesFor(cohortIndicator), idSelection, new String[]{cohortIndicator.getId().toString()});
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
-    public CohortIndicator findByVaccine(String vaccine) {
-        if (StringUtils.isBlank(vaccine)) {
+    public CohortIndicator findByVaccineAndCohort(String vaccine, Long cohortId) {
+        if (StringUtils.isBlank(vaccine) || cohortId == null) {
             return null;
         }
 
         Cursor cursor = null;
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_VACCINE + " = ? COLLATE NOCASE ", new String[]{vaccine}, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? AND " + COLUMN_VACCINE + " = ? COLLATE NOCASE ", new String[]{cohortId.toString(), vaccine}, null, null, null, null);
             List<CohortIndicator> cohortIndicators = readAllDataElements(cursor);
             if (!cohortIndicators.isEmpty()) {
                 return cohortIndicators.get(0);
             }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return null;
+    }
+
+    public List<CohortIndicator> findByCohort(Long cohortId) {
+        if (cohortId == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? ", new String[]{cohortId.toString()}, null, null, null, null);
+            return readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         } finally {

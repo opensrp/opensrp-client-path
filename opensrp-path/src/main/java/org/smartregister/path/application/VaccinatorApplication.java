@@ -31,10 +31,14 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
+import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
+import org.smartregister.path.repository.ChildReportRepository;
+import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
@@ -73,6 +77,9 @@ public class VaccinatorApplication extends DrishtiApplication
     private HIA2IndicatorsRepository hIA2IndicatorsRepository;
     private EventClientRepository eventClientRepository;
     private StockRepository stockRepository;
+    private CohortRepository cohortRepository;
+    private CohortIndicatorRepository cohortIndicatorRepository;
+    private ChildReportRepository childReportRepository;
     private boolean lastModified;
 
     @Override
@@ -330,6 +337,27 @@ public class VaccinatorApplication extends DrishtiApplication
         return ImmunizationLibrary.getInstance().vaccineNameRepository();
     }
 
+    public CohortRepository cohortRepository() {
+        if (cohortRepository == null) {
+            cohortRepository = new CohortRepository((PathRepository) getRepository());
+        }
+        return cohortRepository;
+    }
+
+    public CohortIndicatorRepository cohortIndicatorRepository() {
+        if (cohortIndicatorRepository == null) {
+            cohortIndicatorRepository = new CohortIndicatorRepository((PathRepository) getRepository());
+        }
+        return cohortIndicatorRepository;
+    }
+
+    public ChildReportRepository childReportRepository() {
+        if (childReportRepository == null) {
+            childReportRepository = new ChildReportRepository((PathRepository) getRepository());
+        }
+        return childReportRepository;
+    }
+
     public boolean isLastModified() {
         return lastModified;
     }
@@ -367,6 +395,8 @@ public class VaccinatorApplication extends DrishtiApplication
         final int TRIGGER_ITERATION_TWO_MINUTES = 2;
         final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
         final int TRIGGER_ITERATION_TEN_MINUTES = 10;
+
+        VaccinatorAlarmReceiver.setAlarm(context, 1, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);

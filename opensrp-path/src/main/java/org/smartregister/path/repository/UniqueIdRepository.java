@@ -43,9 +43,13 @@ public class UniqueIdRepository extends BaseRepository {
     }
 
     public void add(UniqueId uniqueId) {
-        SQLiteDatabase database = getWritableDatabase();
-        database.insert(UniqueIds_TABLE_NAME, null, createValuesFor(uniqueId));
-        //database.close();
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+            database.insert(UniqueIds_TABLE_NAME, null, createValuesFor(uniqueId));
+            //database.close();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
     }
 
     /**

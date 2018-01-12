@@ -31,7 +31,7 @@ public class CohortRepository extends BaseRepository {
     };
 
     private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
-            " (" + COLUMN_ID + " INTEGER NOT NULL, " +
+            " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_MONTH + " VARCHAR NOT NULL," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
@@ -51,19 +51,22 @@ public class CohortRepository extends BaseRepository {
         if (cohort == null) {
             return;
         }
+        try {
+            if (cohort.getUpdatedAt() == null) {
+                cohort.setUpdatedAt(new Date());
+            }
 
-        if (cohort.getUpdatedAt() == null) {
-            cohort.setUpdatedAt(new Date());
-        }
+            SQLiteDatabase database = getWritableDatabase();
+            if (cohort.getId() == null) {
+                cohort.setCreatedAt(new Date());
+                cohort.setId(database.insert(TABLE_NAME, null, createValuesFor(cohort)));
+            } else {
+                String idSelection = COLUMN_ID + " = ?";
+                database.update(TABLE_NAME, createValuesFor(cohort), idSelection, new String[]{cohort.getId().toString()});
+            }
 
-        SQLiteDatabase database = getWritableDatabase();
-        if (cohort.getId() == null) {
-            cohort.setCreatedAt(new Date());
-            cohort.setId(database.insert(TABLE_NAME, null, createValuesFor(cohort)));
-        } else {
-            //mark the vaccine as unsynced for processing as an updated stock
-            String idSelection = COLUMN_ID + " = ?";
-            database.update(TABLE_NAME, createValuesFor(cohort), idSelection, new String[]{cohort.getId().toString()});
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
@@ -123,6 +126,23 @@ public class CohortRepository extends BaseRepository {
         }
 
         return null;
+    }
+
+    public List<Cohort> fetchAll() {
+        Cursor cursor = null;
+
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, null, null);
+            return readAllDataElements(cursor);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return new ArrayList<>();
     }
 
     private List<Cohort> readAllDataElements(Cursor cursor) {

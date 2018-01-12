@@ -95,6 +95,7 @@
         <service android:name="org.smartregister.immunization.service.intent.VaccineIntentService" />
         <service android:name="org.smartregister.immunization.service.intent.RecurringIntentService" />
         <service android:name=".service.intent.PullUniqueIdsIntentService" />
+        <service android:name=".service.intent.CoverageDropoutIntentService" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"

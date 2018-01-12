@@ -10,7 +10,6 @@ public class ChildReport implements Serializable {
     private Long id;
     private String baseEntityId;
     private Long cohortId;
-    private Date dob;
     private String validVaccines;
     private Date createdAt;
     private Date updatedAt;
@@ -37,14 +36,6 @@ public class ChildReport implements Serializable {
 
     public void setCohortId(Long cohortId) {
         this.cohortId = cohortId;
-    }
-
-    public Date getDob() {
-        return dob;
-    }
-
-    public void setDob(Date dob) {
-        this.dob = dob;
     }
 
     public String getValidVaccines() {

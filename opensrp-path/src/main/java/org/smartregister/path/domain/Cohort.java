@@ -1,6 +1,12 @@
 package org.smartregister.path.domain;
 
+import android.util.Log;
+
+import org.apache.commons.lang3.StringUtils;
+import org.smartregister.path.repository.CohortRepository;
+
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -24,8 +30,30 @@ public class Cohort implements Serializable {
         return month;
     }
 
+    public Date getMonthAsDate() {
+        if (StringUtils.isBlank(month)) {
+            return null;
+        }
+        try {
+            return CohortRepository.DF_YYYYMM.parse(month);
+        } catch (ParseException e) {
+            Log.e(Cohort.class.getName(), e.getMessage(), e);
+            return null;
+        }
+    }
+
     public void setMonth(String month) {
         this.month = month;
+    }
+
+    public void setMonth(Date date) {
+        if (date != null) {
+            try {
+                this.month = CohortRepository.DF_YYYYMM.format(date);
+            } catch (Exception e) {
+                Log.e(Cohort.class.getName(), e.getMessage(), e);
+            }
+        }
     }
 
     public Date getCreatedAt() {

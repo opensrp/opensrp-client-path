@@ -12,11 +12,20 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
+import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.SpinnerAdapter;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.ChildReport;
+import org.smartregister.path.domain.Cohort;
+import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.path.helper.SpinnerHelper;
+import org.smartregister.path.repository.ChildReportRepository;
+import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 import java.text.SimpleDateFormat;
@@ -25,7 +34,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import util.PathConstants;
@@ -34,6 +46,10 @@ import util.PathConstants;
  * Created by keyman on 21/12/17.
  */
 public class CohortCoverageReportActivity extends BaseActivity {
+
+    private Date currentDate = null;
+    private long cohortSize;
+    private Map<String, Cohort> map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,20 +89,22 @@ public class CohortCoverageReportActivity extends BaseActivity {
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
 
-        updateReportList();
+        CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
+        List<Cohort> cohorts = cohortRepository.fetchAll();
+        Collections.reverse(cohorts);
 
         List<Date> dates = new ArrayList<>();
+        map = new HashMap<>();
 
-        Calendar c = Calendar.getInstance();
-        dates.add(c.getTime());
-
-        for (int i = 0; i < 5; i++) {
-            c.add(Calendar.MONTH, -1);
-            dates.add(c.getTime());
-
+        for (Cohort cohort : cohorts) {
+            dates.add(cohort.getMonthAsDate());
+            map.put(cohort.getMonth(), cohort);
         }
+        currentDate = dates.get(0);
 
         updateReportDates(dates);
+        updateReportList();
+
     }
 
     @Override
@@ -123,6 +141,16 @@ public class CohortCoverageReportActivity extends BaseActivity {
 
     private void updateReportList() {
 
+        final Cohort cohort = getCurrentCohort();
+        if (cohort == null) {
+            return;
+        }
+
+        updateCohortSize();
+
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+        final List<CohortIndicator> indicators = cohortIndicatorRepository.findByCohort(cohort.getId());
+
         final List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
         Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
             @Override
@@ -142,9 +170,15 @@ public class CohortCoverageReportActivity extends BaseActivity {
         vaccineList.add(VaccineRepo.Vaccine.measles1);
         vaccineList.add(VaccineRepo.Vaccine.measles2);
 
+        final Map<VaccineRepo.Vaccine, CohortIndicator> map = new LinkedHashMap<>();
+        for (VaccineRepo.Vaccine vaccine : vaccineList) {
+            final String vaccineString = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
+            for (CohortIndicator cohortIndicator : indicators) {
+                if (cohortIndicator.getVaccine().equals(vaccineString)) {
+                    map.put(vaccine, cohortIndicator);
+                }
+            }
 
-        if (vaccineList == null || vaccineList.isEmpty()) {
-            return;
         }
 
         BaseAdapter baseAdapter = new BaseAdapter() {
@@ -187,17 +221,36 @@ public class CohortCoverageReportActivity extends BaseActivity {
                 TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
                 vaccineTextView.setText(display);
 
-                Random r = new Random();
-                int Low = 0;
-                int High = 100;
-                int result = r.nextInt(High - Low) + Low;
+                CohortIndicator cohortIndicator = map.get(vaccine);
+
+                long value = 0;
+                boolean finalized = false;
+                if (cohortIndicator != null) {
+                    Date currentDate = new Date();
+                    finalized = !(DateUtils.isSameDay(currentDate, cohortIndicator.getEndDate()) || currentDate.before(cohortIndicator.getEndDate()));
+                    value = cohortIndicator.getValue();
+                }
 
                 TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
-                vaccinatedTextView.setText(String.valueOf(result));
+                vaccinatedTextView.setText(String.valueOf(value));
+
+                int percentage = 0;
+                if (value > 0 && cohortSize > 0) {
+                    percentage = (int) (value * 100.0 / cohortSize + 0.5);
+                }
 
                 TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);
                 coverageTextView.setText(String.format(getString(R.string.coverage_percentage),
-                        result));
+                        percentage));
+
+                vaccinatedTextView.setTextColor(getResources().getColor(R.color.black));
+                coverageTextView.setTextColor(getResources().getColor(R.color.black));
+
+                if (finalized) {
+                    vaccinatedTextView.setTextColor(getResources().getColor(R.color.bluetext));
+                    coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
+                }
+
 
                 return view;
             }
@@ -221,6 +274,7 @@ public class CohortCoverageReportActivity extends BaseActivity {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         Object tag = view.getTag();
                         if (tag != null && tag instanceof Date) {
+                            currentDate = (Date) tag;
                             updateReportList();
                         }
                     }
@@ -232,6 +286,23 @@ public class CohortCoverageReportActivity extends BaseActivity {
                 });
             }
         }
+    }
+
+    private void updateCohortSize() {
+        ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+        Cohort cohort = getCurrentCohort();
+        cohortSize = childReportRepository.countCohort(cohort.getId());
+        TextView textView = (TextView) findViewById(R.id.cohort_size_value);
+        textView.setText(String.format(getString(R.string.cso_population_value), cohortSize));
+
+    }
+
+    private Cohort getCurrentCohort() {
+        if (currentDate == null) {
+            return null;
+        }
+        String month = CohortRepository.DF_YYYYMM.format(currentDate);
+        return map.get(month);
     }
 
 }

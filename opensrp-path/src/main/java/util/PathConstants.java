@@ -28,21 +28,21 @@ PathConstants extends AllConstants {
 
     public static final class ServiceType {
 
-        public static final int DATA_SYNCHRONIZATION = 1;
         public static final int DAILY_TALLIES_GENERATION = 2;
-        public static final int MONTHLY_TALLIES_GENERATION = 3;
+        public static final int COVERAGE_DROPOUT_GENERATION = 3;
         public static final int PULL_UNIQUE_IDS = 4;
         public static final int VACCINE_SYNC_PROCESSING = 5;
         public static final int WEIGHT_SYNC_PROCESSING = 6;
         public static final int RECURRING_SERVICES_SYNC_PROCESSING = 7;
         public static final int IMAGE_UPLOAD = 8;
-        public static final int EXTENDED_DATA_SYNCHRONIZATION = 9;
 
     }
 
     public static final class EventType {
 
         public static final String DEATH = "Death";
+        public static final String BITRH_REGISTRATION = "Birth Registration";
+        public static final String VACCINATION = "Vaccination";
     }
 
     public static final class EntityType {
@@ -103,6 +103,10 @@ PathConstants extends AllConstants {
         public static final String HIA_2_INDICATOR = "hia2_indicator";
         public static final String LOOK_UP = "look_up";
         public static final String NUMBER_PICKER = "number_picker";
+    }
+
+    public static final class CONCEPT {
+        public final static String VACCINE_DATE = "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     }
 
 }
