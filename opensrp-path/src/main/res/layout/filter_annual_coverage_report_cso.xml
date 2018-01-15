@@ -70,7 +70,7 @@
                 android:drawablePadding="20dp"
                 android:gravity="center_vertical"
                 android:padding="10dp"
-                android:text="100 Children"
+                android:text="0 Children"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@color/text_black"
                 android:textSize="20sp" />

@@ -32,6 +32,7 @@ import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.domain.CohortIndicator;
+import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -104,6 +105,7 @@ public class VaccinatorApplication extends DrishtiApplication
 
         Hia2ServiceBroadcastReceiver.init(this);
         SyncStatusBroadcastReceiver.init(this);
+        CoverageDropoutBroadcastReceiver.init(this);
         TimeChangedBroadcastReceiver.init(this);
         TimeChangedBroadcastReceiver.getInstance().addOnTimeChangedListener(this);
 

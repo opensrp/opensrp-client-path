@@ -45,6 +45,7 @@ public class ChildReportRepository extends BaseRepository {
 
     private static final String BASE_ENTITY_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_BASE_ENTITY_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_BASE_ENTITY_ID + " COLLATE NOCASE);";
     private static final String COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + " );";
+    private static final String COHORT_BASE_ENTITY_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_" + COLUMN_BASE_ENTITY_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ", " + COLUMN_BASE_ENTITY_ID + " COLLATE NOCASE);";
 
     public ChildReportRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -54,6 +55,7 @@ public class ChildReportRepository extends BaseRepository {
         database.execSQL(COHORT_SQL);
         database.execSQL(BASE_ENTITY_ID_INDEX);
         database.execSQL(COHORT_ID_INDEX);
+        database.execSQL(COHORT_BASE_ENTITY_ID_INDEX);
     }
 
     public void add(ChildReport childReport) {
@@ -81,6 +83,9 @@ public class ChildReportRepository extends BaseRepository {
 
 
     public void changeValidVaccines(String validVaccines, Long id) {
+        if (id == null || StringUtils.isBlank(validVaccines)) {
+            return;
+        }
         try {
             SQLiteDatabase database = getWritableDatabase();
 
@@ -104,6 +109,29 @@ public class ChildReportRepository extends BaseRepository {
         Cursor cursor = null;
         try {
             cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_BASE_ENTITY_ID + " = ? COLLATE NOCASE ", new String[]{baseEntityId}, null, null, null, null);
+            List<ChildReport> childReports = readAllDataElements(cursor);
+            if (!childReports.isEmpty()) {
+                return childReports.get(0);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return null;
+    }
+
+    public ChildReport findByBaseEntityIdAndCohort(String baseEntityId, Long cohortId) {
+        if (StringUtils.isBlank(baseEntityId) || cohortId == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? AND " + COLUMN_BASE_ENTITY_ID + " = ? COLLATE NOCASE ", new String[]{cohortId.toString(), baseEntityId}, null, null, null, null);
             List<ChildReport> childReports = readAllDataElements(cursor);
             if (!childReports.isEmpty()) {
                 return childReports.get(0);

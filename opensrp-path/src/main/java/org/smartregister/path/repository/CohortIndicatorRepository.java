@@ -124,6 +124,23 @@ public class CohortIndicatorRepository extends BaseRepository {
         return null;
     }
 
+    public void changeValue(Long value, Long id) {
+        if (id == null || value == null) {
+            return;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+
+            ContentValues valuesToBeUpdated = new ContentValues();
+            valuesToBeUpdated.put(COLUMN_VALUE, value);
+
+            String idSelection = COLUMN_ID + " = ?";
+            database.update(TABLE_NAME, valuesToBeUpdated, idSelection,
+                    new String[]{id.toString()});
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
 
     public CohortIndicator findById(long id) {
         Cursor cursor = null;

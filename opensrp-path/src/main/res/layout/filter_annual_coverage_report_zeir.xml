@@ -69,7 +69,7 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
-                android:text="100 Children"
+                android:text="0 Children"
                 android:textColor="@color/text_black"
                 android:textSize="20sp" />
 
