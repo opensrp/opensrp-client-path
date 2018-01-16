@@ -58,7 +58,7 @@ public class CohortSpinnerAdapter extends ArrayAdapter<Cohort> {
                 dateString = dateString + " " + firstSuffix;
             }
             textView.setText(dateString);
-            textView.setTag(new CohortHolder(cohort.getId()));
+            textView.setTag(new CohortHolder(cohort.getId(), date));
         }
         return view;
     }
@@ -84,7 +84,7 @@ public class CohortSpinnerAdapter extends ArrayAdapter<Cohort> {
                 dateString = dateString + " " + firstSuffix;
             }
             textView.setText(dateString);
-            textView.setTag(new CohortHolder(cohort.getId()));
+            textView.setTag(new CohortHolder(cohort.getId(), date));
         }
         return view;
     }

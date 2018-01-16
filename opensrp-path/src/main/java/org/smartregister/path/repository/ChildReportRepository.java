@@ -41,11 +41,11 @@ public class ChildReportRepository extends BaseRepository {
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
             COLUMN_VALID_VACCINES + " VARCHAR NULL," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
-            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
+            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, " +
+            " UNIQUE(" + COLUMN_BASE_ENTITY_ID + ", " + COLUMN_COHORT_ID + ") ON CONFLICT IGNORE )";
 
     private static final String BASE_ENTITY_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_BASE_ENTITY_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_BASE_ENTITY_ID + " COLLATE NOCASE);";
     private static final String COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + " );";
-    private static final String COHORT_BASE_ENTITY_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_" + COLUMN_BASE_ENTITY_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ", " + COLUMN_BASE_ENTITY_ID + " COLLATE NOCASE);";
 
     public ChildReportRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -55,7 +55,6 @@ public class ChildReportRepository extends BaseRepository {
         database.execSQL(COHORT_SQL);
         database.execSQL(BASE_ENTITY_ID_INDEX);
         database.execSQL(COHORT_ID_INDEX);
-        database.execSQL(COHORT_BASE_ENTITY_ID_INDEX);
     }
 
     public void add(ChildReport childReport) {

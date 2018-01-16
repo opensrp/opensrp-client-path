@@ -10,7 +10,6 @@ public class CohortIndicator implements Serializable {
     private Long id;
     private Long cohortId;
     private String vaccine;
-    private Date endDate;
     private Long value;
     private Date createdAt;
     private Date updatedAt;
@@ -39,13 +38,6 @@ public class CohortIndicator implements Serializable {
         this.vaccine = vaccine;
     }
 
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
 
     public Long getValue() {
         return value;

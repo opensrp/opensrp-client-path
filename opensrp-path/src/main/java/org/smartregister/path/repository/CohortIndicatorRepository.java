@@ -1,7 +1,6 @@
 package org.smartregister.path.repository;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.repository.BaseRepository;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,17 +19,15 @@ import java.util.List;
  */
 public class CohortIndicatorRepository extends BaseRepository {
     private static final String TAG = CohortIndicatorRepository.class.getCanonicalName();
-    public static final SimpleDateFormat DF_YYYYMM = new SimpleDateFormat("yyyy-MM");
     private static final String TABLE_NAME = "cohort_indicators";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_COHORT_ID = "cohort_id";
     private static final String COLUMN_VACCINE = "vaccine";
-    private static final String COLUMN_END_DATE = "end_date";
     private static final String COLUMN_VALUE = "value";
     private static final String COLUMN_CREATED_AT = "created_at";
     private static final String COLUMN_UPDATED_AT = "updated_at";
     private static final String[] TABLE_COLUMNS = {
-            COLUMN_ID, COLUMN_COHORT_ID, COLUMN_VACCINE, COLUMN_END_DATE, COLUMN_VALUE, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
+            COLUMN_ID, COLUMN_COHORT_ID, COLUMN_VACCINE, COLUMN_VALUE, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
 
     };
 
@@ -39,11 +35,10 @@ public class CohortIndicatorRepository extends BaseRepository {
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
             COLUMN_VACCINE + " VARCHAR NOT NULL," +
-            COLUMN_END_DATE + " DATETIME NOT NULL," +
             COLUMN_VALUE + " INTEGER NOT NULL DEFAULT 0," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
-            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
-    private static final String COHORT_VACCINE_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_" + COLUMN_VACCINE + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ", " + COLUMN_VACCINE + " COLLATE NOCASE );";
+            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, " +
+            " UNIQUE(" + COLUMN_VACCINE + ", " + COLUMN_COHORT_ID + ") ON CONFLICT IGNORE )";
     private static final String COHORT_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ");";
 
     public CohortIndicatorRepository(PathRepository pathRepository) {
@@ -53,7 +48,6 @@ public class CohortIndicatorRepository extends BaseRepository {
 
     protected static void createTable(SQLiteDatabase database) {
         database.execSQL(COHORT_SQL);
-        database.execSQL(COHORT_VACCINE_INDEX);
         database.execSQL(COHORT_INDEX);
     }
 
@@ -171,7 +165,6 @@ public class CohortIndicatorRepository extends BaseRepository {
                     cohortIndicator.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
                     cohortIndicator.setCohortId(cursor.getLong(cursor.getColumnIndex(COLUMN_COHORT_ID)));
                     cohortIndicator.setVaccine(cursor.getString(cursor.getColumnIndex(COLUMN_VACCINE)));
-                    cohortIndicator.setEndDate(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_END_DATE))));
                     cohortIndicator.setValue(cursor.getLong(cursor.getColumnIndex(COLUMN_VALUE)));
                     cohortIndicator.setCreatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_AT))));
                     cohortIndicator.setUpdatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_UPDATED_AT))));
@@ -191,7 +184,6 @@ public class CohortIndicatorRepository extends BaseRepository {
         values.put(COLUMN_ID, cohortIndicator.getId());
         values.put(COLUMN_COHORT_ID, cohortIndicator.getCohortId());
         values.put(COLUMN_VACCINE, cohortIndicator.getVaccine());
-        values.put(COLUMN_END_DATE, cohortIndicator.getEndDate() != null ? cohortIndicator.getEndDate().getTime() : null);
         values.put(COLUMN_VALUE, cohortIndicator.getValue());
         values.put(COLUMN_CREATED_AT, cohortIndicator.getCreatedAt() != null ? cohortIndicator.getCreatedAt().getTime() : null);
         values.put(COLUMN_UPDATED_AT, cohortIndicator.getUpdatedAt() != null ? cohortIndicator.getUpdatedAt().getTime() : null);

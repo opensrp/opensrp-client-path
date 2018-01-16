@@ -35,6 +35,7 @@ import org.smartregister.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -208,11 +209,21 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
                 vaccineTextView.setText(display);
 
-                long value = 0;
                 boolean finalized = false;
-                if (cohortIndicator != null) {
+                Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(holder.getMonth()));
+                if (endDate != null) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(endDate);
+                    calendar.add(Calendar.DATE, 1);
+                    endDate = calendar.getTime();
+
                     Date currentDate = new Date();
-                    finalized = !(DateUtils.isSameDay(currentDate, cohortIndicator.getEndDate()) || currentDate.before(cohortIndicator.getEndDate()));
+                    finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
+                }
+
+                long value = 0;
+
+                if (cohortIndicator != null) {
                     value = cohortIndicator.getValue();
                 }
 
@@ -346,7 +357,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 Cohort cohort = cohorts.get(0);
 
                 long cohortSize = childReportRepository.countCohort(cohort.getId());
-                CohortHolder cohortHolder = new CohortHolder(cohort.getId(), cohortSize);
+                CohortHolder cohortHolder = new CohortHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
 
                 CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();

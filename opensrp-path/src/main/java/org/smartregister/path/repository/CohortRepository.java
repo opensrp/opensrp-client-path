@@ -32,10 +32,9 @@ public class CohortRepository extends BaseRepository {
 
     private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-            COLUMN_MONTH + " VARCHAR NOT NULL," +
+            COLUMN_MONTH + " VARCHAR NOT NULL UNIQUE ON CONFLICT IGNORE," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
-    private static final String MONTH_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_MONTH + "_index ON " + TABLE_NAME + "(" + COLUMN_MONTH + " COLLATE NOCASE);";
 
     public CohortRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -44,7 +43,6 @@ public class CohortRepository extends BaseRepository {
 
     protected static void createTable(SQLiteDatabase database) {
         database.execSQL(COHORT_SQL);
-        database.execSQL(MONTH_INDEX);
     }
 
     public void add(Cohort cohort) {

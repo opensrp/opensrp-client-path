@@ -9,14 +9,17 @@ import java.util.Date;
 public class CohortHolder {
     private Long cohortId;
     private Long size;
+    private Date month;
 
-    public CohortHolder(Long cohortId, Long size) {
+    public CohortHolder(Long cohortId, Date month, Long size) {
         this.cohortId = cohortId;
+        this.month = month;
         this.size = size;
     }
 
-    public CohortHolder(Long cohortId) {
+    public CohortHolder(Long cohortId, Date month) {
         this.cohortId = cohortId;
+        this.month = month;
     }
 
     public void setSize(Long size) {
@@ -29,5 +32,9 @@ public class CohortHolder {
 
     public Long getSize() {
         return size;
+    }
+
+    public Date getMonth() {
+        return month;
     }
 }
