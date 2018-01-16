@@ -105,27 +105,6 @@ public class CohortRepository extends BaseRepository {
         return null;
     }
 
-
-    public Cohort findById(long id) {
-        Cursor cursor = null;
-
-        try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
-            List<Cohort> cohorts = readAllDataElements(cursor);
-            if (!cohorts.isEmpty()) {
-                return cohorts.get(0);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        return null;
-    }
-
     public List<Cohort> fetchAll() {
         Cursor cursor = null;
 

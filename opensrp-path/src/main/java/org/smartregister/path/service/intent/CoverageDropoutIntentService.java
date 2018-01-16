@@ -55,7 +55,7 @@ public class CoverageDropoutIntentService extends IntentService {
             " FROM " + VaccineRepository.VACCINE_TABLE_NAME + " v  " +
             " LEFT JOIN " + PathConstants.CHILD_TABLE_NAME + " c  " +
             " ON v." + VaccineRepository.BASE_ENTITY_ID + " = c." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID +
-            " WHERE (v."+VaccineRepository.OUT_OF_AREA + " is NULL OR v." + VaccineRepository.OUT_OF_AREA + " = 0) ";
+            " WHERE (v." + VaccineRepository.OUT_OF_AREA + " is NULL OR v." + VaccineRepository.OUT_OF_AREA + " = 0) ";
 
     private static final String COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE";
     private static final String COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE";
@@ -192,7 +192,7 @@ public class CoverageDropoutIntentService extends IntentService {
                 }
             }
 
-            ChildReport childReport = childReportRepository.findByBaseEntityIdAndCohort(baseEntityId, cohort.getId());
+            ChildReport childReport = childReportRepository.findByBaseEntityId(baseEntityId);
             if (childReport == null) {
                 childReport = new ChildReport();
                 childReport.setBaseEntityId(baseEntityId);
@@ -262,6 +262,13 @@ public class CoverageDropoutIntentService extends IntentService {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+
+    }
+
+    private void unregister(String baseEntityId) {
+
+        childReportRepository.findByBaseEntityId(baseEntityId);
+
 
     }
 

@@ -136,26 +136,6 @@ public class CohortIndicatorRepository extends BaseRepository {
         }
     }
 
-    public CohortIndicator findById(long id) {
-        Cursor cursor = null;
-
-        try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
-            List<CohortIndicator> cohortIndicators = readAllDataElements(cursor);
-            if (!cohortIndicators.isEmpty()) {
-                return cohortIndicators.get(0);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        return null;
-    }
-
     private List<CohortIndicator> readAllDataElements(Cursor cursor) {
         List<CohortIndicator> cohortIndicators = new ArrayList<>();
         try {

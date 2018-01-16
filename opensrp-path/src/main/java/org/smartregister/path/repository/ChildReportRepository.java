@@ -4,26 +4,21 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-import net.sqlcipher.DatabaseUtils;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.domain.ChildReport;
 import org.smartregister.repository.BaseRepository;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static org.smartregister.domain.AlertStatus.inProcess;
 
 /**
  * Created by keyman on 11/01/18.
  */
 public class ChildReportRepository extends BaseRepository {
     private static final String TAG = ChildReportRepository.class.getCanonicalName();
-    public static final SimpleDateFormat DF_YYYYMM = new SimpleDateFormat("yyyy-MM");
     private static final String TABLE_NAME = "child_reports";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_BASE_ENTITY_ID = "base_entity_id";
@@ -37,14 +32,12 @@ public class ChildReportRepository extends BaseRepository {
 
     private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-            COLUMN_BASE_ENTITY_ID + " VARCHAR NOT NULL," +
+            COLUMN_BASE_ENTITY_ID + " VARCHAR NOT NULL UNIQUE ON CONFLICT IGNORE," +
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
             COLUMN_VALID_VACCINES + " VARCHAR NULL," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
-            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, " +
-            " UNIQUE(" + COLUMN_BASE_ENTITY_ID + ", " + COLUMN_COHORT_ID + ") ON CONFLICT IGNORE )";
+            COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
 
-    private static final String BASE_ENTITY_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_BASE_ENTITY_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_BASE_ENTITY_ID + " COLLATE NOCASE);";
     private static final String COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + " );";
 
     public ChildReportRepository(PathRepository pathRepository) {
@@ -53,7 +46,6 @@ public class ChildReportRepository extends BaseRepository {
 
     protected static void createTable(SQLiteDatabase database) {
         database.execSQL(COHORT_SQL);
-        database.execSQL(BASE_ENTITY_ID_INDEX);
         database.execSQL(COHORT_ID_INDEX);
     }
 
@@ -108,29 +100,6 @@ public class ChildReportRepository extends BaseRepository {
         Cursor cursor = null;
         try {
             cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_BASE_ENTITY_ID + " = ? COLLATE NOCASE ", new String[]{baseEntityId}, null, null, null, null);
-            List<ChildReport> childReports = readAllDataElements(cursor);
-            if (!childReports.isEmpty()) {
-                return childReports.get(0);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        return null;
-    }
-
-    public ChildReport findByBaseEntityIdAndCohort(String baseEntityId, Long cohortId) {
-        if (StringUtils.isBlank(baseEntityId) || cohortId == null) {
-            return null;
-        }
-
-        Cursor cursor = null;
-        try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? AND " + COLUMN_BASE_ENTITY_ID + " = ? COLLATE NOCASE ", new String[]{cohortId.toString(), baseEntityId}, null, null, null, null);
             List<ChildReport> childReports = readAllDataElements(cursor);
             if (!childReports.isEmpty()) {
                 return childReports.get(0);
