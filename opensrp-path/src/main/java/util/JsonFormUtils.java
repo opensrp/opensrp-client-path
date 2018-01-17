@@ -40,6 +40,7 @@ import org.smartregister.path.activity.ChildSmartRegisterActivity;
 import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.UniqueIdRepository;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
@@ -1392,6 +1393,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     values.put(PathConstants.EC_CHILD_TABLE.DOD, PathConstants.DEFAULT_DATE_STRING);
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
+
+                    CoverageDropoutIntentService.unregister(context, entityId);
                 }
             }
 

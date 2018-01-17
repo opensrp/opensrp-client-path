@@ -68,7 +68,7 @@ public class CohortRepository extends BaseRepository {
         }
     }
 
-    public Cohort findByMonth(String month) {
+    private Cohort findByMonth(String month) {
         if (StringUtils.isBlank(month)) {
             return null;
         }
@@ -105,6 +105,29 @@ public class CohortRepository extends BaseRepository {
         return null;
     }
 
+    public Cohort findById(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_ID + " = ?", new String[]{id.toString()}, null, null, null, null);
+            List<Cohort> cohorts = readAllDataElements(cursor);
+            if (!cohorts.isEmpty()) {
+                return cohorts.get(0);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return null;
+    }
+
     public List<Cohort> fetchAll() {
         Cursor cursor = null;
 
@@ -120,6 +143,22 @@ public class CohortRepository extends BaseRepository {
         }
 
         return new ArrayList<>();
+    }
+
+    public boolean delete(Long id) {
+        if (id == null) {
+            return false;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+            int rowsAffected = database.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{id.toString()});
+            if (rowsAffected > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+        }
+        return false;
     }
 
     private List<Cohort> readAllDataElements(Cursor cursor) {

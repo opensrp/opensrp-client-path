@@ -1,6 +1,7 @@
 package org.smartregister.path.service.intent;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -20,9 +21,13 @@ import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.repository.EventClientRepository;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import util.PathConstants;
@@ -40,11 +45,11 @@ public class CoverageDropoutIntentService extends IntentService {
     private EventClientRepository eventClientRepository;
 
     private static final String BIRTH_REGISTRATION_QUERY = "SELECT " +
-            PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID +
-            ", " + PathConstants.EC_CHILD_TABLE.DOB +
-            ", " + PathConstants.EC_CHILD_TABLE.DATE +
-            " FROM " + PathConstants.CHILD_TABLE_NAME +
-            " WHERE (" + PathConstants.EC_CHILD_TABLE.DOD + " is NULL OR " + PathConstants.EC_CHILD_TABLE.DOD + " = '') ";
+            EventClientRepository.client_column.baseEntityId.name() +
+            ", " + EventClientRepository.client_column.birthdate.name() +
+            ", " + EventClientRepository.client_column.updatedAt.name() +
+            " FROM " + EventClientRepository.Table.client.name() +
+            " WHERE (" + EventClientRepository.client_column.deathdate.name() + " is NULL OR " + EventClientRepository.client_column.deathdate.name() + " = '') ";
 
     private static final String VACCINE_QUERY = "SELECT " +
             "v." + VaccineRepository.BASE_ENTITY_ID +
@@ -53,9 +58,8 @@ public class CoverageDropoutIntentService extends IntentService {
             ", v." + VaccineRepository.DATE +
             ", v." + VaccineRepository.UPDATED_AT_COLUMN +
             " FROM " + VaccineRepository.VACCINE_TABLE_NAME + " v  " +
-            " LEFT JOIN " + PathConstants.CHILD_TABLE_NAME + " c  " +
-            " ON v." + VaccineRepository.BASE_ENTITY_ID + " = c." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID +
-            " WHERE (v." + VaccineRepository.OUT_OF_AREA + " is NULL OR v." + VaccineRepository.OUT_OF_AREA + " = 0) ";
+            " INNER JOIN " + PathConstants.CHILD_TABLE_NAME + " c  " +
+            " ON v." + VaccineRepository.BASE_ENTITY_ID + " = c." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID;
 
     private static final String COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE";
     private static final String COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE";
@@ -100,9 +104,16 @@ public class CoverageDropoutIntentService extends IntentService {
         sendBroadcast(intent);
     }
 
+    private static void sendBroadcastMessage(Context context, String type) {
+        Intent intent = new Intent();
+        intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
+        intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
+        context.sendBroadcast(intent);
+    }
+
     private void generateBirthRegistrationIndicators() {
         try {
-            final String dateColumn = PathConstants.EC_CHILD_TABLE.DATE;
+            final String dateColumn = EventClientRepository.client_column.updatedAt.name();
             final String orderByClause = " ORDER BY " + dateColumn + " ASC ";
 
             SQLiteDatabase db = VaccinatorApplication.getInstance().getRepository().getWritableDatabase();
@@ -117,13 +128,21 @@ public class CoverageDropoutIntentService extends IntentService {
             }
 
             for (Map<String, String> result : results) {
-                String baseEntityId = result.get(PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID);
-                String dobString = result.get(PathConstants.EC_CHILD_TABLE.DOB);
-                String date = result.get(PathConstants.EC_CHILD_TABLE.DATE);
+                String baseEntityId = result.get(EventClientRepository.client_column.baseEntityId.name());
+                String dobString = result.get(EventClientRepository.client_column.birthdate.name());
+                String updatedAt = result.get(EventClientRepository.client_column.updatedAt.name());
 
-                updateRegistrations(baseEntityId, dobString);
+                if (StringUtils.isNotBlank(dobString)) {
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    try {
+                        Date dob = dateFormat.parse(dobString);
+                        updateRegistrations(baseEntityId, dob);
+                    } catch (ParseException e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }
 
-                VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE, date);
+                VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE, updatedAt);
             }
 
         } catch (Exception e) {
@@ -154,11 +173,16 @@ public class CoverageDropoutIntentService extends IntentService {
                 String updatedAt = result.get(VaccineRepository.UPDATED_AT_COLUMN);
                 String eventDate = result.get(VaccineRepository.DATE);
 
-                ChildReport childReport = updateRegistrations(baseEntityId, dobString);
-                if (childReport != null) {
-                    updateIndicators(dobString, vaccineName, eventDate, childReport);
-                } else {
-                    throw new RuntimeException("WTF!!!");
+                if (StringUtils.isNotBlank(dobString) && StringUtils.isNotBlank(baseEntityId)) {
+                    DateTime dateTime = new DateTime(dobString);
+                    Date dob = dateTime.toDate();
+
+                    ChildReport childReport = updateRegistrations(baseEntityId, dob);
+                    if (childReport != null) {
+                        updateIndicators(dob, vaccineName, eventDate, childReport);
+                    } else {
+                        throw new RuntimeException("Impossible!!!");
+                    }
                 }
 
                 VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE, updatedAt);
@@ -171,14 +195,11 @@ public class CoverageDropoutIntentService extends IntentService {
         }
     }
 
-    private ChildReport updateRegistrations(String baseEntityId, String dobString) {
+    private ChildReport updateRegistrations(String baseEntityId, Date dob) {
         try {
-            if (StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(dobString)) {
+            if (StringUtils.isBlank(baseEntityId) || dob == null) {
                 return null;
             }
-
-            DateTime dateTime = new DateTime(dobString);
-            Date dob = dateTime.toDate();
 
             Cohort cohort = cohortRepository.findByMonth(dob);
             if (cohort == null) {
@@ -208,9 +229,9 @@ public class CoverageDropoutIntentService extends IntentService {
         return null;
     }
 
-    private void updateIndicators(String dobString, String vaccineName, String eventDate, ChildReport childReport) {
+    private void updateIndicators(Date dob, String vaccineName, String eventDate, ChildReport childReport) {
         try {
-            if (StringUtils.isBlank(vaccineName) || StringUtils.isBlank(dobString) || childReport == null) {
+            if (StringUtils.isBlank(vaccineName) || dob == null || childReport == null) {
                 return;
             }
 
@@ -220,9 +241,6 @@ public class CoverageDropoutIntentService extends IntentService {
 
             long timeStamp = Long.valueOf(eventDate);
             Date vaccineDate = new Date(timeStamp);
-
-            DateTime dateTime = new DateTime(dobString);
-            Date dob = dateTime.toDate();
 
             // Don't add invalid vaccines to the indicator table
             boolean validVaccine = isValidVaccine(vaccineName, dob, vaccineDate);
@@ -265,12 +283,54 @@ public class CoverageDropoutIntentService extends IntentService {
 
     }
 
-    private void unregister(String baseEntityId) {
+    public static void unregister(Context context, String baseEntityId) {
 
-        childReportRepository.findByBaseEntityId(baseEntityId);
+        CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
+        ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+
+        if (cohortRepository == null || childReportRepository == null || cohortIndicatorRepository == null || StringUtils.isBlank(baseEntityId)) {
+            return;
+        }
+
+        try {
+            ChildReport childReport = childReportRepository.findByBaseEntityId(baseEntityId);
+            if (childReport == null) {
+                return;
+            }
+
+            Long cohortId = childReport.getCohortId();
+
+            String validVaccines = childReport.getValidVaccines();
+            if (StringUtils.isNotBlank(validVaccines)) {
+                String[] vaccines = validVaccines.split(",");
+                for (String vaccine : vaccines) {
+                    CohortIndicator cohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(vaccine, cohortId);
+                    if (cohortIndicator != null) {
+                        if (cohortIndicator.getValue() > 1) {
+                            cohortIndicator.setValue(cohortIndicator.getValue() - 1);
+                        } else {
+                            cohortIndicatorRepository.delete(cohortIndicator.getId());
+                        }
+                    }
+                }
+            }
+
+            childReportRepository.delete(childReport.getId());
+
+            List<ChildReport> otherChildren = childReportRepository.findByCohort(cohortId);
+            if (otherChildren == null || otherChildren.isEmpty()) {
+                cohortRepository.delete(cohortId);
+            }
 
 
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
+        }
     }
+
 
     private boolean isValidVaccine(String vaccine, Date dob, Date eventDate) {
         Date endDate = Utils.getCohortEndDate(vaccine, dob);

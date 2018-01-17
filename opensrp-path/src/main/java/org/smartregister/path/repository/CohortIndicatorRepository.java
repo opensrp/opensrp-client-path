@@ -136,6 +136,22 @@ public class CohortIndicatorRepository extends BaseRepository {
         }
     }
 
+    public boolean delete(Long id) {
+        if (id == null) {
+            return false;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+            int rowsAffected = database.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{id.toString()});
+            if (rowsAffected > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+        }
+        return false;
+    }
+
     private List<CohortIndicator> readAllDataElements(Cursor cursor) {
         List<CohortIndicator> cohortIndicators = new ArrayList<>();
         try {

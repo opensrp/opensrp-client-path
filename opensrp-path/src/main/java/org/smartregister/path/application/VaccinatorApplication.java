@@ -395,13 +395,14 @@ public class VaccinatorApplication extends DrishtiApplication
     public static void setAlarms(android.content.Context context) {
 
         final int TRIGGER_ITERATION_TWO_MINUTES = 2;
+        final int TRIGGER_ITERATION_THREE_MINUTES = 3;
         final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
         final int TRIGGER_ITERATION_TEN_MINUTES = 10;
 
-        VaccinatorAlarmReceiver.setAlarm(context, 1, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
-
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
+
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_THREE_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);

@@ -115,6 +115,26 @@ public class ChildReportRepository extends BaseRepository {
         return null;
     }
 
+    public List<ChildReport> findByCohort(Long cohortId) {
+        if (cohortId == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? ", new String[]{cohortId.toString()}, null, null, null, null);
+            return readAllDataElements(cursor);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return null;
+    }
+
     public long countCohort(Long cohortId) {
         if (cohortId == null) {
             return 0l;
@@ -132,6 +152,22 @@ public class ChildReportRepository extends BaseRepository {
                 cursor.close();
             }
         }
+    }
+
+    public boolean delete(Long id) {
+        if (id == null) {
+            return false;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+            int rowsAffected = database.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{id.toString()});
+            if (rowsAffected > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+        }
+        return false;
     }
 
     private List<ChildReport> readAllDataElements(Cursor cursor) {
