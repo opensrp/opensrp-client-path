@@ -535,6 +535,7 @@ public class PathClientProcessor extends ClientProcessor {
                     Log.d(getClass().getName(), "CASE_DELETED: " + caseDeleted);
                 }
 
+                // Update coverage reports
                 CoverageDropoutIntentService.unregister(getContext(), baseEntityId);
 
                 return true;

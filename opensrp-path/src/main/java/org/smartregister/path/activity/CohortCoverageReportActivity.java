@@ -194,8 +194,13 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                     view = convertView;
                 }
 
+                long value = 0;
                 VaccineRepo.Vaccine vaccine = vaccineList.get(position);
                 CohortIndicator cohortIndicator = retrieveIndicator(indicators, vaccine);
+
+                if (cohortIndicator != null) {
+                    value = cohortIndicator.getValue();
+                }
 
                 String display = vaccine.display();
                 if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
@@ -219,12 +224,6 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
 
                     Date currentDate = new Date();
                     finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
-                }
-
-                long value = 0;
-
-                if (cohortIndicator != null) {
-                    value = cohortIndicator.getValue();
                 }
 
                 TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);

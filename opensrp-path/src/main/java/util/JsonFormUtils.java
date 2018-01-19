@@ -1394,6 +1394,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     allCommonsRepository.update(tableName, values, entityId);
                     allCommonsRepository.updateSearch(entityId);
 
+                    // Update coverage reports
                     CoverageDropoutIntentService.unregister(context, entityId);
                 }
             }
