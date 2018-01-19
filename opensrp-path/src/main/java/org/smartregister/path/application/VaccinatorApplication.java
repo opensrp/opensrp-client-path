@@ -31,7 +31,6 @@ import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
-import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;

@@ -3,7 +3,6 @@ package org.smartregister.path.service.intent;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -438,21 +437,24 @@ public class CoverageDropoutIntentService extends IntentService {
     }
 
     private static String formatVaccineName(String vaccineName) {
-        vaccineName = VaccineRepository.removeHyphen(vaccineName);
-        vaccineName = vaccineName.trim();
-        vaccineName = VaccineRepository.addHyphen(vaccineName.toLowerCase());
+        if (StringUtils.isBlank(vaccineName)) {
+            return vaccineName;
+        }
+
+        String vaccine = VaccineRepository.removeHyphen(vaccineName).trim();
+        vaccine = VaccineRepository.addHyphen(vaccine.toLowerCase());
 
         final String mr1 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr1.display().toLowerCase());
         final String mr2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr2.display().toLowerCase());
-        if (vaccineName.equals(mr1)) {
-            vaccineName = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles1.display().toLowerCase());
+        if (vaccine.equals(mr1)) {
+            vaccine = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles1.display().toLowerCase());
         }
 
-        if (vaccineName.equals(mr2)) {
-            vaccineName = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles2.display().toLowerCase());
+        if (vaccine.equals(mr2)) {
+            vaccine = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles2.display().toLowerCase());
         }
 
-        return vaccineName;
+        return vaccine;
     }
 
     private static List<String> validVaccinesAsList(String validVaccines) {

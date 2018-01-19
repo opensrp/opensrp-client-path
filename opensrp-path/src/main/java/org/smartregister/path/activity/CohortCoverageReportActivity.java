@@ -314,7 +314,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
     ////////////////////////////////////////////////////////////////
     private class GenerateReportTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
-        BaseActivity baseActivity;
+        private BaseActivity baseActivity;
 
         private GenerateReportTask(BaseActivity baseActivity) {
             this.baseActivity = baseActivity;
