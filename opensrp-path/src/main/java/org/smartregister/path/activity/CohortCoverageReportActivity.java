@@ -27,7 +27,7 @@ import org.smartregister.path.domain.CohortHolder;
 import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
-import org.smartregister.path.repository.ChildReportRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
@@ -350,12 +350,12 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 });
 
 
-                ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+                CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
 
                 // Populate the default cohort
                 Cohort cohort = cohorts.get(0);
 
-                long cohortSize = childReportRepository.countCohort(cohort.getId());
+                long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
                 CohortHolder cohortHolder = new CohortHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
 
@@ -483,8 +483,8 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
                 List<CohortIndicator> indicators = cohortIndicatorRepository.findByCohort(cohortId);
 
-                ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
-                long cohortSize = childReportRepository.countCohort(cohortId);
+                CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+                long cohortSize = cohortPatientRepository.countCohort(cohortId);
 
                 return Pair.create(indicators, cohortSize);
             }

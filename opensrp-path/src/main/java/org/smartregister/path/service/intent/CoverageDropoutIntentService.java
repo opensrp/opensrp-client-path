@@ -4,22 +4,31 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.Months;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.ChildReport;
 import org.smartregister.path.domain.Cohort;
 import org.smartregister.path.domain.CohortIndicator;
+import org.smartregister.path.domain.CohortPatient;
+import org.smartregister.path.domain.Cumulative;
+import org.smartregister.path.domain.CumulativeIndicator;
+import org.smartregister.path.domain.CumulativePatient;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
-import org.smartregister.path.repository.ChildReportRepository;
 import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
+import org.smartregister.path.repository.CumulativeIndicatorRepository;
+import org.smartregister.path.repository.CumulativePatientRepository;
+import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.repository.EventClientRepository;
 
 import java.text.DateFormat;
@@ -27,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +74,9 @@ public class CoverageDropoutIntentService extends IntentService {
     private static final String COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE";
     private static final String COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE";
 
+    private static final String COLON = ":";
+    private static final String COMMA = ",";
+
     public CoverageDropoutIntentService() {
         super("CoverageDropoutIntentService");
     }
@@ -93,17 +106,21 @@ public class CoverageDropoutIntentService extends IntentService {
     }
 
     private void sendBroadcastMessage(String type) {
-        Intent intent = new Intent();
-        intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
-        intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
-        sendBroadcast(intent);
+        if (type != null) {
+            Intent intent = new Intent();
+            intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
+            intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
+            sendBroadcast(intent);
+        }
     }
 
     private static void sendBroadcastMessage(Context context, String type) {
-        Intent intent = new Intent();
-        intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
-        intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
-        context.sendBroadcast(intent);
+        if (context != null && type != null) {
+            Intent intent = new Intent();
+            intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
+            intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
+            context.sendBroadcast(intent);
+        }
     }
 
     private void generateBirthRegistrationIndicators() {
@@ -132,7 +149,7 @@ public class CoverageDropoutIntentService extends IntentService {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     try {
                         Date dob = dateFormat.parse(dobString);
-                        updateRegistrations(baseEntityId, dob);
+                        updateCohortRegistrations(baseEntityId, dob);
                     } catch (ParseException e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
@@ -171,11 +188,14 @@ public class CoverageDropoutIntentService extends IntentService {
                     String updatedAt = result.get(VaccineRepository.UPDATED_AT_COLUMN);
                     String eventDate = result.get(VaccineRepository.DATE);
 
-                    if (StringUtils.isNotBlank(dobString) && StringUtils.isNotBlank(baseEntityId)) {
+                    if (StringUtils.isNotBlank(dobString) && StringUtils.isNotBlank(baseEntityId) && StringUtils.isNotBlank(eventDate) && StringUtils.isNumeric(eventDate)) {
                         DateTime dateTime = new DateTime(dobString);
                         Date dob = dateTime.toDate();
 
-                        updateIndicators(getApplicationContext(), baseEntityId, dob, vaccineName, eventDate);
+                        long timeStamp = Long.valueOf(eventDate);
+                        Date vaccineDate = new Date(timeStamp);
+
+                        updateIndicators(getApplicationContext(), baseEntityId, dob, vaccineName, vaccineDate);
                     }
 
                     VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE, updatedAt);
@@ -191,14 +211,59 @@ public class CoverageDropoutIntentService extends IntentService {
         }
     }
 
-    private static void updateRegistrations(String baseEntityId, Date dob) {
+
+    public static void updateIndicators(Context context, String baseEntityId, Date dob, String vaccineName, Date vaccineDate) {
+        if (context == null || StringUtils.isBlank(baseEntityId) || dob == null || StringUtils.isBlank(vaccineName) || vaccineDate == null) {
+            return;
+        }
+        try {
+            List<String> vaccines = formatAndSplitVaccineName(vaccineName);
+
+            for (String vaccine : vaccines) {
+                updateCohortIndicators(dob, baseEntityId, vaccine, vaccineDate);
+                updateCumulativeIndicators(dob, baseEntityId, vaccine, vaccineDate);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
+        }
+    }
+
+    public static void unregister(Context context, String baseEntityId) {
+        unregisterCohort(context, baseEntityId, null);
+    }
+
+    public static void unregister(Context context, String baseEntityId, String vaccineName) {
+        unregisterCohort(context, baseEntityId, vaccineName);
+        unregisterCumulative(context, baseEntityId, vaccineName);
+    }
+
+    private static void deleteCohortIndicator(String vaccine, Long cohortId) {
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+        CohortIndicator cohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(vaccine, cohortId);
+
+        if (cohortIndicator != null) {
+            if (cohortIndicator.getValue() > 1) {
+                long value = cohortIndicator.getValue() - 1L;
+                cohortIndicatorRepository.changeValue(value, cohortIndicator.getId());
+            } else {
+                cohortIndicatorRepository.delete(cohortIndicator.getId());
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // COHORT
+    ////////////////////////////////////////////////////////////////
+    private static void updateCohortRegistrations(String baseEntityId, Date dob) {
         try {
             if (StringUtils.isBlank(baseEntityId) || dob == null) {
                 return;
             }
 
             CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
-            ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+            CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
 
             Cohort cohort = cohortRepository.findByMonth(dob);
             if (cohort == null) {
@@ -212,12 +277,12 @@ public class CoverageDropoutIntentService extends IntentService {
                 }
             }
 
-            ChildReport childReport = childReportRepository.findByBaseEntityId(baseEntityId);
-            if (childReport == null) {
-                childReport = new ChildReport();
-                childReport.setBaseEntityId(baseEntityId);
-                childReport.setCohortId(cohort.getId());
-                childReportRepository.add(childReport);
+            CohortPatient cohortPatient = cohortPatientRepository.findByBaseEntityId(baseEntityId);
+            if (cohortPatient == null) {
+                cohortPatient = new CohortPatient();
+                cohortPatient.setBaseEntityId(baseEntityId);
+                cohortPatient.setCohortId(cohort.getId());
+                cohortPatientRepository.add(cohortPatient);
             }
 
         } catch (Exception e) {
@@ -226,53 +291,30 @@ public class CoverageDropoutIntentService extends IntentService {
 
     }
 
-    public static void updateIndicators(Context context, String baseEntityId, Date dob, String vaccineName, String eventDate) {
-        if (context == null || StringUtils.isBlank(baseEntityId) || dob == null || StringUtils.isBlank(vaccineName) || StringUtils.isBlank(eventDate)) {
-            return;
-        }
+    private static void updateCohortIndicators(Date dob, String baseEntityId, String vaccineName, Date vaccineDate) {
         try {
-            List<String> vaccines = formatAndSplitVaccineName(vaccineName);
-
-            for (String vaccine : vaccines) {
-                ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
-                ChildReport childReport = childReportRepository.findByBaseEntityId(baseEntityId);
-                if (childReport != null) {
-                    updateIndicators(dob, vaccine, eventDate, childReport);
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        } finally {
-            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
-        }
-
-    }
-
-    private static void updateIndicators(Date dob, String vaccineName, String eventDate, ChildReport childReport) {
-        try {
-            if (StringUtils.isBlank(vaccineName) || dob == null || childReport == null) {
+            if (StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(vaccineName) || dob == null || vaccineDate == null) {
                 return;
             }
 
-            if (StringUtils.isBlank(eventDate) || !StringUtils.isNumeric(eventDate)) {
-                return;
-            }
 
-            ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+            CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
             CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
 
-            long timeStamp = Long.valueOf(eventDate);
-            Date vaccineDate = new Date(timeStamp);
+            CohortPatient cohortPatient = cohortPatientRepository.findByBaseEntityId(baseEntityId);
+            if (cohortPatient == null) {
+                return;
+            }
 
             // Don't add an already counted vaccine unless it's invalid now
             boolean alreadyCounted = false;
-            String preVaccines = childReport.getValidVaccines();
-            if (StringUtils.isNotBlank(preVaccines) && preVaccines.contains(vaccineName)) {
+            List<String> vaccineList = validVaccinesAsList(cohortPatient.getValidVaccines());
+            if (!vaccineList.isEmpty() && vaccineList.contains(vaccineName)) {
                 alreadyCounted = true;
             }
 
             // Don't add invalid vaccines to the indicator table
-            boolean isValid = isValidVaccine(vaccineName, dob, vaccineDate);
+            boolean isValid = isVaccineValidForCohort(vaccineName, dob, vaccineDate);
 
             boolean subtract = false;
             if (!isValid) {
@@ -287,27 +329,21 @@ public class CoverageDropoutIntentService extends IntentService {
                 }
             }
 
-            String validVaccines = vaccineName;
-            if (StringUtils.isNotBlank(preVaccines)) {
-                List<String> vaccineList = validVaccinesAsList(preVaccines);
-
-                if (subtract) {
-                    vaccineList.remove(vaccineName);
-                } else {
-                    vaccineList.add(vaccineName);
-                }
-
-                validVaccines = StringUtils.join(vaccineList, ",");
+            if (subtract) {
+                vaccineList.remove(vaccineName);
+            } else {
+                vaccineList.add(vaccineName);
             }
-            childReportRepository.changeValidVaccines(validVaccines, childReport.getId());
 
-            CohortIndicator cohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(vaccineName, childReport.getCohortId());
+            cohortPatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cohortPatient.getId());
+
+            CohortIndicator cohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(vaccineName, cohortPatient.getCohortId());
             if (cohortIndicator == null) {
                 if (subtract) {
-                    throw CoverageDropoutException.newInstance("Impossible!!! subract should only happen for already counted vaccines");
+                    throw CoverageDropoutException.newInstance("Impossible!!! subtract should only happen for already counted vaccines");
                 }
                 cohortIndicator = new CohortIndicator();
-                cohortIndicator.setCohortId(childReport.getCohortId());
+                cohortIndicator.setCohortId(cohortPatient.getCohortId());
                 cohortIndicator.setValue(1L);
                 cohortIndicator.setVaccine(vaccineName);
                 cohortIndicatorRepository.add(cohortIndicator);
@@ -328,56 +364,55 @@ public class CoverageDropoutIntentService extends IntentService {
         }
     }
 
-    public static void unregister(Context context, String baseEntityId, String vaccineName) {
+    private static void unregisterCohort(Context context, String baseEntityId, String vaccineName) {
 
         CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
-        ChildReportRepository childReportRepository = VaccinatorApplication.getInstance().childReportRepository();
+        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
         CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
 
-        if (cohortRepository == null || childReportRepository == null || cohortIndicatorRepository == null || StringUtils.isBlank(baseEntityId)) {
+        if (cohortRepository == null || cohortPatientRepository == null || cohortIndicatorRepository == null || StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(vaccineName)) {
             return;
         }
 
         try {
-            ChildReport childReport = childReportRepository.findByBaseEntityId(baseEntityId);
-            if (childReport == null) {
+            CohortPatient cohortPatient = cohortPatientRepository.findByBaseEntityId(baseEntityId);
+            if (cohortPatient == null) {
                 return;
             }
 
-            Long cohortId = childReport.getCohortId();
+            Long cohortId = cohortPatient.getCohortId();
 
-            String validVaccines = childReport.getValidVaccines();
+            String validVaccines = cohortPatient.getValidVaccines();
             if (StringUtils.isNotBlank(validVaccines)) {
                 List<String> vaccineList = validVaccinesAsList(validVaccines);
 
                 if (StringUtils.isBlank(vaccineName)) { // Child Centered
                     for (String vaccine : vaccineList) { // Un register all vaccines
-                        unregister(vaccine, cohortId);
+                        deleteCohortIndicator(vaccine, cohortId);
                     }
                 } else { // Vaccine Centered
                     List<String> incomingVaccineList = formatAndSplitVaccineName(vaccineName);
                     for (String incomingVaccine : incomingVaccineList) { // Un register incoming vaccine only
                         if (vaccineList.contains(incomingVaccine)) {
-                            unregister(incomingVaccine, cohortId);
+                            deleteCohortIndicator(incomingVaccine, cohortId);
                         }
                     }
 
-                    // Remove the vaccine in childReport
+                    // Remove the vaccine in cohortPatient
                     boolean removed = vaccineList.removeAll(incomingVaccineList);
                     if (removed) {
-                        childReportRepository.changeValidVaccines(StringUtils.join(vaccineList, ","), childReport.getId());
+                        cohortPatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cohortPatient.getId());
                     }
                 }
-
             }
 
             if (StringUtils.isNotBlank(vaccineName)) { // Vaccine Centered - Return
                 return;
             }
 
-            childReportRepository.delete(childReport.getId());
+            cohortPatientRepository.delete(cohortPatient.getId());
 
-            List<ChildReport> otherChildren = childReportRepository.findByCohort(cohortId);
+            List<CohortPatient> otherChildren = cohortPatientRepository.findByCohort(cohortId);
             if (otherChildren == null || otherChildren.isEmpty()) {
                 cohortRepository.delete(cohortId);
             }
@@ -389,27 +424,249 @@ public class CoverageDropoutIntentService extends IntentService {
         }
     }
 
-    public static void unregister(Context context, String baseEntityId) {
-        unregister(context, baseEntityId, null);
+    ////////////////////////////////////////////////////////////////
+    // CUMULATIVE
+    ////////////////////////////////////////////////////////////////
+
+    private static Pair<Cumulative, CumulativePatient> updateCumulativeRegistrations(String baseEntityId, Date vaccineDate) {
+        try {
+            if (StringUtils.isBlank(baseEntityId) || vaccineDate == null) {
+                return null;
+            }
+
+            CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+
+            Cumulative cumulative = cumulativeRepository.findByYear(vaccineDate);
+            if (cumulative == null) {
+                cumulative = new Cumulative();
+                cumulative.setYear(vaccineDate);
+                //TODO
+                cumulative.setZeirNumber(0L);
+                cumulativeRepository.add(cumulative);
+                // Break if the cohort record cannot be added to the db
+                if (cumulative.getId() == null || cumulative.getId().equals(-1L)) {
+                    return null;
+                }
+            }
+
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                cumulativePatient = new CumulativePatient();
+                cumulativePatient.setBaseEntityId(baseEntityId);
+                cumulativePatientRepository.add(cumulativePatient);
+                // Break if the cohort record cannot be added to the db
+                if (cumulativePatient.getId() == null || cumulativePatient.getId().equals(-1L)) {
+                    return null;
+                }
+            }
+
+            return Pair.create(cumulative, cumulativePatient);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+        return null;
     }
 
-    private static void unregister(String vaccine, Long cohortId) {
-        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+    private static void updateCumulativeIndicators(Date dob, String baseEntityId, String vaccineName, Date vaccineDate) {
+        try {
+            if (StringUtils.isBlank(vaccineName) || dob == null || vaccineDate == null) {
+                return;
+            }
 
-        CohortIndicator cohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(vaccine, cohortId);
-        if (cohortIndicator != null) {
-            if (cohortIndicator.getValue() > 1) {
-                long value = cohortIndicator.getValue() - 1L;
-                cohortIndicatorRepository.changeValue(value, cohortIndicator.getId());
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            Date oldDate = null;
+
+            // Don't add an already counted vaccine unless it's invalid now
+            boolean alreadyCounted = false;
+            List<String> vaccineList = validVaccinesAsList(cumulativePatient.getValidVaccines());
+            for (String validVaccine : vaccineList) {
+                if (validVaccine.contains(vaccineName)) {
+                    alreadyCounted = true;
+                    oldDate = getDateFromValidVaccine(validVaccine);
+                }
+            }
+
+            // Don't add invalid vaccines to the indicator table
+            boolean isValid = isValidVaccineForCumulative(vaccineName, dob);
+
+            boolean replace = false;
+            boolean subtract = false;
+            if (!isValid) {
+                if (alreadyCounted) { // Already counted but now invalid - remove
+                    subtract = true;
+                } else {
+                    return; // Not counted and invalid - no need to proceed
+                }
             } else {
-                cohortIndicatorRepository.delete(cohortIndicator.getId());
+                if (alreadyCounted) { // Valid and Already counted - no need to proceed
+                    replace = true;
+                }
+            }
+
+            if (replace) { // Move from one culumative to another -- is valid and already counted
+                if (oldDate != null && !isSameMonthYear(oldDate, vaccineDate)) { // If same month year, ignore
+                    updateCumulativeIndicator(cumulativePatient, vaccineName, oldDate, true);
+                    updateCumulativeIndicator(cumulativePatient, vaccineName, vaccineDate, false);
+                }
+            } else {
+                updateCumulativeIndicator(cumulativePatient, vaccineName, oldDate != null ? oldDate : vaccineDate, subtract);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
+    private static void updateCumulativeIndicator(CumulativePatient cumulativePatient, String vaccineName, Date date, boolean subtract) {
+
+        try {
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+            List<String> vaccineList = validVaccinesAsList(cumulativePatient.getValidVaccines());
+            String validVaccine = vaccineName + COLON + date.getTime();
+            if (subtract) {
+                vaccineList.remove(validVaccine);
+            } else {
+                vaccineList.add(validVaccine);
+            }
+
+            cumulativePatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cumulativePatient.getId());
+
+            CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+            Cumulative cumulative = cumulativeRepository.findByYear(date);
+
+            if (cumulative == null) {
+                return;
+            }
+
+            CumulativeIndicator cumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(vaccineName, date, cumulative.getId());
+            if (cumulativeIndicator == null) {
+                if (subtract) {
+                    throw CoverageDropoutException.newInstance("Impossible!!! subtract should only happen for already counted vaccines");
+                }
+                cumulativeIndicator = new CumulativeIndicator();
+                cumulativeIndicator.setCumulativeId(cumulative.getId());
+                cumulativeIndicator.setValue(1L);
+                cumulativeIndicator.setVaccine(vaccineName);
+                cumulativeIndicator.setMonth(date);
+                cumulativeIndicatorRepository.add(cumulativeIndicator);
+            } else {
+                Long value = cumulativeIndicator.getValue();
+                if (subtract) {
+                    if (value <= 0) {
+                        return;
+                    }
+                    value -= 1L;
+                } else {
+                    value += 1L;
+                }
+                cumulativeIndicatorRepository.changeValue(value, cumulativeIndicator.getId());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
+    private static void unregisterCumulative(Context context, String baseEntityId, String vaccineName) {
+
+        CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativePatientRepository == null || cumulativeIndicatorRepository == null
+                || StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(vaccineName)) {
+            return;
+        }
+
+        try {
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                return;
+            }
+
+            String validVaccines = cumulativePatient.getValidVaccines();
+            if (StringUtils.isNotBlank(validVaccines)) {
+                List<String> vaccineList = validVaccinesAsList(validVaccines);
+
+                // Vaccine Centered
+                List<String> incomingVaccineList = formatAndSplitVaccineName(vaccineName);
+                for (String validVaccine : vaccineList) {
+                    for (String incomingVaccine : incomingVaccineList) { // Un register incoming vaccine only
+                        if (validVaccine.contains(incomingVaccine)) {
+                            Date oldEventDate = getDateFromValidVaccine(validVaccine);
+                            deleteCumulativeIndicator(incomingVaccine, oldEventDate);
+                        }
+                    }
+                }
+
+                // Remove the vaccine in cohortPatient
+                boolean removed = vaccineList.removeAll(incomingVaccineList);
+                if (removed) {
+                    cumulativePatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cumulativePatient.getId());
+                }
+
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        } finally {
+            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
+        }
+    }
+
+    private static void deleteCumulativeIndicator(String vaccine, Date month) {
+
+        CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        Cumulative cumulative = cumulativeRepository.findByYear(month);
+        if (cumulative == null) {
+            return;
+        }
+
+        CumulativeIndicator cumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(vaccine, month, cumulative.getId());
+        if (cumulativeIndicator != null) {
+            if (cumulativeIndicator.getValue() > 1) {
+                long value = cumulativeIndicator.getValue() - 1L;
+                cumulativeIndicatorRepository.changeValue(value, cumulativeIndicator.getId());
+            } else {
+                cumulativeIndicatorRepository.delete(cumulativeIndicator.getId());
             }
         }
     }
 
-    private static boolean isValidVaccine(String vaccine, Date dob, Date eventDate) {
+    ////////////////////////////////////////////////////////////////
+    // UTILITY
+    ////////////////////////////////////////////////////////////////
+
+    private static boolean isVaccineValidForCohort(String vaccine, Date dob, Date eventDate) {
         Date endDate = Utils.getCohortEndDate(vaccine, dob);
         return DateUtils.isSameDay(endDate, eventDate) || endDate.after(eventDate);
+    }
+
+    private static boolean isValidVaccineForCumulative(String vaccine, Date dob) {
+        if (StringUtils.isBlank(vaccine) || dob == null) {
+            return false;
+        }
+        LocalDate birthdate = LocalDate.fromDateFields(dob);
+        LocalDate now = new LocalDate();
+        Months months = Months.monthsBetween(birthdate, now);
+        int ageInMonths = months.getMonths();
+
+        final String measles2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles2.display().toLowerCase());
+
+        if (vaccine.equals(measles2)) {
+            if (ageInMonths <= 24) {
+                return true;
+            }
+        } else {
+            if (ageInMonths <= 12) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String filterKey(String query) {
@@ -420,13 +677,14 @@ public class CoverageDropoutIntentService extends IntentService {
     }
 
     private static List<String> formatAndSplitVaccineName(String vaccineName) {
+        final String forwardSlash = "/";
         if (StringUtils.isBlank(vaccineName)) {
             return new ArrayList<>();
         }
 
         List<String> vaccineList = new ArrayList<>();
-        if (vaccineName.contains("/")) {
-            String[] vaccines = vaccineName.split("/");
+        if (vaccineName.contains(forwardSlash)) {
+            String[] vaccines = vaccineName.split(forwardSlash);
             for (String vaccine : vaccines) {
                 vaccineList.add(formatVaccineName(vaccine));
             }
@@ -461,8 +719,28 @@ public class CoverageDropoutIntentService extends IntentService {
         if (StringUtils.isBlank(validVaccines)) {
             return new ArrayList<>();
         }
-        String[] vaccines = validVaccines.split(",");
+        String[] vaccines = validVaccines.split(COMMA);
         return new ArrayList<>(Arrays.asList(vaccines));
+    }
+
+    private static Date getDateFromValidVaccine(String validVaccine) {
+        if (StringUtils.isNotBlank(validVaccine) && validVaccine.contains(COLON)) {
+            String timeStamp = validVaccine.split(COLON)[1];
+            if (StringUtils.isNumeric(timeStamp)) {
+                return new Date(Long.valueOf(timeStamp));
+            }
+        }
+        return null;
+    }
+
+    private static boolean isSameMonthYear(Date date1, Date date2) {
+        if (date1 != null && date2 != null) {
+            DateTime dateTime1 = new DateTime(date1);
+            DateTime dateTime2 = new DateTime(date2);
+
+            return dateTime1.getMonthOfYear() == dateTime2.getMonthOfYear() && dateTime1.getYear() == dateTime2.getYear();
+        }
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////

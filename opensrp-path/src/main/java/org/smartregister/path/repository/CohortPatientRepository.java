@@ -7,7 +7,8 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.path.domain.ChildReport;
+import org.smartregister.path.domain.Cohort;
+import org.smartregister.path.domain.CohortPatient;
 import org.smartregister.repository.BaseRepository;
 
 import java.util.ArrayList;
@@ -17,9 +18,9 @@ import java.util.List;
 /**
  * Created by keyman on 11/01/18.
  */
-public class ChildReportRepository extends BaseRepository {
-    private static final String TAG = ChildReportRepository.class.getCanonicalName();
-    private static final String TABLE_NAME = "child_reports";
+public class CohortPatientRepository extends BaseRepository {
+    private static final String TAG = CohortPatientRepository.class.getCanonicalName();
+    private static final String TABLE_NAME = "cohort_patients";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_BASE_ENTITY_ID = "base_entity_id";
     private static final String COLUMN_COHORT_ID = "cohort_id";
@@ -30,7 +31,7 @@ public class ChildReportRepository extends BaseRepository {
             COLUMN_ID, COLUMN_BASE_ENTITY_ID, COLUMN_COHORT_ID, COLUMN_VALID_VACCINES, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
     };
 
-    private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
+    private static final String COHORT_CHILD_REPORT_SQL = "CREATE TABLE " + TABLE_NAME +
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_BASE_ENTITY_ID + " VARCHAR NOT NULL UNIQUE ON CONFLICT IGNORE," +
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
@@ -38,34 +39,34 @@ public class ChildReportRepository extends BaseRepository {
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
 
-    private static final String COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + " );";
+    private static final String COHORT_CHILD_REPORT_COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + " );";
 
-    public ChildReportRepository(PathRepository pathRepository) {
+    public CohortPatientRepository(PathRepository pathRepository) {
         super(pathRepository);
     }
 
     protected static void createTable(SQLiteDatabase database) {
-        database.execSQL(COHORT_SQL);
-        database.execSQL(COHORT_ID_INDEX);
+        database.execSQL(COHORT_CHILD_REPORT_SQL);
+        database.execSQL(COHORT_CHILD_REPORT_COHORT_ID_INDEX);
     }
 
-    public void add(ChildReport childReport) {
-        if (childReport == null) {
+    public void add(CohortPatient cohortPatient) {
+        if (cohortPatient == null) {
             return;
         }
 
         try {
-            if (childReport.getUpdatedAt() == null) {
-                childReport.setUpdatedAt(new Date());
+            if (cohortPatient.getUpdatedAt() == null) {
+                cohortPatient.setUpdatedAt(new Date());
             }
 
             SQLiteDatabase database = getWritableDatabase();
-            if (childReport.getId() == null) {
-                childReport.setCreatedAt(new Date());
-                childReport.setId(database.insert(TABLE_NAME, null, createValuesFor(childReport)));
+            if (cohortPatient.getId() == null) {
+                cohortPatient.setCreatedAt(new Date());
+                cohortPatient.setId(database.insert(TABLE_NAME, null, createValuesFor(cohortPatient)));
             } else {
                 String idSelection = COLUMN_ID + " = ?";
-                database.update(TABLE_NAME, createValuesFor(childReport), idSelection, new String[]{childReport.getId().toString()});
+                database.update(TABLE_NAME, createValuesFor(cohortPatient), idSelection, new String[]{cohortPatient.getId().toString()});
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -92,17 +93,19 @@ public class ChildReportRepository extends BaseRepository {
     }
 
 
-    public ChildReport findByBaseEntityId(String baseEntityId) {
+    public CohortPatient findByBaseEntityId(String baseEntityId) {
         if (StringUtils.isBlank(baseEntityId)) {
             return null;
         }
 
         Cursor cursor = null;
+        CohortPatient cohortPatient = null;
+
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_BASE_ENTITY_ID + " = ? COLLATE NOCASE ", new String[]{baseEntityId}, null, null, null, null);
-            List<ChildReport> childReports = readAllDataElements(cursor);
-            if (!childReports.isEmpty()) {
-                return childReports.get(0);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_BASE_ENTITY_ID + " = ? ", new String[]{baseEntityId}, null, null, null, null);
+            List<CohortPatient> cohortPatients = readAllDataElements(cursor);
+            if (!cohortPatients.isEmpty()) {
+                cohortPatient = cohortPatients.get(0);
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -112,18 +115,20 @@ public class ChildReportRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return cohortPatient;
     }
 
-    public List<ChildReport> findByCohort(Long cohortId) {
+    public List<CohortPatient> findByCohort(Long cohortId) {
         if (cohortId == null) {
             return null;
         }
 
         Cursor cursor = null;
+        List<CohortPatient> cohortPatients = new ArrayList<>();
+
         try {
             cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? ", new String[]{cohortId.toString()}, null, null, null, null);
-            return readAllDataElements(cursor);
+            cohortPatients = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         } finally {
@@ -132,26 +137,28 @@ public class ChildReportRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return cohortPatients;
     }
 
     public long countCohort(Long cohortId) {
         if (cohortId == null) {
-            return 0l;
+            return 0L;
         }
 
-
+        long count = 0L;
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query(TABLE_NAME, new String[]{"count(*)"}, COLUMN_COHORT_ID + " = ? ", new String[]{cohortId.toString()}, null, null, null);
 
         try {
             cursor.moveToFirst();
-            return cursor.getLong(0);
+            count = cursor.getLong(0);
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
+
+        return count;
     }
 
     public boolean delete(Long id) {
@@ -170,36 +177,36 @@ public class ChildReportRepository extends BaseRepository {
         return false;
     }
 
-    private List<ChildReport> readAllDataElements(Cursor cursor) {
-        List<ChildReport> childReports = new ArrayList<>();
+    private List<CohortPatient> readAllDataElements(Cursor cursor) {
+        List<CohortPatient> cohortPatients = new ArrayList<>();
         try {
             if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
-                    ChildReport childReport = new ChildReport();
-                    childReport.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
-                    childReport.setBaseEntityId(cursor.getString(cursor.getColumnIndex(COLUMN_BASE_ENTITY_ID)));
-                    childReport.setCohortId(cursor.getLong(cursor.getColumnIndex(COLUMN_COHORT_ID)));
-                    childReport.setValidVaccines(cursor.getString(cursor.getColumnIndex(COLUMN_VALID_VACCINES)));
-                    childReport.setCreatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_AT))));
-                    childReport.setUpdatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_UPDATED_AT))));
-                    childReports.add(childReport);
+                    CohortPatient cohortPatient = new CohortPatient();
+                    cohortPatient.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
+                    cohortPatient.setBaseEntityId(cursor.getString(cursor.getColumnIndex(COLUMN_BASE_ENTITY_ID)));
+                    cohortPatient.setCohortId(cursor.getLong(cursor.getColumnIndex(COLUMN_COHORT_ID)));
+                    cohortPatient.setValidVaccines(cursor.getString(cursor.getColumnIndex(COLUMN_VALID_VACCINES)));
+                    cohortPatient.setCreatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_AT))));
+                    cohortPatient.setUpdatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_UPDATED_AT))));
+                    cohortPatients.add(cohortPatient);
                     cursor.moveToNext();
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
-        return childReports;
+        return cohortPatients;
     }
 
-    private ContentValues createValuesFor(ChildReport childReport) {
+    private ContentValues createValuesFor(CohortPatient cohortPatient) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ID, childReport.getId());
-        values.put(COLUMN_BASE_ENTITY_ID, childReport.getBaseEntityId());
-        values.put(COLUMN_COHORT_ID, childReport.getCohortId());
-        values.put(COLUMN_VALID_VACCINES, childReport.getValidVaccines());
-        values.put(COLUMN_CREATED_AT, childReport.getCreatedAt() != null ? childReport.getCreatedAt().getTime() : null);
-        values.put(COLUMN_UPDATED_AT, childReport.getUpdatedAt() != null ? childReport.getUpdatedAt().getTime() : null);
+        values.put(COLUMN_ID, cohortPatient.getId());
+        values.put(COLUMN_BASE_ENTITY_ID, cohortPatient.getBaseEntityId());
+        values.put(COLUMN_COHORT_ID, cohortPatient.getCohortId());
+        values.put(COLUMN_VALID_VACCINES, cohortPatient.getValidVaccines());
+        values.put(COLUMN_CREATED_AT, cohortPatient.getCreatedAt() != null ? cohortPatient.getCreatedAt().getTime() : null);
+        values.put(COLUMN_UPDATED_AT, cohortPatient.getUpdatedAt() != null ? cohortPatient.getUpdatedAt().getTime() : null);
         return values;
     }
 

@@ -1157,7 +1157,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         tag.setDbKey(vaccine.getId());
 
         // Update coverage reports
-        CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), String.valueOf(tag.getUpdatedVaccineDate().toDate().getTime()));
+        CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), tag.getUpdatedVaccineDate().toDate());
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             invalidateOptionsMenu();

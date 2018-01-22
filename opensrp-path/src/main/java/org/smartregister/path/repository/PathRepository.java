@@ -297,9 +297,14 @@ public class PathRepository extends Repository {
 
     private void upgradeToVersion10(SQLiteDatabase database) {
         try {
+
             CohortRepository.createTable(database);
             CohortIndicatorRepository.createTable(database);
-            ChildReportRepository.createTable(database);
+            CohortPatientRepository.createTable(database);
+
+            CumulativeRepository.createTable(database);
+            CumulativeIndicatorRepository.createTable(database);
+            CumulativePatientRepository.createTable(database);
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion10 " + e.getMessage());
