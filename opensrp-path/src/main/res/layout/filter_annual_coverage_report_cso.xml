@@ -21,7 +21,7 @@
             android:orientation="horizontal">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
-                android:id="@+id/cohort_label"
+                android:id="@+id/label"
                 style="@style/CustomFontTextViewStyle.ClientList"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -32,7 +32,7 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/cohort_spinner"
+                android:id="@+id/cumulative_spinner"
                 style="@style/PathSpinnerUnderLined"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

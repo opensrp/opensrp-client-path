@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -36,7 +35,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -149,7 +147,10 @@ public class CoverageDropoutIntentService extends IntentService {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     try {
                         Date dob = dateFormat.parse(dobString);
+
                         updateCohortRegistrations(baseEntityId, dob);
+                        updateCumulativeRegistrations(baseEntityId, dob);
+
                     } catch (ParseException e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
@@ -206,8 +207,6 @@ public class CoverageDropoutIntentService extends IntentService {
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
-        } finally {
-            sendBroadcastMessage(CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
         }
     }
 
@@ -227,6 +226,7 @@ public class CoverageDropoutIntentService extends IntentService {
             Log.e(TAG, e.getMessage(), e);
         } finally {
             sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
+            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS);
         }
     }
 
@@ -428,10 +428,10 @@ public class CoverageDropoutIntentService extends IntentService {
     // CUMULATIVE
     ////////////////////////////////////////////////////////////////
 
-    private static Pair<Cumulative, CumulativePatient> updateCumulativeRegistrations(String baseEntityId, Date vaccineDate) {
+    private static void updateCumulativeRegistrations(String baseEntityId, Date vaccineDate) {
         try {
             if (StringUtils.isBlank(baseEntityId) || vaccineDate == null) {
-                return null;
+                return;
             }
 
             CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
@@ -446,7 +446,7 @@ public class CoverageDropoutIntentService extends IntentService {
                 cumulativeRepository.add(cumulative);
                 // Break if the cohort record cannot be added to the db
                 if (cumulative.getId() == null || cumulative.getId().equals(-1L)) {
-                    return null;
+                    return;
                 }
             }
 
@@ -455,17 +455,10 @@ public class CoverageDropoutIntentService extends IntentService {
                 cumulativePatient = new CumulativePatient();
                 cumulativePatient.setBaseEntityId(baseEntityId);
                 cumulativePatientRepository.add(cumulativePatient);
-                // Break if the cohort record cannot be added to the db
-                if (cumulativePatient.getId() == null || cumulativePatient.getId().equals(-1L)) {
-                    return null;
-                }
             }
-
-            return Pair.create(cumulative, cumulativePatient);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
-        return null;
     }
 
     private static void updateCumulativeIndicators(Date dob, String baseEntityId, String vaccineName, Date vaccineDate) {
@@ -506,7 +499,7 @@ public class CoverageDropoutIntentService extends IntentService {
             }
 
             if (replace) { // Move from one culumative to another -- is valid and already counted
-                if (oldDate != null && !isSameMonthYear(oldDate, vaccineDate)) { // If same month year, ignore
+                if (oldDate != null && !Utils.isSameMonthAndYear(oldDate, vaccineDate)) { // If same month year, ignore
                     updateCumulativeIndicator(cumulativePatient, vaccineName, oldDate, true);
                     updateCumulativeIndicator(cumulativePatient, vaccineName, vaccineDate, false);
                 }
@@ -612,7 +605,7 @@ public class CoverageDropoutIntentService extends IntentService {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         } finally {
-            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS);
+            sendBroadcastMessage(context, CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS);
         }
     }
 
@@ -733,15 +726,6 @@ public class CoverageDropoutIntentService extends IntentService {
         return null;
     }
 
-    private static boolean isSameMonthYear(Date date1, Date date2) {
-        if (date1 != null && date2 != null) {
-            DateTime dateTime1 = new DateTime(date1);
-            DateTime dateTime2 = new DateTime(date2);
-
-            return dateTime1.getMonthOfYear() == dateTime2.getMonthOfYear() && dateTime1.getYear() == dateTime2.getYear();
-        }
-        return false;
-    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes

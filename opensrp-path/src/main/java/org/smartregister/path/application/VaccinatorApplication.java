@@ -428,7 +428,7 @@ public class VaccinatorApplication extends DrishtiApplication
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_TWO_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
 
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_THREE_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, 1, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);

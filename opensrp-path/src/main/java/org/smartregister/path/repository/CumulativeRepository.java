@@ -109,6 +109,47 @@ public class CumulativeRepository extends BaseRepository {
         return null;
     }
 
+    public Cumulative findById(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        Cumulative cumulative = null;
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_ID + " = ? ", new String[]{id.toString()}, null, null, null, null);
+            List<Cumulative> cumulatives = readAllDataElements(cursor);
+            if (!cumulatives.isEmpty()) {
+                cumulative = cumulatives.get(0);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return cumulative;
+    }
+
+    public void changeCsoNumber(Long csoNumber, Long id) {
+        if (id == null || csoNumber == null) {
+            return;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+
+            ContentValues valuesToBeUpdated = new ContentValues();
+            valuesToBeUpdated.put(COLUMN_CSO_NUMBER, csoNumber);
+
+            String idSelection = COLUMN_ID + " = ?";
+            database.update(TABLE_NAME, valuesToBeUpdated, idSelection,
+                    new String[]{id.toString()});
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
 
     public List<Cumulative> fetchAll() {
         Cursor cursor = null;

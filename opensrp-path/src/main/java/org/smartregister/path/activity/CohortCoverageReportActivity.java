@@ -20,15 +20,16 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
-import org.smartregister.path.adapter.CohortSpinnerAdapter;
+import org.smartregister.path.adapter.CoverageSpinnerAdapter;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Cohort;
-import org.smartregister.path.domain.CohortHolder;
 import org.smartregister.path.domain.CohortIndicator;
+import org.smartregister.path.domain.CoverageHolder;
+import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
-import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.util.Utils;
@@ -53,7 +54,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
 
     //Global data variables
     private List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
-    private CohortHolder holder;
+    private CoverageHolder holder;
 
 
     @Override
@@ -132,10 +133,10 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
     }
 
     private void refresh(boolean showProgressBar) {
-        if (holder == null || holder.getCohortId() == null) {
+        if (holder == null || holder.getId() == null) {
             generateReport();
         } else {
-            Utils.startAsyncTask(new UpdateReportTask(this, showProgressBar), new Long[]{holder.getCohortId()});
+            Utils.startAsyncTask(new UpdateReportTask(this, showProgressBar), new Long[]{holder.getId()});
         }
 
     }
@@ -215,7 +216,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 vaccineTextView.setText(display);
 
                 boolean finalized = false;
-                Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(holder.getMonth()));
+                Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(holder.getDate()));
                 if (endDate != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(endDate);
@@ -230,7 +231,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 vaccinatedTextView.setText(String.valueOf(value));
 
                 int percentage = 0;
-                if (value > 0 && holder.getSize() > 0) {
+                if (value > 0 && holder.getSize() != null && holder.getSize() > 0) {
                     percentage = (int) (value * 100.0 / holder.getSize() + 0.5);
                 }
 
@@ -256,10 +257,15 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
     private void updateReportDates(List<Cohort> cohorts) {
         if (cohorts != null && !cohorts.isEmpty()) {
 
+            List<CoverageHolder> coverageHolders = new ArrayList<>();
+            for (Cohort cohort : cohorts) {
+                coverageHolders.add(new CoverageHolder(cohort.getId(), cohort.getMonthAsDate()));
+            }
+
             View reportDateSpinnerView = findViewById(R.id.cohort_spinner);
             if (reportDateSpinnerView != null) {
                 SpinnerHelper reportDateSpinner = new SpinnerHelper(reportDateSpinnerView);
-                CohortSpinnerAdapter dataAdapter = new CohortSpinnerAdapter(this, R.layout.item_spinner, cohorts, new SimpleDateFormat("MMMM yyyy"));
+                CoverageSpinnerAdapter dataAdapter = new CoverageSpinnerAdapter(this, R.layout.item_spinner, coverageHolders, new SimpleDateFormat("MMMM yyyy"));
                 dataAdapter.setDropDownViewResource(R.layout.item_spinner_drop_down);
                 reportDateSpinner.setAdapter(dataAdapter);
 
@@ -267,8 +273,8 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         Object tag = view.getTag();
-                        if (tag != null && tag instanceof CohortHolder) {
-                            holder = (CohortHolder) tag;
+                        if (tag != null && tag instanceof CoverageHolder) {
+                            holder = (CoverageHolder) tag;
                             refresh(true);
                         }
                     }
@@ -356,7 +362,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 Cohort cohort = cohorts.get(0);
 
                 long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
-                CohortHolder cohortHolder = new CohortHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
+                CoverageHolder coverageHolder = new CoverageHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
 
                 CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
@@ -386,7 +392,7 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 NamedObject<List<Cohort>> cohortsNamedObject = new NamedObject<>(Cohort.class.getName(), cohorts);
                 map.put(cohortsNamedObject.name, cohortsNamedObject);
 
-                NamedObject<CohortHolder> cohortHolderNamedObject = new NamedObject<>(CohortHolder.class.getName(), cohortHolder);
+                NamedObject<CoverageHolder> cohortHolderNamedObject = new NamedObject<>(CoverageHolder.class.getName(), coverageHolder);
                 map.put(cohortHolderNamedObject.name, cohortHolderNamedObject);
 
                 NamedObject<List<VaccineRepo.Vaccine>> vaccineNamedObject = new NamedObject<>(VaccineRepo.Vaccine.class.getName(), vaccineList);
@@ -426,10 +432,10 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
                 }
             }
 
-            if (map.containsKey(CohortHolder.class.getName())) {
-                NamedObject<?> namedObject = map.get(CohortHolder.class.getName());
+            if (map.containsKey(CoverageHolder.class.getName())) {
+                NamedObject<?> namedObject = map.get(CoverageHolder.class.getName());
                 if (namedObject != null) {
-                    holder = (CohortHolder) namedObject.object;
+                    holder = (CoverageHolder) namedObject.object;
                 }
             }
 
@@ -508,15 +514,4 @@ public class CohortCoverageReportActivity extends BaseActivity implements Covera
             }
         }
     }
-
-    private class NamedObject<T> {
-        public final String name;
-        public final T object;
-
-        NamedObject(String name, T object) {
-            this.name = name;
-            this.object = object;
-        }
-    }
-
 }
