@@ -236,9 +236,9 @@
     <string name="filter_cso_target">CSO Target: </string>
     <string name="filter_zeir_target">ZEIR Target: </string>
 
-    <string name="vaccine">Vaccine</string>
-    <string name="vaccinated">Vaccinated</string>
-    <string name="coverage">Coverage</string>
+    <string name="coverage_vaccine_header">Vaccine</string>
+    <string name="coverage_vaccinated_header">Vaccinated</string>
+    <string name="coverage_header">Coverage</string>
     <string name="coverage_percentage">%1$d%%</string>
 
     <string name="in_progress">(In Progress)</string>
@@ -254,5 +254,23 @@
 
     <string name="total_vaccine">Total\n%1$s</string>
     <string name="total_cum">Cum.\n%1$s</string>
+
+    <string name="bcg_measles_cumulative">BCG &#8211; Measles Cumulative</string>
+    <string name="bcg_measles_cumulative_dropout_report">BCG &#8211; Measles Cumulative Dropout Report</string>
+    <string name="bcg_measles_cohort">BCG &#8211; Measles Cohort</string>
+    <string name="bcg_measles_cohort_dropout_report">BCG &#8211; Measles Cohort Dropout Report</string>
+    <string name="penta_cumulative">Penta Cumulative</string>
+    <string name="penta_cumulative_dropout_report">Penta Cumulative Dropout Report</string>
+    <string name="penta_cohort">Penta Cohort</string>
+    <string name="penta_cohort_dropout_report">Penta Cohort Dropout Report</string>
+    <string name="measles_cumulative">Measles Cumulative</string>
+    <string name="measles_cumulative_dropout_report">Measles Cumulative Dropout Report</string>
+    <string name="cumulative_dropout">Cumulative Dropout (YTD): </string>
+
+    <string name="dropout_month_header">Month</string>
+    <string name="dropout_started_completed_header">(Started - Completed) / Started </string>
+    <string name="dropout_percentage_header">Dropout Percent</string>
+    <string name="dropout_cohort_bcg_size_header">(Cohort Size - M/MR 1) / Cohort Size </string>
+    <string name="dropout_cohort_penta_size_header">(Cohort Size - Penta 3) / Cohort Size </string>
 
 </resources>

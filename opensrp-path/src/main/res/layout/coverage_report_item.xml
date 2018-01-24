@@ -22,7 +22,7 @@
             android:paddingLeft="@dimen/cohort_coverage_report_padding_left"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
-            android:text="@string/vaccine"
+            android:text="@string/coverage_vaccine_header"
             android:textColor="@color/black"
             android:textSize="17sp" />
 
