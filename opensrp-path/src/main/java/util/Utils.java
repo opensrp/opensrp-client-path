@@ -308,4 +308,13 @@ public class Utils {
         return false;
     }
 
+    public static Date dobStringToDate(String dobString) {
+        try {
+            DateTime dateTime = new DateTime(dobString);
+            return dateTime.toDate();
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

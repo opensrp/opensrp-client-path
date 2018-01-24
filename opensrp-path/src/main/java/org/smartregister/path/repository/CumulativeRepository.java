@@ -151,12 +151,31 @@ public class CumulativeRepository extends BaseRepository {
         }
     }
 
-    public List<Cumulative> fetchAll() {
+    public void changeZeirNumber(Long zeirNumber, Long id) {
+        if (id == null || zeirNumber == null) {
+            return;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+
+            ContentValues valuesToBeUpdated = new ContentValues();
+            valuesToBeUpdated.put(COLUMN_ZEIR_NUMBER, zeirNumber);
+
+            String idSelection = COLUMN_ID + " = ?";
+            database.update(TABLE_NAME, valuesToBeUpdated, idSelection,
+                    new String[]{id.toString()});
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    public List<Cumulative> fetchAllWithIndicators() {
         Cursor cursor = null;
         List<Cumulative> cumulatives = new ArrayList<>();
 
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
+                    COLUMN_ID + " IN (SELECT DISTINCT " + CumulativeIndicatorRepository.COLUMN_CUMULATIVE_ID + " FROM " + CumulativeIndicatorRepository.TABLE_NAME + " )", null, null, null, null);
             cumulatives = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -167,6 +186,28 @@ public class CumulativeRepository extends BaseRepository {
         }
 
         return cumulatives;
+    }
+
+    public long executeQueryAndReturnCount(String query, String[] selectionArgs) {
+        Cursor cursor = null;
+        long count = 0;
+        try {
+            cursor = getReadableDatabase().rawQuery(query, selectionArgs);
+            if (null != cursor) {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    count = cursor.getLong(0);
+                }
+                cursor.close();
+            }
+        } catch (Exception e) {
+            org.smartregister.util.Log.logError(TAG, e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
     }
 
     private List<Cumulative> readAllDataElements(Cursor cursor) {

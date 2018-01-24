@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
-import org.smartregister.path.domain.Cohort;
 import org.smartregister.path.domain.CoverageHolder;
 
 import java.text.SimpleDateFormat;

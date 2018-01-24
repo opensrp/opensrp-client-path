@@ -32,7 +32,7 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/cumulative_spinner"
+                android:id="@+id/report_spinner"
                 style="@style/PathSpinnerUnderLined"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

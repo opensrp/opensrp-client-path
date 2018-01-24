@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.AnnualCoverageReportCsoActivity;
 import org.smartregister.path.activity.BaseActivity;
+import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.view.LocationPickerView;
@@ -67,7 +68,7 @@ public class SetCsoDialogFragment extends DialogFragment {
 
 
         TextView title = (TextView) view.findViewById(R.id.cso_title);
-        title.setText(String.format(getString(R.string.set_cso_title), AnnualCoverageReportCsoActivity.getYear(holder.getDate())));
+        title.setText(String.format(getString(R.string.set_cso_title), BaseReportActivity.getYear(holder.getDate())));
 
         final EditText setCso = (EditText) view.findViewById(R.id.set_cso);
         setCso.setHint(String.format(getString(R.string.enter_cso_hint), getDefaultLocation()));

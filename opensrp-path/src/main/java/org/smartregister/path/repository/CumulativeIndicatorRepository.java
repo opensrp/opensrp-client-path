@@ -21,9 +21,9 @@ import java.util.List;
 public class CumulativeIndicatorRepository extends BaseRepository {
     private static final String TAG = CumulativeIndicatorRepository.class.getCanonicalName();
     public static final SimpleDateFormat DF_YYYYMM = new SimpleDateFormat("yyyy-MM");
-    private static final String TABLE_NAME = "cumulative_indicators";
+    public static final String TABLE_NAME = "cumulative_indicators";
     private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_CUMULATIVE_ID = "cumulative_id";
+    public static final String COLUMN_CUMULATIVE_ID = "cumulative_id";
     private static final String COLUMN_MONTH = "month";
     private static final String COLUMN_VACCINE = "vaccine";
     private static final String COLUMN_VALUE = "value";
@@ -138,6 +138,26 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         }
 
         return cumulativeIndicators;
+    }
+
+    public long countByCumulativeId(Long cumulativeId) {
+        if (cumulativeId == null) {
+            return 0L;
+        }
+
+        long count = 0L;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{"count(*)"}, COLUMN_CUMULATIVE_ID + " = ? ", new String[]{cumulativeId.toString()}, null, null, null);
+
+        try {
+            cursor.moveToFirst();
+            count = cursor.getLong(0);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return count;
     }
 
     public void changeValue(Long value, Long id) {

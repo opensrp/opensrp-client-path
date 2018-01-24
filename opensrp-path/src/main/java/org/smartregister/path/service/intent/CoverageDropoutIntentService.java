@@ -9,7 +9,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -30,11 +29,10 @@ import org.smartregister.path.repository.CumulativePatientRepository;
 import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.repository.EventClientRepository;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,14 +48,14 @@ import util.Utils;
 public class CoverageDropoutIntentService extends IntentService {
     private static final String TAG = CoverageDropoutIntentService.class.getCanonicalName();
 
+    private static final String DOD_FILTER = " (" + PathConstants.EC_CHILD_TABLE.DOD + " is NULL OR " + PathConstants.EC_CHILD_TABLE.DOD + " = '') ";
+
     private static final String BIRTH_REGISTRATION_QUERY = "SELECT " +
-            EventClientRepository.client_column.baseEntityId.name() +
-            ", " + EventClientRepository.client_column.birthdate.name() +
-            ", " + EventClientRepository.client_column.updatedAt.name() +
-            " FROM " + EventClientRepository.Table.client.name() +
-            " WHERE (" + EventClientRepository.client_column.deathdate.name() + " is NULL OR " + EventClientRepository.client_column.deathdate.name() + " = '') " +
-            " AND " + EventClientRepository.client_column.identifiers.name() + " LIKE '%\"" + util.JsonFormUtils.ZEIR_ID + "\"%' ";
-    ;
+            PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID +
+            ", " + PathConstants.EC_CHILD_TABLE.DOB +
+            ", " + PathConstants.EC_CHILD_TABLE.REG_DATE +
+            " FROM " + PathConstants.CHILD_TABLE_NAME +
+            " WHERE " + DOD_FILTER;
 
     private static final String VACCINE_QUERY = "SELECT " +
             "v." + VaccineRepository.BASE_ENTITY_ID +
@@ -68,6 +66,15 @@ public class CoverageDropoutIntentService extends IntentService {
             " FROM " + VaccineRepository.VACCINE_TABLE_NAME + " v  " +
             " INNER JOIN " + PathConstants.CHILD_TABLE_NAME + " c  " +
             " ON v." + VaccineRepository.BASE_ENTITY_ID + " = c." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID;
+
+
+    private static final String TOTAL_ZEIR_QUERY = " SELECT " +
+            " COUNT(*) as count, " +
+            " CAST ((julianday('now') - julianday(strftime('%Y-%m-%d', " + PathConstants.EC_CHILD_TABLE.DOB + ")))/(365/12) AS INTEGER)as age, " +
+            " strftime('%Y-%m-%d', " + PathConstants.EC_CHILD_TABLE.REG_DATE + ") as " + PathConstants.EC_CHILD_TABLE.REG_DATE +
+            " FROM " + PathConstants.CHILD_TABLE_NAME +
+            " WHERE " + DOD_FILTER +
+            " AND age <= ? AND " + PathConstants.EC_CHILD_TABLE.REG_DATE + " <  ? ";
 
     private static final String COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_BIRTH_REGISTRATION_LAST_PROCESSED_DATE";
     private static final String COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE";
@@ -103,15 +110,6 @@ public class CoverageDropoutIntentService extends IntentService {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void sendBroadcastMessage(String type) {
-        if (type != null) {
-            Intent intent = new Intent();
-            intent.setAction(CoverageDropoutBroadcastReceiver.ACTION_SERVICE_DONE);
-            intent.putExtra(CoverageDropoutBroadcastReceiver.TYPE, type);
-            sendBroadcast(intent);
-        }
-    }
-
     private static void sendBroadcastMessage(Context context, String type) {
         if (context != null && type != null) {
             Intent intent = new Intent();
@@ -123,7 +121,7 @@ public class CoverageDropoutIntentService extends IntentService {
 
     private void generateBirthRegistrationIndicators() {
         try {
-            final String dateColumn = EventClientRepository.client_column.updatedAt.name();
+            final String dateColumn = PathConstants.EC_CHILD_TABLE.REG_DATE;
             final String orderByClause = " ORDER BY " + dateColumn + " ASC ";
 
             EventClientRepository eventClientRepository = VaccinatorApplication.getInstance().eventClientRepository();
@@ -139,20 +137,15 @@ public class CoverageDropoutIntentService extends IntentService {
             }
 
             for (Map<String, String> result : results) {
-                String baseEntityId = result.get(EventClientRepository.client_column.baseEntityId.name());
-                String dobString = result.get(EventClientRepository.client_column.birthdate.name());
-                String updatedAt = result.get(EventClientRepository.client_column.updatedAt.name());
+                String baseEntityId = result.get(PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID);
+                String dobString = result.get(PathConstants.EC_CHILD_TABLE.DOB);
+                String updatedAt = result.get(PathConstants.EC_CHILD_TABLE.REG_DATE);
 
                 if (StringUtils.isNotBlank(dobString)) {
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    try {
-                        Date dob = dateFormat.parse(dobString);
-
+                    Date dob = Utils.dobStringToDate(dobString);
+                    if (dob != null) {
                         updateCohortRegistrations(baseEntityId, dob);
                         updateCumulativeRegistrations(baseEntityId, dob);
-
-                    } catch (ParseException e) {
-                        Log.e(TAG, e.getMessage(), e);
                     }
                 }
 
@@ -190,13 +183,12 @@ public class CoverageDropoutIntentService extends IntentService {
                     String eventDate = result.get(VaccineRepository.DATE);
 
                     if (StringUtils.isNotBlank(dobString) && StringUtils.isNotBlank(baseEntityId) && StringUtils.isNotBlank(eventDate) && StringUtils.isNumeric(eventDate)) {
-                        DateTime dateTime = new DateTime(dobString);
-                        Date dob = dateTime.toDate();
-
                         long timeStamp = Long.valueOf(eventDate);
                         Date vaccineDate = new Date(timeStamp);
-
-                        updateIndicators(getApplicationContext(), baseEntityId, dob, vaccineName, vaccineDate);
+                        Date dob = Utils.dobStringToDate(dobString);
+                        if (dob != null) {
+                            updateIndicators(getApplicationContext(), baseEntityId, dob, vaccineName, vaccineDate);
+                        }
                     }
 
                     VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE, updatedAt);
@@ -209,7 +201,6 @@ public class CoverageDropoutIntentService extends IntentService {
             Log.e(TAG, e.getMessage(), e);
         }
     }
-
 
     public static void updateIndicators(Context context, String baseEntityId, Date dob, String vaccineName, Date vaccineDate) {
         if (context == null || StringUtils.isBlank(baseEntityId) || dob == null || StringUtils.isBlank(vaccineName) || vaccineDate == null) {
@@ -296,7 +287,6 @@ public class CoverageDropoutIntentService extends IntentService {
             if (StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(vaccineName) || dob == null || vaccineDate == null) {
                 return;
             }
-
 
             CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
             CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
@@ -437,16 +427,31 @@ public class CoverageDropoutIntentService extends IntentService {
             CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
             CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
 
+
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_YEAR, 1); // First Day of the year
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String firstDayOfYear = simpleDateFormat.format(cal.getTime());
+            Long ageLimit = 12L;
+
+            long totalZeir = cumulativeRepository.executeQueryAndReturnCount(TOTAL_ZEIR_QUERY, new String[]{ageLimit.toString(), firstDayOfYear});
+
             Cumulative cumulative = cumulativeRepository.findByYear(vaccineDate);
             if (cumulative == null) {
                 cumulative = new Cumulative();
                 cumulative.setYear(vaccineDate);
-                //TODO
-                cumulative.setZeirNumber(0L);
+                if (totalZeir > 0) {
+                    cumulative.setZeirNumber(totalZeir);
+                }
                 cumulativeRepository.add(cumulative);
                 // Break if the cohort record cannot be added to the db
                 if (cumulative.getId() == null || cumulative.getId().equals(-1L)) {
                     return;
+                }
+            } else {
+                if (totalZeir > 0 && totalZeir != cumulative.getZeirNumber()) {
+                    cumulativeRepository.changeZeirNumber(totalZeir, cumulative.getId());
                 }
             }
 

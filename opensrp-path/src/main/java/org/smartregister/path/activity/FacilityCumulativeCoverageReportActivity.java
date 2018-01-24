@@ -74,7 +74,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseActivity {
         }
 
         TextView textView = (TextView) findViewById(R.id.report_title);
-        textView.setText(String.format(getString(R.string.facility_cumulative_title), AnnualCoverageReportCsoActivity.getYear(holder.getDate()), vaccineName));
+        textView.setText(String.format(getString(R.string.facility_cumulative_title), BaseReportActivity.getYear(holder.getDate()), vaccineName));
 
         refreshMonitoring();
     }
