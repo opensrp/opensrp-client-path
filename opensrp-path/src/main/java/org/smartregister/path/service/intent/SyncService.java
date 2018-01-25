@@ -56,6 +56,7 @@ public class SyncService extends Service {
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
     private List<Observable<?>> observables;
+    private boolean fetchFinished;
 
     @Override
     public void onCreate() {
@@ -128,7 +129,7 @@ public class SyncService extends Service {
 
         Observable.just(locations)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
                 .flatMap(new Function<String, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(@NonNull String locations) throws Exception {
@@ -166,22 +167,11 @@ public class SyncService extends Service {
                                 saveResponseParcel(responseParcel);
                             } else if (o instanceof FetchStatus) {
                                 final FetchStatus fetchStatus = (FetchStatus) o;
-                                if (observables != null && !observables.isEmpty()) {
-                                    Observable.zip(observables, new Function<Object[], Object>() {
-                                        @Override
-                                        public Object apply(@NonNull Object[] objects) throws Exception {
-                                            return FetchStatus.fetched;
-                                        }
-                                     }).subscribe(new Consumer<Object>() {
-                                        @Override
-                                        public void accept(Object o) throws Exception {
-                                            complete(fetchStatus);
-                                        }
-                                    });
-                                } else {
+                                if (observables == null || observables.isEmpty()) {
                                     complete(fetchStatus);
+                                } else {
+                                    fetchFinished = true;
                                 }
-
                             }
                         }
                     }
@@ -192,7 +182,7 @@ public class SyncService extends Service {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
         final Observable<FetchStatus> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.io()).
+                .subscribeOn(Schedulers.newThread()).
                         flatMap(new Function<ResponseParcel, ObservableSource<FetchStatus>>() {
                             @Override
                             public ObservableSource<FetchStatus> apply(@NonNull ResponseParcel responseParcel) throws Exception {
@@ -216,12 +206,24 @@ public class SyncService extends Service {
         observable.subscribe(new Consumer<FetchStatus>() {
             @Override
             public void accept(FetchStatus fetchStatus) throws Exception {
-                sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+                // Remove observable from list
                 observables.remove(observable);
+                Log.i(getClass().getName(), "Deleted: one observable, new count:" + observables.size());
+
+                if ((observables == null || observables.isEmpty()) && fetchFinished) {
+                    complete(FetchStatus.fetched);
+                } else {
+                    sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+
+                }
             }
         });
 
+        // Add observable to list
         observables.add(observable);
+
+        Long observableSize = observables == null ? 0L : observables.size();
+        Log.i(getClass().getName(), "Added: one observable, new count: " + observableSize);
 
         pullECFromServer();
 
@@ -366,8 +368,10 @@ public class SyncService extends Service {
         return Pair.create(0L, 0L);
     }
 
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
 
-    // inner classes
     private final class ServiceHandler extends Handler {
         private ServiceHandler(Looper looper) {
             super(looper);
@@ -376,6 +380,7 @@ public class SyncService extends Service {
         @Override
         public void handleMessage(Message message) {
             observables = new ArrayList<>();
+            fetchFinished = false;
             handleSync();
         }
     }

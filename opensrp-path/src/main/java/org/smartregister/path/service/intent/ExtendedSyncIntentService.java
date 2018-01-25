@@ -31,7 +31,6 @@ import util.NetworkUtils;
 public class ExtendedSyncIntentService extends IntentService {
     private static final String STOCK_Add_PATH = "/rest/stockresource/add/";
     private static final String STOCK_SYNC_PATH = "rest/stockresource/sync/";
-    private static final String REPORTS_SYNC_PATH = "/rest/report/add";
 
     private Context context;
     private HTTPAgent httpAgent;
@@ -60,16 +59,13 @@ public class ExtendedSyncIntentService extends IntentService {
         if (NetworkUtils.isNetworkAvailable()) {
             // push
             pushStockToServer();
-            pushReportsToServer();
 
             // pull
             pullStockFromServer();
             actionService.fetchNewActions();
 
             startSyncValidation();
-
         }
-
         startZscoreRefresh();
     }
 
@@ -230,44 +226,6 @@ public class ExtendedSyncIntentService extends IntentService {
             }
         }
         return array;
-    }
-
-    private void pushReportsToServer() {
-        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-        try {
-            boolean keepSyncing = true;
-            int limit = 50;
-            while (keepSyncing) {
-                List<JSONObject> pendingReports = db.getUnSyncedReports(limit);
-
-                if (pendingReports.isEmpty()) {
-                    return;
-                }
-
-                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
-                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
-                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
-                }
-                // create request body
-                JSONObject request = new JSONObject();
-
-                request.put("reports", pendingReports);
-                String jsonPayload = request.toString();
-                Response<String> response = httpAgent.post(
-                        MessageFormat.format("{0}/{1}",
-                                baseUrl,
-                                REPORTS_SYNC_PATH),
-                        jsonPayload);
-                if (response.isFailure()) {
-                    Log.e(getClass().getName(), "Reports sync failed.");
-                    return;
-                }
-                db.markReportsAsSynced(pendingReports);
-                Log.i(getClass().getName(), "Reports synced successfully.");
-            }
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
-        }
     }
 
     private void startSyncValidation() {

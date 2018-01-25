@@ -1,11 +1,14 @@
 package org.smartregister.path.fragment;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +55,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import util.PathConstants;
+import util.Utils;
 
 public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implements SyncStatusBroadcastReceiver.SyncStatusListener {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
@@ -285,8 +289,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         mainCondition = " dod is NULL OR dod = '' ";
         countSelect = countqueryBUilder.mainCondition(mainCondition);
         super.CountExecute();
-        countOverDue();
-        countDueOverDue();
+        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
@@ -412,30 +415,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         return mainCondition + " ) ";
     }
 
-
-    private void countOverDue() {
-        String mainCondition = filterSelectionCondition(true);
-        int count = count(mainCondition);
-
-        if (filterCount != null) {
-            if (count > 0) {
-                filterCount.setText(String.valueOf(count));
-                filterCount.setVisibility(View.VISIBLE);
-                filterCount.setClickable(true);
-            } else {
-                filterCount.setVisibility(View.GONE);
-                filterCount.setClickable(false);
-            }
-        }
-
-        ((ChildSmartRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(count);
-    }
-
-    private void countDueOverDue() {
-        String mainCondition = filterSelectionCondition(false);
-        dueOverdueCount = count(mainCondition);
-    }
-
     private int count(String mainConditionString) {
 
         int count = 0;
@@ -447,20 +426,20 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
             String query = "";
             if (isValidFilterForFts(commonRepository())) {
                 String sql = sqb.countQueryFts(tablename, "", mainConditionString, "");
+                Log.i(getClass().getName(), query);
+
                 List<String> ids = commonRepository().findSearchIds(sql);
-                query = sqb.toStringFts(ids, tablename + "." + CommonRepository.ID_COLUMN);
-                query = sqb.Endquery(query);
+                count = ids.size();
             } else {
                 sqb.addCondition(filters);
                 query = sqb.orderbyCondition(Sortqueries);
                 query = sqb.Endquery(query);
+
+                Log.i(getClass().getName(), query);
+                c = commonRepository().rawCustomQueryForAdapter(query);
+                c.moveToFirst();
+                count = c.getInt(0);
             }
-
-            Log.i(getClass().getName(), query);
-            c = commonRepository().rawCustomQueryForAdapter(query);
-            c.moveToFirst();
-            count = c.getInt(0);
-
         } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         } finally {
@@ -468,9 +447,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
                 c.close();
             }
         }
-
         return count;
-
     }
 
     private void switchViews(boolean filterSelected) {
@@ -555,5 +532,33 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         }
     }
 
+    private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
+        @Override
+        protected Pair<Integer, Integer> doInBackground(Void... params) {
+            int overdueCount = count(filterSelectionCondition(true));
 
+            int dueOverdueCount = count(filterSelectionCondition(false));
+            return Pair.create(overdueCount, dueOverdueCount);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<Integer, Integer> pair) {
+            super.onPostExecute(pair);
+            int overDue = pair.first;
+            dueOverdueCount = pair.second;
+
+            if (filterCount != null) {
+                if (overDue > 0) {
+                    filterCount.setText(String.valueOf(overDue));
+                    filterCount.setVisibility(View.VISIBLE);
+                    filterCount.setClickable(true);
+                } else {
+                    filterCount.setVisibility(View.GONE);
+                    filterCount.setClickable(false);
+                }
+            }
+
+            ((ChildSmartRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(overDue);
+        }
+    }
 }

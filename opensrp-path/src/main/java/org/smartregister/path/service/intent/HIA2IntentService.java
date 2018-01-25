@@ -1,6 +1,7 @@
 package org.smartregister.path.service.intent;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,12 +9,15 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.domain.Response;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.MonthlyTally;
 import org.smartregister.path.domain.ReportHia2Indicator;
@@ -22,8 +26,10 @@ import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.service.HIA2Service;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.service.HTTPAgent;
 import org.smartregister.util.Utils;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +57,7 @@ public class HIA2IntentService extends IntentService {
     //HIA2 Status
     private VaccineRepository vaccineRepository;
     private static final int DAYS_BEFORE_OVERDUE = 10;
+    private Context context;
 
     public HIA2IntentService() {
         super("HIA2IntentService");
@@ -83,6 +90,9 @@ public class HIA2IntentService extends IntentService {
                     sendBroadcastMessage(Hia2ServiceBroadcastReceiver.TYPE_GENERATE_MONTHLY_REPORT);
                 }
             }
+
+            // Push all reports to server
+            pushReportsToServer();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -104,6 +114,7 @@ public class HIA2IntentService extends IntentService {
         hia2Service = new HIA2Service();
 
         vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+        context = getBaseContext();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -234,4 +245,44 @@ public class HIA2IntentService extends IntentService {
 
         return minDate;
     }
+
+    private void pushReportsToServer() {
+        final String REPORTS_SYNC_PATH = "/rest/report/add";
+        HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+        try {
+            boolean keepSyncing = true;
+            int limit = 50;
+            while (keepSyncing) {
+                List<JSONObject> pendingReports = eventClientRepository.getUnSyncedReports(limit);
+
+                if (pendingReports.isEmpty()) {
+                    return;
+                }
+
+                String baseUrl = VaccinatorApplication.getInstance().context().configuration().dristhiBaseURL();
+                if (baseUrl.endsWith(context.getString(R.string.url_separator))) {
+                    baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf(context.getString(R.string.url_separator)));
+                }
+                // create request body
+                JSONObject request = new JSONObject();
+
+                request.put("reports", pendingReports);
+                String jsonPayload = request.toString();
+                Response<String> response = httpAgent.post(
+                        MessageFormat.format("{0}/{1}",
+                                baseUrl,
+                                REPORTS_SYNC_PATH),
+                        jsonPayload);
+                if (response.isFailure()) {
+                    Log.e(getClass().getName(), "Reports sync failed.");
+                    return;
+                }
+                eventClientRepository.markReportsAsSynced(pendingReports);
+                Log.i(getClass().getName(), "Reports synced successfully.");
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), e.getMessage());
+        }
+    }
+
 }
