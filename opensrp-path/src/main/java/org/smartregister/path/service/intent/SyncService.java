@@ -172,7 +172,7 @@ public class SyncService extends Service {
                                         public Object apply(@NonNull Object[] objects) throws Exception {
                                             return FetchStatus.fetched;
                                         }
-                                    }).subscribe(new Consumer<Object>() {
+                                     }).subscribe(new Consumer<Object>() {
                                         @Override
                                         public void accept(Object o) throws Exception {
                                             complete(fetchStatus);

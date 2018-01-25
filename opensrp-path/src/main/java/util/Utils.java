@@ -237,5 +237,55 @@ public class Utils {
         return calendar.get(Calendar.YEAR);
     }
 
+    public static Date getCohortEndDate(String vaccine, Date startDate) {
+
+        if (StringUtils.isBlank(vaccine) || startDate == null) {
+            return null;
+        }
+
+        Calendar endDateCalendar = Calendar.getInstance();
+        endDateCalendar.setTime(startDate);
+
+        final String opv0 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.opv0.display().toLowerCase());
+
+        final String rota1 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota1.display().toLowerCase());
+        final String rota2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.rota2.display().toLowerCase());
+
+        final String measles2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.measles2.display().toLowerCase());
+        final String mr2 = VaccineRepository.addHyphen(VaccineRepo.Vaccine.mr2.display().toLowerCase());
+
+        if (vaccine.equals(opv0)) {
+            endDateCalendar.add(Calendar.DATE, 13);
+        } else if (vaccine.equals(rota1) || vaccine.equals(rota2)) {
+            endDateCalendar.add(Calendar.MONTH, 8);
+        } else if (vaccine.equals(measles2) || vaccine.equals(mr2)) {
+            endDateCalendar.add(Calendar.YEAR, 2);
+        } else {
+            endDateCalendar.add(Calendar.YEAR, 1);
+        }
+
+        return endDateCalendar.getTime();
+    }
+
+    public static Date getCohortEndDate(VaccineRepo.Vaccine vaccine, Date startDate) {
+        if (vaccine == null || startDate == null) {
+            return null;
+        }
+        String vaccineName = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
+        return getCohortEndDate(vaccineName, startDate);
+
+    }
+
+    public static Date getLastDayOfMonth(Date month) {
+        if (month == null) {
+            return null;
+        }
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(month);
+        c.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return c.getTime();
+    }
+
 
 }

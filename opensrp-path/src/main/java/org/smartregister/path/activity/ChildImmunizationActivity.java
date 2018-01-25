@@ -64,6 +64,7 @@ import org.smartregister.immunization.view.VaccineGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.RegisterClickables;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.path.view.SiblingPicturesGroup;
 import org.smartregister.repository.DetailsRepository;
@@ -1596,6 +1597,10 @@ public class ChildImmunizationActivity extends BaseActivity
                 if (tag.getDbKey() != null) {
                     Long dbKey = tag.getDbKey();
                     vaccineRepository.deleteVaccine(dbKey);
+
+                    // Update coverage reports
+                    CoverageDropoutIntentService.unregister(ChildImmunizationActivity.this, childDetails.entityId(), tag.getName());
+
                     String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.DOB, false);
                     if (!TextUtils.isEmpty(dobString)) {
                         DateTime dateTime = new DateTime(dobString);

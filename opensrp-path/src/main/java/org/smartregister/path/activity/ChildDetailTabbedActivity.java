@@ -73,6 +73,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.listener.StatusChangeListener;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
@@ -946,6 +947,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             Long dbKey = tag.getDbKey();
             vaccineRepository.deleteVaccine(dbKey);
 
+            // Update coverage reports
+            CoverageDropoutIntentService.unregister(ChildDetailTabbedActivity.this, childDetails.entityId(), tag.getName());
+
             tag.setUpdatedVaccineDate(null, false);
             tag.setDbKey(null);
 
@@ -1151,6 +1155,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         util.Utils.addVaccine(vaccineRepository, vaccine);
         tag.setDbKey(vaccine.getId());
+
+        // Update coverage reports
+        CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), String.valueOf(tag.getUpdatedVaccineDate().toDate().getTime()));
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             invalidateOptionsMenu();

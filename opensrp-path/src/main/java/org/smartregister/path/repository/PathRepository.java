@@ -90,6 +90,9 @@ public class PathRepository extends Repository {
                 case 9:
                     upgradeToVersion9(db);
                     break;
+                case 10:
+                    upgradeToVersion10(db);
+                    break;
                 default:
                     break;
             }
@@ -289,6 +292,17 @@ public class PathRepository extends Repository {
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion10(SQLiteDatabase database) {
+        try {
+            CohortRepository.createTable(database);
+            CohortIndicatorRepository.createTable(database);
+            ChildReportRepository.createTable(database);
+
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion10 " + e.getMessage());
         }
     }
 

@@ -26,6 +26,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.sync.ClientProcessor;
@@ -173,6 +174,7 @@ public class PathClientProcessor extends ClientProcessor {
                     //iterate through the events
                     if (event.has("client")) {
                         processEvent(event, event.getJSONObject("client"), clientClassificationJson);
+
                     }
                 }
             }
@@ -532,6 +534,9 @@ public class PathClientProcessor extends ClientProcessor {
                     boolean caseDeleted = deleteCase(tableName, baseEntityId);
                     Log.d(getClass().getName(), "CASE_DELETED: " + caseDeleted);
                 }
+
+                // Update coverage reports
+                CoverageDropoutIntentService.unregister(getContext(), baseEntityId);
 
                 return true;
             }
