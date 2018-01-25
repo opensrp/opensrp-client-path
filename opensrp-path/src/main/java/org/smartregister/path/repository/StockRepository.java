@@ -60,23 +60,27 @@ public class StockRepository extends BaseRepository {
         if (stock == null) {
             return;
         }
-        if (StringUtils.isBlank(stock.getSyncStatus())) {
-            stock.setSyncStatus(TYPE_Unsynced);
+        try {
+            if (StringUtils.isBlank(stock.getSyncStatus())) {
+                stock.setSyncStatus(TYPE_Unsynced);
+            }
+
+            if (stock.getUpdatedAt() == null) {
+                stock.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
+            }
+
+            SQLiteDatabase database = getWritableDatabase();
+            if (stock.getId() == null) {
+                stock.setId(database.insert(stock_TABLE_NAME, null, createValuesFor(stock)));
+            } else {
+                //mark the vaccine as unsynced for processing as an updated stock
+                String idSelection = ID_COLUMN + " = ?";
+                database.update(stock_TABLE_NAME, createValuesFor(stock), idSelection, new String[]{stock.getId().toString()});
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
 
-        if (stock.getUpdatedAt() == null) {
-            stock.setUpdatedAt(Calendar.getInstance().getTimeInMillis());
-        }
-
-        SQLiteDatabase database = getWritableDatabase();
-        if (stock.getId() == null) {
-            stock.setId(database.insert(stock_TABLE_NAME, null, createValuesFor(stock)));
-        } else {
-            //mark the vaccine as unsynced for processing as an updated stock
-            String idSelection = ID_COLUMN + " = ?";
-            database.update(stock_TABLE_NAME, createValuesFor(stock), idSelection, new String[]{stock.getId().toString()});
-        }
-//        updateFtsSearch(vaccine);
     }
 
     private ContentValues createValuesFor(Stock stock) {
