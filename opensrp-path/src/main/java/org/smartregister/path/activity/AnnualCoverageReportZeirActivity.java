@@ -24,11 +24,12 @@ import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.PathConstants;
+import util.Utils;
 
 /**
  * Created by keyman on 21/12/17.
@@ -112,8 +113,13 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
     }
 
     private void updateZeirNumber() {
+        Long size = getHolder().getSize();
+        if (size == null) {
+            size = 0L;
+        }
+
         TextView zeirNumber = (TextView) findViewById(R.id.zeir_number);
-        zeirNumber.setText(String.format(getString(R.string.cso_population_value), getHolder().getSize()));
+        zeirNumber.setText(String.format(getString(R.string.cso_population_value), size));
     }
 
     @Override
@@ -156,13 +162,17 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);
 
         int percentage = 0;
-        if (value > 0 && getHolder().getSize() > 0) {
+        if (value > 0 && getHolder().getSize() != null && getHolder().getSize() > 0) {
             percentage = (int) (value * 100.0 / getHolder().getSize() + 0.5);
         }
         coverageTextView.setText(String.format(getString(R.string.coverage_percentage),
                 percentage));
-        coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
 
+        if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+            coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
+        } else {
+            coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
+        }
         return view;
     }
 
@@ -195,26 +205,6 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
-        List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
-        Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
-            @Override
-            public int compare(VaccineRepo.Vaccine lhs, VaccineRepo.Vaccine rhs) {
-                return lhs.display().compareToIgnoreCase(rhs.display());
-            }
-        });
-
-        vaccineList.remove(VaccineRepo.Vaccine.bcg2);
-        vaccineList.remove(VaccineRepo.Vaccine.ipv);
-        vaccineList.remove(VaccineRepo.Vaccine.measles1);
-        vaccineList.remove(VaccineRepo.Vaccine.measles2);
-        vaccineList.remove(VaccineRepo.Vaccine.mr1);
-        vaccineList.remove(VaccineRepo.Vaccine.mr2);
-
-
-        vaccineList.add(VaccineRepo.Vaccine.measles1);
-        vaccineList.add(VaccineRepo.Vaccine.measles2);
-
-
         Map<String, NamedObject<?>> map = new HashMap<>();
         NamedObject<List<Cumulative>> cumulativeNamedObject = new NamedObject<>(Cumulative.class.getName(), cumulatives);
         map.put(cumulativeNamedObject.name, cumulativeNamedObject);
@@ -222,20 +212,15 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         NamedObject<CoverageHolder> cumulativeHolderNamedObject = new NamedObject<>(CoverageHolder.class.getName(), coverageHolder);
         map.put(cumulativeHolderNamedObject.name, cumulativeHolderNamedObject);
 
-        NamedObject<List<VaccineRepo.Vaccine>> vaccineNamedObject = new NamedObject<>(VaccineRepo.Vaccine.class.getName(), vaccineList);
-        map.put(vaccineNamedObject.name, vaccineNamedObject);
-
         NamedObject<List<CumulativeIndicator>> indicatorMapNamedObject = new NamedObject<>(CumulativeIndicator.class.getName(), indicators);
         map.put(indicatorMapNamedObject.name, indicatorMapNamedObject);
-
 
         return map;
     }
 
     @Override
-    protected void generateReportUI(Map<String, NamedObject<?>> map) {
+    protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
         List<Cumulative> cumulatives = new ArrayList<>();
-        List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
         List<CumulativeIndicator> indicatorList = new ArrayList<>();
 
         if (map.containsKey(Cumulative.class.getName())) {
@@ -252,13 +237,6 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
             }
         }
 
-        if (map.containsKey(VaccineRepo.Vaccine.class.getName())) {
-            NamedObject<?> namedObject = map.get(VaccineRepo.Vaccine.class.getName());
-            if (namedObject != null) {
-                vaccineList = (List<VaccineRepo.Vaccine>) namedObject.object;
-            }
-        }
-
         if (map.containsKey(CumulativeIndicator.class.getName())) {
             NamedObject<?> namedObject = map.get(CumulativeIndicator.class.getName());
             if (namedObject != null) {
@@ -267,8 +245,8 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         }
 
         updateZeirNumber();
-        updateReportDates(cumulatives, CumulativeRepository.DF_YYYY, null);
-        updateReportList(vaccineList, indicatorList);
+        updateReportDates(cumulatives, CumulativeRepository.DF_YYYY, getString(R.string.in_progress));
+        updateReportList(indicatorList);
     }
 
     @Override
@@ -287,7 +265,7 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
     }
 
     @Override
-    protected void updateReportUI(Pair<List, Long> pair) {
+    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
         setHolderSize(pair.second);
         updateZeirNumber();
         updateReportList(pair.first);

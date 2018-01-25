@@ -429,6 +429,7 @@ public class CoverageDropoutIntentService extends IntentService {
 
 
             Calendar cal = Calendar.getInstance();
+            cal.setTime(vaccineDate);
             cal.set(Calendar.DAY_OF_YEAR, 1); // First Day of the year
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -441,9 +442,7 @@ public class CoverageDropoutIntentService extends IntentService {
             if (cumulative == null) {
                 cumulative = new Cumulative();
                 cumulative.setYear(vaccineDate);
-                if (totalZeir > 0) {
-                    cumulative.setZeirNumber(totalZeir);
-                }
+                cumulative.setZeirNumber(totalZeir);
                 cumulativeRepository.add(cumulative);
                 // Break if the cohort record cannot be added to the db
                 if (cumulative.getId() == null || cumulative.getId().equals(-1L)) {

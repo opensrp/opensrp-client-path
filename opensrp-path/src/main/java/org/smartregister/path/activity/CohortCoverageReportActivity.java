@@ -115,8 +115,13 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     }
 
     private void updateCohortSize() {
+        Long size = getHolder().getSize();
+        if (size == null) {
+            size = 0L;
+        }
+
         TextView textView = (TextView) findViewById(R.id.cohort_size_value);
-        textView.setText(String.format(getString(R.string.cso_population_value), getHolder().getSize()));
+        textView.setText(String.format(getString(R.string.cso_population_value), size));
     }
 
     @Override
@@ -217,29 +222,8 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
         CoverageHolder coverageHolder = new CoverageHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
-
         CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
         List<CohortIndicator> indicators = cohortIndicatorRepository.findByCohort(cohort.getId());
-
-        List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
-        Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
-            @Override
-            public int compare(VaccineRepo.Vaccine lhs, VaccineRepo.Vaccine rhs) {
-                return lhs.display().compareToIgnoreCase(rhs.display());
-            }
-        });
-
-        vaccineList.remove(VaccineRepo.Vaccine.bcg2);
-        vaccineList.remove(VaccineRepo.Vaccine.ipv);
-        vaccineList.remove(VaccineRepo.Vaccine.measles1);
-        vaccineList.remove(VaccineRepo.Vaccine.measles2);
-        vaccineList.remove(VaccineRepo.Vaccine.mr1);
-        vaccineList.remove(VaccineRepo.Vaccine.mr2);
-
-
-        vaccineList.add(VaccineRepo.Vaccine.measles1);
-        vaccineList.add(VaccineRepo.Vaccine.measles2);
-
 
         Map<String, NamedObject<?>> map = new HashMap<>();
         NamedObject<List<Cohort>> cohortsNamedObject = new NamedObject<>(Cohort.class.getName(), cohorts);
@@ -248,20 +232,15 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         NamedObject<CoverageHolder> cohortHolderNamedObject = new NamedObject<>(CoverageHolder.class.getName(), coverageHolder);
         map.put(cohortHolderNamedObject.name, cohortHolderNamedObject);
 
-        NamedObject<List<VaccineRepo.Vaccine>> vaccineNamedObject = new NamedObject<>(VaccineRepo.Vaccine.class.getName(), vaccineList);
-        map.put(vaccineNamedObject.name, vaccineNamedObject);
-
         NamedObject<List<CohortIndicator>> indicatorMapNamedObject = new NamedObject<>(CohortIndicator.class.getName(), indicators);
         map.put(indicatorMapNamedObject.name, indicatorMapNamedObject);
-
 
         return map;
     }
 
     @Override
-    protected void generateReportUI(Map<String, NamedObject<?>> map) {
+    protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
         List<Cohort> cohorts = new ArrayList<>();
-        List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
         List<CohortIndicator> indicatorList = new ArrayList<>();
 
         if (map.containsKey(Cohort.class.getName())) {
@@ -278,13 +257,6 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
             }
         }
 
-        if (map.containsKey(VaccineRepo.Vaccine.class.getName())) {
-            NamedObject<?> namedObject = map.get(VaccineRepo.Vaccine.class.getName());
-            if (namedObject != null) {
-                vaccineList = (List<VaccineRepo.Vaccine>) namedObject.object;
-            }
-        }
-
         if (map.containsKey(CohortIndicator.class.getName())) {
             NamedObject<?> namedObject = map.get(CohortIndicator.class.getName());
             if (namedObject != null) {
@@ -294,7 +266,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
 
         updateReportDates(cohorts, new SimpleDateFormat("MMMM yyyy"), null);
         updateCohortSize();
-        updateReportList(vaccineList, indicatorList);
+        updateReportList(indicatorList);
     }
 
     @Override
@@ -310,7 +282,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     }
 
     @Override
-    protected void updateReportUI(Pair<List, Long> pair) {
+    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
         setHolderSize(pair.second);
         updateCohortSize();
         updateReportList(pair.first);

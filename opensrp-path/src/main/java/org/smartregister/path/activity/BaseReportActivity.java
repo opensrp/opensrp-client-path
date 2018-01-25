@@ -25,12 +25,15 @@ import org.smartregister.path.helper.SpinnerHelper;
 import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.util.Utils;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import util.PathConstants;
 
 /**
  * Created by keyman on 1/24/18.
@@ -39,22 +42,23 @@ import java.util.Map;
 public abstract class BaseReportActivity extends BaseActivity {
 
     private static final String TAG = BaseReportActivity.class.getCanonicalName();
+    public static final String DIALOG_TAG = "report_dialog";
 
     //Global data variables
     private List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
     private CoverageHolder holder;
 
-    protected void refresh(boolean showProgressBar) {
+    protected void refresh(boolean userAction) {
         if (holder == null || holder.getId() == null) {
-            generateReport();
+            generateReport(userAction);
         } else {
-            Utils.startAsyncTask(new UpdateReportTask(this, showProgressBar), new Long[]{holder.getId()});
+            Utils.startAsyncTask(new UpdateReportTask(this, userAction), new Long[]{holder.getId()});
         }
     }
 
-    private void generateReport() {
+    private void generateReport(boolean userAction) {
         holder = null;
-        Utils.startAsyncTask(new GenerateReportTask(this), null);
+        Utils.startAsyncTask(new GenerateReportTask(this, userAction), null);
     }
 
     protected void updateListViewHeader(Integer headerLayout) {
@@ -118,16 +122,10 @@ public abstract class BaseReportActivity extends BaseActivity {
         }
     }
 
-    protected <T> void updateReportList(final List<VaccineRepo.Vaccine> vaccineList, final List<T> indicators) {
-        if (vaccineList == null) {
-            return;
-        }
-        this.vaccineList = vaccineList;
-        updateReportList(indicators);
-
-    }
-
     protected <T> void updateReportList(final List<T> indicators) {
+        if (vaccineList == null || vaccineList.isEmpty()) {
+            vaccineList = generateVaccineList();
+        }
 
         if (indicators == null) {
             return;
@@ -206,11 +204,11 @@ public abstract class BaseReportActivity extends BaseActivity {
 
     protected abstract Map<String, NamedObject<?>> generateReportBackground();
 
-    protected abstract void generateReportUI(Map<String, NamedObject<?>> map);
+    protected abstract void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction);
 
     protected abstract Pair<List, Long> updateReportBackground(Long id);
 
-    protected abstract void updateReportUI(Pair<List, Long> pair);
+    protected abstract void updateReportUI(Pair<List, Long> pair, boolean userAction);
 
     public void setHolder(CoverageHolder holder) {
         this.holder = holder;
@@ -230,15 +228,40 @@ public abstract class BaseReportActivity extends BaseActivity {
         return Integer.valueOf(CumulativeRepository.DF_YYYY.format(date));
     }
 
+    private List<VaccineRepo.Vaccine> generateVaccineList() {
+        List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
+        Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
+            @Override
+            public int compare(VaccineRepo.Vaccine lhs, VaccineRepo.Vaccine rhs) {
+                return lhs.display().compareToIgnoreCase(rhs.display());
+            }
+        });
+
+        vaccineList.remove(VaccineRepo.Vaccine.bcg2);
+        vaccineList.remove(VaccineRepo.Vaccine.ipv);
+        vaccineList.remove(VaccineRepo.Vaccine.measles1);
+        vaccineList.remove(VaccineRepo.Vaccine.measles2);
+        vaccineList.remove(VaccineRepo.Vaccine.mr1);
+        vaccineList.remove(VaccineRepo.Vaccine.mr2);
+
+
+        vaccineList.add(VaccineRepo.Vaccine.measles1);
+        vaccineList.add(VaccineRepo.Vaccine.measles2);
+
+        return vaccineList;
+    }
+
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
     protected class GenerateReportTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private BaseActivity baseActivity;
+        private boolean userAction;
 
-        private GenerateReportTask(BaseActivity baseActivity) {
+        private GenerateReportTask(BaseActivity baseActivity, boolean userAction) {
             this.baseActivity = baseActivity;
+            this.userAction = userAction;
         }
 
         @Override
@@ -268,24 +291,24 @@ public abstract class BaseReportActivity extends BaseActivity {
                 return;
             }
 
-            generateReportUI(map);
+            generateReportUI(map, userAction);
         }
     }
 
     protected class UpdateReportTask extends AsyncTask<Long, Void, Pair<List, Long>> {
 
         private BaseActivity baseActivity;
-        private boolean showProgressBar;
+        private boolean userAction;
 
-        private UpdateReportTask(BaseActivity baseActivity, boolean showProgressBar) {
+        private UpdateReportTask(BaseActivity baseActivity, boolean userAction) {
             this.baseActivity = baseActivity;
-            this.showProgressBar = showProgressBar;
+            this.userAction = userAction;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if (showProgressBar) {
+            if (userAction) {
                 baseActivity.showProgressDialog();
             }
         }
@@ -309,12 +332,12 @@ public abstract class BaseReportActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Pair<List, Long> pair) {
             super.onPostExecute(pair);
-            if (showProgressBar) {
+            if (userAction) {
                 baseActivity.hideProgressDialog();
             }
 
             if (pair != null) {
-                updateReportUI(pair);
+                updateReportUI(pair, userAction);
             }
         }
     }

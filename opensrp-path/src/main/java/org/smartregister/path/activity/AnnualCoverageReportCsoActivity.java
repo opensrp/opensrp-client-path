@@ -23,15 +23,15 @@ import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.PathConstants;
+import util.Utils;
 
 /**
  * Created by keyman on 21/12/17.
@@ -114,14 +114,18 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     }
 
 
-    private void updateCsoUnder1Population() {
-        showSetCsoDialog();
+    private void updateCsoUnder1Population(boolean userAction) {
+        if (userAction) {
+            if (getHolder() != null && getHolder().getSize() == null) {
+                SetCsoDialogFragment.launchDialog(this, BaseReportActivity.DIALOG_TAG, getHolder());
+            }
+        }
 
         EditText csoValue = (EditText) findViewById(R.id.cso_value);
         csoValue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, BaseRegisterActivity.DIALOG_TAG, getHolder());
+                SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, BaseReportActivity.DIALOG_TAG, getHolder());
             }
         });
         if (getHolder().getSize() == null) {
@@ -141,12 +145,6 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
             cumulativeRepository.changeCsoNumber(newCsoValue, getHolder().getId());
 
             refresh(true);
-        }
-    }
-
-    private void showSetCsoDialog() {
-        if (getHolder() != null && getHolder().getSize() == null) {
-            SetCsoDialogFragment.launchDialog(this, BaseRegisterActivity.DIALOG_TAG, getHolder());
         }
     }
 
@@ -198,7 +196,12 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
             }
             coverageTextView.setText(String.format(getString(R.string.coverage_percentage),
                     percentage));
-            coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
+
+            if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+                coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
+            } else {
+                coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
+            }
         }
 
         view.setOnClickListener(new View.OnClickListener() {
@@ -243,35 +246,12 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
         CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
-        List<VaccineRepo.Vaccine> vaccineList = VaccineRepo.getVaccines(PathConstants.EntityType.CHILD);
-        Collections.sort(vaccineList, new Comparator<VaccineRepo.Vaccine>() {
-            @Override
-            public int compare(VaccineRepo.Vaccine lhs, VaccineRepo.Vaccine rhs) {
-                return lhs.display().compareToIgnoreCase(rhs.display());
-            }
-        });
-
-        vaccineList.remove(VaccineRepo.Vaccine.bcg2);
-        vaccineList.remove(VaccineRepo.Vaccine.ipv);
-        vaccineList.remove(VaccineRepo.Vaccine.measles1);
-        vaccineList.remove(VaccineRepo.Vaccine.measles2);
-        vaccineList.remove(VaccineRepo.Vaccine.mr1);
-        vaccineList.remove(VaccineRepo.Vaccine.mr2);
-
-
-        vaccineList.add(VaccineRepo.Vaccine.measles1);
-        vaccineList.add(VaccineRepo.Vaccine.measles2);
-
-
         Map<String, NamedObject<?>> map = new HashMap<>();
         NamedObject<List<Cumulative>> cumulativeNamedObject = new NamedObject<>(Cumulative.class.getName(), cumulatives);
         map.put(cumulativeNamedObject.name, cumulativeNamedObject);
 
         NamedObject<CoverageHolder> cumulativeHolderNamedObject = new NamedObject<>(CoverageHolder.class.getName(), coverageHolder);
         map.put(cumulativeHolderNamedObject.name, cumulativeHolderNamedObject);
-
-        NamedObject<List<VaccineRepo.Vaccine>> vaccineNamedObject = new NamedObject<>(VaccineRepo.Vaccine.class.getName(), vaccineList);
-        map.put(vaccineNamedObject.name, vaccineNamedObject);
 
         NamedObject<List<CumulativeIndicator>> indicatorMapNamedObject = new NamedObject<>(CumulativeIndicator.class.getName(), indicators);
         map.put(indicatorMapNamedObject.name, indicatorMapNamedObject);
@@ -281,9 +261,8 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     }
 
     @Override
-    protected void generateReportUI(Map<String, NamedObject<?>> map) {
+    protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
         List<Cumulative> cumulatives = new ArrayList<>();
-        List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
         List<CumulativeIndicator> indicatorList = new ArrayList<>();
 
         if (map.containsKey(Cumulative.class.getName())) {
@@ -300,13 +279,6 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
             }
         }
 
-        if (map.containsKey(VaccineRepo.Vaccine.class.getName())) {
-            NamedObject<?> namedObject = map.get(VaccineRepo.Vaccine.class.getName());
-            if (namedObject != null) {
-                vaccineList = (List<VaccineRepo.Vaccine>) namedObject.object;
-            }
-        }
-
         if (map.containsKey(CumulativeIndicator.class.getName())) {
             NamedObject<?> namedObject = map.get(CumulativeIndicator.class.getName());
             if (namedObject != null) {
@@ -314,9 +286,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
             }
         }
 
-        updateCsoUnder1Population();
+        updateCsoUnder1Population(userAction);
         updateReportDates(cumulatives, CumulativeRepository.DF_YYYY, getString(R.string.in_progress));
-        updateReportList(vaccineList, indicatorList);
+        updateReportList(indicatorList);
     }
 
     @Override
@@ -336,9 +308,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     }
 
     @Override
-    protected void updateReportUI(Pair<List, Long> pair) {
+    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
         setHolderSize(pair.second);
-        updateCsoUnder1Population();
+        updateCsoUnder1Population(userAction);
         updateReportList(pair.first);
     }
 }
