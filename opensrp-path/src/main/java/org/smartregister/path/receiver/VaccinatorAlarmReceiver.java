@@ -10,6 +10,7 @@ import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.service.ImageUploadSyncService;
@@ -58,6 +59,10 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                 case PathConstants.ServiceType.IMAGE_UPLOAD:
                     serviceIntent = new Intent(context, ImageUploadSyncService.class);
                     android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
+                    break;
+                case PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION:
+                    serviceIntent = new Intent(context, CoverageDropoutIntentService.class);
+                    android.util.Log.i(TAG, "Started COVERAGE_DROPOUT_GENERATION service at: " + dateFormatter.format(new Date()));
                     break;
                 default:
                     break;
