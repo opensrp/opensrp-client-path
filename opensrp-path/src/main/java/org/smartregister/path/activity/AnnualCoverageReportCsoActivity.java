@@ -115,10 +115,8 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
 
     private void updateCsoUnder1Population(boolean userAction) {
-        if (userAction) {
-            if (getHolder() != null && getHolder().getSize() == null) {
-                SetCsoDialogFragment.launchDialog(this, BaseReportActivity.DIALOG_TAG, getHolder());
-            }
+        if (userAction && getHolder() != null && getHolder().getSize() == null) {
+            SetCsoDialogFragment.launchDialog(this, BaseReportActivity.DIALOG_TAG, getHolder());
         }
 
         EditText csoValue = (EditText) findViewById(R.id.cso_value);

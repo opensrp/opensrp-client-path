@@ -7,7 +7,6 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.path.domain.CohortPatient;
 import org.smartregister.path.domain.CumulativePatient;
 import org.smartregister.repository.BaseRepository;
 
