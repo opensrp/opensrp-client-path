@@ -401,10 +401,13 @@ public class HIA2Service {
      * Number of total children age 0-23 months whose weight is between -2Z and -3Z scores
      */
     private void getCHN2035() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age<=23 and w.z_score between -2 and -3 group by child.base_entity_id;";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ageQuery()+
+                    "FROM weights w INNER JOIN ec_child child ON w.base_entity_id=child.base_entity_id WHERE '"+reportDate+"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch'))"+
+                    " AND age <= 23 AND w.z_score BETWEEN -3 AND -2);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_035, count);
         } catch (Exception e) {
@@ -417,10 +420,13 @@ public class HIA2Service {
      * Number of total children age 24-59 months whose weight is between -2Z and -3Z scores
      */
     private void getCHN2040() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age between 24 and 59 and w.z_score between -2 and -3 group by child.base_entity_id;";
+
+            String query =  "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ageQuery()+
+                    "FROM weights w INNER JOIN ec_child child ON w.base_entity_id=child.base_entity_id WHERE '"+reportDate+"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch'))"+
+                    " AND age BETWEEN 24 AND 59 AND w.z_score BETWEEN -3 AND -2);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_040, count);
         } catch (Exception e) {
