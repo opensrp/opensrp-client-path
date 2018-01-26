@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.smartregister.path.R;
-import org.smartregister.path.activity.AnnualCoverageReportCsoActivity;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.application.VaccinatorApplication;
