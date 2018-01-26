@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -290,10 +291,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         mainCondition = " dod is NULL OR dod = '' ";
         countSelect = countqueryBUilder.mainCondition(mainCondition);
 
-        super.CountExecute();
-        updateSearchView();
-        refresh();
-
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
                 tableName + ".relationalid",
@@ -329,8 +326,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         currentoffset = 0;
 
         super.filterandSortInInitializeQueries();
-
-        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     private void refreshSyncStatusViews() {
@@ -350,13 +345,17 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
     @Override
     public void onSyncInProgress(FetchStatus fetchStatus) {
-        refreshListView();
+        if(!isPausedOrRefreshList()) {
+            refreshListView();
+        }
     }
 
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         refreshListView();
         refreshSyncStatusViews();
+
+        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     private void updateSearchView() {
@@ -487,6 +486,12 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         return filterSection != null && filterSection.getTag() != null;
     }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        super.onLoadFinished(loader, cursor);
+
+        updateSearchView();
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
@@ -531,6 +536,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
             }
         }
     }
+
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
         @Override
         protected Pair<Integer, Integer> doInBackground(Void... params) {

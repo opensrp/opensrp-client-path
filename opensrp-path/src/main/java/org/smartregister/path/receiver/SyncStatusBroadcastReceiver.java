@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import org.joda.time.DateTime;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.ExtendedSyncIntentService;
+import org.smartregister.sync.DrishtiSyncScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static org.smartregister.util.Log.logError;
 
@@ -27,6 +30,7 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
     private static SyncStatusBroadcastReceiver singleton;
     private boolean isSyncing;
     private boolean alarmsTriggered = false;
+    private long lastFetchedTimestamp;
 
     private final ArrayList<SyncStatusListener> syncStatusListeners;
 
@@ -98,6 +102,7 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
 
     private void started() {
         isSyncing = true;
+        lastFetchedTimestamp = 0;
         for (SyncStatusListener syncStatusListener : syncStatusListeners) {
             syncStatusListener.onSyncStart();
         }
@@ -105,6 +110,17 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
 
     private void inProgress(FetchStatus fetchStatus) {
         isSyncing = true;
+
+        long currentTimeStamp = DateTime.now().getMillis();
+        if (lastFetchedTimestamp != 0) {
+            long timeDiff = currentTimeStamp - lastFetchedTimestamp;
+            if (timeDiff < DrishtiSyncScheduler.SYNC_INTERVAL) {
+                return;
+            }
+        }
+
+        lastFetchedTimestamp = currentTimeStamp;
+
         for (SyncStatusListener syncStatusListener : syncStatusListeners) {
             syncStatusListener.onSyncInProgress(fetchStatus);
         }
@@ -112,6 +128,7 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
 
     private void complete(FetchStatus fetchStatus) {
         isSyncing = false;
+        lastFetchedTimestamp = 0;
         for (SyncStatusListener syncStatusListener : syncStatusListeners) {
             syncStatusListener.onSyncComplete(fetchStatus);
         }
