@@ -129,7 +129,7 @@ public class SyncService extends Service {
 
         Observable.just(locations)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.computation())
                 .flatMap(new Function<String, ObservableSource<?>>() {
                     @Override
                     public ObservableSource<?> apply(@NonNull String locations) throws Exception {
@@ -182,7 +182,7 @@ public class SyncService extends Service {
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
         final Observable<FetchStatus> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.newThread()).
+                .subscribeOn(Schedulers.io()).
                         flatMap(new Function<ResponseParcel, ObservableSource<FetchStatus>>() {
                             @Override
                             public ObservableSource<FetchStatus> apply(@NonNull ResponseParcel responseParcel) throws Exception {

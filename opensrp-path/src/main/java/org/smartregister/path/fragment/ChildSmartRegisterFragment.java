@@ -25,6 +25,7 @@ import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.CursorCommonObjectFilterOption;
 import org.smartregister.cursoradapter.CursorCommonObjectSort;
 import org.smartregister.cursoradapter.CursorSortOption;
+import org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAdapterFragment;
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -288,8 +289,10 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         countqueryBUilder.SelectInitiateMainTableCounts(tableName);
         mainCondition = " dod is NULL OR dod = '' ";
         countSelect = countqueryBUilder.mainCondition(mainCondition);
+
         super.CountExecute();
-        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        updateSearchView();
+        refresh();
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
@@ -327,8 +330,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
         super.filterandSortInInitializeQueries();
 
-        updateSearchView();
-        refresh();
+        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
     }
 
     private void refreshSyncStatusViews() {
@@ -356,7 +358,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         refreshListView();
         refreshSyncStatusViews();
     }
-
 
     private void updateSearchView() {
         getSearchView().removeTextChangedListener(textWatcher);
@@ -428,8 +429,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
                 String sql = sqb.countQueryFts(tablename, "", mainConditionString, "");
                 Log.i(getClass().getName(), query);
 
-                List<String> ids = commonRepository().findSearchIds(sql);
-                count = ids.size();
+                count = commonRepository().countSearchIds(sql);
             } else {
                 sqb.addCondition(filters);
                 query = sqb.orderbyCondition(Sortqueries);
@@ -531,7 +531,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
             }
         }
     }
-
     private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
         @Override
         protected Pair<Integer, Integer> doInBackground(Void... params) {
