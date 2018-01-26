@@ -546,7 +546,7 @@ public class LoginActivity extends AppCompatActivity {
                 return null;
             }
 
-            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils.join(locationsCSV, ","));
+            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils. join(locationsCSV, ","));
             return null;
         }
 
