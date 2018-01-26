@@ -380,7 +380,7 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public CumulativePatientRepository cumulativePatientRepository() {
-        if (cumulativeIndicatorRepository == null) {
+        if (cumulativePatientRepository == null) {
             cumulativePatientRepository = new CumulativePatientRepository((PathRepository) getRepository());
         }
         return cumulativePatientRepository;
