@@ -590,32 +590,35 @@ public class HIA2Service {
      * Number of children age 12-59 months who received a deworming dose at this facility in this month
      */
     private void getCHN2075() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='deworming' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Deworming' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 12 AND 59);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_075, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_075 " + e.getMessage());
         }
-
     }
 
     /**
      * Number of children who received insecticide treated nets at this facility in this month
      */
     private void getCHN2080() {
+
         try {
-            String query = "select count(*) as count from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='itn' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch'))";
+
+            String query = "SELECT count(*) AS count FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id " +
+                    "WHERE rst.type = 'ITN' AND '" + reportDate + "' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch'));";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_080, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_080 " + e.getMessage());
         }
-
     }
 
     /**
