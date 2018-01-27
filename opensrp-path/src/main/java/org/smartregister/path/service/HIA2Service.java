@@ -553,9 +553,12 @@ public class HIA2Service {
      * Number of children age 6-11 months who received vitamin A at this facility in this month
      */
     private void getCHN2065() {
+
         try {
-            String query = "select count(*) as count, " + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 6 and 11";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Vit_A' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 6 AND 11);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_065, count);
@@ -569,9 +572,13 @@ public class HIA2Service {
      * Vitamin A supplement to infant and children 12-59 months
      */
     private void getCHN2070() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Vit_A' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 12 AND 59);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_070, count);
         } catch (Exception e) {
