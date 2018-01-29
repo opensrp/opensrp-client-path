@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Created by keyman on 11/01/18.
  */
-public class ChildReport implements Serializable {
+public class CohortPatient implements Serializable {
     private Long id;
     private String baseEntityId;
     private Long cohortId;

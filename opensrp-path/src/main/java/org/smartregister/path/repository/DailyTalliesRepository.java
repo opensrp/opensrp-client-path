@@ -130,6 +130,8 @@ public class DailyTalliesRepository extends BaseRepository {
      */
     public List<String> findAllDistinctMonths(SimpleDateFormat dateFormat, Date startDate, Date endDate) {
         Cursor cursor = null;
+        List<String> months = new ArrayList<>();
+
         try {
             String selectionArgs = "";
             if (startDate != null) {
@@ -148,7 +150,7 @@ public class DailyTalliesRepository extends BaseRepository {
                     new String[]{COLUMN_DAY},
                     selectionArgs, null, null, null, null, null);
 
-            return getUniqueMonths(dateFormat, cursor);
+            months = getUniqueMonths(dateFormat, cursor);
         } catch (SQLException e) {
             Log.e(TAG, Log.getStackTraceString(e));
         } finally {
@@ -157,7 +159,7 @@ public class DailyTalliesRepository extends BaseRepository {
             }
         }
 
-        return new ArrayList<>();
+        return months;
     }
 
     /**
@@ -339,24 +341,6 @@ public class DailyTalliesRepository extends BaseRepository {
             }
         }
 
-        return null;
-    }
-
-    private Long checkIfExists(long indicatorId, String day) {
-        Cursor mCursor = null;
-        try {
-            String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_NAME +
-                    " WHERE " + COLUMN_INDICATOR_ID + " = " + String.valueOf(indicatorId) + " COLLATE NOCASE "
-                    + " AND " + COLUMN_DAY + "='" + day + "'";
-            mCursor = getWritableDatabase().rawQuery(query, null);
-            if (mCursor != null && mCursor.moveToFirst()) {
-                return mCursor.getLong(0);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
-        } finally {
-            if (mCursor != null) mCursor.close();
-        }
         return null;
     }
 }

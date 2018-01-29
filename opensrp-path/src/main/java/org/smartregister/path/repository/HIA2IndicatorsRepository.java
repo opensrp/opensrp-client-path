@@ -92,12 +92,13 @@ public class HIA2IndicatorsRepository extends BaseRepository {
 
     public Hia2Indicator findByIndicatorCode(String indicatorCode) {
         Cursor cursor = null;
+        Hia2Indicator hia2Indicator = null;
 
         try {
             cursor = getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, INDICATOR_CODE + " = ? COLLATE NOCASE ", new String[]{indicatorCode}, null, null, null, null);
             List<Hia2Indicator> hia2Indicators = readAllDataElements(cursor);
             if (hia2Indicators.size() == 1) {
-                return hia2Indicators.get(0);
+                hia2Indicator = hia2Indicators.get(0);
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -107,17 +108,18 @@ public class HIA2IndicatorsRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return hia2Indicator;
     }
 
     public Hia2Indicator findById(long id) {
         Cursor cursor = null;
+        Hia2Indicator hia2Indicator = null;
 
         try {
             cursor = getReadableDatabase().query(HIA2_INDICATORS_TABLE_NAME, HIA2_TABLE_COLUMNS, ID_COLUMN + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
             List<Hia2Indicator> hia2Indicators = readAllDataElements(cursor);
             if (hia2Indicators.size() == 1) {
-                return hia2Indicators.get(0);
+                hia2Indicator = hia2Indicators.get(0);
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -127,7 +129,7 @@ public class HIA2IndicatorsRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return hia2Indicator;
     }
 
     private List<Hia2Indicator> readAllDataElements(Cursor cursor) {
@@ -152,7 +154,9 @@ public class HIA2IndicatorsRepository extends BaseRepository {
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         } finally {
-            cursor.close();
+            if(cursor != null) {
+                cursor.close();
+            }
         }
 
         return hia2Indicators;
@@ -192,19 +196,21 @@ public class HIA2IndicatorsRepository extends BaseRepository {
 
     private Long checkIfExists(SQLiteDatabase db, String indicatorCode) {
         Cursor mCursor = null;
+        Long exists = null;
+
         try {
             String query = "SELECT " + ID_COLUMN + " FROM " + HIA2_INDICATORS_TABLE_NAME + " WHERE " + INDICATOR_CODE + " = '" + indicatorCode + "' COLLATE NOCASE ";
             mCursor = db.rawQuery(query, null);
             if (mCursor != null && mCursor.moveToFirst()) {
 
-                return mCursor.getLong(0);
+                exists = mCursor.getLong(0);
             }
         } catch (Exception e) {
             Log.e(TAG, e.toString(), e);
         } finally {
             if (mCursor != null) mCursor.close();
         }
-        return null;
+        return exists;
     }
 
     /**
