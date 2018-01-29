@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activity.CohortCoverageReportActivity">
+    tools:context=".activity.BcgMeaslesCumulativeDropoutReportActivity">
 
     <include layout="@layout/toolbar_dropout_template" />
 
@@ -17,7 +17,7 @@
         android:background="@color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/expandable_list_fragment" />
+        <include layout="@layout/report_expandable_list_view" />
     </FrameLayout>
 
     <include layout="@layout/notification_base" />

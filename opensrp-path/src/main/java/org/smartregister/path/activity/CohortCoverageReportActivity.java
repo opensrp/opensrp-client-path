@@ -195,6 +195,13 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     protected Map<String, NamedObject<?>> generateReportBackground() {
 
         CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
+        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+
+        if (cohortRepository == null || cohortPatientRepository == null || cohortIndicatorRepository == null) {
+            return null;
+        }
+
         List<Cohort> cohorts = cohortRepository.fetchAll();
         if (cohorts.isEmpty()) {
             return null;
@@ -213,16 +220,12 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
             }
         });
 
-
-        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
-
         // Populate the default cohort
         Cohort cohort = cohorts.get(0);
 
         long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
         CoverageHolder coverageHolder = new CoverageHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
-        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
         List<CohortIndicator> indicators = cohortIndicatorRepository.findByCohort(cohort.getId());
 
         Map<String, NamedObject<?>> map = new HashMap<>();
@@ -273,9 +276,13 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     protected Pair<List, Long> updateReportBackground(Long id) {
 
         CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
-        List indicators = cohortIndicatorRepository.findByCohort(id);
-
         CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+
+        if (cohortIndicatorRepository == null || cohortPatientRepository == null) {
+            return null;
+        }
+
+        List indicators = cohortIndicatorRepository.findByCohort(id);
         long cohortSize = cohortPatientRepository.countCohort(id);
 
         return Pair.create(indicators, cohortSize);

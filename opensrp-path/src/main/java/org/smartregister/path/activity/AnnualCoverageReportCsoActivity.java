@@ -219,6 +219,12 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     protected Map<String, NamedObject<?>> generateReportBackground() {
 
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
+
         List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
         if (cumulatives.isEmpty()) {
             return null;
@@ -241,7 +247,6 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
         Cumulative cumulative = cumulatives.get(0);
         CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), cumulative.getCsoNumber());
 
-        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
         Map<String, NamedObject<?>> map = new HashMap<>();
@@ -294,6 +299,10 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
         CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
 
         Cumulative cumulative = cumulativeRepository.findById(id);
         if (cumulative == null) {

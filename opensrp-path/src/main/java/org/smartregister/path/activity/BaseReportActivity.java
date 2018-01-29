@@ -27,6 +27,7 @@ import org.smartregister.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -169,7 +170,9 @@ public abstract class BaseReportActivity extends BaseActivity {
         listView.setAdapter(baseAdapter);
     }
 
-    protected abstract <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators);
+    protected <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators) {
+        return view;
+    }
 
     protected <T> CumulativeIndicator retrieveCumulativeIndicator(List<T> indicators, VaccineRepo.Vaccine vaccine) {
         final String vaccineString = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
@@ -249,6 +252,43 @@ public abstract class BaseReportActivity extends BaseActivity {
         vaccineList.add(VaccineRepo.Vaccine.measles2);
 
         return vaccineList;
+    }
+
+    protected List<Date> generateMonths(Date year) {
+        if (year == null) {
+            year = new Date();
+        }
+
+        Date currentDate = new Date();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(year);
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
+
+        List<Date> months = new ArrayList<>();
+        for (int i = 0; i < 12; i++) {
+            if (i != 0) {
+                calendar.add(Calendar.MONTH, 1);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+            }
+
+            Date month = calendar.getTime();
+            if (month.after(currentDate)) {
+                break;
+            } else {
+                months.add(month);
+            }
+        }
+
+        return months;
+    }
+
+    protected String generateVaccineName(VaccineRepo.Vaccine vaccine) {
+        if (vaccine == null) {
+            return null;
+        }
+
+        return VaccineRepository.addHyphen(vaccine.display().toLowerCase());
     }
 
     ////////////////////////////////////////////////////////////////

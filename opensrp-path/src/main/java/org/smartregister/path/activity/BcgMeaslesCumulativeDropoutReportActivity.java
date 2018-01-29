@@ -11,20 +11,33 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.domain.FetchStatus;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ExpandedListAdapter;
+import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.Cumulative;
+import org.smartregister.path.domain.CumulativeIndicator;
+import org.smartregister.path.domain.NamedObject;
+import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
+import org.smartregister.path.repository.CumulativeIndicatorRepository;
+import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by keyman on 08/01/18.
  */
-public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
+public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
     private ExpandableListView expandableListView;
 
     @Override
@@ -54,7 +67,6 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
         expandableListView.setDivider(null);
         expandableListView.setDividerHeight(0);
 
-        updateExpandableList(formatListData());
     }
 
     @Override
@@ -69,6 +81,15 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
 
+        refresh(true);
+
+        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
     }
 
     @Override
@@ -96,30 +117,133 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseActivity {
         return null;
     }
 
+    @Override
+    public void onServiceFinish(String actionType) {
+        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS.equals(actionType)) {
+            refresh(false);
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
+    private void updateExpandableList(final LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
 
-
-        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
+        ExpandedListAdapter<Pair<String, String>, Triple<String, String, String>, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }
 
-    private LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> formatListData() {
-        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map = new LinkedHashMap<>();
+    @Override
+    protected Map<String, NamedObject<?>> generateReportBackground() {
+        SimpleDateFormat monthDateFormat = new SimpleDateFormat("MMMM");
+        CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
 
-        List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
-        String[] months = new DateFormatSymbols().getMonths();
-        for (String month : months) {
-            ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(month, "14 / 100", "14%"), new Date());
-            itemDataList.add(itemData);
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
         }
 
+        List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
+        if (cumulatives.isEmpty()) {
+            return null;
+        }
 
-        map.put(Pair.create("2017", "14%"), itemDataList);
-        map.put(Pair.create("2016", "14%"), itemDataList);
+        Collections.sort(cumulatives, new Comparator<Cumulative>() {
+            @Override
+            public int compare(Cumulative lhs, Cumulative rhs) {
+                if (lhs.getYearAsDate() == null) {
+                    return 1;
+                }
+                if (rhs.getYearAsDate() == null) {
+                    return 1;
+                }
+                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
+            }
+        });
+
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+
+        Collections.reverse(cumulatives);
+
+        for (Cumulative cumulative : cumulatives) {
+
+            List<Date> months = generateMonths(cumulative.getYearAsDate());
+            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
+            long totalDiff = 0L;
+            long totalBcg = 0L;
+
+            for (Date month : months) {
+
+                String bcgVaccineName = generateVaccineName(VaccineRepo.Vaccine.bcg);
+                CumulativeIndicator bcgCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(bcgVaccineName, month, cumulative.getId());
+
+                String measlesVaccineName = generateVaccineName(VaccineRepo.Vaccine.measles1);
+                CumulativeIndicator measlesCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(measlesVaccineName, month, cumulative.getId());
+
+                long bcg = 0L;
+                if (bcgCumulativeIndicator != null && bcgCumulativeIndicator.getValue() != null) {
+                    bcg = bcgCumulativeIndicator.getValue();
+                    totalBcg += bcg;
+                }
+
+                long measles = 0L;
+                if (measlesCumulativeIndicator != null && measlesCumulativeIndicator.getValue() != null) {
+                    measles = measlesCumulativeIndicator.getValue();
+                }
+
+                long diff = bcg - measles;
+                totalDiff += diff;
+
+
+                int percentage = 0;
+                if (bcg > 0) {
+                    percentage = (int) (diff * 100.0 / bcg + 0.5);
+                }
+
+                String monthString = monthDateFormat.format(month);
+                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + bcg, String.format(getString(R.string.coverage_percentage),
+                        percentage)), month);
+                itemDataList.add(itemData);
+
+            }
+
+            int totalPercentage = 0;
+            if (totalBcg > 0) {
+                totalPercentage = (int) (totalDiff * 100.0 / totalBcg + 0.5);
+            }
+            linkedHashMap.put(String.valueOf(cumulative.getYear()), itemDataList);
+        }
+
+        Map<String, NamedObject<?>> map = new HashMap<>();
+
+        NamedObject<LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
+        map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
+
 
         return map;
+    }
+
+    @Override
+    protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+
+        if (map.containsKey(LinkedHashMap.class.getName())) {
+            NamedObject<?> namedObject = map.get(LinkedHashMap.class.getName());
+            if (namedObject != null) {
+                linkedHashMap = (LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>) namedObject.object;
+            }
+        }
+
+        updateExpandableList(linkedHashMap);
+
+    }
+
+    @Override
+    protected Pair<List, Long> updateReportBackground(Long id) {
+        return null;
+    }
+
+    @Override
+    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
 
     }
 }

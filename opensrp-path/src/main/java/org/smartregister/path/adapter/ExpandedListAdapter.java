@@ -20,20 +20,20 @@ import java.util.Map;
 /**
  * Created by keyman on 12/06/2017.
  */
-public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
+public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
     private final Context context;
-    private LinkedHashMap<String, List<ItemData<L, T>>> map = new LinkedHashMap<>();
-    private final List<String> headers = new ArrayList<>();
+    private LinkedHashMap<K, List<ItemData<L, T>>> map = new LinkedHashMap<>();
+    private List<K> headers = new ArrayList<>();
     private final int headerLayout;
     private final int childLayout;
 
 
-    public ExpandedListAdapter(Context context, LinkedHashMap<String, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
+    public ExpandedListAdapter(Context context, LinkedHashMap<K, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
         this.context = context;
         if (map != null && !map.isEmpty()) {
             this.map = map;
-            for (Map.Entry<String, List<ItemData<L, T>>> entry : map.entrySet()) {
+            for (Map.Entry<K, List<ItemData<L, T>>> entry : map.entrySet()) {
                 this.headers.add(entry.getKey());
             }
         }
@@ -59,13 +59,12 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
-        ItemData<L, T> childObject = getChild(groupPosition, childPosition);
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(context);
             convertView = inflater.inflate(childLayout, null);
-            convertView.setTag(R.id.item_data, childObject.getTagData());
         }
 
+        ItemData<L, T> childObject = getChild(groupPosition, childPosition);
         if (childObject != null) {
 
             String text = null;
@@ -116,6 +115,8 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
                 dividerBottom.setVisibility(View.GONE);
             }
         }
+
+        convertView.setTag(R.id.item_data, childObject.getTagData());
 
         return convertView;
     }
