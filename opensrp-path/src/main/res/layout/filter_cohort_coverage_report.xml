@@ -32,7 +32,7 @@
                 android:textSize="20sp" />
 
             <Spinner
-                android:id="@+id/cohort_spinner"
+                android:id="@+id/report_spinner"
                 style="@style/PathSpinnerUnderLined"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -47,8 +47,8 @@
             android:layout_height="@dimen/ec_main_header_search_layout_height"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:paddingRight="10dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingRight="10dp">
 
             <org.smartregister.view.customcontrols.CustomFontTextView
                 android:id="@+id/cohort_size_label"

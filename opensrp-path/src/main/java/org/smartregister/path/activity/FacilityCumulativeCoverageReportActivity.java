@@ -10,10 +10,11 @@ import android.widget.TextView;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
+import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
@@ -25,14 +26,13 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.ValueShape;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
-import util.Utils;
 
 /**
  * Created by keyman on 03/01/17.
  */
 public class FacilityCumulativeCoverageReportActivity extends BaseActivity {
 
-    public static final String YEAR = "YEAR";
+    public static final String HOLDER = "HOLDER";
     public static final String VACCINE = "VACCINE";
 
     @Override
@@ -59,7 +59,12 @@ public class FacilityCumulativeCoverageReportActivity extends BaseActivity {
         ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.facility_cumulative_coverage_report));
 
 
-        int year = getIntent().getIntExtra(YEAR, Utils.yearFromDate(new Date()));
+        CoverageHolder holder = null;
+        Serializable serializable = getIntent().getSerializableExtra(HOLDER);
+        if (serializable != null && serializable instanceof CoverageHolder) {
+            holder = (CoverageHolder) serializable;
+        }
+
         VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) getIntent().getSerializableExtra(VACCINE);
         String vaccineName = vaccine.display();
         if (vaccine.equals(VaccineRepo.Vaccine.penta1) || vaccine.equals(VaccineRepo.Vaccine.penta3)) {
@@ -69,7 +74,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseActivity {
         }
 
         TextView textView = (TextView) findViewById(R.id.report_title);
-        textView.setText(String.format(getString(R.string.facility_cumulative_title), year, vaccineName));
+        textView.setText(String.format(getString(R.string.facility_cumulative_title), BaseReportActivity.getYear(holder.getDate()), vaccineName));
 
         refreshMonitoring();
     }

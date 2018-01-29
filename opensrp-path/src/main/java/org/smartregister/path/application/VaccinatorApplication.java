@@ -36,9 +36,12 @@ import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
-import org.smartregister.path.repository.ChildReportRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortRepository;
+import org.smartregister.path.repository.CumulativeIndicatorRepository;
+import org.smartregister.path.repository.CumulativePatientRepository;
+import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
@@ -79,7 +82,10 @@ public class VaccinatorApplication extends DrishtiApplication
     private StockRepository stockRepository;
     private CohortRepository cohortRepository;
     private CohortIndicatorRepository cohortIndicatorRepository;
-    private ChildReportRepository childReportRepository;
+    private CohortPatientRepository cohortPatientRepository;
+    private CumulativeRepository cumulativeRepository;
+    private CumulativeIndicatorRepository cumulativeIndicatorRepository;
+    private CumulativePatientRepository cumulativePatientRepository;
     private boolean lastModified;
 
     @Override
@@ -352,11 +358,32 @@ public class VaccinatorApplication extends DrishtiApplication
         return cohortIndicatorRepository;
     }
 
-    public ChildReportRepository childReportRepository() {
-        if (childReportRepository == null) {
-            childReportRepository = new ChildReportRepository((PathRepository) getRepository());
+    public CohortPatientRepository cohortPatientRepository() {
+        if (cohortPatientRepository == null) {
+            cohortPatientRepository = new CohortPatientRepository((PathRepository) getRepository());
         }
-        return childReportRepository;
+        return cohortPatientRepository;
+    }
+
+    public CumulativeRepository cumulativeRepository() {
+        if (cumulativeRepository == null) {
+            cumulativeRepository = new CumulativeRepository((PathRepository) getRepository());
+        }
+        return cumulativeRepository;
+    }
+
+    public CumulativeIndicatorRepository cumulativeIndicatorRepository() {
+        if (cumulativeIndicatorRepository == null) {
+            cumulativeIndicatorRepository = new CumulativeIndicatorRepository((PathRepository) getRepository());
+        }
+        return cumulativeIndicatorRepository;
+    }
+
+    public CumulativePatientRepository cumulativePatientRepository() {
+        if (cumulativePatientRepository == null) {
+            cumulativePatientRepository = new CumulativePatientRepository((PathRepository) getRepository());
+        }
+        return cumulativePatientRepository;
     }
 
     public boolean isLastModified() {

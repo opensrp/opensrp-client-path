@@ -9,8 +9,7 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
-import org.smartregister.path.domain.Cohort;
-import org.smartregister.path.domain.CohortHolder;
+import org.smartregister.path.domain.CoverageHolder;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,14 +19,14 @@ import java.util.List;
  * Created by keyman on 12/22/17.
  */
 
-public class CohortSpinnerAdapter extends ArrayAdapter<Cohort> {
+public class CoverageSpinnerAdapter extends ArrayAdapter<CoverageHolder> {
 
     private Context context;
     private SimpleDateFormat simpleDateFormat;
     private String firstSuffix;
 
 
-    public CohortSpinnerAdapter(Context context, int resource, List<Cohort> objects, SimpleDateFormat simpleDateFormat) {
+    public CoverageSpinnerAdapter(Context context, int resource, List<CoverageHolder> objects, SimpleDateFormat simpleDateFormat) {
         super(context, resource, objects);
         this.context = context;
         this.simpleDateFormat = simpleDateFormat;
@@ -50,15 +49,16 @@ public class CohortSpinnerAdapter extends ArrayAdapter<Cohort> {
 
         if (view instanceof TextView) {
             TextView textView = (TextView) view;
-            Cohort cohort = getItem(position);
-            Date date = cohort.getMonthAsDate();
-
-            String dateString = simpleDateFormat.format(date);
-            if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
-                dateString = dateString + " " + firstSuffix;
+            CoverageHolder holder = getItem(position);
+            if (holder != null && holder.getDate() != null) {
+                Date date = holder.getDate();
+                String dateString = simpleDateFormat.format(date);
+                if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
+                    dateString = dateString + " " + firstSuffix;
+                }
+                textView.setText(dateString);
+                textView.setTag(holder);
             }
-            textView.setText(dateString);
-            textView.setTag(new CohortHolder(cohort.getId(), date));
         }
         return view;
     }
@@ -76,15 +76,17 @@ public class CohortSpinnerAdapter extends ArrayAdapter<Cohort> {
 
         if (view instanceof TextView) {
             TextView textView = (TextView) view;
-            Cohort cohort = getItem(position);
-            Date date = cohort.getMonthAsDate();
+            CoverageHolder coverageHolder = getItem(position);
+            if (coverageHolder != null && coverageHolder.getDate() != null) {
+                Date date = coverageHolder.getDate();
 
-            String dateString = simpleDateFormat.format(date);
-            if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
-                dateString = dateString + " " + firstSuffix;
+                String dateString = simpleDateFormat.format(date);
+                if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
+                    dateString = dateString + " " + firstSuffix;
+                }
+                textView.setText(dateString);
+                textView.setTag(coverageHolder);
             }
-            textView.setText(dateString);
-            textView.setTag(new CohortHolder(cohort.getId(), date));
         }
         return view;
     }

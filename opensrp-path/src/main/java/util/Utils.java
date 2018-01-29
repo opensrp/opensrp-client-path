@@ -28,6 +28,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -287,5 +288,33 @@ public class Utils {
         return c.getTime();
     }
 
+    public static boolean isSameMonthAndYear(Date date1, Date date2) {
+        if (date1 != null && date2 != null) {
+            DateTime dateTime1 = new DateTime(date1);
+            DateTime dateTime2 = new DateTime(date2);
 
+            return dateTime1.getMonthOfYear() == dateTime2.getMonthOfYear() && dateTime1.getYear() == dateTime2.getYear();
+        }
+        return false;
+    }
+
+    public static boolean isSameYear(Date date1, Date date2) {
+        if (date1 != null && date2 != null) {
+            DateTime dateTime1 = new DateTime(date1);
+            DateTime dateTime2 = new DateTime(date2);
+
+            return dateTime1.getYear() == dateTime2.getYear();
+        }
+        return false;
+    }
+
+    public static Date dobStringToDate(String dobString) {
+        try {
+            DateTime dateTime = new DateTime(dobString);
+            return dateTime.toDate();
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

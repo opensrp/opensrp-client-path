@@ -401,10 +401,13 @@ public class HIA2Service {
      * Number of total children age 0-23 months whose weight is between -2Z and -3Z scores
      */
     private void getCHN2035() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age<=23 and w.z_score between -2 and -3 group by child.base_entity_id;";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ageQuery()+
+                    "FROM weights w INNER JOIN ec_child child ON w.base_entity_id=child.base_entity_id WHERE '"+reportDate+"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch'))"+
+                    " AND age <= 23 AND w.z_score BETWEEN -3 AND -2);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_035, count);
         } catch (Exception e) {
@@ -417,10 +420,13 @@ public class HIA2Service {
      * Number of total children age 24-59 months whose weight is between -2Z and -3Z scores
      */
     private void getCHN2040() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age between 24 and 59 and w.z_score between -2 and -3 group by child.base_entity_id;";
+
+            String query =  "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ageQuery()+
+                    "FROM weights w INNER JOIN ec_child child ON w.base_entity_id=child.base_entity_id WHERE '"+reportDate+"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch'))"+
+                    " AND age BETWEEN 24 AND 59 AND w.z_score BETWEEN -3 AND -2);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_040, count);
         } catch (Exception e) {
@@ -494,10 +500,13 @@ public class HIA2Service {
      * Number of total children age 0-23 months whose weight is above 2Z scores
      */
     private void getCHN2055() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age<=23 and w.z_score>2 group by child.base_entity_id;";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ ageQuery() +
+                    " FROM weights w INNER JOIN ec_child child ON w.base_entity_id = child.base_entity_id WHERE '"+ reportDate +"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) "+
+                    "AND age <= 23 AND w.z_score > 2);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_055, count);
         } catch (Exception e) {
@@ -510,10 +519,12 @@ public class HIA2Service {
      * Number of total children age 24-59 months whose weight is above 2Z scores
      */
     private void getCHN2060() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id" +
-                    " where '" + reportDate + "'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) and age between 24 and 59 and w.z_score >2 group by child.base_entity_id;";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ ageQuery() +
+                        " FROM weights w INNER JOIN ec_child child ON w.base_entity_id = child.base_entity_id WHERE '"+ reportDate +"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) "+
+                        "AND age BETWEEN 24 AND 59 AND w.z_score > 2);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_060, count);
@@ -535,15 +546,19 @@ public class HIA2Service {
             Log.logError(TAG, "CHN2_061 " + e.getMessage());
 
         }
+
     }
 
     /**
      * Number of children age 6-11 months who received vitamin A at this facility in this month
      */
     private void getCHN2065() {
+
         try {
-            String query = "select count(*) as count, " + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 6 and 11";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Vit_A' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 6 AND 11);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_065, count);
@@ -557,9 +572,13 @@ public class HIA2Service {
      * Vitamin A supplement to infant and children 12-59 months
      */
     private void getCHN2070() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='vit_a' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Vit_A' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 12 AND 59);";
+
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_070, count);
         } catch (Exception e) {
@@ -571,32 +590,35 @@ public class HIA2Service {
      * Number of children age 12-59 months who received a deworming dose at this facility in this month
      */
     private void getCHN2075() {
+
         try {
-            String query = "select count(*) as count," + ageQuery() + " from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='deworming' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) and age between 12 and 59";
+
+            String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id," +ageQuery()+
+                    "FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id" +
+                    " WHERE rst.type = 'Deworming' AND '"+reportDate+"' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch')) AND age BETWEEN 12 AND 59);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_075, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_075 " + e.getMessage());
         }
-
     }
 
     /**
      * Number of children who received insecticide treated nets at this facility in this month
      */
     private void getCHN2080() {
+
         try {
-            String query = "select count(*) as count from recurring_service_records rsr inner join recurring_service_types rst on rsr.recurring_service_id=rst._id left join ec_child child on rsr.base_entity_id=child.base_entity_id\n" +
-                    "where rst.type='itn' and '" + reportDate + "'=strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch'))";
+
+            String query = "SELECT count(*) AS count FROM recurring_service_records rsr INNER JOIN recurring_service_types rst ON rsr.recurring_service_id = rst._id INNER JOIN ec_child child ON rsr.base_entity_id = child.base_entity_id " +
+                    "WHERE rst.type = 'ITN' AND '" + reportDate + "' = strftime('%Y-%m-%d',datetime(rsr.date/1000, 'unixepoch'));";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_080, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_080 " + e.getMessage());
         }
-
     }
 
     /**
