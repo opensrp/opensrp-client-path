@@ -14,7 +14,6 @@ import org.smartregister.sync.DrishtiSyncScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import static org.smartregister.util.Log.logError;
 

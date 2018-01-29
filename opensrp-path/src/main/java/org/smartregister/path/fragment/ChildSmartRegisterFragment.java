@@ -1,6 +1,5 @@
 package org.smartregister.path.fragment;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -22,11 +21,9 @@ import android.widget.TextView;
 import com.github.ybq.android.spinkit.style.Circle;
 
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.CursorCommonObjectFilterOption;
 import org.smartregister.cursoradapter.CursorCommonObjectSort;
 import org.smartregister.cursoradapter.CursorSortOption;
-import org.smartregister.cursoradapter.SecuredNativeSmartRegisterCursorAdapterFragment;
 import org.smartregister.cursoradapter.SmartRegisterPaginatedCursorAdapter;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
@@ -54,10 +51,8 @@ import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import util.PathConstants;
-import util.Utils;
 
 public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implements SyncStatusBroadcastReceiver.SyncStatusListener {
     private final ClientActionHandler clientActionHandler = new ClientActionHandler();
