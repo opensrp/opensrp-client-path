@@ -25,6 +25,9 @@ import org.smartregister.path.domain.Cumulative;
 import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.helper.SpinnerHelper;
+import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
+import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.util.Utils;
@@ -284,6 +287,73 @@ public abstract class BaseReportActivity extends BaseActivity {
         return linkedHashMap;
     }
 
+    protected LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> generateCohortDropoutMap(VaccineRepo.Vaccine completed) {
+        SimpleDateFormat monthDateFormat = new SimpleDateFormat("MMMM");
+        CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
+        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+
+
+        if (cohortRepository == null || cohortPatientRepository == null || cohortIndicatorRepository == null) {
+            return null;
+        }
+
+        List<Cohort> cohorts = cohortRepository.fetchAll();
+        if (cohorts.isEmpty()) {
+            return null;
+        }
+
+        Collections.sort(cohorts, new Comparator<Cohort>() {
+            @Override
+            public int compare(Cohort lhs, Cohort rhs) {
+                if (lhs.getMonthAsDate() == null) {
+                    return 1;
+                }
+                if (rhs.getMonthAsDate() == null) {
+                    return 1;
+                }
+                return rhs.getMonthAsDate().compareTo(lhs.getMonthAsDate());
+            }
+        });
+
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+
+        for (Cohort cohort : cohorts) {
+            long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
+
+            String completedVaccineName = generateVaccineName(completed);
+            CohortIndicator completedCohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(completedVaccineName, cohort.getId());
+
+            long completeCount = 0L;
+            if (completedCohortIndicator != null && completedCohortIndicator.getValue() != null) {
+                completeCount = completedCohortIndicator.getValue();
+            }
+
+            long diff = cohortSize - completeCount;
+
+            int percentage = 0;
+            if (cohortSize > 0) {
+                percentage = (int) (diff * 100.0 / cohortSize + 0.5);
+            }
+
+            String monthString = monthDateFormat.format(cohort.getMonthAsDate());
+            ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + cohortSize, String.format(getString(R.string.coverage_percentage),
+                    percentage)), cohort.getMonthAsDate());
+
+            Integer year = util.Utils.yearFromDate(cohort.getMonthAsDate());
+            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = linkedHashMap.get(year.toString());
+
+            if (itemDataList == null) {
+                itemDataList = new ArrayList<>();
+                linkedHashMap.put(year.toString(), itemDataList);
+            }
+
+            itemDataList.add(itemData);
+        }
+
+        return linkedHashMap;
+    }
+
     @Override
     protected void showProgressDialog() {
         showProgressDialog(getString(R.string.updating_dialog_title), getString(R.string.please_wait_message));
@@ -376,8 +446,8 @@ public abstract class BaseReportActivity extends BaseActivity {
     }
 
     ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
+// Inner classes
+////////////////////////////////////////////////////////////////
     protected class GenerateReportTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private BaseActivity baseActivity;
