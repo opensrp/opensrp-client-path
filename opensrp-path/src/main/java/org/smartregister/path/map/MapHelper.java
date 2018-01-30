@@ -112,11 +112,6 @@ public class MapHelper {
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
         mapViewIntent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_STYLES, new String[]{finalStyle});
 
-        // This should be changed sometime later and/or configurable via some JSON file
-        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_BEARING, 34.33);
-        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_TILT, 80.0);
-        mapViewIntent.putExtra(Constants.PARCELABLE_KEY_CAMERA_ZOOM, 13.6);
-
         if (topLeftBound != null & bottomRightBound != null) {
             mapViewIntent.putExtra(Constants.PARCELABLE_KEY_TOP_LEFT_BOUND, topLeftBound);
             mapViewIntent.putExtra(Constants.PARCELABLE_KEY_BOTTOM_RIGHT_BOUND, bottomRightBound);
@@ -127,7 +122,7 @@ public class MapHelper {
 
     public void requestOfflineMap(Context context, String mapName, String mapboxStyleUrl, String mapBoxAccessToken, LatLng topLeftBound, LatLng bottomRightBound, double minZoom, double maxZoom) {
         Intent intent = new Intent(context, MapboxOfflineDownloaderService.class);
-        intent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, Constants.SERVICE_ACTION.DOWNLOAD_MAP);
+        intent.putExtra(Constants.PARCELABLE_KEY_SERVICE_ACTION, MapboxOfflineDownloaderService.SERVICE_ACTION.DOWNLOAD_MAP);
         intent.putExtra(Constants.PARCELABLE_KEY_STYLE_URL, mapboxStyleUrl);
         intent.putExtra(Constants.PARCELABLE_KEY_MAP_UNIQUE_NAME, mapName);
         intent.putExtra(Constants.PARCELABLE_KEY_MAPBOX_ACCESS_TOKEN, mapBoxAccessToken);
