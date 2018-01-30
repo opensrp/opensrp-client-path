@@ -27,6 +27,7 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
     private List<K> headers = new ArrayList<>();
     private final int headerLayout;
     private final int childLayout;
+    private boolean isChildSelectable = true;
 
 
     public ExpandedListAdapter(Context context, LinkedHashMap<K, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
@@ -40,13 +41,15 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
         this.headerLayout = headerLayout;
         this.childLayout = childLayout;
+    }
 
-
+    public void setChildSelectable(boolean isChildSelectable) {
+        this.isChildSelectable = isChildSelectable;
     }
 
     @Override
     public ItemData<L, T> getChild(int groupPosition, int childPosititon) {
-        return map.get(headers.get(groupPosition)).get(childPosititon);
+        return this.map.get(this.headers.get(groupPosition)).get(childPosititon);
     }
 
     @Override
@@ -123,18 +126,18 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return map.get(headers.get(groupPosition))
+        return this.map.get(this.headers.get(groupPosition))
                 .size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return headers.get(groupPosition);
+        return this.headers.get(groupPosition);
     }
 
     @Override
     public int getGroupCount() {
-        return headers.size();
+        return this.headers.size();
     }
 
     @Override
@@ -181,7 +184,6 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
         }
 
-
         ExpandableListView mExpandableListView = (ExpandableListView) parent;
         mExpandableListView.expandGroup(groupPosition);
 
@@ -195,7 +197,7 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+        return isChildSelectable;
     }
 
     public static class ItemData<L, T> {

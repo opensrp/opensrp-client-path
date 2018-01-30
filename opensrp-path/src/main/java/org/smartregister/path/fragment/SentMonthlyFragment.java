@@ -74,7 +74,7 @@ public class SentMonthlyFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.report_expandable_list_view, container, false);
         expandableListView = (ExpandableListView) fragmentView.findViewById(R.id.expandable_list_view);
-
+        expandableListView.setBackgroundColor(getResources().getColor(R.color.white));
         return fragmentView;
     }
 

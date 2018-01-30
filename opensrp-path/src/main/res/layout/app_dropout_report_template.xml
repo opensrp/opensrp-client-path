@@ -10,7 +10,7 @@
 
     <include layout="@layout/toolbar_dropout_template" />
 
-    <FrameLayout
+    <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,7 +18,8 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <include layout="@layout/report_expandable_list_view" />
-    </FrameLayout>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <include layout="@layout/notification_base" />
 

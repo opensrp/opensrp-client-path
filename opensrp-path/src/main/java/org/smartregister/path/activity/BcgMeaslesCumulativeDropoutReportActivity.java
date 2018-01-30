@@ -125,9 +125,10 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
     }
 
     @SuppressWarnings("unchecked")
-    private void updateExpandableList(final LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
+    private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
 
         ExpandedListAdapter<Pair<String, String>, Triple<String, String, String>, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
+        expandableListAdapter.setChildSelectable(false);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }
@@ -160,9 +161,7 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
             }
         });
 
-        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
-
-        Collections.reverse(cumulatives);
+        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
 
         for (Cumulative cumulative : cumulatives) {
 
@@ -210,12 +209,12 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
             if (totalBcg > 0) {
                 totalPercentage = (int) (totalDiff * 100.0 / totalBcg + 0.5);
             }
-            linkedHashMap.put(String.valueOf(cumulative.getYear()), itemDataList);
+            linkedHashMap.put(Pair.create(String.valueOf(cumulative.getYear()), String.format(getString(R.string.coverage_percentage), totalPercentage)), itemDataList);
         }
 
         Map<String, NamedObject<?>> map = new HashMap<>();
 
-        NamedObject<LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
+        NamedObject<LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
         map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
 
 
@@ -224,12 +223,12 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
 
     @Override
     protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
-        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
 
         if (map.containsKey(LinkedHashMap.class.getName())) {
             NamedObject<?> namedObject = map.get(LinkedHashMap.class.getName());
             if (namedObject != null) {
-                linkedHashMap = (LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>) namedObject.object;
+                linkedHashMap = (LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>) namedObject.object;
             }
         }
 
