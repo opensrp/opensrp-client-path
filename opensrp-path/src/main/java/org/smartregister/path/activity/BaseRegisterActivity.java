@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.cocoahero.android.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.joda.time.DateTime;
@@ -37,45 +36,23 @@ import org.joda.time.Days;
 import org.joda.time.Hours;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.smartregister.Context;
-import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
-import org.smartregister.domain.Alert;
 import org.smartregister.domain.FetchStatus;
-import org.smartregister.growthmonitoring.domain.Weight;
-import org.smartregister.growthmonitoring.repository.WeightRepository;
-import org.smartregister.immunization.db.VaccineRepo;
-import org.smartregister.immunization.domain.ServiceRecord;
-import org.smartregister.immunization.domain.ServiceType;
-import org.smartregister.immunization.domain.Vaccine;
-import org.smartregister.immunization.domain.VaccineSchedule;
-import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
-import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
-import org.smartregister.repository.EventClientRepository;
-import org.smartregister.service.AlertService;
 import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,16 +60,12 @@ import java.util.UUID;
 
 import io.ona.kujaku.helpers.MapBoxWebServiceApi;
 import io.ona.kujaku.services.MapboxOfflineDownloaderService;
-import lecho.lib.hellocharts.model.Line;
 import util.PathConstants;
+import util.ServiceTools;
 import utils.Constants;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
-
-import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
-
-import util.ServiceTools;
 
 /**
  * Base activity class for path regiters views
@@ -435,15 +408,15 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 public void onReceive(android.content.Context context, Intent intent) {
                     Log.i("KUJAKU SAMPLE APP TAG", intent.getExtras().toString());
 
-                    if (intent.hasExtra(MapboxOfflineDownloaderService.RESULT_STATUS)) {
-                        String resultStatus = intent.getStringExtra(MapboxOfflineDownloaderService.RESULT_STATUS);
+                    if (intent.hasExtra(MapboxOfflineDownloaderService.KEY_RESULT_STATUS)) {
+                        String resultStatus = intent.getStringExtra(MapboxOfflineDownloaderService.KEY_RESULT_STATUS);
                         if (resultStatus.equals(MapboxOfflineDownloaderService.SERVICE_ACTION_RESULT.SUCCESSFUL.name())) {
                             showInfoToast("Offline Map has started downloading");
                         } else if (resultStatus.equals(MapboxOfflineDownloaderService.SERVICE_ACTION_RESULT.FAILED.name())) {
                             //An error occurred trying to download the map
                             String message = "Oops! Offline map cannot be downloaded";
-                            if (intent.hasExtra(MapboxOfflineDownloaderService.RESULT_MESSAGE)) {
-                                message = intent.getStringExtra(MapboxOfflineDownloaderService.RESULT_MESSAGE);
+                            if (intent.hasExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE)) {
+                                message = intent.getStringExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE);
                             }
 
                             showInfoToast(message);
@@ -761,10 +734,6 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
         private BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
             super(activity, drawerLayout, openDrawerContentDescRes, closeDrawerContentDescRes);
         }
-
-        /*public BaseActivityToggle(Activity activity, DrawerLayout drawerLayout, Toolbar toolbar, @StringRes int openDrawerContentDescRes, @StringRes int closeDrawerContentDescRes) {
-            super(activity, drawerLayout, toolbar, openDrawerContentDescRes, closeDrawerContentDescRes);
-        }*/
 
         @Override
         public void onDrawerOpened(View drawerView) {

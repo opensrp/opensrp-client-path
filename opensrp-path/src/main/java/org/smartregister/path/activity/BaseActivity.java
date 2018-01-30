@@ -54,7 +54,6 @@ import org.smartregister.path.map.MapHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.repository.AllSharedPreferences;
@@ -70,10 +69,10 @@ import java.util.UUID;
 
 import util.JsonFormUtils;
 import util.PathConstants;
+import util.ServiceTools;
 import utils.exceptions.InvalidMapBoxStyleException;
 import utils.helpers.converters.GeoJSONFeature;
 import utils.helpers.converters.GeoJSONHelper;
-import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
 
