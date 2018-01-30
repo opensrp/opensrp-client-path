@@ -81,7 +81,7 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
         hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
 
-        refresh(true);
+        generateReport(true);
 
         CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
     }
@@ -120,13 +120,12 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
     @Override
     public void onServiceFinish(String actionType) {
         if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS.equals(actionType)) {
-            refresh(false);
+            generateReport(false);
         }
     }
 
     @SuppressWarnings("unchecked")
     private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
-
         ExpandedListAdapter<Pair<String, String>, Triple<String, String, String>, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCumulativeDropoutReportActivity.this, map, R.layout.dropout_report_cumulative_header, R.layout.dropout_report_item);
         expandableListAdapter.setChildSelectable(false);
         expandableListView.setAdapter(expandableListAdapter);
@@ -135,89 +134,11 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
 
     @Override
     protected Map<String, NamedObject<?>> generateReportBackground() {
-        SimpleDateFormat monthDateFormat = new SimpleDateFormat("MMMM");
-        CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
-        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
-
-        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
-            return null;
-        }
-
-        List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
-        if (cumulatives.isEmpty()) {
-            return null;
-        }
-
-        Collections.sort(cumulatives, new Comparator<Cumulative>() {
-            @Override
-            public int compare(Cumulative lhs, Cumulative rhs) {
-                if (lhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
-            }
-        });
-
-        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
-
-        for (Cumulative cumulative : cumulatives) {
-
-            List<Date> months = generateMonths(cumulative.getYearAsDate());
-            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
-            long totalDiff = 0L;
-            long totalBcg = 0L;
-
-            for (Date month : months) {
-
-                String bcgVaccineName = generateVaccineName(VaccineRepo.Vaccine.bcg);
-                CumulativeIndicator bcgCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(bcgVaccineName, month, cumulative.getId());
-
-                String measlesVaccineName = generateVaccineName(VaccineRepo.Vaccine.measles1);
-                CumulativeIndicator measlesCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(measlesVaccineName, month, cumulative.getId());
-
-                long bcg = 0L;
-                if (bcgCumulativeIndicator != null && bcgCumulativeIndicator.getValue() != null) {
-                    bcg = bcgCumulativeIndicator.getValue();
-                    totalBcg += bcg;
-                }
-
-                long measles = 0L;
-                if (measlesCumulativeIndicator != null && measlesCumulativeIndicator.getValue() != null) {
-                    measles = measlesCumulativeIndicator.getValue();
-                }
-
-                long diff = bcg - measles;
-                totalDiff += diff;
-
-
-                int percentage = 0;
-                if (bcg > 0) {
-                    percentage = (int) (diff * 100.0 / bcg + 0.5);
-                }
-
-                String monthString = monthDateFormat.format(month);
-                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + bcg, String.format(getString(R.string.coverage_percentage),
-                        percentage)), month);
-                itemDataList.add(itemData);
-
-            }
-
-            int totalPercentage = 0;
-            if (totalBcg > 0) {
-                totalPercentage = (int) (totalDiff * 100.0 / totalBcg + 0.5);
-            }
-            linkedHashMap.put(Pair.create(String.valueOf(cumulative.getYear()), String.format(getString(R.string.coverage_percentage), totalPercentage)), itemDataList);
-        }
+        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = generateCumulativeDropoutMap(VaccineRepo.Vaccine.bcg, VaccineRepo.Vaccine.measles1);
+        NamedObject<LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
 
         Map<String, NamedObject<?>> map = new HashMap<>();
-
-        NamedObject<LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
         map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
-
-
         return map;
     }
 
@@ -233,7 +154,6 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
         }
 
         updateExpandableList(linkedHashMap);
-
     }
 
     @Override

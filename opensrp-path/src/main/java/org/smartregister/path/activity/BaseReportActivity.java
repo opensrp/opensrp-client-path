@@ -11,10 +11,13 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.CoverageSpinnerAdapter;
+import org.smartregister.path.adapter.ExpandedListAdapter;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.Cohort;
 import org.smartregister.path.domain.CohortIndicator;
 import org.smartregister.path.domain.CoverageHolder;
@@ -22,6 +25,7 @@ import org.smartregister.path.domain.Cumulative;
 import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.helper.SpinnerHelper;
+import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.util.Utils;
 
@@ -31,6 +35,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +62,7 @@ public abstract class BaseReportActivity extends BaseActivity {
         }
     }
 
-    private void generateReport(boolean userAction) {
+    protected void generateReport(boolean userAction) {
         holder = null;
         Utils.startAsyncTask(new GenerateReportTask(this, userAction), null);
     }
@@ -198,6 +203,85 @@ public abstract class BaseReportActivity extends BaseActivity {
             }
         }
         return null;
+    }
+
+    protected LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> generateCumulativeDropoutMap(VaccineRepo.Vaccine started, VaccineRepo.Vaccine completed) {
+        SimpleDateFormat monthDateFormat = new SimpleDateFormat("MMMM");
+        CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
+
+        List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
+        if (cumulatives.isEmpty()) {
+            return null;
+        }
+
+        Collections.sort(cumulatives, new Comparator<Cumulative>() {
+            @Override
+            public int compare(Cumulative lhs, Cumulative rhs) {
+                if (lhs.getYearAsDate() == null) {
+                    return 1;
+                }
+                if (rhs.getYearAsDate() == null) {
+                    return 1;
+                }
+                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
+            }
+        });
+
+        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+        for (Cumulative cumulative : cumulatives) {
+
+            List<Date> months = generateMonths(cumulative.getYearAsDate());
+            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
+            long totalDiff = 0L;
+            long totalStarted = 0L;
+
+            for (Date month : months) {
+
+                String startedVaccineName = generateVaccineName(started);
+                CumulativeIndicator startedCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(startedVaccineName, month, cumulative.getId());
+
+                String completedVaccineName = generateVaccineName(completed);
+                CumulativeIndicator completedCumulativeIndicator = cumulativeIndicatorRepository.findByVaccineMonthAndCumulativeId(completedVaccineName, month, cumulative.getId());
+
+                long startCount = 0L;
+                if (startedCumulativeIndicator != null && startedCumulativeIndicator.getValue() != null) {
+                    startCount = startedCumulativeIndicator.getValue();
+                    totalStarted += startCount;
+                }
+
+                long completeCount = 0L;
+                if (completedCumulativeIndicator != null && completedCumulativeIndicator.getValue() != null) {
+                    completeCount = completedCumulativeIndicator.getValue();
+                }
+
+                long diff = startCount - completeCount;
+                totalDiff += diff;
+
+
+                int percentage = 0;
+                if (startCount > 0) {
+                    percentage = (int) (diff * 100.0 / startCount + 0.5);
+                }
+
+                String monthString = monthDateFormat.format(month);
+                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + startCount, String.format(getString(R.string.coverage_percentage),
+                        percentage)), month);
+                itemDataList.add(itemData);
+
+            }
+
+            int totalPercentage = 0;
+            if (totalStarted > 0) {
+                totalPercentage = (int) (totalDiff * 100.0 / totalStarted + 0.5);
+            }
+            linkedHashMap.put(Pair.create(String.valueOf(cumulative.getYear()), String.format(getString(R.string.coverage_percentage), totalPercentage)), itemDataList);
+        }
+        return linkedHashMap;
     }
 
     @Override
