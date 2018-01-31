@@ -71,7 +71,7 @@ public class CumulativeRepository extends BaseRepository {
         }
     }
 
-    private Cumulative findByYear(Integer year) {
+    public Cumulative findByYear(Integer year) {
         if (year == null) {
             return null;
         }

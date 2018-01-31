@@ -193,7 +193,9 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
 
         // Populate the default cumulative
         Cumulative cumulative = cumulatives.get(0);
-        CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), cumulative.getZeirNumber());
+        Long zeirNumber = changeZeirNumberFor2017(cumulative.getZeirNumber(), cumulative.getYear());
+
+        CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), zeirNumber);
 
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
@@ -256,8 +258,10 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
             return null;
         }
 
+        Long zeirNumber = changeZeirNumberFor2017(cumulative.getZeirNumber(), cumulative.getYear());
+
         List indicators = cumulativeIndicatorRepository.findByCumulativeId(id);
-        return Pair.create(indicators, cumulative.getZeirNumber());
+        return Pair.create(indicators, zeirNumber);
     }
 
     @Override

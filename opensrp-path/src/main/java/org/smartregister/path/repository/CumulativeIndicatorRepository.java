@@ -140,8 +140,9 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         return cumulativeIndicators;
     }
 
-    public List<CumulativeIndicator> findByMonthAndCumulativeId(String month, Long cumulativeId) {
-        if (cumulativeId == null || month == null) {
+
+    public List<CumulativeIndicator> findByVaccineAndCumulativeId(String vaccineName, Long cumulativeId) {
+        if (cumulativeId == null || vaccineName == null) {
             return null;
         }
 
@@ -149,7 +150,7 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         List<CumulativeIndicator> cumulativeIndicators = new ArrayList<>();
 
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_CUMULATIVE_ID + " = ? AND " + COLUMN_MONTH + " = ?", new String[]{cumulativeId.toString(), month}, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_CUMULATIVE_ID + " = ? AND " + COLUMN_VACCINE + " = ? ", new String[]{cumulativeId.toString(), vaccineName}, null, null, COLUMN_MONTH + " DESC ");
             cumulativeIndicators = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -160,20 +161,6 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         }
 
         return cumulativeIndicators;
-    }
-
-    public List<CumulativeIndicator> findByMonthAndCumulativeId(Date month, Long cumulativeId) {
-        if (cumulativeId == null || month == null) {
-            return null;
-        }
-
-        try {
-            String monthString = DF_YYYYMM.format(month);
-            return findByMonthAndCumulativeId(monthString, cumulativeId);
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-        return null;
     }
 
     public long countByCumulativeId(Long cumulativeId) {
