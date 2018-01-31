@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -74,13 +75,13 @@ public class SetCsoDialogFragment extends DialogFragment {
 
         if (holder.getSize() != null) {
             setCso.setText(holder.getSize().toString());
+            setCso.setSelection(setCso.getText().length());
         }
 
         setCso.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (actionId == KeyEvent.KEYCODE_ENTER)) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
                     csoSet(setCso, holder);
                     return true;
                 }
@@ -110,10 +111,15 @@ public class SetCsoDialogFragment extends DialogFragment {
     private void csoSet(EditText setCsoEditText, CoverageHolder holder) {
         String value = setCsoEditText.getText().toString();
         if (StringUtils.isNotBlank(value) && StringUtils.isNumeric(value)) {
-            SetCsoDialogFragment.this.dismiss();
+            Long csoNumber = Long.valueOf(value);
+            if (csoNumber > 0L) {
+                SetCsoDialogFragment.this.dismiss();
 
-            if (listener != null) {
-                listener.updateCsoTargetView(holder, Long.valueOf(value));
+                if (listener != null) {
+                    listener.updateCsoTargetView(holder, csoNumber);
+                }
+            } else {
+                setCsoEditText.setError(getString(R.string.cso_target_must_be_greater_than_zero));
             }
         } else {
             setCsoEditText.setError(getString(R.string.cso_target_cannot_be_blank));
