@@ -196,8 +196,10 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
                     percentage));
 
             if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+                vaccinatedTextView.setTextColor(getResources().getColor(R.color.text_black));
                 coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
             } else {
+                vaccinatedTextView.setTextColor(getResources().getColor(R.color.bluetext));
                 coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
             }
         }

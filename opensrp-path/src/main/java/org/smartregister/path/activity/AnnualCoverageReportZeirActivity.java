@@ -158,7 +158,6 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));
 
-
         TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);
 
         int percentage = 0;
@@ -169,8 +168,10 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
                 percentage));
 
         if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+            vaccinatedTextView.setTextColor(getResources().getColor(R.color.text_black));
             coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
         } else {
+            vaccinatedTextView.setTextColor(getResources().getColor(R.color.bluetext));
             coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
         }
         return view;
