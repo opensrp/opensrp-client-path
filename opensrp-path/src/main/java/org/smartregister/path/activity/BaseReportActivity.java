@@ -275,7 +275,7 @@ public abstract class BaseReportActivity extends BaseActivity {
         return linkedHashMap;
     }
 
-    protected LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> generateCohortDropoutMap(VaccineRepo.Vaccine completed) {
+    protected LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> generateCohortDropoutMap(VaccineRepo.Vaccine started, VaccineRepo.Vaccine completed) {
         SimpleDateFormat monthDateFormat = new SimpleDateFormat("MMMM");
         CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
         CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
@@ -298,36 +298,39 @@ public abstract class BaseReportActivity extends BaseActivity {
             List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
 
             for (int j = 0; j < months.size(); j++) {
-                long cohortSize = 0L;
+                long startedCount = 0L;
                 long completedCount = 0L;
 
                 Date month = months.get(j);
                 Cohort cohort = cohortRepository.findByMonth(month);
                 if (cohort != null) {
-                    cohortSize = cohortPatientRepository.countCohort(cohort.getId());
+                    String startedVaccineName = generateVaccineName(started);
+                    CohortIndicator startedCohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(startedVaccineName, cohort.getId());
+                    if (startedCohortIndicator != null && startedCohortIndicator.getValue() != null) {
+                        startedCount = startedCohortIndicator.getValue();
+                    }
 
                     String completedVaccineName = generateVaccineName(completed);
                     CohortIndicator completedCohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(completedVaccineName, cohort.getId());
-
                     if (completedCohortIndicator != null && completedCohortIndicator.getValue() != null) {
                         completedCount = completedCohortIndicator.getValue();
                     }
                 }
 
-                if (i == 0 && j == 0 && (cohort == null || cohortSize == 0L)) {
+                if (i == 0 && j == 0 && cohort == null) {
                     continue;
                 }
 
-                long diff = cohortSize - completedCount;
+                long diff = startedCount - completedCount;
 
                 int percentage = 0;
-                if (cohortSize > 0) {
-                    percentage = (int) (diff * 100.0 / cohortSize + 0.5);
+                if (startedCount > 0) {
+                    percentage = (int) (diff * 100.0 / startedCount + 0.5);
                 }
 
                 boolean isFinalized = isFinalized(completed, month);
                 String monthString = monthDateFormat.format(month);
-                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + cohortSize, String.format(getString(R.string.coverage_percentage),
+                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + startedCount, String.format(getString(R.string.coverage_percentage),
                         percentage)), month);
 
                 itemData.setFinalized(isFinalized);

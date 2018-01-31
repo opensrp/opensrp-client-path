@@ -18,8 +18,6 @@ import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -118,18 +116,18 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity im
     @SuppressWarnings("unchecked")
     private void updateExpandableList(final LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
         ExpandedListAdapter<Pair<String, String>, Triple<String, String, String>, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCohortDropoutReportActivity.this, map, R.layout.dropout_report_cohort_bcg_header, R.layout.dropout_report_item);
+        expandableListAdapter.setChildSelectable(false);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }
 
     @Override
     protected Map<String, NamedObject<?>> generateReportBackground() {
-        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = generateCohortDropoutMap(VaccineRepo.Vaccine.measles1);
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = generateCohortDropoutMap(VaccineRepo.Vaccine.bcg, VaccineRepo.Vaccine.measles1);
         NamedObject<LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
 
         Map<String, NamedObject<?>> map = new HashMap<>();
         map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
-
         return map;
     }
 

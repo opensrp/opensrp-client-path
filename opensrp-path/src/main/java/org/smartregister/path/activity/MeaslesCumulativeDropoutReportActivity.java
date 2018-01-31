@@ -18,8 +18,6 @@ import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -130,7 +128,6 @@ public class MeaslesCumulativeDropoutReportActivity extends BaseReportActivity i
 
         Map<String, NamedObject<?>> map = new HashMap<>();
         map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
-
         return map;
     }
 

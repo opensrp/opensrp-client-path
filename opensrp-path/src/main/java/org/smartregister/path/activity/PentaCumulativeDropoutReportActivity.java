@@ -14,20 +14,10 @@ import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ExpandedListAdapter;
-import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Cumulative;
-import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
-import org.smartregister.path.repository.CumulativeIndicatorRepository;
-import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -139,7 +129,6 @@ public class PentaCumulativeDropoutReportActivity extends BaseReportActivity imp
 
         Map<String, NamedObject<?>> map = new HashMap<>();
         map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
-
         return map;
     }
 
