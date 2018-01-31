@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -222,19 +223,6 @@ public abstract class BaseReportActivity extends BaseActivity {
             return null;
         }
 
-        Collections.sort(cumulatives, new Comparator<Cumulative>() {
-            @Override
-            public int compare(Cumulative lhs, Cumulative rhs) {
-                if (lhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
-            }
-        });
-
         LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
         for (Cumulative cumulative : cumulatives) {
 
@@ -298,57 +286,56 @@ public abstract class BaseReportActivity extends BaseActivity {
             return null;
         }
 
-        List<Cohort> cohorts = cohortRepository.fetchAll();
-        if (cohorts.isEmpty()) {
-            return null;
-        }
-
-        Collections.sort(cohorts, new Comparator<Cohort>() {
-            @Override
-            public int compare(Cohort lhs, Cohort rhs) {
-                if (lhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getMonthAsDate().compareTo(lhs.getMonthAsDate());
-            }
-        });
-
+        List<Integer> years = cohortRepository.fetchAllDistinctYears();
         LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
 
-        for (Cohort cohort : cohorts) {
-            long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
+        for (int i = 0; i < years.size(); i++) {
 
-            String completedVaccineName = generateVaccineName(completed);
-            CohortIndicator completedCohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(completedVaccineName, cohort.getId());
+            Integer year = years.get(i);
+            List<Date> months = generateMonths(year);
+            Collections.reverse(months);
 
-            long completeCount = 0L;
-            if (completedCohortIndicator != null && completedCohortIndicator.getValue() != null) {
-                completeCount = completedCohortIndicator.getValue();
+            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
+
+            for (int j = 0; j < months.size(); j++) {
+                long cohortSize = 0L;
+                long completedCount = 0L;
+
+                Date month = months.get(j);
+                Cohort cohort = cohortRepository.findByMonth(month);
+                if (cohort != null) {
+                    cohortSize = cohortPatientRepository.countCohort(cohort.getId());
+
+                    String completedVaccineName = generateVaccineName(completed);
+                    CohortIndicator completedCohortIndicator = cohortIndicatorRepository.findByVaccineAndCohort(completedVaccineName, cohort.getId());
+
+                    if (completedCohortIndicator != null && completedCohortIndicator.getValue() != null) {
+                        completedCount = completedCohortIndicator.getValue();
+                    }
+                }
+
+                if (i == 0 && j == 0 && (cohort == null || cohortSize == 0L)) {
+                    continue;
+                }
+
+                long diff = cohortSize - completedCount;
+
+                int percentage = 0;
+                if (cohortSize > 0) {
+                    percentage = (int) (diff * 100.0 / cohortSize + 0.5);
+                }
+
+                boolean isFinalized = isFinalized(completed, month);
+                String monthString = monthDateFormat.format(month);
+                ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + cohortSize, String.format(getString(R.string.coverage_percentage),
+                        percentage)), month);
+
+                itemData.setFinalized(isFinalized);
+
+                itemDataList.add(itemData);
             }
 
-            long diff = cohortSize - completeCount;
-
-            int percentage = 0;
-            if (cohortSize > 0) {
-                percentage = (int) (diff * 100.0 / cohortSize + 0.5);
-            }
-
-            String monthString = monthDateFormat.format(cohort.getMonthAsDate());
-            ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(monthString, diff + " / " + cohortSize, String.format(getString(R.string.coverage_percentage),
-                    percentage)), cohort.getMonthAsDate());
-
-            Integer year = util.Utils.yearFromDate(cohort.getMonthAsDate());
-            List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = linkedHashMap.get(year.toString());
-
-            if (itemDataList == null) {
-                itemDataList = new ArrayList<>();
-                linkedHashMap.put(year.toString(), itemDataList);
-            }
-
-            itemDataList.add(itemData);
+            linkedHashMap.put(year.toString(), itemDataList);
         }
 
         return linkedHashMap;
@@ -363,9 +350,12 @@ public abstract class BaseReportActivity extends BaseActivity {
 
     protected abstract void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction);
 
-    protected abstract Pair<List, Long> updateReportBackground(Long id);
+    protected Pair<List, Long> updateReportBackground(Long id) {
+        return null;
+    }
 
-    protected abstract void updateReportUI(Pair<List, Long> pair, boolean userAction);
+    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
+    }
 
     public void setHolder(CoverageHolder holder) {
         this.holder = holder;
@@ -437,12 +427,39 @@ public abstract class BaseReportActivity extends BaseActivity {
         return months;
     }
 
+    protected List<Date> generateMonths(Integer year) {
+        if (year == null) {
+            return generateMonths(new Date());
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.DAY_OF_YEAR, 1);
+        return generateMonths(calendar.getTime());
+    }
+
     protected String generateVaccineName(VaccineRepo.Vaccine vaccine) {
         if (vaccine == null) {
             return null;
         }
 
         return VaccineRepository.addHyphen(vaccine.display().toLowerCase());
+    }
+
+    protected boolean isFinalized(VaccineRepo.Vaccine vaccine, Date date) {
+        boolean finalized = false;
+        Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(date));
+        if (endDate != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(endDate);
+            calendar.add(Calendar.DATE, 1);
+            endDate = calendar.getTime();
+
+            Date currentDate = new Date();
+            finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
+        }
+
+        return finalized;
     }
 
     ////////////////////////////////////////////////////////////////

@@ -230,19 +230,6 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
             return null;
         }
 
-        Collections.sort(cumulatives, new Comparator<Cumulative>() {
-            @Override
-            public int compare(Cumulative lhs, Cumulative rhs) {
-                if (lhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
-            }
-        });
-
         // Populate the default cumulative
         Cumulative cumulative = cumulatives.get(0);
         CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), cumulative.getCsoNumber());

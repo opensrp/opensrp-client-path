@@ -122,7 +122,6 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity im
         expandableListAdapter.notifyDataSetChanged();
     }
 
-
     @Override
     protected Map<String, NamedObject<?>> generateReportBackground() {
         LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = generateCohortDropoutMap(VaccineRepo.Vaccine.measles1);
@@ -146,15 +145,6 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity im
         }
 
         updateExpandableList(linkedHashMap);
-    }
-
-    @Override
-    protected Pair<List, Long> updateReportBackground(Long id) {
-        return null;
-    }
-
-    @Override
-    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
     }
 }
 

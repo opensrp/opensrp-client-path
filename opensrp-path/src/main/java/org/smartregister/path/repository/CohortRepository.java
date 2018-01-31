@@ -111,7 +111,7 @@ public class CohortRepository extends BaseRepository {
         List<Cohort> cohorts = new ArrayList<>();
 
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, COLUMN_MONTH + " DESC ");
             cohorts = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -122,6 +122,32 @@ public class CohortRepository extends BaseRepository {
         }
 
         return cohorts;
+    }
+
+    public List<Integer> fetchAllDistinctYears() {
+        List<Integer> years = new ArrayList<>();
+        Cursor cursor = null;
+        final String YEAR = "year";
+        try {
+            cursor = getReadableDatabase().rawQuery("SELECT DISTINCT " +
+                    " substr(" + COLUMN_MONTH + ", 1, pos - 1) as " + YEAR + " FROM " +
+                    " (SELECT " + COLUMN_MONTH + ", instr(" + COLUMN_MONTH + ", '-')as pos FROM " +
+                    TABLE_NAME + " ORDER BY " + COLUMN_MONTH + " desc)", null);
+
+            if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    years.add(cursor.getInt(cursor.getColumnIndex(YEAR)));
+                    cursor.moveToNext();
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return years;
     }
 
     public boolean delete(Long id) {

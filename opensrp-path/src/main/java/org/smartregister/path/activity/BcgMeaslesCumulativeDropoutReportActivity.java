@@ -155,15 +155,5 @@ public class BcgMeaslesCumulativeDropoutReportActivity extends BaseReportActivit
 
         updateExpandableList(linkedHashMap);
     }
-
-    @Override
-    protected Pair<List, Long> updateReportBackground(Long id) {
-        return null;
-    }
-
-    @Override
-    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
-
-    }
 }
 

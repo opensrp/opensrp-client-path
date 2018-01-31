@@ -175,7 +175,7 @@ public class CumulativeRepository extends BaseRepository {
 
         try {
             cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS,
-                    COLUMN_ID + " IN (SELECT DISTINCT " + CumulativeIndicatorRepository.COLUMN_CUMULATIVE_ID + " FROM " + CumulativeIndicatorRepository.TABLE_NAME + " )", null, null, null, null);
+                    COLUMN_ID + " IN (SELECT DISTINCT " + CumulativeIndicatorRepository.COLUMN_CUMULATIVE_ID + " FROM " + CumulativeIndicatorRepository.TABLE_NAME + " )", null, null, null, COLUMN_YEAR + " DESC ");
             cumulatives = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

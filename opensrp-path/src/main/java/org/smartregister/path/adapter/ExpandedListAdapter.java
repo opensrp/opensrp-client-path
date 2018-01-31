@@ -100,12 +100,22 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
             if (detailView != null && details != null) {
                 TextView detailTextView = (TextView) detailView;
                 detailTextView.setText(details);
+
+                detailTextView.setTextColor(context.getResources().getColor(R.color.black));
+                if (childObject.isFinalized()) {
+                    detailTextView.setTextColor(context.getResources().getColor(R.color.bluetext));
+                }
             }
 
             View otherView = convertView.findViewById(R.id.other);
             if (otherView != null && other != null) {
                 TextView otherTextView = (TextView) otherView;
                 otherTextView.setText(other);
+
+                otherTextView.setTextColor(context.getResources().getColor(R.color.black));
+                if (childObject.isFinalized()) {
+                    otherTextView.setTextColor(context.getResources().getColor(R.color.bluetext));
+                }
             }
         }
 
@@ -203,6 +213,7 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
     public static class ItemData<L, T> {
         private final L labelData;
         private final T tagData;
+        private boolean finalized = false;
 
         public ItemData(L labelData, T tagData) {
             this.labelData = labelData;
@@ -215,6 +226,14 @@ public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
         public T getTagData() {
             return tagData;
+        }
+
+        public void setFinalized(boolean finalized) {
+            this.finalized = finalized;
+        }
+
+        public boolean isFinalized() {
+            return finalized;
         }
     }
 }

@@ -157,17 +157,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
         vaccineTextView.setText(display);
 
-        boolean finalized = false;
-        Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(getHolder().getDate()));
-        if (endDate != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.DATE, 1);
-            endDate = calendar.getTime();
-
-            Date currentDate = new Date();
-            finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
-        }
+        boolean finalized = isFinalized(vaccine, getHolder().getDate());
 
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));
@@ -206,19 +196,6 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         if (cohorts.isEmpty()) {
             return null;
         }
-
-        Collections.sort(cohorts, new Comparator<Cohort>() {
-            @Override
-            public int compare(Cohort lhs, Cohort rhs) {
-                if (lhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getMonthAsDate().compareTo(lhs.getMonthAsDate());
-            }
-        });
 
         // Populate the default cohort
         Cohort cohort = cohorts.get(0);

@@ -156,15 +156,5 @@ public class PentaCumulativeDropoutReportActivity extends BaseReportActivity imp
 
         updateExpandableList(linkedHashMap);
     }
-
-    @Override
-    protected Pair<List, Long> updateReportBackground(Long id) {
-        return null;
-    }
-
-    @Override
-    protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
-
-    }
 }
 
