@@ -82,7 +82,7 @@ public abstract class BaseReportActivity extends BaseActivity {
         listView.addHeaderView(view);
     }
 
-    protected <T> void updateReportDates(List list, SimpleDateFormat dateFormat, String suffix) {
+    protected <T> void updateReportDates(List list, SimpleDateFormat dateFormat, String suffix, boolean toUpperCase) {
         if (list != null && !list.isEmpty()) {
 
             boolean firstSuffix = false;
@@ -110,6 +110,10 @@ public abstract class BaseReportActivity extends BaseActivity {
                     dataAdapter.setFirstSuffix(getString(R.string.in_progress));
                 }
 
+                if (toUpperCase) {
+                    dataAdapter.setToUpperCase(true);
+                }
+
                 dataAdapter.setDropDownViewResource(R.layout.item_spinner_drop_down);
                 reportDateSpinner.setAdapter(dataAdapter);
 
@@ -130,6 +134,11 @@ public abstract class BaseReportActivity extends BaseActivity {
                 });
             }
         }
+    }
+
+    protected <T> void updateReportDates(List list, SimpleDateFormat dateFormat, String suffix) {
+        updateReportDates(list, dateFormat, suffix, false);
+
     }
 
     protected <T> void updateReportList(final List<T> indicators) {

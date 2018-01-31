@@ -24,6 +24,7 @@ public class CoverageSpinnerAdapter extends ArrayAdapter<CoverageHolder> {
     private Context context;
     private SimpleDateFormat simpleDateFormat;
     private String firstSuffix;
+    private boolean toUpperCase = false;
 
 
     public CoverageSpinnerAdapter(Context context, int resource, List<CoverageHolder> objects, SimpleDateFormat simpleDateFormat) {
@@ -34,6 +35,10 @@ public class CoverageSpinnerAdapter extends ArrayAdapter<CoverageHolder> {
 
     public void setFirstSuffix(String firstSuffix) {
         this.firstSuffix = firstSuffix;
+    }
+
+    public void setToUpperCase(boolean toUpperCase) {
+        this.toUpperCase = toUpperCase;
     }
 
     @Override
@@ -53,6 +58,9 @@ public class CoverageSpinnerAdapter extends ArrayAdapter<CoverageHolder> {
             if (holder != null && holder.getDate() != null) {
                 Date date = holder.getDate();
                 String dateString = simpleDateFormat.format(date);
+                if (toUpperCase) {
+                    dateString = dateString.toUpperCase();
+                }
                 if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
                     dateString = dateString + " " + firstSuffix;
                 }
@@ -81,6 +89,9 @@ public class CoverageSpinnerAdapter extends ArrayAdapter<CoverageHolder> {
                 Date date = coverageHolder.getDate();
 
                 String dateString = simpleDateFormat.format(date);
+                if (toUpperCase) {
+                    dateString = dateString.toUpperCase();
+                }
                 if (position == 0 && StringUtils.isNoneBlank(firstSuffix)) {
                     dateString = dateString + " " + firstSuffix;
                 }

@@ -372,7 +372,8 @@ public class CoverageDropoutIntentService extends IntentService {
             return;
         }
 
-        if (StringUtils.isBlank(baseEntityId) || StringUtils.isBlank(vaccineName)) {
+        // vaccineName can be null
+        if (StringUtils.isBlank(baseEntityId)) {
             return;
         }
 

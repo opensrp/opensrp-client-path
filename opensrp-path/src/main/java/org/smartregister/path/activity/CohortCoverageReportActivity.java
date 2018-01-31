@@ -244,7 +244,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
             }
         }
 
-        updateReportDates(cohorts, new SimpleDateFormat("MMMM yyyy"), null);
+        updateReportDates(cohorts, new SimpleDateFormat("MMM yyyy"), null, true);
         updateCohortSize();
         updateReportList(indicatorList);
     }
