@@ -368,6 +368,7 @@ public abstract class BaseReportActivity extends BaseActivity {
     }
 
     protected void updateReportUI(Pair<List, Long> pair, boolean userAction) {
+        // Override to implement this
     }
 
     public void setHolder(CoverageHolder holder) {
@@ -409,46 +410,6 @@ public abstract class BaseReportActivity extends BaseActivity {
         vaccineList.add(VaccineRepo.Vaccine.measles2);
 
         return vaccineList;
-    }
-
-    protected List<Date> generateMonths(Date year) {
-        if (year == null) {
-            year = new Date();
-        }
-
-        Date currentDate = new Date();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(year);
-        calendar.set(Calendar.DAY_OF_YEAR, 1);
-
-        List<Date> months = new ArrayList<>();
-        for (int i = 0; i < 12; i++) {
-            if (i != 0) {
-                calendar.add(Calendar.MONTH, 1);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-            }
-
-            Date month = calendar.getTime();
-            if (month.after(currentDate)) {
-                break;
-            } else {
-                months.add(month);
-            }
-        }
-
-        return months;
-    }
-
-    protected List<Date> generateMonths(Integer year) {
-        if (year == null) {
-            return generateMonths(new Date());
-        }
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.DAY_OF_YEAR, 1);
-        return generateMonths(calendar.getTime());
     }
 
     protected String generateVaccineName(VaccineRepo.Vaccine vaccine) {
