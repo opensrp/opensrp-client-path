@@ -140,7 +140,6 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         return cumulativeIndicators;
     }
 
-
     public List<CumulativeIndicator> findByVaccineAndCumulativeId(String vaccineName, Long cumulativeId, String orderBy) {
         if (cumulativeId == null || vaccineName == null) {
             return null;
@@ -161,26 +160,6 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         }
 
         return cumulativeIndicators;
-    }
-
-    public long countByCumulativeId(Long cumulativeId) {
-        if (cumulativeId == null) {
-            return 0L;
-        }
-
-        long count = 0L;
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_NAME, new String[]{"count(*)"}, COLUMN_CUMULATIVE_ID + " = ? ", new String[]{cumulativeId.toString()}, null, null, null);
-
-        try {
-            cursor.moveToFirst();
-            count = cursor.getLong(0);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-        return count;
     }
 
     public void changeValue(Long value, Long id) {

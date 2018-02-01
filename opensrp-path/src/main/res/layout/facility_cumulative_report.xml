@@ -91,269 +91,412 @@
 
 
         <TableLayout
+            android:id="@+id/table_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="20dp"
             android:background="@color/client_list_grey"
-            android:stretchColumns="0">
+            android:stretchColumns="*">
 
             <TableRow android:id="@+id/total_1">
 
-                <TextView
-                    android:layout_gravity="center_vertical"
-                    android:layout_margin="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center_vertical"
-                    android:padding="10dp"
-                    android:text="Total\nPenta1"
-                    android:textColor="@color/cumulative_blue_line" />
+                <include
+                    layout="@layout/facility_cumulative_report_label_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="17"
-                    android:textColor="@color/cumulative_blue_line" />
+                    android:layout_marginTop="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="22"
-                    android:textColor="@color/cumulative_blue_line" />
+                    android:layout_marginTop="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="12"
-                    android:textColor="@color/cumulative_blue_line" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="4"
-                    android:textColor="@color/cumulative_blue_line" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginTop="0.5dp" />
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/total_2"
+                android:visibility="gone">
+
+                <include
+                    layout="@layout/facility_cumulative_report_label_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginLeft="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
 
             </TableRow>
 
             <TableRow android:id="@+id/cum_1">
 
-                <TextView
-                    android:layout_gravity="center_vertical"
+                <include
+                    layout="@layout/facility_cumulative_report_label_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginBottom="0.5dp"
                     android:layout_marginLeft="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center_vertical"
-                    android:padding="10dp"
-                    android:text="Cum.\nPenta1"
-                    android:textColor="@color/cumulative_red_line" />
+                    android:layout_marginRight="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="24"
-                    android:textColor="@color/cumulative_red_line" />
+                    android:layout_marginRight="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="34"
-                    android:textColor="@color/cumulative_red_line" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="22"
-                    android:textColor="@color/cumulative_red_line" />
+                    android:layout_marginRight="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:text="6"
-                    android:textColor="@color/cumulative_red_line" />
+                    android:layout_marginRight="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
-                <TextView
-                    android:layout_width="@dimen/facility_cumulative_text_width"
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:background="@color/white"
-                    android:gravity="center" />
+                    android:layout_marginRight="0.5dp" />
 
+
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/cum_2"
+                android:visibility="gone">
+
+                <include
+                    layout="@layout/facility_cumulative_report_label_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginLeft="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
+
+                <include
+                    layout="@layout/facility_cumulative_report_value_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="0.5dp"
+                    android:layout_marginRight="0.5dp" />
 
             </TableRow>
         </TableLayout>

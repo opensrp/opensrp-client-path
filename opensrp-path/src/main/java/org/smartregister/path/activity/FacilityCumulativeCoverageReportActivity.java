@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.smartregister.domain.FetchStatus;
@@ -17,6 +19,7 @@ import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
+import org.w3c.dom.Text;
 
 import java.io.Serializable;
 import java.text.DateFormatSymbols;
@@ -285,7 +288,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
                 setHasLines(true).
                 setStrokeWidth(2));
 
-
         if (isComparison) {
             lines.add(new Line(endValues).
                     setColor(getResources().getColor(R.color.cumulative_red_line)).
@@ -309,6 +311,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         monitoringChart.setLineChartData(data);
         monitoringChart.setViewportCalculationEnabled(false);
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
+
+        updateTableLayout(startValueMap, endValueMap, months, isComparison);
     }
 
     private void resetViewport(LineChartView chart, long csoTargetMonthly, long leftPartitions) {
@@ -333,6 +337,93 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         line.setHasPoints(false);
         line.setStrokeWidth(1);
         return line;
+    }
+
+    private void updateTableLayout(Map<String, Long> startValueMap, Map<String, Long> endValueMap, String[] months, boolean isComparison) {
+
+        TableRow startTotalValueRow = (TableRow) findViewById(R.id.total_1);
+        TableRow startCumValueRow = (TableRow) findViewById(R.id.cum_1);
+
+        TableRow total2ValueRow = (TableRow) findViewById(R.id.total_2);
+        TableRow cum2ValueRow = (TableRow) findViewById(R.id.cum_2);
+
+        if (isComparison) {
+            total2ValueRow.setVisibility(View.VISIBLE);
+            cum2ValueRow.setVisibility(View.VISIBLE);
+        }
+
+        for (int i = 0; i < startTotalValueRow.getChildCount(); i++) {
+            TextView startTotalValue = (TextView) startTotalValueRow.getChildAt(i);
+            TextView startCumValue = (TextView) startCumValueRow.getChildAt(i);
+
+            TextView endTotalValue = (TextView) total2ValueRow.getChildAt(i);
+            TextView endCumValue = (TextView) cum2ValueRow.getChildAt(i);
+
+            endTotalValue.setTextColor(getResources().getColor(R.color.cumulative_red_line));
+            endCumValue.setTextColor(getResources().getColor(R.color.cumulative_red_line));
+
+            if (i == 0) {
+                if (isComparison) {
+                    VaccineRepo.Vaccine startVaccine = vaccine;
+                    VaccineRepo.Vaccine endVaccine = vaccine;
+                    if (vaccine.equals(VaccineRepo.Vaccine.penta1) || vaccine.equals(VaccineRepo.Vaccine.penta3)) {
+                        startVaccine = VaccineRepo.Vaccine.penta1;
+                        endVaccine = VaccineRepo.Vaccine.penta3;
+                    }
+                    if (vaccine.equals(VaccineRepo.Vaccine.bcg) || vaccine.equals(VaccineRepo.Vaccine.measles1)) {
+                        startVaccine = VaccineRepo.Vaccine.bcg;
+                        endVaccine = VaccineRepo.Vaccine.measles1;
+                    }
+                    startTotalValue.setText(String.format(getString(R.string.total_vaccine), startVaccine.display()));
+                    startCumValue.setText(String.format(getString(R.string.total_cum), startVaccine.display()));
+
+                    endTotalValue.setText(String.format(getString(R.string.total_vaccine), endVaccine.display()));
+                    endCumValue.setText(String.format(getString(R.string.total_cum), endVaccine.display()));
+
+                } else {
+                    startTotalValue.setText(String.format(getString(R.string.total_vaccine), vaccine.display()));
+                    startCumValue.setText(String.format(getString(R.string.total_cum), vaccine.display()));
+
+                }
+            } else {
+                Long startValue = startValueMap.get(months[i - 1]);
+                if (startValue == null) {
+                    startValue = 0L;
+                }
+                startTotalValue.setText(String.valueOf(startValue));
+
+                if (isComparison) {
+                    Long endValue = endValueMap.get(months[i - 1]);
+                    if (endValue == null) {
+                        endValue = 0L;
+                    }
+                    endTotalValue.setText(String.valueOf(endValue));
+                }
+
+                Long cumStartValue = 0L;
+                Long cumEndValue = 0L;
+                for (int j = i; j >= 1; j--) {
+                    startValue = startValueMap.get(months[j - 1]);
+                    if (startValue != null) {
+                        cumStartValue += startValue;
+                    }
+
+                    if (isComparison) {
+                        Long endValue = endValueMap.get(months[j - 1]);
+                        if (endValue != null) {
+                            cumEndValue += endValue;
+                        }
+
+                    }
+                }
+                startCumValue.setText(String.valueOf(cumStartValue));
+
+                if (isComparison) {
+                    endCumValue.setText(String.valueOf(cumEndValue));
+                }
+            }
+
+        }
     }
 
     @Override
