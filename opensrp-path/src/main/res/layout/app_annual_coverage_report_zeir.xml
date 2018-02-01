@@ -17,7 +17,7 @@
         android:background="@color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/padded_list_fragment" />
+        <include layout="@layout/report_padded_list_view" />
     </FrameLayout>
 
     <include layout="@layout/notification_base" />

@@ -135,13 +135,7 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
 
     @Override
     protected <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators) {
-        long value = 0;
-
-        CumulativeIndicator cumulativeIndicator = retrieveCumulativeIndicator(indicators, vaccine);
-
-        if (cumulativeIndicator != null) {
-            value = cumulativeIndicator.getValue();
-        }
+        long value = retrieveCumulativeIndicatorValue(indicators, vaccine);
 
         String display = vaccine.display();
         if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
@@ -158,7 +152,6 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));
 
-
         TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);
 
         int percentage = 0;
@@ -169,8 +162,10 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
                 percentage));
 
         if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+            vaccinatedTextView.setTextColor(getResources().getColor(R.color.text_black));
             coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
         } else {
+            vaccinatedTextView.setTextColor(getResources().getColor(R.color.bluetext));
             coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
         }
         return view;
@@ -180,29 +175,23 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
     protected Map<String, NamedObject<?>> generateReportBackground() {
 
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
+
         List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
         if (cumulatives.isEmpty()) {
             return null;
         }
 
-        Collections.sort(cumulatives, new Comparator<Cumulative>() {
-            @Override
-            public int compare(Cumulative lhs, Cumulative rhs) {
-                if (lhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
-            }
-        });
-
         // Populate the default cumulative
         Cumulative cumulative = cumulatives.get(0);
-        CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), cumulative.getZeirNumber());
+        Long zeirNumber = changeZeirNumberFor2017(cumulative.getZeirNumber(), cumulative.getYear());
 
-        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+        CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), zeirNumber);
+
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
         Map<String, NamedObject<?>> map = new HashMap<>();
@@ -255,13 +244,19 @@ public class AnnualCoverageReportZeirActivity extends BaseReportActivity impleme
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
         CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
 
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
+
         Cumulative cumulative = cumulativeRepository.findById(id);
         if (cumulative == null) {
             return null;
         }
 
+        Long zeirNumber = changeZeirNumberFor2017(cumulative.getZeirNumber(), cumulative.getYear());
+
         List indicators = cumulativeIndicatorRepository.findByCumulativeId(id);
-        return Pair.create(indicators, cumulative.getZeirNumber());
+        return Pair.create(indicators, zeirNumber);
     }
 
     @Override

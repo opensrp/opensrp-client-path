@@ -140,6 +140,29 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         return cumulativeIndicators;
     }
 
+
+    public List<CumulativeIndicator> findByVaccineAndCumulativeId(String vaccineName, Long cumulativeId) {
+        if (cumulativeId == null || vaccineName == null) {
+            return null;
+        }
+
+        Cursor cursor = null;
+        List<CumulativeIndicator> cumulativeIndicators = new ArrayList<>();
+
+        try {
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_CUMULATIVE_ID + " = ? AND " + COLUMN_VACCINE + " = ? ", new String[]{cumulativeId.toString(), vaccineName}, null, null, COLUMN_MONTH + " DESC ");
+            cumulativeIndicators = readAllDataElements(cursor);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return cumulativeIndicators;
+    }
+
     public long countByCumulativeId(Long cumulativeId) {
         if (cumulativeId == null) {
             return 0L;

@@ -159,13 +159,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
     @Override
     protected <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators) {
-        long value = 0;
 
-        CumulativeIndicator cumulativeIndicator = retrieveCumulativeIndicator(indicators, vaccine);
 
-        if (cumulativeIndicator != null) {
-            value = cumulativeIndicator.getValue();
-        }
+        long value = retrieveCumulativeIndicatorValue(indicators, vaccine);
 
         String display = vaccine.display();
         if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
@@ -196,8 +192,10 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
                     percentage));
 
             if (Utils.isSameYear(getHolder().getDate(), new Date())) {
+                vaccinatedTextView.setTextColor(getResources().getColor(R.color.text_black));
                 coverageTextView.setTextColor(getResources().getColor(R.color.text_black));
             } else {
+                vaccinatedTextView.setTextColor(getResources().getColor(R.color.bluetext));
                 coverageTextView.setTextColor(getResources().getColor(R.color.bluetext));
             }
         }
@@ -219,29 +217,21 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     protected Map<String, NamedObject<?>> generateReportBackground() {
 
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
+        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
+
         List<Cumulative> cumulatives = cumulativeRepository.fetchAllWithIndicators();
         if (cumulatives.isEmpty()) {
             return null;
         }
 
-        Collections.sort(cumulatives, new Comparator<Cumulative>() {
-            @Override
-            public int compare(Cumulative lhs, Cumulative rhs) {
-                if (lhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getYearAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getYearAsDate().compareTo(lhs.getYearAsDate());
-            }
-        });
-
         // Populate the default cumulative
         Cumulative cumulative = cumulatives.get(0);
         CoverageHolder coverageHolder = new CoverageHolder(cumulative.getId(), cumulative.getYearAsDate(), cumulative.getCsoNumber());
 
-        CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
         List<CumulativeIndicator> indicators = cumulativeIndicatorRepository.findByCumulativeId(cumulative.getId());
 
         Map<String, NamedObject<?>> map = new HashMap<>();
@@ -294,6 +284,10 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
         CumulativeRepository cumulativeRepository = VaccinatorApplication.getInstance().cumulativeRepository();
         CumulativeIndicatorRepository cumulativeIndicatorRepository = VaccinatorApplication.getInstance().cumulativeIndicatorRepository();
+
+        if (cumulativeRepository == null || cumulativeIndicatorRepository == null) {
+            return null;
+        }
 
         Cumulative cumulative = cumulativeRepository.findById(id);
         if (cumulative == null) {

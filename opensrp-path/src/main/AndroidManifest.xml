@@ -127,7 +127,8 @@
         <activity
             android:name=".activity.AnnualCoverageReportCsoActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppThemeNoTitle.NoActionBar" />
+            android:theme="@style/AppThemeNoTitle.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
             android:name=".activity.AnnualCoverageReportZeirActivity"
             android:screenOrientation="portrait"

@@ -20,33 +20,36 @@ import java.util.Map;
 /**
  * Created by keyman on 12/06/2017.
  */
-public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
+public class ExpandedListAdapter<K, L, T> extends BaseExpandableListAdapter {
 
     private final Context context;
-    private LinkedHashMap<String, List<ItemData<L, T>>> map = new LinkedHashMap<>();
-    private final List<String> headers = new ArrayList<>();
+    private LinkedHashMap<K, List<ItemData<L, T>>> map = new LinkedHashMap<>();
+    private List<K> headers = new ArrayList<>();
     private final int headerLayout;
     private final int childLayout;
+    private boolean isChildSelectable = true;
 
 
-    public ExpandedListAdapter(Context context, LinkedHashMap<String, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
+    public ExpandedListAdapter(Context context, LinkedHashMap<K, List<ItemData<L, T>>> map, int headerLayout, int childLayout) {
         this.context = context;
         if (map != null && !map.isEmpty()) {
             this.map = map;
-            for (Map.Entry<String, List<ItemData<L, T>>> entry : map.entrySet()) {
+            for (Map.Entry<K, List<ItemData<L, T>>> entry : map.entrySet()) {
                 this.headers.add(entry.getKey());
             }
         }
 
         this.headerLayout = headerLayout;
         this.childLayout = childLayout;
+    }
 
-
+    public void setChildSelectable(boolean isChildSelectable) {
+        this.isChildSelectable = isChildSelectable;
     }
 
     @Override
     public ItemData<L, T> getChild(int groupPosition, int childPosititon) {
-        return map.get(headers.get(groupPosition)).get(childPosititon);
+        return this.map.get(this.headers.get(groupPosition)).get(childPosititon);
     }
 
     @Override
@@ -59,13 +62,12 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
-        ItemData<L, T> childObject = getChild(groupPosition, childPosition);
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(context);
             convertView = inflater.inflate(childLayout, null);
-            convertView.setTag(R.id.item_data, childObject.getTagData());
         }
 
+        ItemData<L, T> childObject = getChild(groupPosition, childPosition);
         if (childObject != null) {
 
             String text = null;
@@ -98,12 +100,22 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
             if (detailView != null && details != null) {
                 TextView detailTextView = (TextView) detailView;
                 detailTextView.setText(details);
+
+                detailTextView.setTextColor(context.getResources().getColor(R.color.black));
+                if (childObject.isFinalized()) {
+                    detailTextView.setTextColor(context.getResources().getColor(R.color.bluetext));
+                }
             }
 
             View otherView = convertView.findViewById(R.id.other);
             if (otherView != null && other != null) {
                 TextView otherTextView = (TextView) otherView;
                 otherTextView.setText(other);
+
+                otherTextView.setTextColor(context.getResources().getColor(R.color.black));
+                if (childObject.isFinalized()) {
+                    otherTextView.setTextColor(context.getResources().getColor(R.color.bluetext));
+                }
             }
         }
 
@@ -117,23 +129,25 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
             }
         }
 
+        convertView.setTag(R.id.item_data, childObject.getTagData());
+
         return convertView;
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return map.get(headers.get(groupPosition))
+        return this.map.get(this.headers.get(groupPosition))
                 .size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return headers.get(groupPosition);
+        return this.headers.get(groupPosition);
     }
 
     @Override
     public int getGroupCount() {
-        return headers.size();
+        return this.headers.size();
     }
 
     @Override
@@ -180,7 +194,6 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
 
         }
 
-
         ExpandableListView mExpandableListView = (ExpandableListView) parent;
         mExpandableListView.expandGroup(groupPosition);
 
@@ -194,12 +207,13 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+        return isChildSelectable;
     }
 
     public static class ItemData<L, T> {
         private final L labelData;
         private final T tagData;
+        private boolean finalized = false;
 
         public ItemData(L labelData, T tagData) {
             this.labelData = labelData;
@@ -212,6 +226,14 @@ public class ExpandedListAdapter<L, T> extends BaseExpandableListAdapter {
 
         public T getTagData() {
             return tagData;
+        }
+
+        public void setFinalized(boolean finalized) {
+            this.finalized = finalized;
+        }
+
+        public boolean isFinalized() {
+            return finalized;
         }
     }
 }

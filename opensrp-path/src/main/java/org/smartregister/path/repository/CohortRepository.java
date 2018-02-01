@@ -111,7 +111,7 @@ public class CohortRepository extends BaseRepository {
         List<Cohort> cohorts = new ArrayList<>();
 
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, null, null, null, null, COLUMN_MONTH + " DESC ");
             cohorts = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

@@ -76,8 +76,9 @@ public class DailyTalliesFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.expandable_list_fragment, container, false);
+        View fragmentView = inflater.inflate(R.layout.report_expandable_list_view, container, false);
         expandableListView = (ExpandableListView) fragmentView.findViewById(R.id.expandable_list_view);
+        expandableListView.setBackgroundColor(getResources().getColor(R.color.white));
 
         return fragmentView;
     }
@@ -101,7 +102,7 @@ public class DailyTalliesFragment extends Fragment
             return;
         }
 
-        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(getActivity(), map, R.layout.daily_tally_header, R.layout.daily_tally_item);
+        ExpandedListAdapter<String, String, Date> expandableListAdapter = new ExpandedListAdapter(getActivity(), map, R.layout.daily_tally_header, R.layout.daily_tally_item);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override

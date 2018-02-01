@@ -157,17 +157,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
         vaccineTextView.setText(display);
 
-        boolean finalized = false;
-        Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(getHolder().getDate()));
-        if (endDate != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.DATE, 1);
-            endDate = calendar.getTime();
-
-            Date currentDate = new Date();
-            finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
-        }
+        boolean finalized = isFinalized(vaccine, getHolder().getDate());
 
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));
@@ -195,26 +185,17 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     protected Map<String, NamedObject<?>> generateReportBackground() {
 
         CohortRepository cohortRepository = VaccinatorApplication.getInstance().cohortRepository();
+        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
+
+        if (cohortRepository == null || cohortPatientRepository == null || cohortIndicatorRepository == null) {
+            return null;
+        }
+
         List<Cohort> cohorts = cohortRepository.fetchAll();
         if (cohorts.isEmpty()) {
             return null;
         }
-
-        Collections.sort(cohorts, new Comparator<Cohort>() {
-            @Override
-            public int compare(Cohort lhs, Cohort rhs) {
-                if (lhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                if (rhs.getMonthAsDate() == null) {
-                    return 1;
-                }
-                return rhs.getMonthAsDate().compareTo(lhs.getMonthAsDate());
-            }
-        });
-
-
-        CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
 
         // Populate the default cohort
         Cohort cohort = cohorts.get(0);
@@ -222,7 +203,6 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         long cohortSize = cohortPatientRepository.countCohort(cohort.getId());
         CoverageHolder coverageHolder = new CoverageHolder(cohort.getId(), cohort.getMonthAsDate(), cohortSize);
 
-        CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
         List<CohortIndicator> indicators = cohortIndicatorRepository.findByCohort(cohort.getId());
 
         Map<String, NamedObject<?>> map = new HashMap<>();
@@ -264,7 +244,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
             }
         }
 
-        updateReportDates(cohorts, new SimpleDateFormat("MMMM yyyy"), null);
+        updateReportDates(cohorts, new SimpleDateFormat("MMM yyyy"), null, true);
         updateCohortSize();
         updateReportList(indicatorList);
     }
@@ -273,9 +253,13 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     protected Pair<List, Long> updateReportBackground(Long id) {
 
         CohortIndicatorRepository cohortIndicatorRepository = VaccinatorApplication.getInstance().cohortIndicatorRepository();
-        List indicators = cohortIndicatorRepository.findByCohort(id);
-
         CohortPatientRepository cohortPatientRepository = VaccinatorApplication.getInstance().cohortPatientRepository();
+
+        if (cohortIndicatorRepository == null || cohortPatientRepository == null) {
+            return null;
+        }
+
+        List indicators = cohortIndicatorRepository.findByCohort(id);
         long cohortSize = cohortPatientRepository.countCohort(id);
 
         return Pair.create(indicators, cohortSize);
