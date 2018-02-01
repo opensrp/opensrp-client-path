@@ -24,7 +24,7 @@ public class CumulativeIndicatorRepository extends BaseRepository {
     public static final String TABLE_NAME = "cumulative_indicators";
     private static final String COLUMN_ID = "_id";
     public static final String COLUMN_CUMULATIVE_ID = "cumulative_id";
-    private static final String COLUMN_MONTH = "month";
+    public static final String COLUMN_MONTH = "month";
     private static final String COLUMN_VACCINE = "vaccine";
     private static final String COLUMN_VALUE = "value";
     private static final String COLUMN_CREATED_AT = "created_at";
@@ -79,7 +79,7 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         }
     }
 
-    public CumulativeIndicator findByVaccineMonthAndCumulativeId(String vaccine, String month, Long cumulativeId) {
+    private CumulativeIndicator findByVaccineMonthAndCumulativeId(String vaccine, String month, Long cumulativeId) {
         if (StringUtils.isBlank(vaccine) || StringUtils.isBlank(month) || cumulativeId == null) {
             return null;
         }
@@ -141,7 +141,7 @@ public class CumulativeIndicatorRepository extends BaseRepository {
     }
 
 
-    public List<CumulativeIndicator> findByVaccineAndCumulativeId(String vaccineName, Long cumulativeId) {
+    public List<CumulativeIndicator> findByVaccineAndCumulativeId(String vaccineName, Long cumulativeId, String orderBy) {
         if (cumulativeId == null || vaccineName == null) {
             return null;
         }
@@ -150,7 +150,7 @@ public class CumulativeIndicatorRepository extends BaseRepository {
         List<CumulativeIndicator> cumulativeIndicators = new ArrayList<>();
 
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_CUMULATIVE_ID + " = ? AND " + COLUMN_VACCINE + " = ? ", new String[]{cumulativeId.toString(), vaccineName}, null, null, COLUMN_MONTH + " DESC ");
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_CUMULATIVE_ID + " = ? AND " + COLUMN_VACCINE + " = ? ", new String[]{cumulativeId.toString(), vaccineName}, null, null, orderBy);
             cumulativeIndicators = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

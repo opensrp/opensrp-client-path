@@ -267,6 +267,7 @@
     <string name="measles_cumulative">Measles Cumulative</string>
     <string name="measles_cumulative_dropout_report">Measles Cumulative Dropout Report</string>
     <string name="cumulative_dropout">Cumulative Dropout (YTD): </string>
+    <string name="pls_set_cso_target">Please set the CSO Target first.</string>
 
     <string name="dropout_month_header">Month</string>
     <string name="dropout_started_completed_header">(Started - Completed) / Started </string>

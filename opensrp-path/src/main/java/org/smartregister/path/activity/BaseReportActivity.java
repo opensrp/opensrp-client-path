@@ -240,7 +240,7 @@ public abstract class BaseReportActivity extends BaseActivity {
             List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
 
             String startedVaccineName = generateVaccineName(started);
-            List<CumulativeIndicator> cumulativeIndicators = cumulativeIndicatorRepository.findByVaccineAndCumulativeId(startedVaccineName, cumulative.getId());
+            List<CumulativeIndicator> cumulativeIndicators = cumulativeIndicatorRepository.findByVaccineAndCumulativeId(startedVaccineName, cumulative.getId(), CumulativeIndicatorRepository.COLUMN_MONTH + " DESC ");
             for (CumulativeIndicator startedCumulativeIndicator : cumulativeIndicators) {
 
                 long startCount = 0L;

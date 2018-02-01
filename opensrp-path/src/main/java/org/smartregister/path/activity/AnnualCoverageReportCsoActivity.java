@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -207,10 +208,14 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(AnnualCoverageReportCsoActivity.this, FacilityCumulativeCoverageReportActivity.class);
-                intent.putExtra(FacilityCumulativeCoverageReportActivity.HOLDER, getHolder());
-                intent.putExtra(FacilityCumulativeCoverageReportActivity.VACCINE, vaccine);
-                startActivity(intent);
+                if (getHolder().getSize() == null || getHolder().getSize() == 0L) {
+                    Toast.makeText(AnnualCoverageReportCsoActivity.this, getString(R.string.pls_set_cso_target), Toast.LENGTH_LONG).show();
+                } else {
+                    Intent intent = new Intent(AnnualCoverageReportCsoActivity.this, FacilityCumulativeCoverageReportActivity.class);
+                    intent.putExtra(FacilityCumulativeCoverageReportActivity.HOLDER, getHolder());
+                    intent.putExtra(FacilityCumulativeCoverageReportActivity.VACCINE, vaccine);
+                    startActivity(intent);
+                }
             }
         });
 
