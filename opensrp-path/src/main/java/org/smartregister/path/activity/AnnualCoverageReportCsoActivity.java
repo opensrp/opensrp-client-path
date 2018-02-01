@@ -160,13 +160,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
     @Override
     protected <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators) {
-        long value = 0;
 
-        CumulativeIndicator cumulativeIndicator = retrieveCumulativeIndicator(indicators, vaccine);
 
-        if (cumulativeIndicator != null) {
-            value = cumulativeIndicator.getValue();
-        }
+        long value = retrieveCumulativeIndicatorValue(indicators, vaccine);
 
         String display = vaccine.display();
         if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {

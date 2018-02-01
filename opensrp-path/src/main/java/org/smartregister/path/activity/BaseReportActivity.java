@@ -192,17 +192,18 @@ public abstract class BaseReportActivity extends BaseActivity {
         return view;
     }
 
-    protected <T> CumulativeIndicator retrieveCumulativeIndicator(List<T> indicators, VaccineRepo.Vaccine vaccine) {
+    protected <T> Long retrieveCumulativeIndicatorValue(List<T> indicators, VaccineRepo.Vaccine vaccine) {
+        long value = 0L;
         final String vaccineString = VaccineRepository.addHyphen(vaccine.display().toLowerCase());
         for (T t : indicators) {
             if (t instanceof CumulativeIndicator) {
                 CumulativeIndicator cumulativeIndicator = (CumulativeIndicator) t;
                 if (cumulativeIndicator.getVaccine().equals(vaccineString)) {
-                    return cumulativeIndicator;
+                    value += cumulativeIndicator.getValue();
                 }
             }
         }
-        return null;
+        return value;
     }
 
     protected <T> CohortIndicator retrieveCohortIndicator(List<T> indicators, VaccineRepo.Vaccine vaccine) {
