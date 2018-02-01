@@ -548,7 +548,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
         refresh();
 
-        filterandSortInInitializeQueries();
+        super.filterandSortInInitializeQueries();
     }
 
     private void globalSearch() {

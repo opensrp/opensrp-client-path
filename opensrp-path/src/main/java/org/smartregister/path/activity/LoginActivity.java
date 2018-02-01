@@ -357,7 +357,6 @@ public class LoginActivity extends AppCompatActivity {
     private void localLoginWith(String userName, String password) {
         getOpenSRPContext().userService().localLogin(userName, password);
         goToHome(false);
-        startZScoreIntentService();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -368,11 +367,6 @@ public class LoginActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void startZScoreIntentService() {
-        Intent intent = new Intent(this, ZScoreRefreshIntentService.class);
-        startService(intent);
-    }
-
     private void remoteLoginWith(String userName, String password, String userInfo) {
         getOpenSRPContext().userService().remoteLogin(userName, password, userInfo);
         goToHome(true);
@@ -380,9 +374,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToHome(boolean remote) {
-        if (!remote) {
-            startZScoreIntentService();
-        } else {
+        if (remote) {
             Utils.startAsyncTask(new SaveTeamLocationsTask(), null);
         }
         VaccinatorApplication.setCrashlyticsUser(getOpenSRPContext());
@@ -546,7 +538,7 @@ public class LoginActivity extends AppCompatActivity {
                 return null;
             }
 
-            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils. join(locationsCSV, ","));
+            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils.join(locationsCSV, ","));
             return null;
         }
 

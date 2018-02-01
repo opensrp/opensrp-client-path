@@ -2,10 +2,13 @@ package org.smartregister.path.fragment;
 
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +21,6 @@ import android.widget.TextView;
 import com.github.ybq.android.spinkit.style.Circle;
 
 import org.smartregister.commonregistry.CommonPersonObjectClient;
-import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.CursorCommonObjectFilterOption;
 import org.smartregister.cursoradapter.CursorCommonObjectSort;
 import org.smartregister.cursoradapter.CursorSortOption;
@@ -49,7 +51,6 @@ import org.smartregister.view.dialog.ServiceModeOption;
 import org.smartregister.view.dialog.SortOption;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import util.PathConstants;
 
@@ -284,9 +285,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         countqueryBUilder.SelectInitiateMainTableCounts(tableName);
         mainCondition = " dod is NULL OR dod = '' ";
         countSelect = countqueryBUilder.mainCondition(mainCondition);
-        super.CountExecute();
-        countOverDue();
-        countDueOverDue();
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
         queryBUilder.SelectInitiateMainTable(tableName, new String[]{
@@ -323,9 +321,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         currentoffset = 0;
 
         super.filterandSortInInitializeQueries();
-
-        updateSearchView();
-        refresh();
     }
 
     private void refreshSyncStatusViews() {
@@ -345,15 +340,18 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
     @Override
     public void onSyncInProgress(FetchStatus fetchStatus) {
-        refreshListView();
+        if(!isPausedOrRefreshList()) {
+            refreshListView();
+        }
     }
 
     @Override
     public void onSyncComplete(FetchStatus fetchStatus) {
         refreshListView();
         refreshSyncStatusViews();
-    }
 
+        org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+    }
 
     private void updateSearchView() {
         getSearchView().removeTextChangedListener(textWatcher);
@@ -412,30 +410,6 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         return mainCondition + " ) ";
     }
 
-
-    private void countOverDue() {
-        String mainCondition = filterSelectionCondition(true);
-        int count = count(mainCondition);
-
-        if (filterCount != null) {
-            if (count > 0) {
-                filterCount.setText(String.valueOf(count));
-                filterCount.setVisibility(View.VISIBLE);
-                filterCount.setClickable(true);
-            } else {
-                filterCount.setVisibility(View.GONE);
-                filterCount.setClickable(false);
-            }
-        }
-
-        ((ChildSmartRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(count);
-    }
-
-    private void countDueOverDue() {
-        String mainCondition = filterSelectionCondition(false);
-        dueOverdueCount = count(mainCondition);
-    }
-
     private int count(String mainConditionString) {
 
         int count = 0;
@@ -447,20 +421,19 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
             String query = "";
             if (isValidFilterForFts(commonRepository())) {
                 String sql = sqb.countQueryFts(tablename, "", mainConditionString, "");
-                List<String> ids = commonRepository().findSearchIds(sql);
-                query = sqb.toStringFts(ids, tablename + "." + CommonRepository.ID_COLUMN);
-                query = sqb.Endquery(query);
+                Log.i(getClass().getName(), query);
+
+                count = commonRepository().countSearchIds(sql);
             } else {
                 sqb.addCondition(filters);
                 query = sqb.orderbyCondition(Sortqueries);
                 query = sqb.Endquery(query);
+
+                Log.i(getClass().getName(), query);
+                c = commonRepository().rawCustomQueryForAdapter(query);
+                c.moveToFirst();
+                count = c.getInt(0);
             }
-
-            Log.i(getClass().getName(), query);
-            c = commonRepository().rawCustomQueryForAdapter(query);
-            c.moveToFirst();
-            count = c.getInt(0);
-
         } catch (Exception e) {
             Log.e(getClass().getName(), e.toString(), e);
         } finally {
@@ -468,9 +441,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
                 c.close();
             }
         }
-
         return count;
-
     }
 
     private void switchViews(boolean filterSelected) {
@@ -510,6 +481,12 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         return filterSection != null && filterSection.getTag() != null;
     }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        super.onLoadFinished(loader, cursor);
+
+        updateSearchView();
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
@@ -555,5 +532,33 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         }
     }
 
+    private class CountDueAndOverDue extends AsyncTask<Void, Void, Pair<Integer, Integer>> {
+        @Override
+        protected Pair<Integer, Integer> doInBackground(Void... params) {
+            int overdueCount = count(filterSelectionCondition(true));
 
+            int dueOverdueCount = count(filterSelectionCondition(false));
+            return Pair.create(overdueCount, dueOverdueCount);
+        }
+
+        @Override
+        protected void onPostExecute(Pair<Integer, Integer> pair) {
+            super.onPostExecute(pair);
+            int overDue = pair.first;
+            dueOverdueCount = pair.second;
+
+            if (filterCount != null) {
+                if (overDue > 0) {
+                    filterCount.setText(String.valueOf(overDue));
+                    filterCount.setVisibility(View.VISIBLE);
+                    filterCount.setClickable(true);
+                } else {
+                    filterCount.setVisibility(View.GONE);
+                    filterCount.setClickable(false);
+                }
+            }
+
+            ((ChildSmartRegisterActivity) getActivity()).updateAdvancedSearchFilterCount(overDue);
+        }
+    }
 }
