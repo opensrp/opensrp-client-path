@@ -2,15 +2,12 @@ package org.smartregister.path.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -35,7 +32,7 @@ import util.Utils;
 /**
  * Created by keyman on 21/12/17.
  */
-public class AnnualCoverageReportCsoActivity extends BaseReportActivity implements SetCsoDialogFragment.OnSetCsoListener, CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
+public class AnnualCoverageReportCsoActivity extends BaseReportActivity implements SetCsoDialogFragment.OnSetCsoListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,35 +58,6 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
         ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.annual_coverage_report_cso));
 
         updateListViewHeader(R.layout.coverage_report_header);
-    }
-
-    @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-        refresh(true);
-
-        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
     }
 
     @Override
@@ -146,10 +114,13 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
     }
 
     @Override
-    public void onServiceFinish(String actionType) {
-        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS.equals(actionType)) {
-            refresh(false);
-        }
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.coverage_reports;
     }
 
     ////////////////////////////////////////////////////////////////
@@ -158,21 +129,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
     @Override
     protected <T> View generateView(final View view, final VaccineRepo.Vaccine vaccine, final List<T> indicators) {
-
-
         long value = retrieveCumulativeIndicatorValue(indicators, vaccine);
 
-        String display = vaccine.display();
-        if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
-            display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
-        }
-
-        if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
-            display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
-        }
-
         TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
-        vaccineTextView.setText(display);
 
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));

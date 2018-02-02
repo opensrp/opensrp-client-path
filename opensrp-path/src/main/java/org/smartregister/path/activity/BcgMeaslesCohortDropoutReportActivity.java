@@ -2,15 +2,12 @@ package org.smartregister.path.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.tuple.Triple;
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ExpandedListAdapter;
@@ -27,7 +24,7 @@ import java.util.Map;
 /**
  * Created by keyman on 09/01/18.
  */
-public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
+public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity {
     private ExpandableListView expandableListView;
 
     @Override
@@ -59,34 +56,6 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity im
     }
 
     @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-        generateReport(true);
-
-        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
-    }
-
-    @Override
     protected int getContentView() {
         return R.layout.activity_dropout_report_template;
     }
@@ -107,10 +76,13 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity im
     }
 
     @Override
-    public void onServiceFinish(String actionType) {
-        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS.equals(actionType)) {
-            generateReport(false);
-        }
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.dropout_reports;
     }
 
     @SuppressWarnings("unchecked")

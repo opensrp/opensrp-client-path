@@ -2,14 +2,11 @@ package org.smartregister.path.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -44,7 +41,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 /**
  * Created by keyman on 03/01/17.
  */
-public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
+public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity {
 
     public static final String HOLDER = "HOLDER";
     public static final String VACCINE = "VACCINE";
@@ -108,34 +105,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     }
 
     @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-        refresh(true);
-
-        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
-    }
-
-    @Override
     protected int getContentView() {
         return R.layout.activity_facility_cumulative_coverage_report;
     }
@@ -156,10 +125,13 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     }
 
     @Override
-    public void onServiceFinish(String actionType) {
-        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS.equals(actionType)) {
-            refresh(false);
-        }
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_CUMULATIVE_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.coverage_reports;
     }
 
     private void refreshMonitoring(List<CumulativeIndicator> startCumulativeIndicators, List<CumulativeIndicator> endCumulativeIndicators) {

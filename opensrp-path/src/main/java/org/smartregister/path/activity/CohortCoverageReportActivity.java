@@ -3,14 +3,11 @@ package org.smartregister.path.activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -34,7 +31,7 @@ import java.util.Map;
 /**
  * Created by keyman on 21/12/17.
  */
-public class CohortCoverageReportActivity extends BaseReportActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
+public class CohortCoverageReportActivity extends BaseReportActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,34 +57,6 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.cohort_coverage_report));
 
         updateListViewHeader(R.layout.coverage_report_header);
-    }
-
-    @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-        refresh(true);
-
-        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
     }
 
     @Override
@@ -136,10 +105,13 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
     }
 
     @Override
-    public void onServiceFinish(String actionType) {
-        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS.equals(actionType)) {
-            refresh(false);
-        }
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.coverage_reports;
     }
 
     ////////////////////////////////////////////////////////////////
@@ -151,22 +123,9 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         long value = 0;
 
         CohortIndicator cohortIndicator = retrieveCohortIndicator(indicators, vaccine);
-
         if (cohortIndicator != null) {
             value = cohortIndicator.getValue();
         }
-
-        String display = vaccine.display();
-        if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
-            display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
-        }
-
-        if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
-            display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
-        }
-
-        TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
-        vaccineTextView.setText(display);
 
         boolean finalized = isFinalized(vaccine, getHolder().getDate());
 
