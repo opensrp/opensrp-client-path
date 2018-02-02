@@ -51,8 +51,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     private static final String START = "start";
     private static final String END = "end";
 
-    CoverageHolder holder = null;
-    VaccineRepo.Vaccine vaccine = null;
+    private CoverageHolder holder = null;
+    private VaccineRepo.Vaccine vaccine = null;
 
 
     @Override
@@ -339,6 +339,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
     private void updateTableLayout(Map<String, Long> startValueMap, Map<String, Long> endValueMap, String[] months, boolean isComparison, boolean checkCurrentTime) {
 
+        boolean isCheckCurrentTime = checkCurrentTime;
+
         TableRow titleRow = (TableRow) findViewById(R.id.title_1);
         for (int i = 0; i < titleRow.getChildCount(); i++) {
             if (i > 0) {
@@ -375,8 +377,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         Calendar calendar = null;
         Date currentDate = null;
 
-        if (checkCurrentTime) {
-            checkCurrentTime = true;
+        if (isCheckCurrentTime) {
+            isCheckCurrentTime = true;
             int year = BaseReportActivity.getYear(holder.getDate());
             calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, year);
@@ -387,7 +389,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         for (int i = 0; i < startTotalValueRow.getChildCount(); i++) {
 
-            if (i > 0 && checkCurrentTime) {
+            if (i > 0 && isCheckCurrentTime) {
                 if (currentDate.before(calendar.getTime())) {
                     break;
                 }

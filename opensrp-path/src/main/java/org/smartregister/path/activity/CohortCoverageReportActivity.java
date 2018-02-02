@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
