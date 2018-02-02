@@ -17,11 +17,13 @@
 package util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
@@ -316,5 +318,11 @@ public class Utils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static int convertDpToPx(Context context, int dp) {
+        Resources r = context.getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        return Math.round(px);
     }
 }

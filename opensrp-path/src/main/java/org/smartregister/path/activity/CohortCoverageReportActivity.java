@@ -1,14 +1,16 @@
 package org.smartregister.path.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
@@ -22,18 +24,13 @@ import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
+import org.smartregister.path.view.CustomHeightSpinner;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import util.PathConstants;
 
 /**
  * Created by keyman on 21/12/17.
@@ -122,6 +119,21 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
 
         TextView textView = (TextView) findViewById(R.id.cohort_size_value);
         textView.setText(String.format(getString(R.string.cso_population_value), size));
+    }
+
+    private void updateSpinnerSize(List list) {
+        if (list != null && list.size() > 12) {
+            TypedValue typedValue = new TypedValue();
+            CohortCoverageReportActivity.this.getTheme().resolveAttribute(android.R.attr.textAppearanceLarge, typedValue, true);
+
+            int[] attribute = new int[]{R.attr.dropdownListPreferredItemHeight};
+            TypedArray array = CohortCoverageReportActivity.this.obtainStyledAttributes(typedValue.resourceId, attribute);
+            int heightOfDropoutItem = array.getDimensionPixelSize(0, -1);
+            array.recycle();
+
+            CustomHeightSpinner customHeightSpinner = (CustomHeightSpinner) findViewById(R.id.report_spinner);
+            customHeightSpinner.updateHeight(heightOfDropoutItem, 12);
+        }
     }
 
     @Override
@@ -245,6 +257,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         }
 
         updateReportDates(cohorts, new SimpleDateFormat("MMM yyyy"), null, true);
+        updateSpinnerSize(cohorts);
         updateCohortSize();
         updateReportList(indicatorList);
     }
