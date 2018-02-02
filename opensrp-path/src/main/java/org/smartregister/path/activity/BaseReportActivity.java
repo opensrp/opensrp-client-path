@@ -425,13 +425,8 @@ public abstract class BaseReportActivity extends BaseActivity {
         boolean finalized = false;
         Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(date));
         if (endDate != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.DATE, 1);
-            endDate = calendar.getTime();
-
             Date currentDate = new Date();
-            finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
+            finalized = !(DateUtils.isSameDay(currentDate, endDate) || endDate.after(currentDate));
         }
 
         return finalized;
