@@ -34,6 +34,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
@@ -52,6 +53,9 @@ import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
+import org.smartregister.path.map.OfflineMapDownloadUpdatesReceiver;
+import org.smartregister.path.map.OfflineSwitchUtils;
+import org.smartregister.path.map.DisplayToastInterface;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -66,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import util.JsonFormUtils;
 import util.PathConstants;
@@ -91,7 +94,7 @@ import static org.smartregister.util.Log.logError;
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
 public abstract class BaseActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener {
+        implements NavigationView.OnNavigationItemSelectedListener, SyncStatusBroadcastReceiver.SyncStatusListener, DisplayToastInterface {
     private static final String TAG = "BaseActivity";
     private BaseToolbar toolbar;
     private Menu menu;
@@ -100,6 +103,14 @@ public abstract class BaseActivity extends AppCompatActivity
     private ProgressDialog progressDialog;
     private ArrayList<Notification> notifications;
     private BaseActivityToggle toggle;
+
+    private Toast toast;
+    private OfflineSwitchUtils offlineSwitchUtils;
+
+    private static final String OFFLINE_MAP_NAME = "ZEIR Services Coverage";
+    private boolean isOfflineMapUpdatesReceiverRegistered = false;
+
+    private OfflineMapDownloadUpdatesReceiver offlineMapDownloadUpdatesReceiver;
 
     private ArrayList<LatLng> childPoints = new ArrayList<>();
 
@@ -122,6 +133,13 @@ public abstract class BaseActivity extends AppCompatActivity
         notifications = new ArrayList<>();
 
         initializeProgressDialog();
+
+        offlineMapDownloadUpdatesReceiver = new OfflineMapDownloadUpdatesReceiver(this);
+        offlineSwitchUtils = new OfflineSwitchUtils(this, offlineMapDownloadUpdatesReceiver, OFFLINE_MAP_NAME);
+
+        if (offlineSwitchUtils.isOfflineModeSwitchedOn()) {
+            isOfflineMapUpdatesReceiverRegistered = true;
+        }
     }
 
     @Override
@@ -308,6 +326,8 @@ public abstract class BaseActivity extends AppCompatActivity
             }
         });
 
+        offlineSwitchUtils.initializeOfflineSwitchLayout(drawer);
+
     }
 
     private String getLastSyncTime() {
@@ -337,12 +357,19 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         registerSyncStatusBroadcastReceiver();
+        if (isOfflineMapUpdatesReceiverRegistered) {
+            offlineSwitchUtils.registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+        }
+
         initViews();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (isOfflineMapUpdatesReceiverRegistered) {
+            offlineSwitchUtils.unregisterOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+        }
         unregisterSyncStatusBroadcastReceiver();
     }
 
@@ -760,29 +787,6 @@ public abstract class BaseActivity extends AppCompatActivity
         new BaseActivity.DataTask().execute();
     }
 
-    private GeoJSONFeature constructGeoJsonFeature(Map<String, String> clientDetails) {
-        String latLng = Utils.getValue(clientDetails, "geopoint", false);
-        if (!TextUtils.isEmpty(latLng)) {
-            String[] coords = latLng.split(" ");
-            LatLng coordinates = new LatLng(Double.valueOf(coords[0]), Double.valueOf(coords[1]));
-            childPoints.add(coordinates);
-            ArrayList featurePoints = new ArrayList<LatLng>();
-            featurePoints.add(coordinates);
-            GeoJSONFeature feature = new GeoJSONFeature(featurePoints);
-            for (String curKey : clientDetails.keySet()) {
-                feature.addProperty(curKey, clientDetails.get(curKey));
-            }
-
-            if (!feature.hasId()) {
-                String id = UUID.randomUUID().toString();
-                feature.setId(id);
-                feature.addProperty("id", id);
-            }
-            return feature;
-        }
-        return null;
-    }
-
     private class DataTask extends AsyncTask<Void, Void, Void> {
         String[] childGeoJson;
         ArrayList<String> attachmentLayers;
@@ -824,7 +828,7 @@ public abstract class BaseActivity extends AppCompatActivity
                     while(!cursor.isAfterLast()) {
                         String entityId = cursor.getString(0);
                         Map<String, String> details = VaccinatorApplication.getInstance().context().detailsRepository().getAllDetailsForClient(entityId);
-                        GeoJSONFeature feature = constructGeoJsonFeature(details);
+                        GeoJSONFeature feature = offlineSwitchUtils.constructGeoJsonFeature(details);
                         if (feature != null) {
                             added = true;
 
@@ -899,6 +903,14 @@ public abstract class BaseActivity extends AppCompatActivity
                 }
             }
         }
+    }
+
+    public void showInfoToast(String text) {
+        if (toast != null) {
+            toast.cancel();
+        }
+        toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     private String[] getLayersToDisable(String[] attachmentLayers) {
