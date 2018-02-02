@@ -25,8 +25,6 @@ import org.smartregister.path.repository.CumulativeRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +176,14 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
         TextView vaccinatedTextView = (TextView) view.findViewById(R.id.vaccinated);
         vaccinatedTextView.setText(String.valueOf(value));
+        vaccineTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_open_in_new, 0, 0, 0);
+        if (vaccine.equals(VaccineRepo.Vaccine.bcg) || vaccine.equals(VaccineRepo.Vaccine.penta1) || vaccine.equals(VaccineRepo.Vaccine.penta3) || vaccine.equals(VaccineRepo.Vaccine.measles1)) {
+            vaccineTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pageview, 0, 0, 0);
+        }
+
+        float drawablePadding = getResources().getDimension(R.dimen.register_drawable_padding);
+        int paddingInt = Float.valueOf(drawablePadding).intValue();
+        vaccineTextView.setCompoundDrawablePadding(paddingInt);
 
 
         TextView coverageTextView = (TextView) view.findViewById(R.id.coverage);

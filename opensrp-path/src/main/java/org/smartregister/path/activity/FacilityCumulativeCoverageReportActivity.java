@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
@@ -19,7 +19,6 @@ import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
-import org.w3c.dom.Text;
 
 import java.io.Serializable;
 import java.text.DateFormatSymbols;
@@ -235,7 +234,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         endValues.add(new PointValue(0f, 0f));
 
         boolean checkCurrentTime = false;
-
         Calendar calendar = null;
         Date currentDate = null;
 
@@ -312,7 +310,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         monitoringChart.setViewportCalculationEnabled(false);
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
 
-        updateTableLayout(startValueMap, endValueMap, months, isComparison);
+        updateTableLayout(startValueMap, endValueMap, months, isComparison, checkCurrentTime);
     }
 
     private void resetViewport(LineChartView chart, long csoTargetMonthly, long leftPartitions) {
@@ -339,28 +337,89 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         return line;
     }
 
-    private void updateTableLayout(Map<String, Long> startValueMap, Map<String, Long> endValueMap, String[] months, boolean isComparison) {
+    private void updateTableLayout(Map<String, Long> startValueMap, Map<String, Long> endValueMap, String[] months, boolean isComparison, boolean checkCurrentTime) {
+
+        TableRow titleRow = (TableRow) findViewById(R.id.title_1);
+        for (int i = 0; i < titleRow.getChildCount(); i++) {
+            if (i > 0) {
+                TextView titleTextView = (TextView) titleRow.getChildAt(i);
+                titleTextView.setTextColor(getResources().getColor(R.color.silver));
+                titleTextView.setText(months[i - 1].toUpperCase());
+            }
+        }
 
         TableRow startTotalValueRow = (TableRow) findViewById(R.id.total_1);
         TableRow startCumValueRow = (TableRow) findViewById(R.id.cum_1);
 
-        TableRow total2ValueRow = (TableRow) findViewById(R.id.total_2);
-        TableRow cum2ValueRow = (TableRow) findViewById(R.id.cum_2);
+        TableRow endTotalValueRow = (TableRow) findViewById(R.id.total_2);
+        TableRow endCumValueRow = (TableRow) findViewById(R.id.cum_2);
+
+        TableRow dropoutValueRow = (TableRow) findViewById(R.id.dropout_1);
+        TableRow dropoutPercentageValueRow = (TableRow) findViewById(R.id.drop_percent_1);
+
+        TableRow cumDropoutValueRow = (TableRow) findViewById(R.id.cum_dropout_1);
+        TableRow cumDropoutPercentageValueRow = (TableRow) findViewById(R.id.cum_drop_percent_1);
 
         if (isComparison) {
-            total2ValueRow.setVisibility(View.VISIBLE);
-            cum2ValueRow.setVisibility(View.VISIBLE);
+            endTotalValueRow.setVisibility(View.VISIBLE);
+            endCumValueRow.setVisibility(View.VISIBLE);
+
+            dropoutValueRow.setVisibility(View.VISIBLE);
+            dropoutPercentageValueRow.setVisibility(View.VISIBLE);
+
+            cumDropoutValueRow.setVisibility(View.VISIBLE);
+            cumDropoutPercentageValueRow.setVisibility(View.VISIBLE);
+        }
+
+
+        Calendar calendar = null;
+        Date currentDate = null;
+
+        if (checkCurrentTime) {
+            checkCurrentTime = true;
+            int year = BaseReportActivity.getYear(holder.getDate());
+            calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.DAY_OF_YEAR, 1);
+
+            currentDate = new Date();
         }
 
         for (int i = 0; i < startTotalValueRow.getChildCount(); i++) {
-            TextView startTotalValue = (TextView) startTotalValueRow.getChildAt(i);
-            TextView startCumValue = (TextView) startCumValueRow.getChildAt(i);
 
-            TextView endTotalValue = (TextView) total2ValueRow.getChildAt(i);
-            TextView endCumValue = (TextView) cum2ValueRow.getChildAt(i);
+            if (i > 0 && checkCurrentTime) {
+                if (currentDate.before(calendar.getTime())) {
+                    break;
+                }
+                calendar.add(Calendar.MONTH, 1);
+            }
 
-            endTotalValue.setTextColor(getResources().getColor(R.color.cumulative_red_line));
-            endCumValue.setTextColor(getResources().getColor(R.color.cumulative_red_line));
+            TextView startTotalTextView = (TextView) startTotalValueRow.getChildAt(i);
+            TextView startCumTextView = (TextView) startCumValueRow.getChildAt(i);
+
+            TextView endTotalTextView = (TextView) endTotalValueRow.getChildAt(i);
+            TextView endCumTextView = (TextView) endCumValueRow.getChildAt(i);
+
+            TextView dropoutTextView = (TextView) dropoutValueRow.getChildAt(i);
+            TextView dropoutPercentageTextView = (TextView) dropoutPercentageValueRow.getChildAt(i);
+
+            TextView cumDropoutTextView = (TextView) cumDropoutValueRow.getChildAt(i);
+            TextView cumDropoutPercentageTextView = (TextView) cumDropoutPercentageValueRow.getChildAt(i);
+
+
+            startTotalTextView.setTextColor(getResources().getColor(R.color.cumulative_blue_line));
+            startCumTextView.setTextColor(getResources().getColor(R.color.cumulative_blue_line));
+
+            if (isComparison) {
+                endTotalTextView.setTextColor(getResources().getColor(R.color.cumulative_red_line));
+                endCumTextView.setTextColor(getResources().getColor(R.color.cumulative_red_line));
+
+                dropoutTextView.setTextColor(getResources().getColor(R.color.client_list_grey));
+                dropoutPercentageTextView.setTextColor(getResources().getColor(R.color.client_list_grey));
+
+                cumDropoutTextView.setTextColor(getResources().getColor(R.color.client_list_grey));
+                cumDropoutPercentageTextView.setTextColor(getResources().getColor(R.color.client_list_grey));
+            }
 
             if (i == 0) {
                 if (isComparison) {
@@ -374,55 +433,92 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
                         startVaccine = VaccineRepo.Vaccine.bcg;
                         endVaccine = VaccineRepo.Vaccine.measles1;
                     }
-                    startTotalValue.setText(String.format(getString(R.string.total_vaccine), startVaccine.display()));
-                    startCumValue.setText(String.format(getString(R.string.total_cum), startVaccine.display()));
 
-                    endTotalValue.setText(String.format(getString(R.string.total_vaccine), endVaccine.display()));
-                    endCumValue.setText(String.format(getString(R.string.total_cum), endVaccine.display()));
+                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(startVaccine.display().toLowerCase())));
+                    startCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(startVaccine.display().toLowerCase())));
 
+                    endTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(endVaccine.display().toLowerCase())));
+                    endCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(endVaccine.display().toLowerCase())));
+
+                    dropoutTextView.setText(getString(R.string.total_dropout));
+                    if (startVaccine.equals(VaccineRepo.Vaccine.penta1)) {
+                        dropoutTextView.setText(getString(R.string.total_dropout_penta));
+                    }
+                    dropoutPercentageTextView.setText(getString(R.string.total_dropout_percentage));
+
+                    dropoutTextView.setTextColor(getResources().getColor(R.color.text_black));
+                    dropoutPercentageTextView.setTextColor(getResources().getColor(R.color.text_black));
+
+                    cumDropoutTextView.setText(getString(R.string.total_cum_dropout));
+                    cumDropoutPercentageTextView.setText(getString(R.string.total_cum_dropout_percentage));
+
+                    cumDropoutTextView.setTextColor(getResources().getColor(R.color.text_black));
+                    cumDropoutPercentageTextView.setTextColor(getResources().getColor(R.color.text_black));
                 } else {
-                    startTotalValue.setText(String.format(getString(R.string.total_vaccine), vaccine.display()));
-                    startCumValue.setText(String.format(getString(R.string.total_cum), vaccine.display()));
-
+                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(vaccine.display().toLowerCase())));
+                    startCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(vaccine.display().toLowerCase())));
                 }
             } else {
+
+                // Total
                 Long startValue = startValueMap.get(months[i - 1]);
                 if (startValue == null) {
                     startValue = 0L;
                 }
-                startTotalValue.setText(String.valueOf(startValue));
+                startTotalTextView.setText(String.valueOf(startValue));
 
+                Long endValue = 0L;
                 if (isComparison) {
-                    Long endValue = endValueMap.get(months[i - 1]);
+                    endValue = endValueMap.get(months[i - 1]);
                     if (endValue == null) {
                         endValue = 0L;
                     }
-                    endTotalValue.setText(String.valueOf(endValue));
+                    endTotalTextView.setText(String.valueOf(endValue));
                 }
 
+                // Cumulative
                 Long cumStartValue = 0L;
                 Long cumEndValue = 0L;
                 for (int j = i; j >= 1; j--) {
-                    startValue = startValueMap.get(months[j - 1]);
-                    if (startValue != null) {
-                        cumStartValue += startValue;
+                    Long currentStartValue = startValueMap.get(months[j - 1]);
+                    if (currentStartValue != null) {
+                        cumStartValue += currentStartValue;
                     }
 
                     if (isComparison) {
-                        Long endValue = endValueMap.get(months[j - 1]);
-                        if (endValue != null) {
-                            cumEndValue += endValue;
+                        Long currentEndValue = endValueMap.get(months[j - 1]);
+                        if (currentEndValue != null) {
+                            cumEndValue += currentEndValue;
                         }
 
                     }
                 }
-                startCumValue.setText(String.valueOf(cumStartValue));
+                startCumTextView.setText(String.valueOf(cumStartValue));
 
                 if (isComparison) {
-                    endCumValue.setText(String.valueOf(cumEndValue));
+                    endCumTextView.setText(String.valueOf(cumEndValue));
+
+                    Long dropoutValue = startValue - endValue;
+                    Long cumDropoutValue = cumStartValue - cumEndValue;
+
+                    dropoutTextView.setText(String.valueOf(dropoutValue));
+                    cumDropoutTextView.setText(String.valueOf(cumDropoutValue));
+
+                    int dropoutPercentage = 0;
+                    if (dropoutValue > 0 && startValue > 0) {
+                        dropoutPercentage = (int) (dropoutValue * 100.0 / startValue + 0.5);
+                    }
+
+                    dropoutPercentageTextView.setText(String.format(getString(R.string.coverage_percentage), dropoutPercentage));
+
+                    int cumDropoutPercentage = 0;
+                    if (cumDropoutValue > 0 && cumStartValue > 0) {
+                        cumDropoutPercentage = (int) (cumDropoutValue * 100.0 / cumStartValue + 0.5);
+                    }
+
+                    cumDropoutPercentageTextView.setText(String.format(getString(R.string.coverage_percentage), cumDropoutPercentage));
                 }
             }
-
         }
     }
 

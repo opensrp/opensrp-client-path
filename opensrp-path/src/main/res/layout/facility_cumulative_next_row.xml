@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include
+        layout="@layout/facility_cumulative_report_label_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginLeft="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+    <include
+        layout="@layout/facility_cumulative_report_value_item"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="0.5dp"
+        android:layout_marginRight="0.5dp" />
+
+
+</TableRow>

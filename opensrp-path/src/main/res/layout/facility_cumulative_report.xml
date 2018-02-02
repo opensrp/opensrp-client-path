@@ -94,411 +94,52 @@
             android:id="@+id/table_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="20dp"
+            android:layout_margin="20dp"
             android:background="@color/client_list_grey"
-            android:stretchColumns="*">
+            android:stretchColumns="1,2,3,4,5,6,7,8,9,10,11,12">
 
-            <TableRow android:id="@+id/total_1">
+            <include
+                android:id="@+id/title_1"
+                layout="@layout/facility_cumulative_first_row" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_label_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="0.5dp" />
+            <include
+                android:id="@+id/total_1"
+                layout="@layout/facility_cumulative_next_row" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp"
-                    android:layout_marginTop="0.5dp" />
-
-            </TableRow>
-
-            <TableRow
+            <include
                 android:id="@+id/total_2"
-                android:visibility="gone">
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_label_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginLeft="0.5dp"
-                    android:layout_marginRight="0.5dp" />
+            <include
+                android:id="@+id/cum_1"
+                layout="@layout/facility_cumulative_next_row" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-            </TableRow>
-
-            <TableRow android:id="@+id/cum_1">
-
-                <include
-                    layout="@layout/facility_cumulative_report_label_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginLeft="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-
-            </TableRow>
-
-            <TableRow
+            <include
                 android:id="@+id/cum_2"
-                android:visibility="gone">
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_label_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginLeft="0.5dp"
-                    android:layout_marginRight="0.5dp" />
+            <include
+                android:id="@+id/dropout_1"
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
+            <include
+                android:id="@+id/drop_percent_1"
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
+            <include
+                android:id="@+id/cum_dropout_1"
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
+            <include
+                android:id="@+id/cum_drop_percent_1"
+                layout="@layout/facility_cumulative_next_row"
+                android:visibility="gone" />
 
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-                <include
-                    layout="@layout/facility_cumulative_report_value_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="0.5dp"
-                    android:layout_marginRight="0.5dp" />
-
-            </TableRow>
         </TableLayout>
 
 
