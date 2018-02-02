@@ -163,6 +163,14 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                             isDownloading = false;
                             showInfoToast(message);
                         }
+                    } else if (serviceAction == MapboxOfflineDownloaderService.SERVICE_ACTION.STOP_CURRENT_DOWNLOAD) {
+                        isDownloading = false;
+
+                        String message = (intent.hasExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE)) ?
+                                intent.getStringExtra(MapboxOfflineDownloaderService.KEY_RESULT_MESSAGE) :
+                                "";
+
+                        Log.i(TAG, "Offline Map Download: STATUS - " + resultStatus + ((message.isEmpty()) ? "" : " with message - "  + message));
                     }
                 } else {
                     Log.e(TAG, "Unknown OfflineMapDownloadService Message : \n" + intent.getExtras().toString());
