@@ -163,7 +163,7 @@ dependencies {
     compile 'junit:junit:4.12'
 
     // Kujaku dependencies
-    compile('io.ona.kujaku:library:0.2.4-56-2') {
+    compile('io.ona.kujaku:library:0.2.4-89-3') {
         transitive = true
         exclude group: 'com.mapbox.mapboxsdk', module: 'mapbox-android-sdk'
         exclude group: 'com.android.support'
