@@ -11,14 +11,14 @@ import io.ona.kujaku.services.MapboxOfflineDownloaderService;
  * Created by Ephraim Kigamba - ekigamba@ona.io on 02/02/2018.
  */
 
-public class OfflineMapDownloadUpdatesReceiver extends BroadcastReceiver {
+public class OfflineMapUpdatesReceiver extends BroadcastReceiver {
 
-    public static final String TAG = OfflineMapDownloadUpdatesReceiver.class.getName();
+    public static final String TAG = OfflineMapUpdatesReceiver.class.getName();
     private boolean isDownloading = false;
     private boolean isWaitingForDownloadToStart = false;
     private DisplayToastInterface displayToastInterface;
 
-    public OfflineMapDownloadUpdatesReceiver(DisplayToastInterface displayToastInterface) {
+    public OfflineMapUpdatesReceiver(DisplayToastInterface displayToastInterface) {
         this.displayToastInterface = displayToastInterface;
     }
 

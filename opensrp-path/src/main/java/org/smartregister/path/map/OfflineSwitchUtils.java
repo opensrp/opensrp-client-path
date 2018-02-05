@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -26,7 +27,6 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +39,18 @@ import utils.Constants;
 import utils.helpers.converters.GeoJSONFeature;
 
 /**
+ * Provides utilities for:
+ * <ul>
+ *     <li>Adding listeners to the Switch layout</li>
+ *     <li>Persisting the offline status</li>
+ *     <li>Showing dialog box to confirm deletion of already downloaded maps</li>
+ *     <li>Making an intent request for an Offline Map download</li>
+ *     <li>Making an intent request for an Offline Map deletion</li>
+ *     <li>Registering and unregistering the BroadcastReceiver for Offline Map updates(download progress & deletion activities)</li>
+ *     <li>Retrieving children details from the database</li>
+ *     <li>Converting children records to GeoJSON features</li>
+ * </ul>
+ *
  * Created by Ephraim Kigamba - ekigamba@ona.io on 02/02/2018.
  */
 
@@ -47,27 +59,26 @@ public class OfflineSwitchUtils {
     public static final String TAG = OfflineSwitchUtils.class.getName();
     private Context context;
     private AlertDialog deleteMapsDialog;
-    private OfflineMapDownloadUpdatesReceiver offlineMapDownloadUpdatesReceiver;
+    private OfflineMapUpdatesReceiver offlineMapUpdatesReceiver;
     private ArrayList<LatLng> childPoints = new ArrayList<>();
     private String mapName;
 
-    public OfflineSwitchUtils(@NonNull Context context, @NonNull OfflineMapDownloadUpdatesReceiver offlineMapDownloadUpdatesReceiver, String mapName) {
+    public OfflineSwitchUtils(@NonNull Context context, @NonNull OfflineMapUpdatesReceiver offlineMapUpdatesReceiver, @NonNull String mapName) {
         this.context = context;
-        this.offlineMapDownloadUpdatesReceiver = offlineMapDownloadUpdatesReceiver;
+        this.offlineMapUpdatesReceiver = offlineMapUpdatesReceiver;
         this.mapName = mapName;
     }
 
-
-    public void offlineSwitchClicked(Switch offlineSwitch) {
+    private void offlineSwitchClicked(@NonNull Switch offlineSwitch) {
         updateOfflineModeStatus(offlineSwitch.isChecked());
 
         if (isOfflineModeSwitchedOn()) {
-            registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            registerOfflineMapDownloadUpdatesReceiver(offlineMapUpdatesReceiver);
             requestForOfflineMapDownload(getChildrenLocations());
         } else {
             // Request for a delete of the offline map or something
-            if (offlineMapDownloadUpdatesReceiver.isDownloading()) {
-                callStopDownloadIntent(offlineMapDownloadUpdatesReceiver.isDownloading());
+            if (offlineMapUpdatesReceiver.isDownloading()) {
+                callStopDownloadIntent(offlineMapUpdatesReceiver.isDownloading());
             } else {
                 // Ask whether to delete the already downloaded offline maps
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -91,26 +102,42 @@ public class OfflineSwitchUtils {
                 deleteMapsDialog.show();
             }
         }
-
-        //drawer.closeDrawer(GravityCompat.START);
     }
 
     private void updateOfflineModeStatus(boolean offlineModeStatus) {
         Utils.writePreference(context, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(offlineModeStatus));
     }
 
+    /**
+     * Checks if offline mode is activated from Preferences
+     *
+     * @return {@code true} or {@code false}
+     */
     public boolean isOfflineModeSwitchedOn() {
         boolean defaultOfflineModeStatus = false;
 
         return Boolean.valueOf(Utils.getPreference(context, PathConstants.PREFERENCE_OFFLINE_MODE, String.valueOf(defaultOfflineModeStatus)));
     }
 
-    public void registerOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+    /**
+     * Registers a {@link BroadcastReceiver} with the {@link LocalBroadcastManager} that receives updates
+     * from the Offline Map service. The updates are download progress updates, deletion action responses
+     * & errors that occur during either downloads or deletion of Offline Maps
+     *
+     * @param broadcastReceiver
+     */
+    public void registerOfflineMapDownloadUpdatesReceiver(@NonNull BroadcastReceiver broadcastReceiver) {
         LocalBroadcastManager.getInstance(context)
                 .registerReceiver(broadcastReceiver, new IntentFilter(Constants.INTENT_ACTION_MAP_DOWNLOAD_SERVICE_STATUS_UPDATES));
     }
 
-    public void unregisterOfflineMapDownloadUpdatesReceiver(BroadcastReceiver broadcastReceiver) {
+    /**
+     * Unregisters the {@link BroadcastReceiver} that receives updates from the Offline Map service
+     * registered using {@link OfflineSwitchUtils#registerOfflineMapDownloadUpdatesReceiver(BroadcastReceiver)}
+     *
+     * @param broadcastReceiver
+     */
+    public void unregisterOfflineMapDownloadUpdatesReceiver(@NonNull BroadcastReceiver broadcastReceiver) {
         LocalBroadcastManager.getInstance(context)
                 .unregisterReceiver(broadcastReceiver);
     }
@@ -119,7 +146,7 @@ public class OfflineSwitchUtils {
         MapHelper mapHelper = new MapHelper();
         LatLng[] bounds = mapHelper.getBounds(mapPoints);
 
-        offlineMapDownloadUpdatesReceiver.setWaitingForDownloadToStart(true);
+        offlineMapUpdatesReceiver.setWaitingForDownloadToStart(true);
         mapHelper.requestOfflineMap(context, mapName, "mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", BuildConfig.MAPBOX_SDK_ACCESS_TOKEN, bounds[0], bounds[1], 11.1, 20.0);
 
         // Cache the style
@@ -127,12 +154,12 @@ public class OfflineSwitchUtils {
                 .retrieveStyleJSON("mapbox://styles/ona/cja9rm6rg1syx2smiivtzsmr9", new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-
+                        Log.i(TAG, "Successfully downloaded Mapbox style for caching");
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Log.e(TAG, "Error trying to cache Mapbox style : " + error.getMessage());
                     }
                 });
     }
@@ -146,10 +173,6 @@ public class OfflineSwitchUtils {
     private LatLng[] getChildrenLocations() {
         ArrayList<LatLng> childrenLocations = new ArrayList<>();
 
-        ArrayList<String> childrenGeoJSON = new ArrayList<>();
-        LinkedHashMap<String, ArrayList<GeoJSONFeature>> geoJSONFeatureCollection = new LinkedHashMap<>();
-
-        boolean added = false;
         Cursor cursor = null;
         try {
             // Get all children
@@ -193,6 +216,13 @@ public class OfflineSwitchUtils {
         context.startService(stopDownloadIntent);
     }
 
+    /**
+     * Converts clients details to GeoJSON features by using the geopoint as the location and the
+     * rest of the details as GeoJSON feature properties
+     *
+     * @param clientDetails
+     * @return
+     */
     public GeoJSONFeature constructGeoJsonFeature(Map<String, String> clientDetails) {
         String latLng = Utils.getValue(clientDetails, "geopoint", false);
         if (!TextUtils.isEmpty(latLng)) {
@@ -216,7 +246,12 @@ public class OfflineSwitchUtils {
         return null;
     }
 
-    public void initializeOfflineSwitchLayout(DrawerLayout drawerLayout) {
+    /**
+     * Adds listeners to the {@link Switch} and the encompassing {@link LinearLayout}
+     *
+     * @param drawerLayout
+     */
+    public void initializeOfflineSwitchLayout(@NonNull DrawerLayout drawerLayout) {
         final LinearLayout offlineModeSwitchLayout = (LinearLayout) drawerLayout.findViewById(R.id.nav_offline_download);
         final Switch offlineSwitch = (Switch) drawerLayout.findViewById(R.id.nav_offlineModeSwitch);
         offlineSwitch.setChecked(isOfflineModeSwitchedOn());
