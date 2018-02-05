@@ -53,7 +53,7 @@ import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.map.MapHelper;
-import org.smartregister.path.map.OfflineMapDownloadUpdatesReceiver;
+import org.smartregister.path.map.OfflineMapUpdatesReceiver;
 import org.smartregister.path.map.OfflineSwitchUtils;
 import org.smartregister.path.map.DisplayToastInterface;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -110,7 +110,7 @@ public abstract class BaseActivity extends AppCompatActivity
     private static final String OFFLINE_MAP_NAME = "ZEIR Services Coverage";
     private boolean isOfflineMapUpdatesReceiverRegistered = false;
 
-    private OfflineMapDownloadUpdatesReceiver offlineMapDownloadUpdatesReceiver;
+    private OfflineMapUpdatesReceiver offlineMapUpdatesReceiver;
 
     private ArrayList<LatLng> childPoints = new ArrayList<>();
 
@@ -134,8 +134,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
         initializeProgressDialog();
 
-        offlineMapDownloadUpdatesReceiver = new OfflineMapDownloadUpdatesReceiver(this);
-        offlineSwitchUtils = new OfflineSwitchUtils(this, offlineMapDownloadUpdatesReceiver, OFFLINE_MAP_NAME);
+        offlineMapUpdatesReceiver = new OfflineMapUpdatesReceiver(this);
+        offlineSwitchUtils = new OfflineSwitchUtils(this, offlineMapUpdatesReceiver, OFFLINE_MAP_NAME);
 
         if (offlineSwitchUtils.isOfflineModeSwitchedOn()) {
             isOfflineMapUpdatesReceiverRegistered = true;
@@ -358,7 +358,7 @@ public abstract class BaseActivity extends AppCompatActivity
         super.onResume();
         registerSyncStatusBroadcastReceiver();
         if (isOfflineMapUpdatesReceiverRegistered) {
-            offlineSwitchUtils.registerOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            offlineSwitchUtils.registerOfflineMapDownloadUpdatesReceiver(offlineMapUpdatesReceiver);
         }
 
         initViews();
@@ -368,7 +368,7 @@ public abstract class BaseActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         if (isOfflineMapUpdatesReceiverRegistered) {
-            offlineSwitchUtils.unregisterOfflineMapDownloadUpdatesReceiver(offlineMapDownloadUpdatesReceiver);
+            offlineSwitchUtils.unregisterOfflineMapDownloadUpdatesReceiver(offlineMapUpdatesReceiver);
         }
         unregisterSyncStatusBroadcastReceiver();
     }
