@@ -1552,6 +1552,12 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static Event createMoveToCatchmentEvent(Context context, org.smartregister.domain.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
+
+            //Same location/provider, no need to move
+            if (toLocationId.equals(fromLocationId) || referenceEvent.getProviderId().equals(toProviderId)) {
+                return null;
+            }
+
             final String FORM_SUBMISSION_FIELD = "formsubmissionField";
             final String DATA_TYPE = "text";
 

@@ -3,6 +3,7 @@ package util;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -15,7 +16,6 @@ import org.smartregister.domain.db.Event;
 import org.smartregister.domain.db.Obs;
 import org.smartregister.event.Listener;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Cumulative;
 import org.smartregister.path.domain.CumulativePatient;
 import org.smartregister.path.repository.CumulativePatientRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
@@ -114,6 +114,7 @@ public class MoveToMyCatchmentUtils {
             String toLocationId = allSharedPreferences
                     .fetchDefaultLocalityId(toProviderId);
 
+            List<Pair<Event, JSONObject>> eventList = new ArrayList<>();
             for (int i = 0; i < events.length(); i++) {
                 JSONObject jsonEvent = events.getJSONObject(i);
                 Event event = ecUpdater.convert(jsonEvent, Event.class);
@@ -121,8 +122,27 @@ public class MoveToMyCatchmentUtils {
                     continue;
                 }
 
+                // Skip previous move to catchment events
+                if (MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
+                    continue;
+                }
+
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(0, Pair.create(event, jsonEvent));
+                } else if (!eventList.isEmpty() && PathConstants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(1, Pair.create(event, jsonEvent));
+                } else {
+                    eventList.add(Pair.create(event, jsonEvent));
+                }
+
+            }
+
+            for (Pair<Event, JSONObject> pair : eventList) {
+                Event event = pair.first;
+                JSONObject jsonEvent = pair.second;
+
                 String fromLocationId = null;
-                if (event.getEventType().equals(PathConstants.EventType.BITRH_REGISTRATION)) {
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
                     // Update home facility
                     for (Obs obs : event.getObs()) {
                         if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
@@ -132,9 +152,11 @@ public class MoveToMyCatchmentUtils {
                             obs.setValues(values);
                         }
                     }
+
                 }
 
-                if (event.getEventType().equals(PathConstants.EventType.VACCINATION)) {
+
+                if (PathConstants.EventType.VACCINATION.equals(event.getEventType())) {
                     for (Obs obs : event.getObs()) {
                         if (obs.getFieldCode().equals(PathConstants.CONCEPT.VACCINE_DATE)) {
                             String vaccineName = obs.getFormSubmissionField();
@@ -143,12 +165,15 @@ public class MoveToMyCatchmentUtils {
                     }
                 }
 
-                if (event.getEventType().equals(PathConstants.EventType.BITRH_REGISTRATION) || event.getEventType().equals(PathConstants.EventType.NEW_WOMAN_REGISTRATION)) {
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || PathConstants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+
                     //Create move to catchment event;
                     org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
-                    JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
                     if (moveToCatchmentEvent != null) {
-                        ecUpdater.addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                        JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
+                        if (moveToCatchmentJsonEvent != null) {
+                            ecUpdater.addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                        }
                     }
                 }
 
@@ -160,7 +185,6 @@ public class MoveToMyCatchmentUtils {
 
                 ecUpdater.addEvent(event.getBaseEntityId(), jsonEvent);
             }
-
 
             long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
@@ -190,10 +214,10 @@ public class MoveToMyCatchmentUtils {
             }
 
             List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
-            inValidVaccines.add(vaccineName);
-
-            cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
-
+            if (!inValidVaccines.contains(vaccineName)) {
+                inValidVaccines.add(vaccineName);
+                cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
+            }
         } catch (Exception e) {
             Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
         }

@@ -27,7 +27,7 @@ public class CumulativePatientRepository extends BaseRepository {
     private static final String COLUMN_CREATED_AT = "created_at";
     private static final String COLUMN_UPDATED_AT = "updated_at";
     private static final String[] TABLE_COLUMNS = {
-            COLUMN_ID, COLUMN_BASE_ENTITY_ID, COLUMN_VALID_VACCINES, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
+            COLUMN_ID, COLUMN_BASE_ENTITY_ID, COLUMN_VALID_VACCINES, COLUMN_INVALID_VACCINES, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
     };
 
     private static final String CUMULATIVE_CHILD_REPORT_SQL = "CREATE TABLE " + TABLE_NAME +
