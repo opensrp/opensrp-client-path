@@ -82,7 +82,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String MOTHER_DEFAULT_DOB = "01-01-1960";
     private static final String ENCOUNTER = "encounter";
     public static final String RELATIONAL_ID = "relational_id";
-    private static final String ENCOUNTER_TYPE = "encounter_type";
+    public static final String ENCOUNTER_TYPE = "encounter_type";
     public static final String CURRENT_ZEIR_ID = "current_zeir_id";
     public static final String READ_ONLY = "read_only";
     private static final String METADATA = "metadata";
@@ -105,9 +105,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                                 String jsonString, String providerId) {
         try {
             JSONObject form = new JSONObject(jsonString);
-            if (form.getString("encounter_type").equals("Out of Catchment Service")) {
+            if (form.getString(ENCOUNTER_TYPE).equals(PathConstants.EventType.OUT_OF_CATCHMENT_SERVICE)) {
                 saveOutOfAreaService(context, openSrpContext, jsonString);
-            } else if (form.getString("encounter_type").equals("Birth Registration")) {
+            } else if (form.getString(ENCOUNTER_TYPE).equals(PathConstants.EventType.BITRH_REGISTRATION)) {
                 saveBirthRegistration(context, openSrpContext, jsonString, providerId, "Child_Photo", "child", "mother");
             }
         } catch (JSONException e) {

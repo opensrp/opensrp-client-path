@@ -633,11 +633,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString("encounter_type").equals("Death")) {
+                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString("encounter_type").equals("Birth Registration")) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.BITRH_REGISTRATION)) {
                     JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
-                } else if (form.getString("encounter_type").equals("AEFI")) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.AEFI)) {
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }

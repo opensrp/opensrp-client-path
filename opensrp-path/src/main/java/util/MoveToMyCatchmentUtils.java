@@ -15,6 +15,10 @@ import org.smartregister.domain.db.Event;
 import org.smartregister.domain.db.Obs;
 import org.smartregister.event.Listener;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.Cumulative;
+import org.smartregister.path.domain.CumulativePatient;
+import org.smartregister.path.repository.CumulativePatientRepository;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
@@ -103,8 +107,6 @@ public class MoveToMyCatchmentUtils {
 
             ecUpdater.batchSave(events, clients);
 
-            final String BIRTH_REGISTRATION_EVENT = "Birth Registration";
-            final String NEW_WOMAN_REGISTRATION_EVENT = "New Woman Registration";
             final String HOME_FACILITY = "Home_Facility";
 
             String toProviderId = allSharedPreferences.fetchRegisteredANM();
@@ -120,7 +122,7 @@ public class MoveToMyCatchmentUtils {
                 }
 
                 String fromLocationId = null;
-                if (event.getEventType().equals(BIRTH_REGISTRATION_EVENT)) {
+                if (event.getEventType().equals(PathConstants.EventType.BITRH_REGISTRATION)) {
                     // Update home facility
                     for (Obs obs : event.getObs()) {
                         if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
@@ -132,7 +134,16 @@ public class MoveToMyCatchmentUtils {
                     }
                 }
 
-                if (event.getEventType().equals(BIRTH_REGISTRATION_EVENT) || event.getEventType().equals(NEW_WOMAN_REGISTRATION_EVENT)) {
+                if (event.getEventType().equals(PathConstants.EventType.VACCINATION)) {
+                    for (Obs obs : event.getObs()) {
+                        if (obs.getFieldCode().equals(PathConstants.CONCEPT.VACCINE_DATE)) {
+                            String vaccineName = obs.getFormSubmissionField();
+                            setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+                        }
+                    }
+                }
+
+                if (event.getEventType().equals(PathConstants.EventType.BITRH_REGISTRATION) || event.getEventType().equals(PathConstants.EventType.NEW_WOMAN_REGISTRATION)) {
                     //Create move to catchment event;
                     org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
                     JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
@@ -150,6 +161,7 @@ public class MoveToMyCatchmentUtils {
                 ecUpdater.addEvent(event.getBaseEntityId(), jsonEvent);
             }
 
+
             long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
             PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
@@ -161,5 +173,29 @@ public class MoveToMyCatchmentUtils {
         }
 
         return false;
+    }
+
+    private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
+        try {
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            if (cumulativePatientRepository == null) {
+                return;
+            }
+
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                cumulativePatient = new CumulativePatient();
+                cumulativePatient.setBaseEntityId(baseEntityId);
+                cumulativePatientRepository.add(cumulativePatient);
+            }
+
+            List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            inValidVaccines.add(vaccineName);
+
+            cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
+
+        } catch (Exception e) {
+            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+        }
     }
 }

@@ -23,6 +23,7 @@ public class CumulativePatientRepository extends BaseRepository {
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_BASE_ENTITY_ID = "base_entity_id";
     private static final String COLUMN_VALID_VACCINES = "valid_vaccines";
+    private static final String COLUMN_INVALID_VACCINES = "invalid_vaccines";
     private static final String COLUMN_CREATED_AT = "created_at";
     private static final String COLUMN_UPDATED_AT = "updated_at";
     private static final String[] TABLE_COLUMNS = {
@@ -33,6 +34,7 @@ public class CumulativePatientRepository extends BaseRepository {
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_BASE_ENTITY_ID + " VARCHAR NOT NULL UNIQUE ON CONFLICT IGNORE," +
             COLUMN_VALID_VACCINES + " VARCHAR NULL," +
+            COLUMN_INVALID_VACCINES + " VARCHAR NULL," +
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP)";
 
@@ -77,6 +79,24 @@ public class CumulativePatientRepository extends BaseRepository {
 
             ContentValues valuesToBeUpdated = new ContentValues();
             valuesToBeUpdated.put(COLUMN_VALID_VACCINES, validVaccines);
+
+            String idSelection = COLUMN_ID + " = ?";
+            database.update(TABLE_NAME, valuesToBeUpdated, idSelection,
+                    new String[]{id.toString()});
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
+    public void changeInValidVaccines(String inValidVaccines, Long id) {
+        if (id == null || StringUtils.isBlank(inValidVaccines)) {
+            return;
+        }
+        try {
+            SQLiteDatabase database = getWritableDatabase();
+
+            ContentValues valuesToBeUpdated = new ContentValues();
+            valuesToBeUpdated.put(COLUMN_INVALID_VACCINES, inValidVaccines);
 
             String idSelection = COLUMN_ID + " = ?";
             database.update(TABLE_NAME, valuesToBeUpdated, idSelection,
@@ -136,6 +156,7 @@ public class CumulativePatientRepository extends BaseRepository {
                     cumulativePatient.setId(cursor.getLong(cursor.getColumnIndex(COLUMN_ID)));
                     cumulativePatient.setBaseEntityId(cursor.getString(cursor.getColumnIndex(COLUMN_BASE_ENTITY_ID)));
                     cumulativePatient.setValidVaccines(cursor.getString(cursor.getColumnIndex(COLUMN_VALID_VACCINES)));
+                    cumulativePatient.setInvalidVaccines(cursor.getString(cursor.getColumnIndex(COLUMN_INVALID_VACCINES)));
                     cumulativePatient.setCreatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_CREATED_AT))));
                     cumulativePatient.setUpdatedAt(new Date(cursor.getLong(cursor.getColumnIndex(COLUMN_UPDATED_AT))));
                     cumulativePatients.add(cumulativePatient);
@@ -153,6 +174,7 @@ public class CumulativePatientRepository extends BaseRepository {
         values.put(COLUMN_ID, cumulativePatient.getId());
         values.put(COLUMN_BASE_ENTITY_ID, cumulativePatient.getBaseEntityId());
         values.put(COLUMN_VALID_VACCINES, cumulativePatient.getValidVaccines());
+        values.put(COLUMN_INVALID_VACCINES, cumulativePatient.getInvalidVaccines());
         values.put(COLUMN_CREATED_AT, cumulativePatient.getCreatedAt() != null ? cumulativePatient.getCreatedAt().getTime() : null);
         values.put(COLUMN_UPDATED_AT, cumulativePatient.getUpdatedAt() != null ? cumulativePatient.getUpdatedAt().getTime() : null);
         return values;

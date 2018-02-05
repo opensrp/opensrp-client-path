@@ -40,9 +40,13 @@ PathConstants extends AllConstants {
 
     public static final class EventType {
 
-        public static final String DEATH = "Death";
+        public static final String AEFI = "AEFI";
         public static final String BITRH_REGISTRATION = "Birth Registration";
+        public static final String DEATH = "Death";
+        public static final String NEW_WOMAN_REGISTRATION = "New Woman Registration";
+        public static final String OUT_OF_CATCHMENT_SERVICE = "Out of Catchment Service";
         public static final String VACCINATION = "Vaccination";
+
     }
 
     public static final class EntityType {
