@@ -1,6 +1,7 @@
 package org.smartregister.path.activity;
 
 import android.os.AsyncTask;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -8,11 +9,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
@@ -26,6 +30,7 @@ import org.smartregister.path.domain.Cumulative;
 import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.helper.SpinnerHelper;
+import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
@@ -35,7 +40,6 @@ import org.smartregister.util.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -49,7 +53,7 @@ import util.PathConstants;
  * Created by keyman on 1/24/18.
  */
 
-public abstract class BaseReportActivity extends BaseActivity {
+public abstract class BaseReportActivity extends BaseActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
 
     private static final String TAG = BaseReportActivity.class.getCanonicalName();
     public static final String DIALOG_TAG = "report_dialog";
@@ -57,6 +61,28 @@ public abstract class BaseReportActivity extends BaseActivity {
     //Global data variables
     private List<VaccineRepo.Vaccine> vaccineList = new ArrayList<>();
     private CoverageHolder holder;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        LinearLayout hia2 = (LinearLayout) drawer.findViewById(getParentNav());
+        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
+
+        refresh(true);
+
+        if (getActionType() != null) {
+            CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (getActionType() != null) {
+            CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
+        }
+    }
 
     protected void refresh(boolean userAction) {
         if (holder == null || holder.getId() == null) {
@@ -179,6 +205,18 @@ public abstract class BaseReportActivity extends BaseActivity {
 
                 final VaccineRepo.Vaccine vaccine = vaccineList.get(position);
 
+                String display = vaccine.display();
+                if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
+                    display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
+                }
+
+                if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
+                    display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
+                }
+
+                TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
+                vaccineTextView.setText(display);
+
                 return generateView(view, vaccine, indicators);
             }
         };
@@ -241,7 +279,7 @@ public abstract class BaseReportActivity extends BaseActivity {
             List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
 
             String startedVaccineName = generateVaccineName(started);
-            List<CumulativeIndicator> cumulativeIndicators = cumulativeIndicatorRepository.findByVaccineAndCumulativeId(startedVaccineName, cumulative.getId());
+            List<CumulativeIndicator> cumulativeIndicators = cumulativeIndicatorRepository.findByVaccineAndCumulativeId(startedVaccineName, cumulative.getId(), CumulativeIndicatorRepository.COLUMN_MONTH + " DESC ");
             for (CumulativeIndicator startedCumulativeIndicator : cumulativeIndicators) {
 
                 long startCount = 0L;
@@ -372,6 +410,19 @@ public abstract class BaseReportActivity extends BaseActivity {
         // Override to implement this
     }
 
+    @Override
+    public void onServiceFinish(String actionType) {
+        if (getActionType() != null && getActionType().equals(actionType)) {
+            refresh(false);
+        }
+    }
+
+    protected String getActionType() {
+        return null;
+    }
+
+    protected abstract int getParentNav();
+
     public void setHolder(CoverageHolder holder) {
         this.holder = holder;
     }
@@ -425,21 +476,31 @@ public abstract class BaseReportActivity extends BaseActivity {
         boolean finalized = false;
         Date endDate = util.Utils.getCohortEndDate(vaccine, util.Utils.getLastDayOfMonth(date));
         if (endDate != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.DATE, 1);
-            endDate = calendar.getTime();
-
             Date currentDate = new Date();
-            finalized = !(DateUtils.isSameDay(currentDate, endDate) || currentDate.before(endDate));
+            finalized = !(DateUtils.isSameDay(currentDate, endDate) || endDate.after(currentDate));
         }
 
         return finalized;
     }
 
+    @Override
+    public void onSyncStart() {
+        super.onSyncStart();
+    }
+
+    @Override
+    public void onSyncInProgress(FetchStatus fetchStatus) {
+        super.onSyncInProgress(fetchStatus);
+    }
+
+    @Override
+    public void onSyncComplete(FetchStatus fetchStatus) {
+        super.onSyncComplete(fetchStatus);
+    }
+
     ////////////////////////////////////////////////////////////////
-// Inner classes
-////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
     protected class GenerateReportTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private BaseActivity baseActivity;

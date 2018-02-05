@@ -255,6 +255,11 @@
 
     <string name="total_vaccine">Total\n%1$s</string>
     <string name="total_cum">Cum.\n%1$s</string>
+    <string name="total_dropout">Drop\nOut</string>
+    <string name="total_dropout_percentage">Drop\nOut %</string>
+    <string name="total_dropout_penta">Drop\nOut(1–3)</string>
+    <string name="total_cum_dropout">Cum\nDrop\nOut</string>
+    <string name="total_cum_dropout_percentage">Cum\nDrop\nOut %</string>
 
     <string name="bcg_measles_cumulative">BCG &#8211; Measles Cumulative</string>
     <string name="bcg_measles_cumulative_dropout_report">BCG &#8211; Measles Cumulative Dropout Report</string>
@@ -267,6 +272,7 @@
     <string name="measles_cumulative">Measles Cumulative</string>
     <string name="measles_cumulative_dropout_report">Measles Cumulative Dropout Report</string>
     <string name="cumulative_dropout">Cumulative Dropout (YTD): </string>
+    <string name="pls_set_cso_target">Please set the CSO Target first.</string>
 
     <string name="dropout_month_header">Month</string>
     <string name="dropout_started_completed_header">(Started - Completed) / Started </string>

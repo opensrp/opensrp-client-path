@@ -1,15 +1,13 @@
 package org.smartregister.path.activity;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.time.DateUtils;
-import org.smartregister.domain.FetchStatus;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -22,23 +20,18 @@ import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
+import org.smartregister.path.view.CustomHeightSpinner;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import util.PathConstants;
-
 /**
  * Created by keyman on 21/12/17.
  */
-public class CohortCoverageReportActivity extends BaseReportActivity implements CoverageDropoutBroadcastReceiver.CoverageDropoutServiceListener {
+public class CohortCoverageReportActivity extends BaseReportActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,34 +57,6 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         ((TextView) toolbar.findViewById(R.id.title)).setText(getString(R.string.cohort_coverage_report));
 
         updateListViewHeader(R.layout.coverage_report_header);
-    }
-
-    @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-        refresh(true);
-
-        CoverageDropoutBroadcastReceiver.getInstance().addCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        CoverageDropoutBroadcastReceiver.getInstance().removeCoverageDropoutServiceListener(this);
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
     }
 
     @Override
@@ -124,11 +89,29 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         textView.setText(String.format(getString(R.string.cso_population_value), size));
     }
 
-    @Override
-    public void onServiceFinish(String actionType) {
-        if (CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS.equals(actionType)) {
-            refresh(false);
+    private void updateSpinnerSize(List list) {
+        if (list != null && list.size() > 12) {
+            TypedValue typedValue = new TypedValue();
+            CohortCoverageReportActivity.this.getTheme().resolveAttribute(android.R.attr.textAppearanceLarge, typedValue, true);
+
+            int[] attribute = new int[]{R.attr.dropdownListPreferredItemHeight};
+            TypedArray array = CohortCoverageReportActivity.this.obtainStyledAttributes(typedValue.resourceId, attribute);
+            int heightOfDropoutItem = array.getDimensionPixelSize(0, -1);
+            array.recycle();
+
+            CustomHeightSpinner customHeightSpinner = (CustomHeightSpinner) findViewById(R.id.report_spinner);
+            customHeightSpinner.updateHeight(heightOfDropoutItem, 12);
         }
+    }
+
+    @Override
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.coverage_reports;
     }
 
     ////////////////////////////////////////////////////////////////
@@ -140,22 +123,9 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         long value = 0;
 
         CohortIndicator cohortIndicator = retrieveCohortIndicator(indicators, vaccine);
-
         if (cohortIndicator != null) {
             value = cohortIndicator.getValue();
         }
-
-        String display = vaccine.display();
-        if (vaccine.equals(VaccineRepo.Vaccine.measles1)) {
-            display = VaccineRepo.Vaccine.measles1.display() + " / " + VaccineRepo.Vaccine.mr1.display();
-        }
-
-        if (vaccine.equals(VaccineRepo.Vaccine.measles2)) {
-            display = VaccineRepo.Vaccine.measles2.display() + " / " + VaccineRepo.Vaccine.mr2.display();
-        }
-
-        TextView vaccineTextView = (TextView) view.findViewById(R.id.vaccine);
-        vaccineTextView.setText(display);
 
         boolean finalized = isFinalized(vaccine, getHolder().getDate());
 
@@ -245,6 +215,7 @@ public class CohortCoverageReportActivity extends BaseReportActivity implements 
         }
 
         updateReportDates(cohorts, new SimpleDateFormat("MMM yyyy"), null, true);
+        updateSpinnerSize(cohorts);
         updateCohortSize();
         updateReportList(indicatorList);
     }
