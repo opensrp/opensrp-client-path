@@ -14,7 +14,9 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
@@ -57,6 +59,7 @@ public class SyncService extends Service {
     private ServiceHandler mServiceHandler;
     private List<Observable<?>> observables;
     private boolean fetchFinished;
+    private List<String> nullClientIds;
 
     @Override
     public void onCreate() {
@@ -140,6 +143,7 @@ public class SyncService extends Service {
                         } else {
                             final String NO_OF_EVENTS = "no_of_events";
                             int eCount = jsonObject.has(NO_OF_EVENTS) ? jsonObject.getInt(NO_OF_EVENTS) : 0;
+                            Log.i(getClass().getName(), "event count: " + eCount);
                             if (eCount < 0) {
                                 return Observable.just(FetchStatus.fetchedFailed);
                             } else if (eCount == 0) {
@@ -149,6 +153,34 @@ public class SyncService extends Service {
                                 long lastServerVersion = serverVersionPair.second - 1;
                                 if (eCount < EVENT_PULL_LIMIT) {
                                     lastServerVersion = serverVersionPair.second;
+                                }
+
+                                JSONArray events = jsonObject.has("events") ? jsonObject.getJSONArray("events") : new JSONArray();
+                                JSONArray clients = jsonObject.has("clients") ? jsonObject.getJSONArray("clients") : new JSONArray();
+
+                                final String BASE_ENTITY_ID = "baseEntityId";
+                                for (int i = 0; i < events.length(); i++) {
+                                    JSONObject event = events.getJSONObject(i);
+                                    if (event.has(BASE_ENTITY_ID)) {
+                                        String baseEntityId = event.getString(BASE_ENTITY_ID);
+                                        boolean found = false;
+                                        for (int j = 0; j < clients.length(); j++) {
+                                            JSONObject client = clients.getJSONObject(j);
+                                            if (client.has(BASE_ENTITY_ID)) {
+                                                if (baseEntityId.equals(client.getString(BASE_ENTITY_ID))) {
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (!found && !nullClientIds.contains(baseEntityId)) {
+                                            JSONObject client = fetchClientRetry(baseEntityId, 0);
+                                            if (client == null) {
+                                                nullClientIds.add(baseEntityId);
+                                            }
+                                        }
+                                    }
+
                                 }
 
                                 ecUpdater.updateLastSyncTimeStamp(lastServerVersion);
@@ -179,6 +211,7 @@ public class SyncService extends Service {
     }
 
     private void saveResponseParcel(final ResponseParcel responseParcel) {
+        pullECFromServer();
         final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
         final Observable<FetchStatus> observable = Observable.just(responseParcel)
                 .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
@@ -203,7 +236,9 @@ public class SyncService extends Service {
                             }
                         });
 
-        observable.subscribe(new Consumer<FetchStatus>() {
+        observable.subscribe(new Consumer<FetchStatus>()
+
+        {
             @Override
             public void accept(FetchStatus fetchStatus) throws Exception {
                 // Remove observable from list
@@ -225,15 +260,13 @@ public class SyncService extends Service {
         Long observableSize = observables == null ? 0L : observables.size();
         Log.i(getClass().getName(), "Added: one observable, new count: " + observableSize);
 
-        pullECFromServer();
-
     }
 
     private JSONObject fetchRetry(String locations, int count) throws Exception {
         // Request spacing
         try {
-            final int ONE_SECOND = 1000;
-            Thread.sleep(ONE_SECOND);
+            final int MILLISECONDS = 100;
+            Thread.sleep(MILLISECONDS);
         } catch (InterruptedException ie) {
             Log.e(getClass().getName(), ie.getMessage());
         }
@@ -252,6 +285,63 @@ public class SyncService extends Service {
                 return fetchRetry(locations, newCount);
             }
 
+        }
+    }
+
+    private JSONObject fetchClientRetry(String baseEntityId, int count) throws Exception {
+        // Request spacing
+        try {
+            final int MILLISECONDS = 1;
+            Thread.sleep(MILLISECONDS);
+        } catch (InterruptedException ie) {
+            Log.e(getClass().getName(), ie.getMessage());
+        }
+
+        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+        try {
+            if (StringUtils.isBlank(baseEntityId)) {
+                return null;
+            }
+
+            JSONObject client = ecUpdater.getClient(baseEntityId);
+            if (client != null) {
+                return client;
+            }
+
+            client = ecUpdater.fetchClientAsJsonObject(baseEntityId);
+            if (client == null) {
+                return null;
+            }
+
+            updateClientDateTime(client, "birthdate");
+            updateClientDateTime(client, "deathdate");
+            updateClientDateTime(client, "dateCreated");
+            updateClientDateTime(client, "dateEdited");
+            updateClientDateTime(client, "dateVoided");
+
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.put(client);
+            ecUpdater.batchInsertClients(jsonArray);
+            return client;
+        } catch (Exception e) {
+            if (count >= 2) {
+                return null;
+            } else {
+                int newCount = count + 1;
+                return fetchClientRetry(baseEntityId, newCount);
+            }
+        }
+    }
+
+    private void updateClientDateTime(JSONObject client, String field) {
+        try {
+            if (client.has(field) && client.get(field) != null) {
+                Long timestamp = client.getLong(field);
+                DateTime dateTime = new DateTime(timestamp);
+                client.put(field, dateTime.toString());
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), e.getMessage());
         }
     }
 
@@ -381,6 +471,7 @@ public class SyncService extends Service {
         public void handleMessage(Message message) {
             observables = new ArrayList<>();
             fetchFinished = false;
+            nullClientIds = new ArrayList<>();
             handleSync();
         }
     }

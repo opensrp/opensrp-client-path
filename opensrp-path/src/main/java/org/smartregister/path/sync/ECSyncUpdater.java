@@ -3,6 +3,7 @@ package org.smartregister.path.sync;
 import android.content.Context;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import util.MoveToMyCatchmentUtils;
 
 public class ECSyncUpdater {
     public static final String SEARCH_URL = "/rest/event/sync";
+    public static final String CLIENT_URL = "/rest/client";
 
     private static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
     private static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
@@ -41,7 +43,7 @@ public class ECSyncUpdater {
         this.context = context;
         db = VaccinatorApplication.getInstance().eventClientRepository();
     }
-    
+
     public JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
         try {
             HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
@@ -70,6 +72,38 @@ public class ECSyncUpdater {
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
             throw new Exception(SEARCH_URL + " threw exception", e);
+        }
+    }
+
+    public JSONObject fetchClientAsJsonObject(String baseEntityId) throws Exception {
+        try {
+            HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+            String baseUrl = VaccinatorApplication.getInstance().context().
+                    configuration().dristhiBaseURL();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+            }
+
+            String url = baseUrl + CLIENT_URL + "/" + baseEntityId;
+            Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
+
+            if (httpAgent == null) {
+                throw new Exception(CLIENT_URL + " http agent is null");
+            }
+
+            Response<String> resp = httpAgent.fetch(url);
+            if (resp.isFailure()) {
+                throw new Exception(CLIENT_URL + " not returned data");
+            }
+
+            if (StringUtils.isNotBlank(resp.payload())) {
+                return new JSONObject(resp.payload());
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+            throw new Exception(CLIENT_URL + " threw exception", e);
         }
     }
 
@@ -161,7 +195,7 @@ public class ECSyncUpdater {
         }
     }
 
-    public long getLastSyncTimeStamp() {
+    private long getLastSyncTimeStamp() {
         return Long.parseLong(Utils.getPreference(context, LAST_SYNC_TIMESTAMP, "0"));
     }
 
@@ -178,7 +212,15 @@ public class ECSyncUpdater {
     }
 
     public void batchSave(JSONArray events, JSONArray clients) throws Exception {
+        batchInsertClients(clients);
+        batchInsertEvents(events);
+    }
+
+    public void batchInsertClients(JSONArray clients) {
         db.batchInsertClients(clients);
+    }
+
+    private void batchInsertEvents(JSONArray events) {
         db.batchInsertEvents(events, getLastSyncTimeStamp());
     }
 
