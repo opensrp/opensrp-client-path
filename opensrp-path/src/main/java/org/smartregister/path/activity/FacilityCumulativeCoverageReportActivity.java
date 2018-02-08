@@ -66,7 +66,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FacilityCumulativeCoverageReportActivity.this, CoverageReportsActivity.class);
+                Intent intent = new Intent(FacilityCumulativeCoverageReportActivity.this, AnnualCoverageReportCsoActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -202,9 +202,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         List<PointValue> startValues = new ArrayList<>();
         List<PointValue> endValues = new ArrayList<>();
 
-        startValues.add(new PointValue(0f, 0f));
-        endValues.add(new PointValue(0f, 0f));
-
         boolean checkCurrentTime = false;
         Calendar calendar = null;
         Date currentDate = null;
@@ -270,6 +267,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         LineChartData data = new LineChartData();
         data.setLines(lines);
+        data.setBaseValue(0f);
 
         data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setFormatter(new MonthValueFormatter()));
         data.setAxisYLeft(new Axis(leftAxisValues).setHasLines(true).setHasTiltedLabels(false));
@@ -280,6 +278,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartView monitoringChart = (LineChartView) findViewById(R.id.monitoring_chart);
         monitoringChart.setLineChartData(data);
         monitoringChart.setViewportCalculationEnabled(false);
+
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
 
         updateTableLayout(startValueMap, endValueMap, months, isComparison, checkCurrentTime);
@@ -558,7 +557,15 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         @Override
         public int formatValueForManualAxis(char[] formattedValue, AxisValue axisValue) {
-            axisValue.setValue(axisValue.getValue() + 0.5f);
+            String label = String.valueOf(axisValue.getLabelAsChars());
+            String[] months = new DateFormatSymbols().getShortMonths();
+            for (int i = 0; i < months.length; i++) {
+                if (label.equals(months[i].toUpperCase())) {
+                    float value = i + 0.5f;
+                    axisValue.setValue(value);
+                    break;
+                }
+            }
             return super.formatValueForManualAxis(formattedValue, axisValue);
         }
 
