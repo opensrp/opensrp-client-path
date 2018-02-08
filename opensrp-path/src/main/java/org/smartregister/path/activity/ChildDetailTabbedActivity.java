@@ -1431,6 +1431,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
+    @Override
+    protected void startJsonForm(String formName, String entityId) {
+        try {
+            startJsonForm(formName, entityId, location_name);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes
