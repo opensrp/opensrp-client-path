@@ -85,7 +85,7 @@
             android:value="3f94f9c3caeff331b3a2bd8c2182b663ad6a955a" />
 
         <service android:name=".service.intent.SyncService" />
-
+        <service android:name=".service.intent.ClientProcessorIntentService" />
         <service android:name=".service.intent.ExtendedSyncIntentService" />
         <service android:name=".service.intent.ValidateIntentService" />
         <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />

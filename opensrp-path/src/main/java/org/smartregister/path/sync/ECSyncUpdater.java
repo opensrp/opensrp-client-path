@@ -3,6 +3,7 @@ package org.smartregister.path.sync;
 import android.content.Context;
 import android.util.Log;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -71,6 +72,38 @@ public class ECSyncUpdater {
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
             throw new Exception(SEARCH_URL + " threw exception", e);
+        }
+    }
+
+    public JSONObject fetchClientAsJsonObject(String baseEntityId) throws Exception {
+        try {
+            HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+            String baseUrl = VaccinatorApplication.getInstance().context().
+                    configuration().dristhiBaseURL();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+            }
+
+            String url = baseUrl + CLIENT_URL + "/" + baseEntityId;
+            Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
+
+            if (httpAgent == null) {
+                throw new Exception(CLIENT_URL + " http agent is null");
+            }
+
+            Response<String> resp = httpAgent.fetch(url);
+            if (resp.isFailure()) {
+                throw new Exception(CLIENT_URL + " not returned data");
+            }
+
+            if (StringUtils.isNotBlank(resp.payload())) {
+                return new JSONObject(resp.payload());
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+            throw new Exception(CLIENT_URL + " threw exception", e);
         }
     }
 
