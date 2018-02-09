@@ -171,8 +171,6 @@ public class VaccinatorApplication extends DrishtiApplication
     private static String[] getFtsSearchFields(String tableName) {
         if (tableName.equals(PathConstants.CHILD_TABLE_NAME)) {
             return new String[]{"zeir_id", "epi_card_number", "first_name", "last_name"};
-        } else if (tableName.equals(PathConstants.MOTHER_TABLE_NAME)) {
-            return new String[]{"zeir_id", "epi_card_number", "first_name", "last_name", "father_name", "husband_name", "contact_phone_number"};
         }
         return null;
     }
@@ -196,14 +194,12 @@ public class VaccinatorApplication extends DrishtiApplication
             }
 
             return names.toArray(new String[names.size()]);
-        } else if (tableName.equals(PathConstants.MOTHER_TABLE_NAME)) {
-            return new String[]{"first_name", "dob", "zeir_id", "last_interacted_with"};
         }
         return null;
     }
 
     private static String[] getFtsTables() {
-        return new String[]{PathConstants.CHILD_TABLE_NAME, PathConstants.MOTHER_TABLE_NAME};
+        return new String[]{PathConstants.CHILD_TABLE_NAME};
     }
 
     private static Map<String, Pair<String, Boolean>> getAlertScheduleMap() {
@@ -392,6 +388,10 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public void setLastModified(boolean lastModified) {
         this.lastModified = lastModified;
+    }
+
+    public static CommonFtsObject getCommonFtsObject() {
+        return commonFtsObject;
     }
 
     @Override

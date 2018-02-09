@@ -60,30 +60,9 @@ public class ClientProcessorIntentService extends IntentService {
         try {
             final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
             List<JSONObject> events = ecUpdater.allEvents(start, end);
-            for (int i = 0; i < events.size(); i++) {
-                fetchAndInsertClient(events.get(i));
-            }
-
             PathClientProcessor.getInstance(context).processClient(events);
         } catch (Exception e) {
             Log.e(getClass().getName(), "Process Client Exception: " + e.getMessage(), e);
-        }
-
-    }
-
-    private void fetchAndInsertClient(JSONObject event) {
-        final String BASE_ENTITY_ID = "baseEntityId";
-        final String CLIENT = "client";
-        try {
-            if (!event.has(CLIENT) && event.has(BASE_ENTITY_ID)) {
-                String baseEntityId = event.getString(BASE_ENTITY_ID);
-                JSONObject client = fetchClientRetry(baseEntityId);
-                if (client != null) {
-                    event.put(CLIENT, client);
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(), "Fetch Client Exception: " + e.getMessage(), e.getCause());
         }
     }
 

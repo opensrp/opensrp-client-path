@@ -23,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import net.vidageek.mirror.dsl.Mirror;
@@ -46,7 +47,10 @@ import org.smartregister.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +67,9 @@ public class SyncService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    RequestQueue requestQueue;
+    RequestQueue mainRequestQueue;
+    List<RequestQueue> clientRequestQueues;
+    List<String> nullClientIds;
 
     @Override
     public void onCreate() {
@@ -132,7 +138,7 @@ public class SyncService extends Service {
         fetchRetry(0);
     }
 
-    private void fetchRetry(final int count) {
+    private synchronized void fetchRetry(final int count) {
         try {
             // Request spacing
             try {
@@ -162,9 +168,9 @@ public class SyncService extends Service {
             String url = baseUrl + ECSyncUpdater.SEARCH_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
             Log.i(SyncService.class.getName(), "URL: " + url);
 
-
             JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<JSONObject>() {
                 @Override
+                @SuppressWarnings("unchecked")
                 public void onResponse(JSONObject jsonObject) {
                     int eCount = fetchNumberOfEvents(jsonObject);
                     if (eCount == 0) {
@@ -176,7 +182,14 @@ public class SyncService extends Service {
             }, new com.android.volley.Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e(getClass().getName(), "Fetch Retry Error Response Exception: " + error.getMessage(), error.getCause());
+                    if (error != null) {
+                        Log.e(getClass().getName(), "Fetch Retry Error Response Exception: " + error.getMessage(), error.getCause());
+                        NetworkResponse networkResponse = error.networkResponse;
+                        if (networkResponse != null) {
+                            Log.e(getClass().getName(), "Status Code: " + networkResponse.statusCode);
+                        }
+                    }
+
                     if (count < 2) {
                         int newCount = count + 1;
                         fetchRetry(newCount);
@@ -193,6 +206,8 @@ public class SyncService extends Service {
                 @Override
                 protected com.android.volley.Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
                     try {
+                        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+
                         String jsonString = new String(response.data,
                                 HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
 
@@ -202,7 +217,7 @@ public class SyncService extends Service {
                         if (eCount < 0) {
                             return com.android.volley.Response.error(new ParseError(new Exception("Error")));
                         } else if (eCount > 0) {
-                            Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
+                            final Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
                             long lastServerVersion = serverVersionPair.second - 1;
                             if (eCount < EVENT_PULL_LIMIT) {
                                 lastServerVersion = serverVersionPair.second;
@@ -211,9 +226,31 @@ public class SyncService extends Service {
                             ecSyncUpdater.updateLastSyncTimeStamp(lastServerVersion);
                             ecSyncUpdater.saveAllClientsAndEvents(jsonObject);
 
-                            startClientProcessorService(serverVersionPair);
+
+                            final RequestQueue clientRequestQueue = Volley.newRequestQueue(context);
+                            List<JSONObject> events = ecUpdater.allEvents(serverVersionPair.first - 1, serverVersionPair.second);
+                            for (int i = 0; i < events.size(); i++) {
+                                JSONObject event = events.get(i);
+                                fetchClientRetry(clientRequestQueue, event);
+                            }
+
+                            clientRequestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
+                                @Override
+                                public void onRequestFinished(Request<Object> request) {
+                                    if (isEmptyReuestQueue(clientRequestQueue)) {
+                                        startClientProcessorService(serverVersionPair);
+                                        stopSyncService();
+                                    }
+                                }
+                            });
+                            clientRequestQueues.add(clientRequestQueue);
+
+                            if (isEmptyReuestQueue(clientRequestQueue)) {
+                                startClientProcessorService(serverVersionPair);
+                            }
+
                         }
-                        return com.android.volley.Response.success(new JSONObject(jsonString),
+                        return com.android.volley.Response.success(jsonObject,
                                 HttpHeaderParser.parseCacheHeaders(response));
                     } catch (UnsupportedEncodingException e) {
                         return com.android.volley.Response.error(new ParseError(e));
@@ -225,9 +262,125 @@ public class SyncService extends Service {
                 }
             };
 
-            requestQueue.add(jsonRequest);
+            mainRequestQueue.add(jsonRequest);
         } catch (Exception e) {
             Log.e(getClass().getName(), "Fetch Retry Exception: " + e.getMessage(), e.getCause());
+        }
+    }
+
+    private void fetchClientRetry(RequestQueue requestQueue, JSONObject event) {
+        final String BASE_ENTITY_ID = "baseEntityId";
+        final String CLIENT = "client";
+        try {
+            if (!event.has(CLIENT) && event.has(BASE_ENTITY_ID)) {
+                String baseEntityId = event.getString(BASE_ENTITY_ID);
+                synchronized (nullClientIds) {
+                    if (!nullClientIds.contains(baseEntityId)) {
+                        fetchClientRetry(requestQueue, baseEntityId);
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), "Fetch Client Exception: " + e.getMessage(), e.getCause());
+        }
+    }
+
+    private void fetchClientRetry(RequestQueue requestQueue, String basEntityId) {
+        fetchClientRetry(requestQueue, basEntityId, 0);
+    }
+
+    private synchronized void fetchClientRetry(final RequestQueue requestQueue, final String baseEntityId, final int count) {
+        // Request spacing
+        try {
+            final int MILLISECONDS = 250;
+            Thread.sleep(MILLISECONDS);
+        } catch (InterruptedException ie) {
+            Log.e(getClass().getName(), ie.getMessage(), ie);
+        }
+
+        try {
+            final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+            if (StringUtils.isBlank(baseEntityId)) {
+                return;
+            }
+
+            JSONObject client = ecUpdater.getClient(baseEntityId);
+            if (client != null) {
+                return;
+            }
+
+            String baseUrl = VaccinatorApplication.getInstance().context().
+                    configuration().dristhiBaseURL();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+            }
+
+            String url = baseUrl + ECSyncUpdater.CLIENT_URL + "/" + baseEntityId;
+            Log.i(SyncService.class.getName(), "URL: " + url);
+
+
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
+                @Override
+                public void onResponse(String result) {
+                }
+            }, new com.android.volley.Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    if (error != null) {
+                        Log.e(getClass().getName(), "Fetch Retry Client Error Exception: " + error.getMessage(), error.getCause());
+                        NetworkResponse networkResponse = error.networkResponse;
+                        if (networkResponse != null) {
+                            Log.e(getClass().getName(), "Status Code: " + networkResponse.statusCode);
+                        }
+                    }
+                    if (count < 2) {
+                        int newCount = count + 1;
+                        fetchClientRetry(requestQueue, baseEntityId, newCount);
+                    }
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    return authHeaders();
+                }
+
+                @Override
+                protected com.android.volley.Response<String> parseNetworkResponse
+                        (NetworkResponse response) {
+                    String parsed;
+                    try {
+                        parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+                    } catch (UnsupportedEncodingException e) {
+                        parsed = new String(response.data);
+                    }
+
+                    try {
+                        final int SC_OK = 200;
+                        if (StringUtils.isBlank(parsed) && response.statusCode == SC_OK) {
+                            nullClientIds.add(baseEntityId);
+                        }
+                        if (StringUtils.isNotBlank(parsed)) {
+                            JSONObject client = new JSONObject(parsed);
+                            updateClientDateTime(client, "birthdate");
+                            updateClientDateTime(client, "deathdate");
+                            updateClientDateTime(client, "dateCreated");
+                            updateClientDateTime(client, "dateEdited");
+                            updateClientDateTime(client, "dateVoided");
+
+                            JSONArray jsonArray = new JSONArray();
+                            jsonArray.put(client);
+                            ecUpdater.batchInsertClients(jsonArray);
+                        }
+                    } catch (Exception e) {
+                        Log.e(getClass().getName(), "Fetch Client Retry Parse Network Exception: " + e.getMessage(), e.getCause());
+                    }
+                    return com.android.volley.Response.success(parsed, HttpHeaderParser.parseCacheHeaders(response));
+                }
+            };
+
+            requestQueue.add(stringRequest);
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Fetch Client Retry: " + e.getMessage(), e.getCause());
         }
     }
 
@@ -290,9 +443,7 @@ public class SyncService extends Service {
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, isComplete);
         sendBroadcast(intent);
 
-        if (isEmptyReuestQueue()) {
-            stopSelf();
-        }
+        stopSyncService();
     }
 
     private void drishtiLogInfo(String message) {
@@ -369,11 +520,42 @@ public class SyncService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean isEmptyReuestQueue() {
-        final Object mObject = new Mirror().on(this.requestQueue).get().field("mCurrentRequests");
+    public boolean isEmptyReuestQueue(RequestQueue requestQueue) {
+        final Object mObject = new Mirror().on(requestQueue).get().field("mCurrentRequests");
         final Set<Request<?>> mCurrentRequests = (Set<Request<?>>) mObject;
         return mCurrentRequests.isEmpty();
     }
+
+    private void updateClientDateTime(JSONObject client, String field) {
+        try {
+            if (client.has(field) && client.get(field) != null) {
+                Long timestamp = client.getLong(field);
+                DateTime dateTime = new DateTime(timestamp);
+                client.put(field, dateTime.toString());
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), e.getMessage(), e);
+        }
+    }
+
+    private void stopSyncService() {
+        boolean emptyClientQueue = true;
+        synchronized (clientRequestQueues) {
+            for (RequestQueue clientRequestQueue : clientRequestQueues) {
+                if (!isEmptyReuestQueue(clientRequestQueue)) {
+                    emptyClientQueue = false;
+                    break;
+                }
+            }
+        }
+
+        synchronized (mainRequestQueue) {
+            if (emptyClientQueue && isEmptyReuestQueue(mainRequestQueue)) {
+                stopSelf();
+            }
+        }
+    }
+
 
 ////////////////////////////////////////////////////////////////
 // Inner classes
@@ -386,12 +568,16 @@ public class SyncService extends Service {
 
         @Override
         public void handleMessage(Message message) {
-            requestQueue = Volley.newRequestQueue(context);
-            requestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
+            mainRequestQueue = Volley.newRequestQueue(context);
+            clientRequestQueues = Collections.synchronizedList(new ArrayList<RequestQueue>());
+            nullClientIds = Collections.synchronizedList(new ArrayList<String>());
+            mainRequestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
                 @Override
                 public void onRequestFinished(Request<Object> request) {
-                    if (isEmptyReuestQueue()) {
-                        stopSelf();
+                    synchronized (mainRequestQueue) {
+                        if (isEmptyReuestQueue(mainRequestQueue)) {
+                            stopSyncService();
+                        }
                     }
                 }
             });

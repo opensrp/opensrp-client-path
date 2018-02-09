@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.clientandeventmodel.DateUtil;
+import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
@@ -166,7 +167,7 @@ public class PathClientProcessor extends ClientProcessor {
                     unsyncEvents.add(event);
                 } else if (eventType.equals(PathConstants.EventType.DEATH)) {
                     unsyncEvents.add(event);
-                } else {
+                } else if (eventType.equals(PathConstants.EventType.BITRH_REGISTRATION) || eventType.equals(PathConstants.EventType.UPDATE_BITRH_REGISTRATION) || eventType.equals(PathConstants.EventType.NEW_WOMAN_REGISTRATION)) {
                     JSONObject clientClassificationJson = new JSONObject(clientClassificationStr);
                     if (isNullOrEmptyJSONObject(clientClassificationJson)) {
                         continue;
@@ -466,7 +467,18 @@ public class PathClientProcessor extends ClientProcessor {
 
     @Override
     public void updateFTSsearch(String tableName, String entityId, ContentValues contentValues) {
-        super.updateFTSsearch(tableName, entityId, contentValues);
+        if (PathConstants.MOTHER_TABLE_NAME.equals(tableName)) {
+            return;
+        }
+
+        Log.i(TAG, "Starting updateFTSsearch table: " + tableName);
+
+        AllCommonsRepository allCommonsRepository = org.smartregister.CoreLibrary.getInstance().context().
+                allCommonsRepositoryobjects(tableName);
+
+        if (allCommonsRepository != null) {
+            allCommonsRepository.updateSearch(entityId);
+        }
 
         if (contentValues != null && StringUtils.containsIgnoreCase(tableName, "child")) {
             String dob = contentValues.getAsString("dob");
@@ -479,6 +491,8 @@ public class PathClientProcessor extends ClientProcessor {
             VaccineSchedule.updateOfflineAlerts(entityId, birthDateTime, "child");
             ServiceSchedule.updateOfflineAlerts(entityId, birthDateTime);
         }
+
+        Log.i(TAG, "Finished updateFTSsearch table: " + tableName);
     }
 
     private boolean unSync(List<JSONObject> events) {

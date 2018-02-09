@@ -156,11 +156,13 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
 
-        try {
-            Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
-            Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive, client, cursor), null);
-        } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage(), e);
+        if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            try {
+                Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
+                Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive, client, cursor), null);
+            } catch (Exception e) {
+                Log.e(getClass().getName(), e.getMessage(), e);
+            }
         }
 
     }
