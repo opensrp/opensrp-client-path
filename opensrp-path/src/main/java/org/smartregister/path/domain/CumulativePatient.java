@@ -10,6 +10,7 @@ public class CumulativePatient implements Serializable {
     private Long id;
     private String baseEntityId;
     private String validVaccines;
+    private String invalidVaccines;
     private Date createdAt;
     private Date updatedAt;
 
@@ -35,6 +36,14 @@ public class CumulativePatient implements Serializable {
 
     public void setValidVaccines(String validVaccines) {
         this.validVaccines = validVaccines;
+    }
+
+    public String getInvalidVaccines() {
+        return invalidVaccines;
+    }
+
+    public void setInvalidVaccines(String invalidVaccines) {
+        this.invalidVaccines = invalidVaccines;
     }
 
     public Date getCreatedAt() {

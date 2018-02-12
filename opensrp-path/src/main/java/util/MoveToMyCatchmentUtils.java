@@ -3,6 +3,7 @@ package util;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -15,6 +16,9 @@ import org.smartregister.domain.db.Event;
 import org.smartregister.domain.db.Obs;
 import org.smartregister.event.Listener;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.CumulativePatient;
+import org.smartregister.path.repository.CumulativePatientRepository;
+import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessor;
 import org.smartregister.repository.AllSharedPreferences;
@@ -103,8 +107,6 @@ public class MoveToMyCatchmentUtils {
 
             ecUpdater.batchSave(events, clients);
 
-            final String BIRTH_REGISTRATION_EVENT = "Birth Registration";
-            final String NEW_WOMAN_REGISTRATION_EVENT = "New Woman Registration";
             final String HOME_FACILITY = "Home_Facility";
 
             String toProviderId = allSharedPreferences.fetchRegisteredANM();
@@ -112,6 +114,7 @@ public class MoveToMyCatchmentUtils {
             String toLocationId = allSharedPreferences
                     .fetchDefaultLocalityId(toProviderId);
 
+            List<Pair<Event, JSONObject>> eventList = new ArrayList<>();
             for (int i = 0; i < events.length(); i++) {
                 JSONObject jsonEvent = events.getJSONObject(i);
                 Event event = ecUpdater.convert(jsonEvent, Event.class);
@@ -119,8 +122,27 @@ public class MoveToMyCatchmentUtils {
                     continue;
                 }
 
+                // Skip previous move to catchment events
+                if (MOVE_TO_CATCHMENT_EVENT.equals(event.getEventType())) {
+                    continue;
+                }
+
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(0, Pair.create(event, jsonEvent));
+                } else if (!eventList.isEmpty() && PathConstants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+                    eventList.add(1, Pair.create(event, jsonEvent));
+                } else {
+                    eventList.add(Pair.create(event, jsonEvent));
+                }
+
+            }
+
+            for (Pair<Event, JSONObject> pair : eventList) {
+                Event event = pair.first;
+                JSONObject jsonEvent = pair.second;
+
                 String fromLocationId = null;
-                if (event.getEventType().equals(BIRTH_REGISTRATION_EVENT)) {
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType())) {
                     // Update home facility
                     for (Obs obs : event.getObs()) {
                         if (obs.getFormSubmissionField().equals(HOME_FACILITY)) {
@@ -130,14 +152,28 @@ public class MoveToMyCatchmentUtils {
                             obs.setValues(values);
                         }
                     }
+
                 }
 
-                if (event.getEventType().equals(BIRTH_REGISTRATION_EVENT) || event.getEventType().equals(NEW_WOMAN_REGISTRATION_EVENT)) {
+
+                if (PathConstants.EventType.VACCINATION.equals(event.getEventType())) {
+                    for (Obs obs : event.getObs()) {
+                        if (obs.getFieldCode().equals(PathConstants.CONCEPT.VACCINE_DATE)) {
+                            String vaccineName = obs.getFormSubmissionField();
+                            setVaccineAsInvalid(event.getBaseEntityId(), vaccineName);
+                        }
+                    }
+                }
+
+                if (PathConstants.EventType.BITRH_REGISTRATION.equals(event.getEventType()) || PathConstants.EventType.NEW_WOMAN_REGISTRATION.equals(event.getEventType())) {
+
                     //Create move to catchment event;
                     org.smartregister.clientandeventmodel.Event moveToCatchmentEvent = JsonFormUtils.createMoveToCatchmentEvent(context, event, fromLocationId, toProviderId, toLocationId);
-                    JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
                     if (moveToCatchmentEvent != null) {
-                        ecUpdater.addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                        JSONObject moveToCatchmentJsonEvent = ecUpdater.convertToJson(moveToCatchmentEvent);
+                        if (moveToCatchmentJsonEvent != null) {
+                            ecUpdater.addEvent(moveToCatchmentEvent.getBaseEntityId(), moveToCatchmentJsonEvent);
+                        }
                     }
                 }
 
@@ -161,5 +197,29 @@ public class MoveToMyCatchmentUtils {
         }
 
         return false;
+    }
+
+    private static void setVaccineAsInvalid(String baseEntityId, String vaccineName) {
+        try {
+            CumulativePatientRepository cumulativePatientRepository = VaccinatorApplication.getInstance().cumulativePatientRepository();
+            if (cumulativePatientRepository == null) {
+                return;
+            }
+
+            CumulativePatient cumulativePatient = cumulativePatientRepository.findByBaseEntityId(baseEntityId);
+            if (cumulativePatient == null) {
+                cumulativePatient = new CumulativePatient();
+                cumulativePatient.setBaseEntityId(baseEntityId);
+                cumulativePatientRepository.add(cumulativePatient);
+            }
+
+            List<String> inValidVaccines = CoverageDropoutIntentService.vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            if (!inValidVaccines.contains(vaccineName)) {
+                inValidVaccines.add(vaccineName);
+                cumulativePatientRepository.changeInValidVaccines(StringUtils.join(inValidVaccines, CoverageDropoutIntentService.COMMA), cumulativePatient.getId());
+            }
+        } catch (Exception e) {
+            Log.e(MoveToMyCatchmentUtils.class.getName(), "Exception", e);
+        }
     }
 }
