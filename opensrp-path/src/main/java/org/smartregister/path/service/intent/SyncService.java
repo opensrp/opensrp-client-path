@@ -320,10 +320,10 @@ public class SyncService extends Service {
             String url = baseUrl + CLIENT_URL + "/" + baseEntityId;
             Log.i(SyncService.class.getName(), "URL: " + url);
 
-
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<String>() {
                 @Override
                 public void onResponse(String result) {
+                    // Response Success
                 }
             }, new com.android.volley.Response.ErrorListener() {
                 @Override
