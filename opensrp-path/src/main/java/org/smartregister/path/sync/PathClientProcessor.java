@@ -127,7 +127,7 @@ public class PathClientProcessor extends ClientProcessor {
     }
 
     @Override
-    public synchronized void processClient(List<JSONObject> events) throws Exception {
+    public void processClient(List<JSONObject> events) throws Exception {
 
         String clientClassificationStr = getFileContents("ec_client_classification.json");
         String clientVaccineStr = getFileContents("ec_client_vaccine.json");

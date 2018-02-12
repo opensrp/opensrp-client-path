@@ -9,14 +9,11 @@ import android.os.Bundle;
 import org.joda.time.DateTime;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.service.intent.ClientProcessorIntentService;
 import org.smartregister.path.service.intent.ExtendedSyncIntentService;
 import org.smartregister.sync.DrishtiSyncScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
 
@@ -91,7 +88,7 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
                     started();
                 } else {
                     boolean isComplete = data.getBoolean(EXTRA_COMPLETE_STATUS);
-                    if (isComplete && !ServiceTools.isServiceRunning(ClientProcessorIntentService.class)) {
+                    if (isComplete) {
                         complete(fetchStatus);
                         startExtendedSyncAndAlarms(context);
                     } else {
