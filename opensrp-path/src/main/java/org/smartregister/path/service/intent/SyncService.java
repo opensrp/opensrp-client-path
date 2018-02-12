@@ -176,7 +176,7 @@ public class SyncService extends Service {
                 public void onResponse(JSONObject jsonObject) {
                     int eCount = fetchNumberOfEvents(jsonObject);
                     if (eCount == 0) {
-                        sendSyncStatusBroadcastMessage(FetchStatus.nothingFetched);
+                        sendSyncStatusBroadcastMessage(FetchStatus.nothingFetched, true);
                     } else {
                         fetchRetry();
                     }
@@ -196,7 +196,7 @@ public class SyncService extends Service {
                         int newCount = count + 1;
                         fetchRetry(newCount);
                     } else {
-                        sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed);
+                        sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
                     }
                 }
             }) {
