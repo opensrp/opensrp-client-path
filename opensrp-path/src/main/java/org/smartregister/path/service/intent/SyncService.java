@@ -58,7 +58,7 @@ import util.NetworkUtils;
 
 public class SyncService extends Service {
     private static final String ADD_URL = "/rest/event/add";
-    private static final String SYNC_URL = "/rest/event/sync";
+    public static final String SYNC_URL = "/rest/event/sync";
     private static final String CLIENT_URL = "/rest/client";
 
     private Context context;
