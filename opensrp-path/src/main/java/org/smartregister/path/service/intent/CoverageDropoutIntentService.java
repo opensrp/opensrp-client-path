@@ -80,7 +80,7 @@ public class CoverageDropoutIntentService extends IntentService {
     private static final String COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE = "COVERAGE_DROPOUT_VACCINATION_LAST_PROCESSED_DATE";
 
     private static final String COLON = ":";
-    private static final String COMMA = ",";
+    public static final String COMMA = ",";
 
     public CoverageDropoutIntentService() {
         super("CoverageDropoutIntentService");
@@ -307,7 +307,7 @@ public class CoverageDropoutIntentService extends IntentService {
 
             // Don't add an already counted vaccine unless it's invalid now
             boolean alreadyCounted = false;
-            List<String> vaccineList = validVaccinesAsList(cohortPatient.getValidVaccines());
+            List<String> vaccineList = vaccinesAsList(cohortPatient.getValidVaccines());
             if (!vaccineList.isEmpty() && vaccineList.contains(vaccineName)) {
                 alreadyCounted = true;
             }
@@ -387,7 +387,7 @@ public class CoverageDropoutIntentService extends IntentService {
 
             String validVaccines = cohortPatient.getValidVaccines();
             if (StringUtils.isNotBlank(validVaccines)) {
-                List<String> vaccineList = validVaccinesAsList(validVaccines);
+                List<String> vaccineList = vaccinesAsList(validVaccines);
 
                 if (StringUtils.isBlank(vaccineName)) { // Child Centered
                     for (String vaccine : vaccineList) { // Un register all vaccines
@@ -526,11 +526,19 @@ public class CoverageDropoutIntentService extends IntentService {
                 }
             }
 
+            // Check if vaccine is valid
+            List<String> inValidVaccines = vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            for (String invalidVaccine : inValidVaccines) {
+                if (vaccineName.equals(invalidVaccine)) {
+                    return;
+                }
+            }
+
             Date oldDate = null;
 
             // Don't add an already counted vaccine unless it's invalid now
             boolean alreadyCounted = false;
-            List<String> vaccineList = validVaccinesAsList(cumulativePatient.getValidVaccines());
+            List<String> vaccineList = vaccinesAsList(cumulativePatient.getValidVaccines());
             for (String validVaccine : vaccineList) {
                 if (validVaccine.contains(vaccineName)) {
                     alreadyCounted = true;
@@ -583,8 +591,7 @@ public class CoverageDropoutIntentService extends IntentService {
         }
 
         try {
-
-            List<String> vaccineList = validVaccinesAsList(cumulativePatient.getValidVaccines());
+            List<String> vaccineList = vaccinesAsList(cumulativePatient.getValidVaccines());
             String validVaccine = vaccineName + COLON + date.getTime();
             if (subtract) {
                 vaccineList.remove(validVaccine);
@@ -644,9 +651,17 @@ public class CoverageDropoutIntentService extends IntentService {
                 return;
             }
 
+            // Check if vaccine is valid
+            List<String> inValidVaccines = vaccinesAsList(cumulativePatient.getInvalidVaccines());
+            for (String invalidVaccine : inValidVaccines) {
+                if (vaccineName.equals(invalidVaccine)) {
+                    return;
+                }
+            }
+
             String validVaccines = cumulativePatient.getValidVaccines();
             if (StringUtils.isNotBlank(validVaccines)) {
-                List<String> vaccineList = validVaccinesAsList(validVaccines);
+                List<String> vaccineList = vaccinesAsList(validVaccines);
 
                 // Vaccine Centered
                 List<String> incomingVaccineList = formatAndSplitVaccineName(vaccineName);
@@ -785,7 +800,7 @@ public class CoverageDropoutIntentService extends IntentService {
         return vaccine;
     }
 
-    private static List<String> validVaccinesAsList(String validVaccines) {
+    public static List<String> vaccinesAsList(String validVaccines) {
         if (StringUtils.isBlank(validVaccines)) {
             return new ArrayList<>();
         }

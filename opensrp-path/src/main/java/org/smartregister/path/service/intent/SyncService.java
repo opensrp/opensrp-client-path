@@ -57,7 +57,9 @@ import java.util.Set;
 import util.NetworkUtils;
 
 public class SyncService extends Service {
-    private static final String EVENTS_SYNC_PATH = "/rest/event/add";
+    private static final String ADD_URL = "/rest/event/add";
+    private static final String SYNC_URL = "/rest/event/sync";
+    private static final String CLIENT_URL = "/rest/client";
 
     private Context context;
     private HTTPAgent httpAgent;
@@ -67,9 +69,9 @@ public class SyncService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    RequestQueue mainRequestQueue;
-    List<RequestQueue> clientRequestQueues;
-    List<String> nullClientIds;
+    private RequestQueue mainRequestQueue;
+    private List<RequestQueue> clientRequestQueues;
+    private List<String> nullClientIds;
 
     @Override
     public void onCreate() {
@@ -165,7 +167,7 @@ public class SyncService extends Service {
             Long lastSyncDatetime = ecSyncUpdater.getLastSyncTimeStamp();
             Log.i(SyncService.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
-            String url = baseUrl + ECSyncUpdater.SEARCH_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
+            String url = baseUrl + SYNC_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
             Log.i(SyncService.class.getName(), "URL: " + url);
 
             JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<JSONObject>() {
@@ -315,7 +317,7 @@ public class SyncService extends Service {
                 baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
             }
 
-            String url = baseUrl + ECSyncUpdater.CLIENT_URL + "/" + baseEntityId;
+            String url = baseUrl + CLIENT_URL + "/" + baseEntityId;
             Log.i(SyncService.class.getName(), "URL: " + url);
 
 
@@ -417,7 +419,7 @@ public class SyncService extends Service {
                 Response<String> response = httpAgent.post(
                         MessageFormat.format("{0}/{1}",
                                 baseUrl,
-                                EVENTS_SYNC_PATH),
+                                ADD_URL),
                         jsonPayload);
                 if (response.isFailure()) {
                     Log.e(getClass().getName(), "Events sync failed.");

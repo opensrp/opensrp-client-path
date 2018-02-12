@@ -66,67 +66,6 @@ public class ClientProcessorIntentService extends IntentService {
         }
     }
 
-    private JSONObject fetchClientRetry(String baseEntityId) {
-        return fetchClientRetry(baseEntityId, 0);
-    }
-
-    private JSONObject fetchClientRetry(String baseEntityId, int count) {
-        // Request spacing
-        try {
-            final int MILLISECONDS = 10;
-            Thread.sleep(MILLISECONDS);
-        } catch (InterruptedException ie) {
-            Log.e(getClass().getName(), ie.getMessage());
-        }
-
-        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-        try {
-            if (StringUtils.isBlank(baseEntityId)) {
-                return null;
-            }
-
-            JSONObject client = ecUpdater.getClient(baseEntityId);
-            if (client != null) {
-                return client;
-            }
-
-            client = ecUpdater.fetchClientAsJsonObject(baseEntityId);
-            if (client == null) {
-                return null;
-            }
-
-            updateClientDateTime(client, "birthdate");
-            updateClientDateTime(client, "deathdate");
-            updateClientDateTime(client, "dateCreated");
-            updateClientDateTime(client, "dateEdited");
-            updateClientDateTime(client, "dateVoided");
-
-            JSONArray jsonArray = new JSONArray();
-            jsonArray.put(client);
-            ecUpdater.batchInsertClients(jsonArray);
-            return client;
-        } catch (Exception e) {
-            if (count >= 2) {
-                return null;
-            } else {
-                int newCount = count + 1;
-                return fetchClientRetry(baseEntityId, newCount);
-            }
-        }
-    }
-
-    private void updateClientDateTime(JSONObject client, String field) {
-        try {
-            if (client.has(field) && client.get(field) != null) {
-                Long timestamp = client.getLong(field);
-                DateTime dateTime = new DateTime(timestamp);
-                client.put(field, dateTime.toString());
-            }
-        } catch (JSONException e) {
-            Log.e(getClass().getName(), e.getMessage(), e);
-        }
-    }
-
     //Broadcast Receiver
 
     private void complete(FetchStatus fetchStatus) {
