@@ -143,8 +143,11 @@ public class SyncService extends Service {
     private synchronized void fetchRetry(final int count) {
         try {
             // Request spacing
+            int MILLISECONDS = 100;
+            if (count > 0) {
+                MILLISECONDS = 1000;
+            }
             try {
-                final int MILLISECONDS = 100;
                 Thread.sleep(MILLISECONDS);
             } catch (InterruptedException ie) {
                 Log.e(getClass().getName(), ie.getMessage(), ie);
@@ -293,8 +296,11 @@ public class SyncService extends Service {
 
     private synchronized void fetchClientRetry(final RequestQueue requestQueue, final String baseEntityId, final int count) {
         // Request spacing
+        int MILLISECONDS = 250;
+        if (count > 0) {
+            MILLISECONDS = 1000;
+        }
         try {
-            final int MILLISECONDS = 250;
             Thread.sleep(MILLISECONDS);
         } catch (InterruptedException ie) {
             Log.e(getClass().getName(), ie.getMessage(), ie);
