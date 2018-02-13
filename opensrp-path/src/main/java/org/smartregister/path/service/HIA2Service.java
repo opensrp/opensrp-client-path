@@ -1,6 +1,7 @@
 package org.smartregister.path.service;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -342,43 +343,31 @@ public class HIA2Service {
     /**
      * Number of children age 0-23 months who where weighed for = 2 consecutive months who did not gain >100g of weight in those months
      * COUNT number of children 0-23 months [Date_Birth] with [weight current visit - weight previous visits < 100g] who had = 2 consecutive weight encounters at this clinic
-     * FIXME
      */
-
     private void getCHN2020() {
 
         try {
-            String query = "select count(*) as count, child.base_entity_id as beid,strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) as currentweightdate,(w.kg*1000) as currentweight," +
-                    "(select (pw.kg*1000) from weights pw where pw.base_entity_id=w.base_entity_id  and strftime('%Y-%m-%d',datetime(pw.date/1000, 'unixepoch'))=strftime('%Y-%m-%d',date('now'),'-1 months')  limit 1) as prevweight," +
-                    "(select (pw.kg*1000) from weights pw where pw.base_entity_id=w.base_entity_id  and strftime('%Y-%m-%d',datetime(pw.date/1000, 'unixepoch'))=strftime('%Y-%m-%d',date('now'),'-2 months')  limit 1 ) as last2monthsweight," +
-                    ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id where '" + reportDate + "'=currentweightdate and age <23 and (currentweight-prevweight>0 and prevweight-last2monthsweight>0) group by beid";
-            int count = executeQueryAndReturnCount(query);
+
+            int count = childBelow100gAgeBetween(0,23);
             hia2Report.put(CHN2_020, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_020 " + e.getMessage());
         }
-
     }
 
     /**
      * Number of children 24-59 months who where weighed for = 2 consecutive months who did not gain >100g of weight in those months
      * COUNT number of children 24-59 months [Date_Birth]  with [weight current visit - weight previous visits < 100g] who had = 2 consecutive weight encounters at this clinic
-     * FIXME
      */
     private void getCHN2025() {
+
         try {
-            String query = "select count(*) as count, child.base_entity_id as beid,strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) as currentweightdate,(w.kg*1000) as currentweight," +
-                    "(select (pw.kg*1000) from weights pw where pw.base_entity_id=w.base_entity_id  and strftime('%Y-%m-%d',datetime(pw.date/1000, 'unixepoch'))=strftime('%Y-%m-%d',date('now'),'-1 months')  limit 1) as prevweight," +
-                    "(select (pw.kg*1000) from weights pw where pw.base_entity_id=w.base_entity_id  and strftime('%Y-%m-%d',datetime(pw.date/1000, 'unixepoch'))=strftime('%Y-%m-%d',date('now'),'-2 months')  limit 1 ) as last2monthsweight," +
-                    ageQuery() +
-                    "from weights w left join ec_child child on w.base_entity_id=child.base_entity_id where '" + reportDate + "'=currentweightdate and age between 24 and 59 and (currentweight-prevweight>0 and prevweight-last2monthsweight>0) group by beid";
-            int count = executeQueryAndReturnCount(query);
+
+            int count = childBelow100gAgeBetween(24,59);
             hia2Report.put(CHN2_025, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN2_025 " + e.getMessage());
         }
-
     }
 
     /**
@@ -1142,6 +1131,80 @@ public class HIA2Service {
                 cursor.close();
             }
         }
+        return count;
+    }
+
+    //Converts a relation's column values into a string array
+    private String[] getColumnValues(@NonNull final SQLiteDatabase database, @NonNull final String query, @NonNull final String columnName) {
+
+        int index = 0;
+        int cursorLength;
+        String[] values = null;
+        Cursor cursor = null;
+
+        try {
+
+            cursor = database.rawQuery(query,null);
+
+            if(cursor != null) {
+
+                cursorLength = cursor.getCount();
+                values = new String[cursorLength];
+
+                if(cursorLength > 0)
+                    while (cursor.moveToNext())
+                        values[index++] = cursor.getString(cursor.getColumnIndex(columnName));
+            }
+        }catch (Exception e) {
+            Log.logError(TAG, e.getMessage());
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return values;
+    }
+
+    /**
+     * Counts the number of children within a particular age range in months who where weighed for = 2 consecutive months who did not gain >100g of weight in those months
+     */
+    private int childBelow100gAgeBetween(final int startAge, final int endAge) {
+
+        int count = 0;
+        int weightsLength;
+        String[] weights;
+        double currentWeight;
+        double previousWeight;
+        double weightDifference;
+        final double EXPECTED_WEIGHT_GAIN = 0.1;//100g
+
+        String query = "SELECT base_entity_id FROM (SELECT base_entity_id,strftime('%Y-%m-%d',datetime(weights.date/1000, 'unixepoch'))AS wdate, count(*) AS num_weight_enc FROM "+
+                "weights WHERE base_entity_id IN (select beid FROM (SELECT child.base_entity_id beid,strftime('%Y-%m-%d',datetime(weights.date/1000, 'unixepoch'))AS wdate,"+ageQuery()+
+                "FROM ec_child child INNER JOIN weights ON child.base_entity_id = weights.base_entity_id WHERE wdate = '"+ reportDate +"' AND age BETWEEN "+startAge+" AND "+endAge+")) "+
+                "AND wdate BETWEEN strftime('%Y-%m-%d','"+reportDate+"','-2 months') AND '"+ reportDate +"' GROUP BY base_entity_id HAVING num_weight_enc >= 2);";
+
+        String[] beids = getColumnValues(database, query, "base_entity_id");
+
+        if(beids != null && beids.length > 0)
+            for (String beid : beids) {
+
+                query = "SELECT kg, strftime('%Y-%m-%d',datetime(date/1000, 'unixepoch'))" +
+                        "AS wdate FROM weights WHERE base_entity_id = '" +beid+ "' AND wdate <= '" + reportDate + "' ORDER BY wdate;";
+
+                weights = getColumnValues(database, query, "kg");
+
+                if(weights != null && weights.length >= 2){
+
+                    weightsLength = weights.length;
+                    currentWeight = Double.valueOf(weights[weightsLength - 1]);
+                    previousWeight = Double.valueOf(weights[weightsLength - 2]);
+                    weightDifference = currentWeight - previousWeight;
+
+                    if (weightDifference < EXPECTED_WEIGHT_GAIN)
+                        count++;
+                }
+            }
+
         return count;
     }
 }
