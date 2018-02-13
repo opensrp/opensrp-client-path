@@ -57,7 +57,7 @@
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
                     android:text="@string/dropout_cohort_header"
-                    android:textColor="@color/text_black"
+                    android:textColor="@color/dark_grey"
                     android:textSize="18sp" />
 
             </LinearLayout>
@@ -76,7 +76,7 @@
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
                     android:text="@string/dropout_cohort_penta_size_header"
-                    android:textColor="@color/text_black"
+                    android:textColor="@color/dark_grey"
                     android:textSize="18sp" />
 
             </LinearLayout>
@@ -97,7 +97,7 @@
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
                     android:text="@string/dropout_percentage_header"
-                    android:textColor="@color/text_black"
+                    android:textColor="@color/dark_grey"
                     android:textSize="18sp" />
 
             </LinearLayout>
