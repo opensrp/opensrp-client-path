@@ -114,7 +114,7 @@ public class SyncService extends Service {
 
     private void doSync() {
         if (!NetworkUtils.isNetworkAvailable()) {
-            sendSyncStatusBroadcastMessage(FetchStatus.noConnection, true);
+            complete(FetchStatus.noConnection);
             return;
         }
 
@@ -124,7 +124,7 @@ public class SyncService extends Service {
 
         } catch (Exception e) {
             Log.e(getClass().getName(), e.getMessage(), e);
-            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
+            complete(FetchStatus.fetchedFailed);
         }
     }
 
@@ -141,7 +141,7 @@ public class SyncService extends Service {
             // Fetch locations
             final String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
             if (StringUtils.isBlank(locations)) {
-                sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
+                complete(FetchStatus.fetchedFailed);
                 return;
             }
 
@@ -163,8 +163,10 @@ public class SyncService extends Service {
                 @SuppressWarnings("unchecked")
                 public void onResponse(JSONObject jsonObject) {
                     int eCount = fetchNumberOfEvents(jsonObject);
+                    Log.i(getClass().getName(), "Response Success Event Count: " + eCount);
+
                     if (eCount == 0) {
-                        sendSyncStatusBroadcastMessage(FetchStatus.nothingFetched, true);
+                        complete(FetchStatus.nothingFetched);
                     } else {
                         fetchRetry();
                     }
@@ -184,7 +186,7 @@ public class SyncService extends Service {
                         int newCount = count + 1;
                         fetchRetry(newCount);
                     } else {
-                        sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
+                        complete(FetchStatus.fetchedFailed);
                     }
                 }
             }) {
@@ -202,6 +204,8 @@ public class SyncService extends Service {
                         JSONObject jsonObject = new JSONObject(jsonString);
 
                         int eCount = fetchNumberOfEvents(jsonObject);
+                        Log.i(getClass().getName(), "Parse Network Event Count: " + eCount);
+
                         if (eCount < 0) {
                             return com.android.volley.Response.error(new ParseError(new Exception("Error")));
                         } else if (eCount > 0) {
@@ -295,22 +299,27 @@ public class SyncService extends Service {
 
 
     private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
-        sendSyncStatusBroadcastMessage(fetchStatus, false);
+        Intent intent = new Intent();
+        intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
+        intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
+        sendBroadcast(intent);
     }
 
-    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus, boolean isComplete) {
+    private void complete(FetchStatus fetchStatus) {
 
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
 
-        if (isComplete && isEmptyReuestQueue(mainRequestQueue)) {
+        if (isEmptyReuestQueue(mainRequestQueue)) {
             intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, true);
         }
 
         sendBroadcast(intent);
 
-        stopSyncService();
+        if (isEmptyReuestQueue(mainRequestQueue)) {
+            stopSelf();
+        }
     }
 
     private void drishtiLogInfo(String message) {
@@ -375,7 +384,6 @@ public class SyncService extends Service {
         } catch (JSONException e) {
             Log.e(getClass().getName(), e.getMessage(), e);
         }
-        Log.i(getClass().getName(), "event count: " + count);
         return count;
     }
 
@@ -388,11 +396,6 @@ public class SyncService extends Service {
         }
     }
 
-    private void stopSyncService() {
-        if (isEmptyReuestQueue(mainRequestQueue)) {
-            stopSelf();
-        }
-    }
 
     private void addRequestToQueue(RequestQueue requestQueue, Request request) {
         final int TIMEOUT = 30000;
@@ -421,7 +424,7 @@ public class SyncService extends Service {
                 @Override
                 public void onRequestFinished(Request<Object> request) {
                     if (isEmptyReuestQueue(mainRequestQueue)) {
-                        stopSyncService();
+                        complete(FetchStatus.nothingFetched);
                     }
                 }
             });
