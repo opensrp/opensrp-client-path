@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -41,6 +40,7 @@ import lecho.lib.hellocharts.view.LineChartView;
 /**
  * Created by keyman on 03/01/17.
  */
+
 public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity {
 
     public static final String HOLDER = "HOLDER";
@@ -50,7 +50,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
     private CoverageHolder holder = null;
     private VaccineRepo.Vaccine vaccine = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +65,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(FacilityCumulativeCoverageReportActivity.this, CoverageReportsActivity.class);
+                Intent intent = new Intent(FacilityCumulativeCoverageReportActivity.this, AnnualCoverageReportCsoActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
                 finish();
@@ -202,9 +201,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         List<PointValue> startValues = new ArrayList<>();
         List<PointValue> endValues = new ArrayList<>();
 
-        startValues.add(new PointValue(0f, 0f));
-        endValues.add(new PointValue(0f, 0f));
-
         boolean checkCurrentTime = false;
         Calendar calendar = null;
         Date currentDate = null;
@@ -269,9 +265,11 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         }
 
         LineChartData data = new LineChartData();
-        data.setLines(lines);
 
-        data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setFormatter(new MonthValueFormatter()));
+        data.setLines(lines);
+        data.setBaseValue(0f);
+
+        data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setFormatter(new MonthValueFormatter()).setHasTiltedLabels(false));
         data.setAxisYLeft(new Axis(leftAxisValues).setHasLines(true).setHasTiltedLabels(false));
         data.setAxisXTop(new Axis(topAxisValues).setHasLines(true).setHasTiltedLabels(false));
         data.setAxisYRight(new Axis(rightAxisValues).setMaxLabelChars(5).setHasLines(false).setHasTiltedLabels(false));
@@ -280,6 +278,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartView monitoringChart = (LineChartView) findViewById(R.id.monitoring_chart);
         monitoringChart.setLineChartData(data);
         monitoringChart.setViewportCalculationEnabled(false);
+
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
 
         updateTableLayout(startValueMap, endValueMap, months, isComparison, checkCurrentTime);
@@ -408,11 +407,11 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
                         endVaccine = VaccineRepo.Vaccine.measles1;
                     }
 
-                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(startVaccine.display().toLowerCase())));
-                    startCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(startVaccine.display().toLowerCase())));
+                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), convertToUpperLower(startVaccine.display())));
+                    startCumTextView.setText(String.format(getString(R.string.total_cum), convertToUpperLower(startVaccine.display())));
 
-                    endTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(endVaccine.display().toLowerCase())));
-                    endCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(endVaccine.display().toLowerCase())));
+                    endTotalTextView.setText(String.format(getString(R.string.total_vaccine), convertToUpperLower(endVaccine.display())));
+                    endCumTextView.setText(String.format(getString(R.string.total_cum), convertToUpperLower(endVaccine.display())));
 
                     dropoutTextView.setText(getString(R.string.total_dropout));
                     if (startVaccine.equals(VaccineRepo.Vaccine.penta1)) {
@@ -429,8 +428,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
                     cumDropoutTextView.setTextColor(getResources().getColor(R.color.text_black));
                     cumDropoutPercentageTextView.setTextColor(getResources().getColor(R.color.text_black));
                 } else {
-                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), StringUtils.capitalize(vaccine.display().toLowerCase())));
-                    startCumTextView.setText(String.format(getString(R.string.total_cum), StringUtils.capitalize(vaccine.display().toLowerCase())));
+                    startTotalTextView.setText(String.format(getString(R.string.total_vaccine), convertToUpperLower(vaccine.display())));
+                    startCumTextView.setText(String.format(getString(R.string.total_cum), convertToUpperLower(vaccine.display())));
                 }
             } else {
 
@@ -496,6 +495,15 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         }
     }
 
+    public String convertToUpperLower(String vaccineName){
+        for (VACCINES vaccine : VACCINES.values()) {
+            if(vaccineName.contains(vaccine.name())){
+                return vaccineName.toUpperCase();
+            }
+        }
+        return vaccineName.toLowerCase();
+    }
+
     @Override
     protected Map<String, NamedObject<?>> generateReportBackground() {
         VaccineRepo.Vaccine startVaccine = vaccine;
@@ -558,9 +566,23 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         @Override
         public int formatValueForManualAxis(char[] formattedValue, AxisValue axisValue) {
-            axisValue.setValue(axisValue.getValue() + 0.5f);
+            String label = String.valueOf(axisValue.getLabelAsChars());
+            String[] months = new DateFormatSymbols().getShortMonths();
+            for (int i = 0; i < months.length; i++) {
+                if (label.equals(months[i].toUpperCase())) {
+                    float value = i + 0.5f;
+                    axisValue.setValue(value);
+                    break;
+                }
+            }
             return super.formatValueForManualAxis(formattedValue, axisValue);
         }
 
+    }
+
+    private enum VACCINES {
+        BCG,
+        OPV,
+        PCV
     }
 }
