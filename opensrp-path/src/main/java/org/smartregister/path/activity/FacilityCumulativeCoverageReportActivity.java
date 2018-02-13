@@ -6,10 +6,6 @@ import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.google.common.base.Enums;
-
-import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
