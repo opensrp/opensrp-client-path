@@ -3,14 +3,10 @@ package org.smartregister.path.sync;
 import android.content.Context;
 import android.util.Log;
 
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.smartregister.domain.Response;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.repository.EventClientRepository;
-import org.smartregister.service.HTTPAgent;
 import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
@@ -20,8 +16,6 @@ import java.util.List;
 import util.MoveToMyCatchmentUtils;
 
 public class ECSyncUpdater {
-    public static final String SEARCH_URL = "/rest/event/sync";
-
     private static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
     private static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
 
@@ -40,37 +34,6 @@ public class ECSyncUpdater {
     private ECSyncUpdater(Context context) {
         this.context = context;
         db = VaccinatorApplication.getInstance().eventClientRepository();
-    }
-    
-    public JSONObject fetchAsJsonObject(String filter, String filterValue) throws Exception {
-        try {
-            HTTPAgent httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
-            String baseUrl = VaccinatorApplication.getInstance().context().
-                    configuration().dristhiBaseURL();
-            if (baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
-            }
-
-            Long lastSyncDatetime = getLastSyncTimeStamp();
-            Log.i(ECSyncUpdater.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
-
-            String url = baseUrl + SEARCH_URL + "?" + filter + "=" + filterValue + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
-            Log.i(ECSyncUpdater.class.getName(), "URL: " + url);
-
-            if (httpAgent == null) {
-                throw new Exception(SEARCH_URL + " http agent is null");
-            }
-
-            Response resp = httpAgent.fetch(url);
-            if (resp.isFailure()) {
-                throw new Exception(SEARCH_URL + " not returned data");
-            }
-
-            return new JSONObject((String) resp.payload());
-        } catch (Exception e) {
-            Log.e(getClass().getName(), "Exception", e);
-            throw new Exception(SEARCH_URL + " threw exception", e);
-        }
     }
 
     public boolean saveAllClientsAndEvents(JSONObject jsonObject) {
@@ -117,6 +80,24 @@ public class ECSyncUpdater {
             Log.e(getClass().getName(), "Exception", e);
         }
         return new ArrayList<>();
+    }
+
+    public JSONObject getEventsByEventId(String eventId) {
+        try {
+            return db.getEventsByEventId(eventId);
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+        }
+        return null;
+    }
+
+    public JSONObject getEventsByFormSubmissionId(String formSubmissionId) {
+        try {
+            return db.getEventsByFormSubmissionId(formSubmissionId);
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Exception", e);
+        }
+        return null;
     }
 
     public List<JSONObject> getEvents(Date lastSyncDate, String syncStatus) {
@@ -178,7 +159,15 @@ public class ECSyncUpdater {
     }
 
     public void batchSave(JSONArray events, JSONArray clients) throws Exception {
+        batchInsertClients(clients);
+        batchInsertEvents(events);
+    }
+
+    public void batchInsertClients(JSONArray clients) {
         db.batchInsertClients(clients);
+    }
+
+    private void batchInsertEvents(JSONArray events) {
         db.batchInsertEvents(events, getLastSyncTimeStamp());
     }
 

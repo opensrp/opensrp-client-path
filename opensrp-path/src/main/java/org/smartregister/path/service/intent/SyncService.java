@@ -10,11 +10,28 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.support.annotation.Nullable;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.Volley;
+
+import net.vidageek.mirror.dsl.Mirror;
+
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
@@ -29,23 +46,18 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 import org.smartregister.util.Utils;
 
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import util.NetworkUtils;
 
 public class SyncService extends Service {
-    private static final String EVENTS_SYNC_PATH = "/rest/event/add";
+    private static final String ADD_URL = "/rest/event/add";
+    public static final String SYNC_URL = "/rest/event/sync";
 
     private Context context;
     private HTTPAgent httpAgent;
@@ -55,8 +67,7 @@ public class SyncService extends Service {
 
     private volatile HandlerThread mHandlerThread;
     private ServiceHandler mServiceHandler;
-    private List<Observable<?>> observables;
-    private boolean fetchFinished;
+    private RequestQueue mainRequestQueue;
 
     @Override
     public void onCreate() {
@@ -103,7 +114,7 @@ public class SyncService extends Service {
 
     private void doSync() {
         if (!NetworkUtils.isNetworkAvailable()) {
-            sendSyncStatusBroadcastMessage(FetchStatus.noConnection, true);
+            complete(FetchStatus.noConnection);
             return;
         }
 
@@ -112,160 +123,134 @@ public class SyncService extends Service {
             pullECFromServer();
 
         } catch (Exception e) {
-            Log.e(getClass().getName(), "", e);
-            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
+            Log.e(getClass().getName(), e.getMessage(), e);
+            complete(FetchStatus.fetchedFailed);
         }
     }
 
     private void pullECFromServer() {
-        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-
-        // Fetch locations
-        String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
-        if (StringUtils.isBlank(locations)) {
-            sendSyncStatusBroadcastMessage(FetchStatus.fetchedFailed, true);
-            return;
-        }
-
-        Observable.just(locations)
-                .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.computation())
-                .flatMap(new Function<String, ObservableSource<?>>() {
-                    @Override
-                    public ObservableSource<?> apply(@NonNull String locations) throws Exception {
-
-                        JSONObject jsonObject = fetchRetry(locations, 0);
-                        if (jsonObject == null) {
-                            return Observable.just(FetchStatus.fetchedFailed);
-                        } else {
-                            final String NO_OF_EVENTS = "no_of_events";
-                            int eCount = jsonObject.has(NO_OF_EVENTS) ? jsonObject.getInt(NO_OF_EVENTS) : 0;
-                            if (eCount < 0) {
-                                return Observable.just(FetchStatus.fetchedFailed);
-                            } else if (eCount == 0) {
-                                return Observable.just(FetchStatus.nothingFetched);
-                            } else {
-                                Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
-                                long lastServerVersion = serverVersionPair.second - 1;
-                                if (eCount < EVENT_PULL_LIMIT) {
-                                    lastServerVersion = serverVersionPair.second;
-                                }
-
-                                ecUpdater.updateLastSyncTimeStamp(lastServerVersion);
-                                return Observable.just(new ResponseParcel(jsonObject, serverVersionPair));
-                            }
-                        }
-                    }
-                })
-                .subscribe(new Consumer<Object>() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public void accept(Object o) throws Exception {
-                        if (o != null) {
-                            if (o instanceof ResponseParcel) {
-                                ResponseParcel responseParcel = (ResponseParcel) o;
-                                saveResponseParcel(responseParcel);
-                            } else if (o instanceof FetchStatus) {
-                                final FetchStatus fetchStatus = (FetchStatus) o;
-                                if (observables == null || observables.isEmpty()) {
-                                    complete(fetchStatus);
-                                } else {
-                                    fetchFinished = true;
-                                }
-                            }
-                        }
-                    }
-                });
+        fetchRetry();
     }
 
-    private void saveResponseParcel(final ResponseParcel responseParcel) {
-        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-        final Observable<FetchStatus> observable = Observable.just(responseParcel)
-                .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                .subscribeOn(Schedulers.io()).
-                        flatMap(new Function<ResponseParcel, ObservableSource<FetchStatus>>() {
-                            @Override
-                            public ObservableSource<FetchStatus> apply(@NonNull ResponseParcel responseParcel) throws Exception {
-                                JSONObject jsonObject = responseParcel.getJsonObject();
-                                ecUpdater.saveAllClientsAndEvents(jsonObject);
-                                return Observable.
-                                        just(responseParcel.getServerVersionPair())
-                                        .observeOn(AndroidSchedulers.from(mHandlerThread.getLooper()))
-                                        .subscribeOn(Schedulers.io())
-                                        .map(new Function<Pair<Long, Long>, FetchStatus>() {
-                                            @Override
-                                            public FetchStatus apply(@NonNull Pair<Long, Long> serverVersionPair) throws Exception {
-                                                PathClientProcessor.getInstance(context).processClient(ecUpdater.allEvents(serverVersionPair.first - 1, serverVersionPair.second));
-                                                return FetchStatus.fetched;
-                                            }
-                                        });
+    private void fetchRetry() {
+        fetchRetry(0);
+    }
 
-                            }
-                        });
+    private synchronized void fetchRetry(final int count) {
+        try {
+            // Fetch locations
+            final String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
+            if (StringUtils.isBlank(locations)) {
+                complete(FetchStatus.fetchedFailed);
+                return;
+            }
 
-        observable.subscribe(new Consumer<FetchStatus>() {
-            @Override
-            public void accept(FetchStatus fetchStatus) throws Exception {
-                // Remove observable from list
-                observables.remove(observable);
-                Log.i(getClass().getName(), "Deleted: one observable, new count:" + observables.size());
+            final ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
+            String baseUrl = VaccinatorApplication.getInstance().context().
+                    configuration().dristhiBaseURL();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf("/"));
+            }
 
-                if ((observables == null || observables.isEmpty()) && fetchFinished) {
-                    complete(FetchStatus.fetched);
-                } else {
-                    sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+            Long lastSyncDatetime = ecSyncUpdater.getLastSyncTimeStamp();
+            Log.i(SyncService.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
+            String url = baseUrl + SYNC_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
+            Log.i(SyncService.class.getName(), "URL: " + url);
+
+            JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<JSONObject>() {
+                @Override
+                @SuppressWarnings("unchecked")
+                public void onResponse(JSONObject jsonObject) {
+                    int eCount = fetchNumberOfEvents(jsonObject);
+                    Log.i(getClass().getName(), "Response Success Event Count: " + eCount);
+
+                    if (eCount == 0) {
+                        complete(FetchStatus.nothingFetched);
+                    } else {
+                        fetchRetry();
+                    }
                 }
-            }
-        });
+            }, new com.android.volley.Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    if (error != null) {
+                        Log.e(getClass().getName(), "Fetch Retry Error Response Exception: " + error.getMessage(), error.getCause());
+                        NetworkResponse networkResponse = error.networkResponse;
+                        if (networkResponse != null) {
+                            Log.e(getClass().getName(), "Status Code: " + networkResponse.statusCode);
+                        }
+                    }
 
-        // Add observable to list
-        observables.add(observable);
+                    if (count < 2) {
+                        int newCount = count + 1;
+                        fetchRetry(newCount);
+                    } else {
+                        complete(FetchStatus.fetchedFailed);
+                    }
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    return authHeaders();
+                }
 
-        Long observableSize = observables == null ? 0L : observables.size();
-        Log.i(getClass().getName(), "Added: one observable, new count: " + observableSize);
+                @Override
+                protected com.android.volley.Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
+                    try {
+                        String jsonString = new String(response.data,
+                                HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
 
-        pullECFromServer();
+                        JSONObject jsonObject = new JSONObject(jsonString);
 
-    }
+                        int eCount = fetchNumberOfEvents(jsonObject);
+                        Log.i(getClass().getName(), "Parse Network Event Count: " + eCount);
 
-    private JSONObject fetchRetry(String locations, int count) throws Exception {
-        // Request spacing
-        try {
-            final int ONE_SECOND = 1000;
-            Thread.sleep(ONE_SECOND);
-        } catch (InterruptedException ie) {
-            Log.e(getClass().getName(), ie.getMessage());
-        }
+                        if (eCount < 0) {
+                            return com.android.volley.Response.error(new ParseError(new Exception("Error")));
+                        } else if (eCount > 0) {
+                            final Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
+                            long lastServerVersion = serverVersionPair.second - 1;
+                            if (eCount < EVENT_PULL_LIMIT) {
+                                lastServerVersion = serverVersionPair.second;
+                            }
 
-        final ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+                            ecSyncUpdater.saveAllClientsAndEvents(jsonObject);
+                            ecSyncUpdater.updateLastSyncTimeStamp(lastServerVersion);
 
-        try {
-            return ecUpdater.fetchAsJsonObject(AllConstants.SyncFilters.FILTER_LOCATION_ID, locations);
+                            processClient(serverVersionPair);
+                        }
+                        return com.android.volley.Response.success(jsonObject,
+                                HttpHeaderParser.parseCacheHeaders(response));
+                    } catch (UnsupportedEncodingException e) {
+                        return com.android.volley.Response.error(new ParseError(e));
+                    } catch (JSONException je) {
+                        return com.android.volley.Response.error(new ParseError(je));
+                    } catch (Exception e) {
+                        return com.android.volley.Response.error(new ParseError(e));
+                    }
+                }
+            };
 
+            addRequestToQueue(mainRequestQueue, jsonRequest);
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
-            if (count >= 2) {
-                return null;
-            } else {
-                int newCount = count + 1;
-                return fetchRetry(locations, newCount);
-            }
-
+            Log.e(getClass().getName(), "Fetch Retry Exception: " + e.getMessage(), e.getCause());
         }
     }
 
-    private void complete(FetchStatus fetchStatus) {
-        if (fetchStatus.equals(FetchStatus.nothingFetched)) {
-            ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
-            ecSyncUpdater.updateLastCheckTimeStamp(Calendar.getInstance().getTimeInMillis());
-        }
 
-        sendSyncStatusBroadcastMessage(fetchStatus, true);
+    private void processClient(Pair<Long, Long> serverVersionPair) {
+        try {
+            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+            List<JSONObject> events = ecUpdater.allEvents(serverVersionPair.first - 1, serverVersionPair.second);
+            PathClientProcessor.getInstance(context).processClient(events);
+            sendSyncStatusBroadcastMessage(FetchStatus.fetched);
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Process Client Exception: " + e.getMessage(), e.getCause());
+        }
     }
 
-// PUSH TO SERVER
-
+    // PUSH TO SERVER
     private void pushToServer() {
         pushECToServer();
     }
@@ -298,7 +283,7 @@ public class SyncService extends Service {
                 Response<String> response = httpAgent.post(
                         MessageFormat.format("{0}/{1}",
                                 baseUrl,
-                                EVENTS_SYNC_PATH),
+                                ADD_URL),
                         jsonPayload);
                 if (response.isFailure()) {
                     Log.e(getClass().getName(), "Events sync failed.");
@@ -307,27 +292,34 @@ public class SyncService extends Service {
                 db.markEventsAsSynced(pendingEvents);
                 Log.i(getClass().getName(), "Events synced successfully.");
             } catch (Exception e) {
-                Log.e(getClass().getName(), e.getMessage());
+                Log.e(getClass().getName(), e.getMessage(), e);
             }
         }
-
-
     }
 
-    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus, boolean isComplete) {
+
+    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
-        intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, isComplete);
         sendBroadcast(intent);
-
-        if (isComplete) {
-            stopSelf();
-        }
     }
 
-    private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
-        sendSyncStatusBroadcastMessage(fetchStatus, false);
+    private void complete(FetchStatus fetchStatus) {
+
+        Intent intent = new Intent();
+        intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
+        intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
+
+        if (isEmptyReuestQueue(mainRequestQueue)) {
+            intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, true);
+        }
+
+        sendBroadcast(intent);
+
+        if (isEmptyReuestQueue(mainRequestQueue)) {
+            stopSelf();
+        }
     }
 
     private void drishtiLogInfo(String message) {
@@ -363,14 +355,62 @@ public class SyncService extends Service {
                 return Pair.create(minServerVersion, maxServerVersion);
             }
         } catch (Exception e) {
-            Log.e(getClass().getName(), e.getMessage());
+            Log.e(getClass().getName(), e.getMessage(), e);
         }
         return Pair.create(0L, 0L);
     }
 
-    ////////////////////////////////////////////////////////////////
-    // Inner classes
-    ////////////////////////////////////////////////////////////////
+    private Map<String, String> authHeaders() {
+        final String USERNAME = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
+        final String PASSWORD = VaccinatorApplication.getInstance().context().allSettings().fetchANMPassword();
+        Map<String, String> headers = new HashMap<>();
+        // add headers <key,value>
+        String credentials = USERNAME + ":" + PASSWORD;
+        String auth = "Basic "
+                + Base64.encodeToString(credentials.getBytes(),
+                Base64.NO_WRAP);
+        headers.put("Content-Type", "application/json");
+        headers.put("Authorization", auth);
+        return headers;
+    }
+
+    private int fetchNumberOfEvents(JSONObject jsonObject) {
+        int count = 0;
+        final String NO_OF_EVENTS = "no_of_events";
+        try {
+            if (jsonObject != null && jsonObject.has(NO_OF_EVENTS)) {
+                count = jsonObject.getInt(NO_OF_EVENTS);
+            }
+        } catch (JSONException e) {
+            Log.e(getClass().getName(), e.getMessage(), e);
+        }
+        return count;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean isEmptyReuestQueue(RequestQueue requestQueue) {
+        synchronized (requestQueue) {
+            final Object mObject = new Mirror().on(requestQueue).get().field("mCurrentRequests");
+            final Set<Request<?>> mCurrentRequests = (Set<Request<?>>) mObject;
+            return mCurrentRequests.isEmpty();
+        }
+    }
+
+
+    private void addRequestToQueue(RequestQueue requestQueue, Request request) {
+        final int TIMEOUT = 30000;
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                TIMEOUT,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
+        requestQueue.add(request);
+    }
+
+
+////////////////////////////////////////////////////////////////
+// Inner classes
+////////////////////////////////////////////////////////////////
 
     private final class ServiceHandler extends Handler {
         private ServiceHandler(Looper looper) {
@@ -379,28 +419,16 @@ public class SyncService extends Service {
 
         @Override
         public void handleMessage(Message message) {
-            observables = new ArrayList<>();
-            fetchFinished = false;
+            mainRequestQueue = Volley.newRequestQueue(context);
+            mainRequestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
+                @Override
+                public void onRequestFinished(Request<Object> request) {
+                    if (isEmptyReuestQueue(mainRequestQueue)) {
+                        complete(FetchStatus.nothingFetched);
+                    }
+                }
+            });
             handleSync();
         }
     }
-
-    private class ResponseParcel {
-        private JSONObject jsonObject;
-        private Pair<Long, Long> serverVersionPair;
-
-        private ResponseParcel(JSONObject jsonObject, Pair<Long, Long> serverVersionPair) {
-            this.jsonObject = jsonObject;
-            this.serverVersionPair = serverVersionPair;
-        }
-
-        private JSONObject getJsonObject() {
-            return jsonObject;
-        }
-
-        private Pair<Long, Long> getServerVersionPair() {
-            return serverVersionPair;
-        }
-    }
-
 }

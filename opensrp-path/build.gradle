@@ -139,10 +139,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-// Because RxAndroid releases are few and far between, it is recommended you also
-// explicitly depend on RxJava's latest version for bug fixes and new features.
-    compile 'io.reactivex.rxjava2:rxjava:2.1.5'
+    compile group: 'net.vidageek', name: 'mirror', version: '1.6.1'
 
     testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
         exclude group: 'com.google.guava', module: 'guava'
