@@ -6,19 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activity.CohortCoverageReportActivity">
+    tools:context=".activity.BcgMeaslesCumulativeDropoutReportActivity">
 
     <include layout="@layout/toolbar_dropout_template" />
 
-    <FrameLayout
+    <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/frameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <include layout="@layout/expandable_list_fragment" />
-    </FrameLayout>
+        <include layout="@layout/report_expandable_list_view" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <include layout="@layout/notification_base" />
 

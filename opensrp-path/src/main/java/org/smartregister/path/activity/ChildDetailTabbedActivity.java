@@ -633,11 +633,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
 
                 JSONObject form = new JSONObject(jsonString);
-                if (form.getString("encounter_type").equals("Death")) {
+                if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
-                } else if (form.getString("encounter_type").equals("Birth Registration")) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.BITRH_REGISTRATION)) {
                     JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
-                } else if (form.getString("encounter_type").equals("AEFI")) {
+                } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.AEFI)) {
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
@@ -1157,7 +1157,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         tag.setDbKey(vaccine.getId());
 
         // Update coverage reports
-        CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), String.valueOf(tag.getUpdatedVaccineDate().toDate().getTime()));
+        CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), tag.getUpdatedVaccineDate().toDate());
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             invalidateOptionsMenu();
@@ -1431,6 +1431,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
+    @Override
+    protected void startJsonForm(String formName, String entityId) {
+        try {
+            startJsonForm(formName, entityId, location_name);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }
+    }
 
     ////////////////////////////////////////////////////////////////
     // Inner classes

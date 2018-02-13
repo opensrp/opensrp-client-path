@@ -28,10 +28,9 @@ public class CohortIndicatorRepository extends BaseRepository {
     private static final String COLUMN_UPDATED_AT = "updated_at";
     private static final String[] TABLE_COLUMNS = {
             COLUMN_ID, COLUMN_COHORT_ID, COLUMN_VACCINE, COLUMN_VALUE, COLUMN_CREATED_AT, COLUMN_UPDATED_AT
-
     };
 
-    private static final String COHORT_SQL = "CREATE TABLE " + TABLE_NAME +
+    private static final String COHORT_INDICATOR_SQL = "CREATE TABLE " + TABLE_NAME +
             " (" + COLUMN_ID + " INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_COHORT_ID + " INTEGER NOT NULL," +
             COLUMN_VACCINE + " VARCHAR NOT NULL," +
@@ -39,7 +38,7 @@ public class CohortIndicatorRepository extends BaseRepository {
             COLUMN_CREATED_AT + " DATETIME NULL," +
             COLUMN_UPDATED_AT + " TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP, " +
             " UNIQUE(" + COLUMN_VACCINE + ", " + COLUMN_COHORT_ID + ") ON CONFLICT IGNORE )";
-    private static final String COHORT_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ");";
+    private static final String COHORT_INDICATOR_COHORT_ID_INDEX = "CREATE INDEX " + TABLE_NAME + "_" + COLUMN_COHORT_ID + "_index ON " + TABLE_NAME + "(" + COLUMN_COHORT_ID + ");";
 
     public CohortIndicatorRepository(PathRepository pathRepository) {
         super(pathRepository);
@@ -47,8 +46,8 @@ public class CohortIndicatorRepository extends BaseRepository {
     }
 
     protected static void createTable(SQLiteDatabase database) {
-        database.execSQL(COHORT_SQL);
-        database.execSQL(COHORT_INDEX);
+        database.execSQL(COHORT_INDICATOR_SQL);
+        database.execSQL(COHORT_INDICATOR_COHORT_ID_INDEX);
     }
 
     public void add(CohortIndicator cohortIndicator) {
@@ -81,11 +80,13 @@ public class CohortIndicatorRepository extends BaseRepository {
         }
 
         Cursor cursor = null;
+        CohortIndicator cohortIndicator = null;
+
         try {
-            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? AND " + COLUMN_VACCINE + " = ? COLLATE NOCASE ", new String[]{cohortId.toString(), vaccine}, null, null, null, null);
+            cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? AND " + COLUMN_VACCINE + " = ? ", new String[]{cohortId.toString(), vaccine}, null, null, null, null);
             List<CohortIndicator> cohortIndicators = readAllDataElements(cursor);
             if (!cohortIndicators.isEmpty()) {
-                return cohortIndicators.get(0);
+                cohortIndicator = cohortIndicators.get(0);
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -95,7 +96,7 @@ public class CohortIndicatorRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return cohortIndicator;
     }
 
     public List<CohortIndicator> findByCohort(Long cohortId) {
@@ -104,9 +105,11 @@ public class CohortIndicatorRepository extends BaseRepository {
         }
 
         Cursor cursor = null;
+        List<CohortIndicator> cohortIndicators = new ArrayList<>();
+
         try {
             cursor = getReadableDatabase().query(TABLE_NAME, TABLE_COLUMNS, COLUMN_COHORT_ID + " = ? ", new String[]{cohortId.toString()}, null, null, null, null);
-            return readAllDataElements(cursor);
+            cohortIndicators = readAllDataElements(cursor);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         } finally {
@@ -115,7 +118,7 @@ public class CohortIndicatorRepository extends BaseRepository {
             }
         }
 
-        return null;
+        return cohortIndicators;
     }
 
     public void changeValue(Long value, Long id) {

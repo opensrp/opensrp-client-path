@@ -2,29 +2,29 @@ package org.smartregister.path.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.tuple.Triple;
-import org.smartregister.domain.FetchStatus;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ExpandedListAdapter;
+import org.smartregister.path.domain.NamedObject;
+import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
-import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by keyman on 09/01/18.
  */
-public class BcgMeaslesCohortDropoutReportActivity extends BaseActivity {
+public class BcgMeaslesCohortDropoutReportActivity extends BaseReportActivity {
     private ExpandableListView expandableListView;
 
     @Override
@@ -53,27 +53,6 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseActivity {
         expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
         expandableListView.setDivider(null);
         expandableListView.setDividerHeight(0);
-
-        updateExpandableList(formatListData());
-    }
-
-    @Override
-    public void onSyncStart() {
-        super.onSyncStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
-        hia2.setBackgroundColor(getResources().getColor(R.color.tintcolor));
-
-    }
-
-    @Override
-    public void onSyncComplete(FetchStatus fetchStatus) {
-        super.onSyncComplete(fetchStatus);
     }
 
     @Override
@@ -96,32 +75,46 @@ public class BcgMeaslesCohortDropoutReportActivity extends BaseActivity {
         return null;
     }
 
+    @Override
+    protected String getActionType() {
+        return CoverageDropoutBroadcastReceiver.TYPE_GENERATE_COHORT_INDICATORS;
+    }
+
+    @Override
+    protected int getParentNav() {
+        return R.id.dropout_reports;
+    }
+
     @SuppressWarnings("unchecked")
-    private void updateExpandableList(final LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
-
-
-        ExpandedListAdapter<String, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCohortDropoutReportActivity.this, map, R.layout.dropout_report_cohort_bcg_header, R.layout.dropout_report_item);
+    private void updateExpandableList(final LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map) {
+        ExpandedListAdapter<Pair<String, String>, Triple<String, String, String>, Date> expandableListAdapter = new ExpandedListAdapter(BcgMeaslesCohortDropoutReportActivity.this, map, R.layout.dropout_report_cohort_bcg_header, R.layout.dropout_report_item);
+        expandableListAdapter.setChildSelectable(false);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListAdapter.notifyDataSetChanged();
     }
 
-    private LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> formatListData() {
-        LinkedHashMap<Pair<String, String>, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> map = new LinkedHashMap<>();
+    @Override
+    protected Map<String, NamedObject<?>> generateReportBackground() {
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = generateCohortDropoutMap(VaccineRepo.Vaccine.bcg, VaccineRepo.Vaccine.measles1);
+        NamedObject<LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>> linkedHashMapNamedObject = new NamedObject<>(LinkedHashMap.class.getName(), linkedHashMap);
 
-        List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>> itemDataList = new ArrayList<>();
-        String[] months = new DateFormatSymbols().getMonths();
-        for (int i = 11; i >= 0; i--) {
-            String month = months[i];
-            ExpandedListAdapter.ItemData<Triple<String, String, String>, Date> itemData = new ExpandedListAdapter.ItemData<>(Triple.of(month, "14 / 100", "14%"), new Date());
-            itemDataList.add(itemData);
+        Map<String, NamedObject<?>> map = new HashMap<>();
+        map.put(linkedHashMapNamedObject.name, linkedHashMapNamedObject);
+        return map;
+    }
+
+    @Override
+    protected void generateReportUI(Map<String, NamedObject<?>> map, boolean userAction) {
+        LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>> linkedHashMap = new LinkedHashMap<>();
+
+        if (map.containsKey(LinkedHashMap.class.getName())) {
+            NamedObject<?> namedObject = map.get(LinkedHashMap.class.getName());
+            if (namedObject != null) {
+                linkedHashMap = (LinkedHashMap<String, List<ExpandedListAdapter.ItemData<Triple<String, String, String>, Date>>>) namedObject.object;
+            }
         }
 
-
-        map.put(Pair.create("2017", "14%"), itemDataList);
-        map.put(Pair.create("2016", "14%"), itemDataList);
-
-        return map;
-
+        updateExpandableList(linkedHashMap);
     }
 }
 

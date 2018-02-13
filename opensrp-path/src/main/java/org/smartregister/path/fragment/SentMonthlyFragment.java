@@ -72,9 +72,9 @@ public class SentMonthlyFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View fragmentView = inflater.inflate(R.layout.expandable_list_fragment, container, false);
+        View fragmentView = inflater.inflate(R.layout.report_expandable_list_view, container, false);
         expandableListView = (ExpandableListView) fragmentView.findViewById(R.id.expandable_list_view);
-
+        expandableListView.setBackgroundColor(getResources().getColor(R.color.white));
         return fragmentView;
     }
 
@@ -100,7 +100,7 @@ public class SentMonthlyFragment extends Fragment
             return;
         }
 
-        ExpandedListAdapter<Pair<String, String>, Date> expandableListAdapter = new ExpandedListAdapter(getActivity(), map, R.layout.sent_monthly_header, R.layout.sent_monthly_item);
+        ExpandedListAdapter<String, Pair<String, String>, Date> expandableListAdapter = new ExpandedListAdapter(getActivity(), map, R.layout.sent_monthly_header, R.layout.sent_monthly_item);
         expandableListView.setAdapter(expandableListAdapter);
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override

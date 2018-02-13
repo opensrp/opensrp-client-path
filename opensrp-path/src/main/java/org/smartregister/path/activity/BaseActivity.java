@@ -468,19 +468,23 @@ public abstract class BaseActivity extends AppCompatActivity
         return new int[]{darkShade, normalShade, lightSade};
     }
 
-    private void startJsonForm(String formName, String entityId) {
+    protected void startJsonForm(String formName, String entityId) {
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
                 String locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
                         locationSwitcherToolbar.getCurrentLocation());
 
-                JsonFormUtils.startForm(this, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
-                        formName, entityId, null, locationId);
+                startJsonForm(formName, entityId, locationId);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+    }
+
+    protected void startJsonForm(String formName, String entityId, String locationId) throws Exception {
+        JsonFormUtils.startForm(this, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
+                formName, entityId, null, locationId);
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,

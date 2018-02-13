@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import util.JsonFormUtils;
+import util.Utils;
 
 /**
  * @author Jason Rogena - jrogena@ona.io
@@ -192,15 +193,9 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
         LocationPickerView.this.getLocationInWindow(coords);
         wlp.x = coords[0]
                 + (int) (LocationPickerView.this.getWidth() * 0.5)
-                - (int) (convertDpToPx(780) * 0.5);
+                - (int) (Utils.convertDpToPx(context, 780) * 0.5);
 
         locationPickerDialog.show();
-    }
-
-    private int convertDpToPx(int dp) {
-        Resources r = context.getResources();
-        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
-        return Math.round(px);
     }
 
     public interface OnLocationChangeListener {

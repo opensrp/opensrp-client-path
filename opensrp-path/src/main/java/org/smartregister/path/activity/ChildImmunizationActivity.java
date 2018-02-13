@@ -63,6 +63,7 @@ import org.smartregister.immunization.view.ServiceGroup;
 import org.smartregister.immunization.view.VaccineGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
@@ -1669,17 +1670,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
             SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
             siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, ids);
-        }
-    }
-
-
-    private class NamedObject<T> {
-        public final String name;
-        public final T object;
-
-        public NamedObject(String name, T object) {
-            this.name = name;
-            this.object = object;
         }
     }
 

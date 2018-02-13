@@ -27,6 +27,7 @@ import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
+import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.path.wrapper.WeightViewRecordUpdateWrapper;
 import org.smartregister.service.AlertService;
@@ -132,7 +133,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         final ImageView profilePic = (ImageView) convertView.findViewById(R.id.child_profilepic);
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
-        if (pc.entityId() != null) { //image already in local storage most likely ):
+        if (pc.entityId() != null && !SyncStatusBroadcastReceiver.getInstance().isSyncing()) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(org.smartregister.R.id.entity_id, pc.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(pc.entityId(), OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));

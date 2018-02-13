@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -25,34 +26,29 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
+import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.view.LocationPickerView;
 
 import util.JsonFormUtils;
-import util.PathConstants;
 
 /**
  * Created by keyman on 22/12/17.
  */
 public class SetCsoDialogFragment extends DialogFragment {
 
-    private int year;
-    private Long previousValue;
+    private CoverageHolder holder;
     private OnSetCsoListener listener;
 
-    public static SetCsoDialogFragment newInstance(int year, Long previousValue) {
+    public static SetCsoDialogFragment newInstance(CoverageHolder holder) {
         SetCsoDialogFragment f = new SetCsoDialogFragment();
-        f.setYear(year);
-        f.setPreviousValue(previousValue);
+        f.setHolder(holder);
         return f;
     }
 
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public void setPreviousValue(Long previousValue) {
-        this.previousValue = previousValue;
+    public void setHolder(CoverageHolder holder) {
+        this.holder = holder;
     }
 
     @Override
@@ -72,21 +68,21 @@ public class SetCsoDialogFragment extends DialogFragment {
 
 
         TextView title = (TextView) view.findViewById(R.id.cso_title);
-        title.setText(String.format(getString(R.string.set_cso_title), year));
+        title.setText(String.format(getString(R.string.set_cso_title), BaseReportActivity.getYear(holder.getDate())));
 
         final EditText setCso = (EditText) view.findViewById(R.id.set_cso);
         setCso.setHint(String.format(getString(R.string.enter_cso_hint), getDefaultLocation()));
 
-        if (previousValue != null) {
-            setCso.setText(previousValue.toString());
+        if (holder.getSize() != null) {
+            setCso.setText(holder.getSize().toString());
+            setCso.setSelection(setCso.getText().length());
         }
 
         setCso.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (actionId == KeyEvent.KEYCODE_ENTER)) {
-                    csoSet(setCso, year);
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    csoSet(setCso, holder);
                     return true;
                 }
                 return false;
@@ -105,22 +101,25 @@ public class SetCsoDialogFragment extends DialogFragment {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                csoSet(setCso, year);
+                csoSet(setCso, holder);
             }
         });
 
         return view;
     }
 
-    private void csoSet(EditText setCsoEditText, int year) {
+    private void csoSet(EditText setCsoEditText, CoverageHolder holder) {
         String value = setCsoEditText.getText().toString();
         if (StringUtils.isNotBlank(value) && StringUtils.isNumeric(value)) {
-            String prefKey = PathConstants.CSO_UNDER_1_POPULATION + "_" + year;
-            VaccinatorApplication.getInstance().context().allSharedPreferences().savePreference(prefKey, value);
-            SetCsoDialogFragment.this.dismiss();
+            Long csoNumber = Long.valueOf(value);
+            if (csoNumber > 0L) {
+                SetCsoDialogFragment.this.dismiss();
 
-            if (listener != null) {
-                listener.updateCsoTargetView(year, Long.valueOf(value));
+                if (listener != null) {
+                    listener.updateCsoTargetView(holder, csoNumber);
+                }
+            } else {
+                setCsoEditText.setError(getString(R.string.cso_target_must_be_greater_than_zero));
             }
         } else {
             setCsoEditText.setError(getString(R.string.cso_target_cannot_be_blank));
@@ -165,8 +164,8 @@ public class SetCsoDialogFragment extends DialogFragment {
     }
 
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
-                                                    String dialogTag, int year, Long previousValue) {
-        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(year, previousValue);
+                                                    String dialogTag, CoverageHolder holder) {
+        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(holder);
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
         if (prev != null) {
@@ -198,6 +197,6 @@ public class SetCsoDialogFragment extends DialogFragment {
     // Inner classes
     ////////////////////////////////////////////////////////////////
     public interface OnSetCsoListener {
-        void updateCsoTargetView(int year, Long value);
+        void updateCsoTargetView(CoverageHolder holder, Long newValue);
     }
 }

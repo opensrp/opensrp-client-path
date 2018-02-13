@@ -99,8 +99,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
         joinTable = joinTableString;
         mainCondition = mainConditionString;
         getSearchCancelView().setVisibility(isEmpty(filterString) ? INVISIBLE : VISIBLE);
-        CountExecute();
-        filterandSortExecute();
+        filterandSortExecute(countBundle());
     }
 
     @Override

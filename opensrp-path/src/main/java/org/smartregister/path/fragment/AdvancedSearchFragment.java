@@ -548,7 +548,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
         refresh();
 
-        filterandSortInInitializeQueries();
+        super.filterandSortInInitializeQueries();
     }
 
     private void globalSearch() {
@@ -1019,6 +1019,12 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
                     if (client.has("child")) {
                         JSONObject child = getJsonObject(client, "child");
+
+                        // Skip deceased children
+                        if (StringUtils.isNotBlank(getJsonString(child, "deathdate"))) {
+                            continue;
+                        }
+
                         entityId = getJsonString(child, "baseEntityId");
                         firstName = getJsonString(child, "firstName");
                         middleName = getJsonString(child, "middleName");
@@ -1035,6 +1041,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
                                 Log.e(getClass().getName(), e.toString(), e);
                             }
                         }
+
                         zeirId = getJsonString(getJsonObject(child, "identifiers"), JsonFormUtils.ZEIR_ID);
                         if (StringUtils.isNotBlank(zeirId)) {
                             zeirId = zeirId.replace("-", "");
