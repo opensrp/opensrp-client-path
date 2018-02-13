@@ -275,6 +275,7 @@
     <string name="pls_set_cso_target">Please set the CSO Target first.</string>
 
     <string name="dropout_month_header">Month</string>
+    <string name="dropout_cohort_header">Cohort</string>
     <string name="dropout_started_completed_header">(Started - Completed) / Started </string>
     <string name="dropout_percentage_header">Dropout Percent</string>
     <string name="dropout_cohort_bcg_size_header">(Cohort Size - M/MR 1) / Cohort Size </string>
