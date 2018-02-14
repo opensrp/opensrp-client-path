@@ -1,0 +1,44 @@
+[
+  {
+    "quantity": "20",
+    "name": "BCG",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  },
+  {
+    "quantity": "20",
+    "name": "OPV",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  },
+  {
+    "quantity": "1",
+    "name": "Penta",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  },
+  {
+    "quantity": "2",
+    "name": "PCV",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  },
+  {
+    "quantity": "1",
+    "name": "Rota",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  },
+  {
+    "quantity": "10",
+    "name": "M/MR",
+    "openmrs_parent_entity_id": "",
+    "openmrs_date_concept_id": "",
+    "openmrs_quantity_concept_id": ""
+  }
+]

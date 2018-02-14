@@ -46,9 +46,11 @@ import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
+import org.smartregister.path.repository.PathStockHelperRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
+import org.smartregister.stock.StockLibrary;
 import org.smartregister.stock.repository.StockRepository;
 import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.view.activity.DrishtiApplication;
@@ -118,6 +120,9 @@ public class VaccinatorApplication extends DrishtiApplication
         cleanUpSyncState();
         initOfflineSchedules();
         setCrashlyticsUser(context);
+
+        //Initialize stock lib and pass stock helper repository for external db functions
+        StockLibrary.init(context, getRepository(), new PathStockHelperRepository(getRepository()));
     }
 
     public static synchronized VaccinatorApplication getInstance() {

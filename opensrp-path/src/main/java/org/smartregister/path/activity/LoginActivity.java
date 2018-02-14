@@ -40,8 +40,6 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
-import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
@@ -381,7 +379,6 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ChildSmartRegisterActivity.class);
         intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, remote);
         startActivity(intent);
-        IMDatabaseUtils.accessAssetsAndFillDataBaseForVaccineTypes(this, null);
 
         finish();
     }

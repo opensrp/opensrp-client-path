@@ -113,4 +113,6 @@
     <dimen name="cohort_coverage_report_vertical_margin">15dp</dimen>
     <dimen name="cohort_coverage_report_padding_left">0dp</dimen>
     <dimen name="facility_cumulative_text_width">53dp</dimen>
+
+    <dimen name="nav_view_width">450dp</dimen>
 </resources>
