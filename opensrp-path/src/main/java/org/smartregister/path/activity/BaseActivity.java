@@ -227,7 +227,8 @@ public abstract class BaseActivity extends AppCompatActivity
 
             }
         });
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
+        //TODO invoke stock library
+        /*LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -236,7 +237,7 @@ public abstract class BaseActivity extends AppCompatActivity
                 drawer.closeDrawer(GravityCompat.START);
 
             }
-        });
+        });*/
         LinearLayout childregister = (LinearLayout) drawer.findViewById(R.id.child_register);
         childregister.setOnClickListener(new View.OnClickListener() {
             @Override

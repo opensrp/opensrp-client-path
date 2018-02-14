@@ -14,13 +14,12 @@ import org.smartregister.domain.Response;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.domain.Stock;
-import org.smartregister.path.repository.StockRepository;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
-import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.ActionService;
 import org.smartregister.service.HTTPAgent;
+import org.smartregister.stock.domain.Stock;
+import org.smartregister.stock.repository.StockRepository;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -106,7 +105,7 @@ public class ExtendedSyncIntentService extends IntentService {
                 StockRepository stockRepository = VaccinatorApplication.getInstance().stockRepository();
                 for (int j = 0; j < Stock_arrayList.size(); j++) {
                     Stock fromServer = Stock_arrayList.get(j);
-                    List<Stock> existingStock = stockRepository.findUniqueStock(fromServer.getVaccineTypeId(), fromServer.getTransactionType(), fromServer.getProviderid(),
+                    List<Stock> existingStock = stockRepository.findUniqueStock(fromServer.getStockTypeId(), fromServer.getTransactionType(), fromServer.getProviderid(),
                             String.valueOf(fromServer.getValue()), String.valueOf(fromServer.getDateCreated()), fromServer.getToFrom());
                     if (!existingStock.isEmpty()) {
                         for (Stock stock : existingStock) {
@@ -213,7 +212,7 @@ public class ExtendedSyncIntentService extends IntentService {
             JSONObject stock = new JSONObject();
             try {
                 stock.put("identifier", stocks.get(i).getId());
-                stock.put(context.getString(R.string.vaccine_type_id_key), stocks.get(i).getVaccineTypeId());
+                stock.put(context.getString(R.string.vaccine_type_id_key), stocks.get(i).getStockTypeId());
                 stock.put(context.getString(R.string.transaction_type_key), stocks.get(i).getTransactionType());
                 stock.put(context.getString(R.string.providerid_key), stocks.get(i).getProviderid());
                 stock.put(context.getString(R.string.date_created_key), stocks.get(i).getDateCreated());

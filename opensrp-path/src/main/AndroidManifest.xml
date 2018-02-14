@@ -75,10 +75,6 @@
             android:name=".activity.ReportSummaryActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
-        <activity
-            android:name=".activity.StockActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -107,10 +103,6 @@
                 android:resource="@xml/captured_images_path" />
         </provider>
 
-        <activity
-            android:name=".activity.StockControlActivity"
-            android:label="@string/title_activity_stock_control"
-            android:theme="@style/AppThemeNoTitle.NoActionBar" />
         <activity
             android:name=".activity.CoverageReportsActivity"
             android:screenOrientation="portrait"

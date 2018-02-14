@@ -189,10 +189,11 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
             startFormActivity("child_enrollment", null, null);
         } else if (id == R.id.nav_record_vaccination_out_catchment) {
             startFormActivity("out_of_catchment_service", null, null);
-        } else if (id == R.id.stock) {
+        } /*TODO invoke library
+        else if (id == R.id.stock) {
             Intent intent = new Intent(this, StockActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_sync) {
+        }*/ else if (id == R.id.nav_sync) {
             startSync();
         } else if (id == R.id.nav_hia2) {
             Intent intent = new Intent(this, HIA2ReportsActivity.class);
@@ -283,6 +284,8 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
 
             }
         });
+
+        /*TODO invoke stock library
         LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
         stockregister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -292,7 +295,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
                 drawer.closeDrawer(GravityCompat.START);
 
             }
-        });
+        });*/
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
         hia2.setOnClickListener(new View.OnClickListener() {
             @Override
