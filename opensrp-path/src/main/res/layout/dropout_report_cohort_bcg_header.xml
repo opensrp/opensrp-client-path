@@ -76,7 +76,7 @@
                     android:paddingRight="@dimen/activity_horizontal_margin"
                     android:paddingTop="@dimen/cohort_coverage_report_vertical_margin"
                     android:text="@string/dropout_cohort_bcg_size_header"
-                    android:textColor="@color/inactive_grey"
+                    android:textColor="@color/dark_grey"
                     android:textSize="18sp" />
 
             </LinearLayout>
