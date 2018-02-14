@@ -421,6 +421,7 @@ public class VaccinatorApplication extends DrishtiApplication
     public static void setAlarms(android.content.Context context) {
 
         // Prime Numbers to avoid much collution
+        final int TRIGGER_ITERATION_ONE_MINUTE = 1;
         final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
         final int TRIGGER_ITERATION_SEVEN_MINUTES = 7;
         final int TRIGGER_ITERATION_ELEVEN_MINUTES = 11;
@@ -431,9 +432,11 @@ public class VaccinatorApplication extends DrishtiApplication
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
 
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_ONE_MINUTE, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+//        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
 
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_ELEVEN_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_ONE_MINUTE, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
+//        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_ELEVEN_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
 
         VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_THIRTEEN_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
 

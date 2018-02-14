@@ -104,6 +104,12 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
     protected int getContentView() {
         return R.layout.activity_facility_cumulative_coverage_report;
     }
@@ -267,7 +273,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartData data = new LineChartData();
 
         data.setLines(lines);
-        data.setBaseValue(0f);
+//        data.setBaseValue(0f);
 
         data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setFormatter(new MonthValueFormatter()).setHasTiltedLabels(false));
         data.setAxisYLeft(new Axis(leftAxisValues).setHasLines(true).setHasTiltedLabels(false));
@@ -278,6 +284,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartView monitoringChart = (LineChartView) findViewById(R.id.monitoring_chart);
         monitoringChart.setLineChartData(data);
         monitoringChart.setViewportCalculationEnabled(false);
+        monitoringChart.setZoomEnabled(false);
 
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
 
@@ -566,15 +573,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         @Override
         public int formatValueForManualAxis(char[] formattedValue, AxisValue axisValue) {
-            String label = String.valueOf(axisValue.getLabelAsChars());
-            String[] months = new DateFormatSymbols().getShortMonths();
-            for (int i = 0; i < months.length; i++) {
-                if (label.equals(months[i].toUpperCase())) {
-                    float value = i + 0.5f;
-                    axisValue.setValue(value);
-                    break;
-                }
-            }
+            if(axisValue.getValue() % 1 == 0)
+            axisValue.setValue(axisValue.getValue() + 0.5f);
             return super.formatValueForManualAxis(formattedValue, axisValue);
         }
 
