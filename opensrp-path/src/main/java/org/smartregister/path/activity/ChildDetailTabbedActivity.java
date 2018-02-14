@@ -75,7 +75,7 @@ import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.path.tabfragments.ChildUnderFiveFragment;
 import org.smartregister.path.toolbar.ChildDetailsToolbar;
@@ -1261,7 +1261,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             db.addEvent(childDetails.entityId(), eventJson);
             long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessor.getInstance(this).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            PathClientProcessorForJava.getInstance(this).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
             allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
 
             //update details

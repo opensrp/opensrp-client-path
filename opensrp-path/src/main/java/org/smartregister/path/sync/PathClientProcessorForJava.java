@@ -13,6 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.AllCommonsRepository;
+import org.smartregister.domain.db.Client;
+import org.smartregister.domain.db.Event;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
@@ -31,6 +34,7 @@ import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.sync.ClientProcessor;
+import org.smartregister.sync.ClientProcessorForJava;
 import org.smartregister.sync.CloudantDataHandler;
 
 import java.text.DateFormat;
@@ -38,107 +42,47 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
 import util.Utils;
 
-public class PathClientProcessor extends ClientProcessor {
+public class PathClientProcessorForJava extends ClientProcessorForJava {
 
-    private static final String TAG = "PathClientProcessor";
-    private static PathClientProcessor instance;
+    private static final String TAG = PathClientProcessorForJava.class.getName();
+    private static PathClientProcessorForJava instance;
 
-    private PathClientProcessor(Context context) {
+    private PathClientProcessorForJava(Context context) {
         super(context);
     }
 
-    public static PathClientProcessor getInstance(Context context) {
+    public static PathClientProcessorForJava getInstance(Context context) {
         if (instance == null) {
-            instance = new PathClientProcessor(context);
+            instance = new PathClientProcessorForJava(context);
         }
         return instance;
     }
 
     @Override
-    public synchronized void processClient() throws Exception {
-        CloudantDataHandler handler = CloudantDataHandler.getInstance(getContext());
-
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-        long lastSyncTimeStamp = allSharedPreferences.fetchLastSyncDate(0);
-        Date lastSyncDate = new Date(lastSyncTimeStamp);
-        String clientClassificationStr = getFileContents("ec_client_classification.json");
-        String clientVaccineStr = getFileContents("ec_client_vaccine.json");
-        String clientWeightStr = getFileContents("ec_client_weight.json");
-        String clientServiceStr = getFileContents("ec_client_service.json");
-
-        //this seems to be easy for now cloudant json to events model is crazy
-        List<JSONObject> events = handler.getUpdatedEventsAndAlerts(lastSyncDate);
-        if (!events.isEmpty()) {
-            List<JSONObject> unsyncEvents = new ArrayList<>();
-            for (JSONObject event : events) {
-                String type = event.has("eventType") ? event.getString("eventType") : null;
-                if (type == null) {
-                    continue;
-                }
-
-                if (type.equals(VaccineIntentService.EVENT_TYPE) || type.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT)) {
-                    JSONObject clientVaccineClassificationJson = new JSONObject(clientVaccineStr);
-                    if (isNullOrEmptyJSONObject(clientVaccineClassificationJson)) {
-                        continue;
-                    }
-
-                    processVaccine(event, clientVaccineClassificationJson, type.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
-                } else if (type.equals(WeightIntentService.EVENT_TYPE) || type.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT)) {
-                    JSONObject clientWeightClassificationJson = new JSONObject(clientWeightStr);
-                    if (isNullOrEmptyJSONObject(clientWeightClassificationJson)) {
-                        continue;
-                    }
-
-                    processWeight(event, clientWeightClassificationJson, type.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
-                } else if (type.equals(RecurringIntentService.EVENT_TYPE)) {
-                    JSONObject clientServiceClassificationJson = new JSONObject(clientServiceStr);
-                    if (isNullOrEmptyJSONObject(clientServiceClassificationJson)) {
-                        continue;
-                    }
-                    processService(event, clientServiceClassificationJson);
-                } else if (type.equals(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT)) {
-                    unsyncEvents.add(event);
-                } else if (type.equals(PathConstants.EventType.DEATH)) {
-                    unsyncEvents.add(event);
-                } else {
-                    JSONObject clientClassificationJson = new JSONObject(clientClassificationStr);
-                    if (isNullOrEmptyJSONObject(clientClassificationJson)) {
-                        continue;
-                    }
-                    //iterate through the events
-                    processEvent(event, clientClassificationJson);
-                }
-            }
-
-            // Unsync events that are should not be in this device
-            if (!unsyncEvents.isEmpty()) {
-                unSync(unsyncEvents);
-            }
-        }
-
-        allSharedPreferences.saveLastSyncDate(lastSyncDate.getTime());
-    }
-
-    @Override
-    public void processClient(List<JSONObject> events) throws Exception {
+    public void processClient(List<EventClient> eventClients) throws Exception {
 
         String clientClassificationStr = getFileContents("ec_client_classification.json");
         String clientVaccineStr = getFileContents("ec_client_vaccine.json");
         String clientWeightStr = getFileContents("ec_client_weight.json");
         String clientServiceStr = getFileContents("ec_client_service.json");
 
-        if (!events.isEmpty()) {
-            List<JSONObject> unsyncEvents = new ArrayList<>();
-            for (JSONObject event : events) {
+        if (!eventClients.isEmpty()) {
+            List<Event> unsyncEvents = new ArrayList<>();
+            for (EventClient eventClient : eventClients) {
+                Event event = eventClient.getEvent();
+                if (event == null) {
+                    return;
+                }
 
-                String eventType = event.has("eventType") ? event.getString("eventType") : null;
+                String eventType = event.getEventType();
                 if (eventType == null) {
                     continue;
                 }
@@ -172,9 +116,11 @@ public class PathClientProcessor extends ClientProcessor {
                     if (isNullOrEmptyJSONObject(clientClassificationJson)) {
                         continue;
                     }
+
+                    Client client = eventClient.getClient();
                     //iterate through the events
-                    if (event.has("client")) {
-                        processEvent(event, event.getJSONObject("client"), clientClassificationJson);
+                    if (client != null) {
+                        processEvent(event, client, clientClassificationJson);
 
                     }
                 }
@@ -188,11 +134,11 @@ public class PathClientProcessor extends ClientProcessor {
 
     }
 
-    private Boolean processVaccine(JSONObject vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processVaccine(Event vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
-            if (vaccine == null || vaccine.length() == 0) {
+            if (vaccine == null) {
                 return false;
             }
 
@@ -218,8 +164,8 @@ public class PathClientProcessor extends ClientProcessor {
                 vaccineObj.setAnmId(contentValues.getAsString(VaccineRepository.ANMID));
                 vaccineObj.setLocationId(contentValues.getAsString(VaccineRepository.LOCATIONID));
                 vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
-                vaccineObj.setFormSubmissionId(vaccine.has(VaccineRepository.FORMSUBMISSION_ID) ? vaccine.getString(VaccineRepository.FORMSUBMISSION_ID) : null);
-                vaccineObj.setEventId(vaccine.getString("id")); //FIXME hard coded id
+                vaccineObj.setFormSubmissionId(vaccine.getFormSubmissionId());
+                vaccineObj.setEventId(vaccine.getEventId());
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
                 Utils.addVaccine(vaccineRepository, vaccineObj);
@@ -232,11 +178,11 @@ public class PathClientProcessor extends ClientProcessor {
         }
     }
 
-    private Boolean processWeight(JSONObject weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processWeight(Event weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
-            if (weight == null || weight.length() == 0) {
+            if (weight == null) {
                 return false;
             }
 
@@ -269,8 +215,8 @@ public class PathClientProcessor extends ClientProcessor {
                 weightObj.setAnmId(contentValues.getAsString(WeightRepository.ANMID));
                 weightObj.setLocationId(contentValues.getAsString(WeightRepository.LOCATIONID));
                 weightObj.setSyncStatus(WeightRepository.TYPE_Synced);
-                weightObj.setFormSubmissionId(weight.has(WeightRepository.FORMSUBMISSION_ID) ? weight.getString(WeightRepository.FORMSUBMISSION_ID) : null);
-                weightObj.setEventId(weight.getString(PathConstants.ID));
+                weightObj.setFormSubmissionId(weight.getFormSubmissionId());
+                weightObj.setEventId(weight.getEventId());
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
 
@@ -284,11 +230,11 @@ public class PathClientProcessor extends ClientProcessor {
         }
     }
 
-    private Boolean processService(JSONObject service, JSONObject clientVaccineClassificationJson) throws Exception {
+    private Boolean processService(Event service, JSONObject clientVaccineClassificationJson) throws Exception {
 
         try {
 
-            if (service == null || service.length() == 0) {
+            if (service == null) {
                 return false;
             }
 
@@ -354,8 +300,8 @@ public class PathClientProcessor extends ClientProcessor {
                 serviceObj.setAnmId(contentValues.getAsString(RecurringServiceRecordRepository.ANMID));
                 serviceObj.setLocationId(contentValues.getAsString(RecurringServiceRecordRepository.LOCATIONID));
                 serviceObj.setSyncStatus(RecurringServiceRecordRepository.TYPE_Synced);
-                serviceObj.setFormSubmissionId(service.has(RecurringServiceRecordRepository.FORMSUBMISSION_ID) ? service.getString(RecurringServiceRecordRepository.FORMSUBMISSION_ID) : null);
-                serviceObj.setEventId(service.getString("id")); //FIXME hard coded id
+                serviceObj.setFormSubmissionId(service.getFormSubmissionId());
+                serviceObj.setEventId(service.getEventId()); //FIXME hard coded id
                 serviceObj.setValue(value);
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
 
@@ -370,7 +316,7 @@ public class PathClientProcessor extends ClientProcessor {
     }
 
 
-    private ContentValues processCaseModel(JSONObject entity, JSONObject clientClassificationJson) {
+    private ContentValues processCaseModel(Event event, JSONObject clientClassificationJson) {
         try {
             JSONArray columns = clientClassificationJson.getJSONArray("columns");
 
@@ -395,49 +341,53 @@ public class PathClientProcessor extends ClientProcessor {
                     }
                 }
 
-                Object jsonDocSegment = null;
+                Object docSegment = null;
 
-                if (dataSegment != null) {
+                if (StringUtils.isNotBlank(dataSegment)) {
                     //pick data from a specific section of the doc
-                    jsonDocSegment = entity.has(dataSegment) ? entity.get(dataSegment) : null;
+                    docSegment = getValue(event, dataSegment);
 
                 } else {
                     //else the use the main doc as the doc segment
-                    jsonDocSegment = entity;
-
+                    docSegment = event;
                 }
 
-                if (jsonDocSegment instanceof JSONArray) {
+                if (docSegment == null) {
+                    return contentValues;
+                }
 
-                    JSONArray jsonDocSegmentArray = (JSONArray) jsonDocSegment;
+                if (docSegment instanceof List) {
+                    List docSegmentList = (List) docSegment;
 
-                    for (int j = 0; j < jsonDocSegmentArray.length(); j++) {
-                        JSONObject jsonDocObject = jsonDocSegmentArray.getJSONObject(j);
+                    for (Object segment : docSegmentList) {
                         String columnValue = null;
                         if (fieldValue == null) {
                             //this means field_value and response_key are null so pick the value from the json object for the field_name
-                            if (jsonDocObject.has(fieldName)) {
-                                columnValue = jsonDocObject.getString(fieldName);
-                            }
+                            columnValue = getValueAsString(segment, fieldName);
                         } else {
                             //this means field_value and response_key are not null e.g when retrieving some value in the events obs section
-                            String expectedFieldValue = jsonDocObject.getString(fieldName);
+                            String expectedFieldValue = getValueAsString(segment, fieldName);
                             //some events can only be differentiated by the event_type value eg pnc1,pnc2, anc1,anc2
 
                             if (expectedFieldValue.equalsIgnoreCase(fieldValue)) {
-                                if (StringUtils.isNotBlank(valueField) && jsonDocObject.has(valueField)) {
-                                    columnValue = jsonDocObject.getString(valueField);
-                                } else {
-                                    List<String> values = getValues(jsonDocObject.get(responseKey));
-                                    if (!values.isEmpty()) {
-                                        columnValue = values.get(0);
+                                if (StringUtils.isNotBlank(valueField)) {
+                                    columnValue = getValueAsString(segment, valueField);
+                                }
+
+                                if (columnValue == null) {
+                                    Object valueList = getValue(segment, responseKey);
+                                    if (valueList instanceof List) {
+                                        List<String> values = getValues((List) valueList);
+                                        if (!values.isEmpty()) {
+                                            columnValue = values.get(0);
+                                        }
                                     }
                                 }
                             }
                         }
                         // after successfully retrieving the column name and value store it in Content value
                         if (columnValue != null) {
-                            columnValue = getHumanReadableConceptResponse(columnValue, jsonDocObject);
+                            columnValue = getHumanReadableConceptResponse(columnValue, segment);
                             contentValues.put(columnName, columnValue);
                         }
                     }
@@ -445,11 +395,11 @@ public class PathClientProcessor extends ClientProcessor {
                 } else {
                     //e.g client attributes section
                     String columnValue = null;
-                    JSONObject jsonDocSegmentObject = (JSONObject) jsonDocSegment;
-                    columnValue = jsonDocSegmentObject.has(fieldName) ? jsonDocSegmentObject.getString(fieldName) : "";
+
+                    columnValue = getValueAsString(docSegment, fieldName);
                     // after successfully retrieving the column name and value store it in Content value
                     if (columnValue != null) {
-                        columnValue = getHumanReadableConceptResponse(columnValue, jsonDocSegmentObject);
+                        columnValue = getHumanReadableConceptResponse(columnValue, docSegment);
                         contentValues.put(columnName, columnValue);
                     }
 
@@ -495,7 +445,12 @@ public class PathClientProcessor extends ClientProcessor {
         Log.i(TAG, "Finished updateFTSsearch table: " + tableName);
     }
 
-    private boolean unSync(List<JSONObject> events) {
+    @Override
+    public String[] getOpenmrsGenIds() {
+        return new String[]{"zeir_id"};
+    }
+
+    private boolean unSync(List<Event> events) {
         try {
 
             if (events == null || events.isEmpty()) {
@@ -513,7 +468,7 @@ public class PathClientProcessor extends ClientProcessor {
             DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(getContext());
 
-            for (JSONObject event : events) {
+            for (Event event : events) {
                 unSync(ecUpdater, detailsRepository, bindObjects, event, registeredAnm);
             }
 
@@ -526,10 +481,10 @@ public class PathClientProcessor extends ClientProcessor {
         return false;
     }
 
-    private boolean unSync(ECSyncUpdater ecUpdater, DetailsRepository detailsRepository, JSONArray bindObjects, JSONObject event, String registeredAnm) {
+    private boolean unSync(ECSyncUpdater ecUpdater, DetailsRepository detailsRepository, JSONArray bindObjects, Event event, String registeredAnm) {
         try {
-            String baseEntityId = event.getString(baseEntityIdJSONKey);
-            String providerId = event.getString(providerIdJSONKey);
+            String baseEntityId = event.getBaseEntityId();
+            String providerId = event.getProviderId();
 
             if (providerId.equals(registeredAnm)) {
                 boolean eventDeleted = ecUpdater.deleteEventsByBaseEntityId(baseEntityId);
