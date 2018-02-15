@@ -96,9 +96,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="50dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="23.5dp"
+            android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
-            android:background="@color/client_list_grey"
             android:stretchColumns="*">
 
             <include

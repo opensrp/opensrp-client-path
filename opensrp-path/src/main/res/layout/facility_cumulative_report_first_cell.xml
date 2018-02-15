@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical"
-    android:background="@drawable/facility_cumulative_label_item_border"
+    android:background="@drawable/facility_cumulative_first_cell_border"
     android:gravity="center_vertical"
     android:padding="10dp"
     android:textColor="@color/cumulative_blue_line" />
