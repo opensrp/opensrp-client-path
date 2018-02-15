@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Date;
 
 import util.NetworkUtils;
 
@@ -318,6 +319,9 @@ public class SyncService extends Service {
         sendBroadcast(intent);
 
         if (isEmptyReuestQueue(mainRequestQueue)) {
+            ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
+            ecSyncUpdater.updateLastCheckTimeStamp(new Date().getTime());
+
             stopSelf();
         }
     }
