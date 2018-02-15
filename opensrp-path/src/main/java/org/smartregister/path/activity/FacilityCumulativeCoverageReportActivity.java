@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -13,6 +14,7 @@ import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
+import org.smartregister.path.renderer.CustomLineChartRenderer;
 import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
@@ -27,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
@@ -104,6 +105,12 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
     protected int getContentView() {
         return R.layout.activity_facility_cumulative_coverage_report;
     }
@@ -136,9 +143,9 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     private void refreshMonitoring(List<CumulativeIndicator> startCumulativeIndicators, List<CumulativeIndicator> endCumulativeIndicators) {
         boolean isComparison = endCumulativeIndicators != null;
 
-        long leftPartitions = 15;
-        long csoTarget = 0L;
-        long csoTargetMonthly = 0L;
+        long leftPartitions = 16;
+        float csoTarget = 0L;
+        float csoTargetMonthly = 0L;
         if (holder.getSize() != null) {
             csoTarget = holder.getSize();
             csoTargetMonthly = csoTarget / 12;
@@ -161,7 +168,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
             leftAxisValues.add(leftValue);
 
             if (i < months.length) {
-                AxisValue curValue = new AxisValue((float) i);
+                AxisValue curValue = new AxisValue((float) i + 0.5f);
                 curValue.setLabel(months[i].toUpperCase());
                 bottomAxisValues.add(curValue);
 
@@ -200,6 +207,11 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
 
         List<PointValue> startValues = new ArrayList<>();
         List<PointValue> endValues = new ArrayList<>();
+
+        startValues.add(new PointValue(0, 0));
+        if (isComparison) {
+            endValues.add(new PointValue(0, 0));
+        }
 
         boolean checkCurrentTime = false;
         Calendar calendar = null;
@@ -267,9 +279,8 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartData data = new LineChartData();
 
         data.setLines(lines);
-        data.setBaseValue(0f);
 
-        data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setFormatter(new MonthValueFormatter()).setHasTiltedLabels(false));
+        data.setAxisXBottom(new Axis(bottomAxisValues).setMaxLabelChars(3).setHasLines(false).setHasTiltedLabels(false).setHasTiltedLabels(false));
         data.setAxisYLeft(new Axis(leftAxisValues).setHasLines(true).setHasTiltedLabels(false));
         data.setAxisXTop(new Axis(topAxisValues).setHasLines(true).setHasTiltedLabels(false));
         data.setAxisYRight(new Axis(rightAxisValues).setMaxLabelChars(5).setHasLines(false).setHasTiltedLabels(false));
@@ -278,13 +289,17 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         LineChartView monitoringChart = (LineChartView) findViewById(R.id.monitoring_chart);
         monitoringChart.setLineChartData(data);
         monitoringChart.setViewportCalculationEnabled(false);
+        monitoringChart.setZoomEnabled(false);
+
+        CustomLineChartRenderer customLineChartRenderer = new CustomLineChartRenderer(this, monitoringChart, monitoringChart);
+        monitoringChart.setChartRenderer(customLineChartRenderer);
 
         resetViewport(monitoringChart, csoTargetMonthly, leftPartitions);
 
         updateTableLayout(startValueMap, endValueMap, months, isComparison, checkCurrentTime);
     }
 
-    private void resetViewport(LineChartView chart, long csoTargetMonthly, long leftPartitions) {
+    private void resetViewport(LineChartView chart, float csoTargetMonthly, long leftPartitions) {
         // Reset viewport height range to (0,100)
         Viewport v = chart.getMaximumViewport();
         v.set(v.left, csoTargetMonthly * leftPartitions, v.right, 0);
@@ -292,7 +307,7 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         chart.setCurrentViewport(v);
     }
 
-    private Line generateLine(float percentageDecimal, long csoTargetMonthly) {
+    private Line generateLine(float percentageDecimal, float csoTargetMonthly) {
         List<PointValue> values = new ArrayList<>();
         for (int i = 0; i <= 12; i++) {
             float y = csoTargetMonthly * i * percentageDecimal;
@@ -495,13 +510,13 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         }
     }
 
-    public String convertToUpperLower(String vaccineName){
+    public String convertToUpperLower(String vaccineName) {
         for (VACCINES vaccine : VACCINES.values()) {
-            if(vaccineName.contains(vaccine.name())){
+            if (vaccineName.contains(vaccine.name())) {
                 return vaccineName.toUpperCase();
             }
         }
-        return vaccineName.toLowerCase();
+        return StringUtils.capitalize(vaccineName.toLowerCase());
     }
 
     @Override
@@ -561,25 +576,6 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
-
-    private static class MonthValueFormatter extends SimpleAxisValueFormatter {
-
-        @Override
-        public int formatValueForManualAxis(char[] formattedValue, AxisValue axisValue) {
-            String label = String.valueOf(axisValue.getLabelAsChars());
-            String[] months = new DateFormatSymbols().getShortMonths();
-            for (int i = 0; i < months.length; i++) {
-                if (label.equals(months[i].toUpperCase())) {
-                    float value = i + 0.5f;
-                    axisValue.setValue(value);
-                    break;
-                }
-            }
-            return super.formatValueForManualAxis(formattedValue, axisValue);
-        }
-
-    }
-
     private enum VACCINES {
         BCG,
         OPV,

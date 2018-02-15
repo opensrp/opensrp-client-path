@@ -98,8 +98,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="20dp"
-            android:background="@color/client_list_grey"
-            android:stretchColumns="1,2,3,4,5,6,7,8,9,10,11,12">
+            android:stretchColumns="*">
 
             <include
                 android:id="@+id/title_1"
