@@ -3,6 +3,7 @@ package org.smartregister.path.renderer;
 import android.content.Context;
 import android.graphics.Canvas;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lecho.lib.hellocharts.model.Line;
@@ -28,16 +29,27 @@ public class CustomLineChartRenderer extends LineChartRenderer {
 
     @Override
     public void drawUnclipped(Canvas canvas) {
+        List<Line> linesAffected = new ArrayList<>();
+
         final LineChartData data = dataProvider.getLineChartData();
         for (Line line : data.getLines()) {
-            List<PointValue> pointValueList = line.getValues();
-            if (pointValueList != null && !pointValueList.isEmpty()) {
-                PointValue pointValue = pointValueList.get(0);
-                if (pointValue.getX() == 0f && pointValue.getY() == 0f) {
-                    pointValueList.remove(pointValue);
+            if (line.hasPoints()) {
+                List<PointValue> pointValueList = line.getValues();
+                if (pointValueList != null && !pointValueList.isEmpty()) {
+                    PointValue pointValue = pointValueList.get(0);
+                    if (pointValue.getX() == 0f && pointValue.getY() == 0f) {
+                        pointValueList.remove(pointValue);
+                        linesAffected.add(line);
+                    }
                 }
             }
         }
+
         super.drawUnclipped(canvas);
+
+        for (Line line : linesAffected) {
+            List<PointValue> pointValueList = line.getValues();
+            pointValueList.add(0, new PointValue(0, 0));
+        }
     }
 }

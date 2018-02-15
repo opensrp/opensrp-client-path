@@ -209,7 +209,9 @@ public class FacilityCumulativeCoverageReportActivity extends BaseReportActivity
         List<PointValue> endValues = new ArrayList<>();
 
         startValues.add(new PointValue(0, 0));
-        endValues.add(new PointValue(0, 0));
+        if (isComparison) {
+            endValues.add(new PointValue(0, 0));
+        }
 
         boolean checkCurrentTime = false;
         Calendar calendar = null;
