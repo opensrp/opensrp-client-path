@@ -10,8 +10,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,7 +40,6 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
@@ -51,7 +48,6 @@ import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.util.Log;
 import org.smartregister.util.Utils;
 import org.smartregister.view.BackgroundAction;
@@ -366,7 +362,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void run() {
                 android.util.Log.i(getClass().getName(), "Starting DrishtiSyncScheduler " + DateTime.now().toString());
-                if(NetworkUtils.isNetworkAvailable()){
+                if (NetworkUtils.isNetworkAvailable()) {
                     VaccinatorAlarmReceiver.setAlarm(getApplicationContext(), BuildConfig.AUTO_SYNC_DURATION, PathConstants.ServiceType.AUTO_SYNC);
                 }
                 android.util.Log.i(getClass().getName(), "Started DrishtiSyncScheduler " + DateTime.now().toString());
@@ -377,6 +373,9 @@ public class LoginActivity extends AppCompatActivity {
     private void remoteLoginWith(String userName, String password, String userInfo) {
         getOpenSRPContext().userService().remoteLogin(userName, password, userInfo);
         goToHome(true);
+        if (NetworkUtils.isNetworkAvailable()) {
+            VaccinatorAlarmReceiver.setAlarm(getApplicationContext(), BuildConfig.AUTO_SYNC_DURATION, PathConstants.ServiceType.AUTO_SYNC);
+        }
     }
 
     private void goToHome(boolean remote) {
