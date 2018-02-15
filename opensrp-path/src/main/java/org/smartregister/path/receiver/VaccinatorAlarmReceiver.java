@@ -13,6 +13,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
+import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
@@ -21,6 +22,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import util.PathConstants;
+import util.ServiceTools;
 
 public class VaccinatorAlarmReceiver extends BroadcastReceiver {
 
@@ -36,6 +38,10 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
         if (!VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
             Intent serviceIntent = null;
             switch (serviceType) {
+                case PathConstants.ServiceType.AUTO_SYNC:
+                    android.util.Log.i(TAG, "Started AUTO_SYNC service at: " + dateFormatter.format(new Date()));
+                    ServiceTools.startService(context, SyncService.class);
+                    break;
                 case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
                     android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
                     serviceIntent = new Intent(context, HIA2IntentService.class);

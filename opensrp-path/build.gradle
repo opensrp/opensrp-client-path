@@ -64,12 +64,10 @@ android {
             buildConfigField "int", "DATABASE_VERSION", '10'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "true"
-
             buildConfigField "int", "AUTO_SYNC_DURATION", '15'
             buildConfigField "int", "WEIGHT_SYNC_PROCESSING_MINUTES", '30'
             buildConfigField "int", "VACCINE_SYNC_PROCESSING_MINUTES", '30'
             buildConfigField "int", "RECURRING_SERVICES_SYNC_PROCESSING_MINUTES", '30'
-            buildConfigField "int", "SYNC_PROCESSING_HIA2_MINUTES", '60'
             buildConfigField "int", "DAILY_TALLIES_GENERATION_MINUTES", '60'
             buildConfigField "int", "COVERAGE_DROPOUT_GENERATION_MINUTES", '60'
             buildConfigField "int", "IMAGE_UPLOAD_MINUTES", '180'
@@ -84,7 +82,6 @@ android {
             buildConfigField "int", "DATABASE_VERSION", '10'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
-
             buildConfigField "int", "AUTO_SYNC_DURATION", '2'
             buildConfigField "int", "WEIGHT_SYNC_PROCESSING_MINUTES", '3'
             buildConfigField "int", "VACCINE_SYNC_PROCESSING_MINUTES", '3'
@@ -92,10 +89,8 @@ android {
             buildConfigField "int", "DAILY_TALLIES_GENERATION_MINUTES", '5'
             buildConfigField "int", "COVERAGE_DROPOUT_GENERATION_MINUTES", '5'
             buildConfigField "int", "IMAGE_UPLOAD_MINUTES", '7'
-            buildConfigField "int", "PULL_UNIQUE_IDS_MINUTES", '180'
-
+            buildConfigField "int", "PULL_UNIQUE_IDS_MINUTES", '10'
             testCoverageEnabled true
-
         }
     }
     packagingOptions {

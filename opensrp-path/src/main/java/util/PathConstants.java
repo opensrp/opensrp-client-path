@@ -28,6 +28,7 @@ PathConstants extends AllConstants {
 
     public static final class ServiceType {
 
+        public static final int AUTO_SYNC = 1;
         public static final int DAILY_TALLIES_GENERATION = 2;
         public static final int COVERAGE_DROPOUT_GENERATION = 3;
         public static final int PULL_UNIQUE_IDS = 4;
