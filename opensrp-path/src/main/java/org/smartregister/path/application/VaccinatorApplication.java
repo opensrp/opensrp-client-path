@@ -23,9 +23,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineNameRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.BuildConfig;
@@ -332,17 +330,9 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public StockRepository stockRepository() {
         if (stockRepository == null) {
-            stockRepository = new StockRepository((PathRepository) getRepository());
+            stockRepository = new StockRepository(getRepository());
         }
         return stockRepository;
-    }
-
-    public VaccineTypeRepository vaccineTypeRepository() {
-        return ImmunizationLibrary.getInstance().vaccineTypeRepository();
-    }
-
-    public VaccineNameRepository vaccineNameRepository() {
-        return ImmunizationLibrary.getInstance().vaccineNameRepository();
     }
 
     public CohortRepository cohortRepository() {
