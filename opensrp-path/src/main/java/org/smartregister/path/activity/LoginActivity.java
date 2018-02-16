@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -40,7 +41,6 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
 import org.smartregister.event.Listener;
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -84,6 +84,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String URDU_LANGUAGE = "Urdu";
     private android.content.Context appContext;
     private RemoteLoginTask remoteLoginTask;
+
+    private static final int REQUEST_TIMEOUT = 120000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -336,6 +338,17 @@ public class LoginActivity extends AppCompatActivity {
 
         remoteLoginTask = new RemoteLoginTask(userName, password, afterLoginCheck);
         remoteLoginTask.execute();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (remoteLoginTask.getStatus() == AsyncTask.Status.RUNNING) {
+                    remoteLoginTask.cancel(true);
+                    remoteLoginTask.onPostExecute(LoginResponse.NO_INTERNET_CONNECTIVITY);
+                }
+            }
+        }, REQUEST_TIMEOUT);
     }
 
     private void fillUserIfExists() {
