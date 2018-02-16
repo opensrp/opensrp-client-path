@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.smartregister.path.R;
 import org.smartregister.path.listener.CustomNavigationBarListener;
@@ -31,10 +34,15 @@ public class PathStockActivity extends StockActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         location = getIntent().getStringExtra(CURRENT_LOCATION);
         customNavigationBarListener = new CustomNavigationBarListener(this, location);
         navigationItemListener = new NavigationItemListener(this, location);
+        super.onCreate(savedInstanceState);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ((TextView) drawer.findViewById(R.id.initials_tv)).setText(getLoggedInUserInitials());
+        String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
+                getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+        ((TextView) drawer.findViewById(R.id.name_tv)).setText(preferredName);
         initializeCustomNavbarListeners();
     }
 
@@ -65,8 +73,8 @@ public class PathStockActivity extends StockActivity {
 
     @Override
     protected NavigationView getNavigationView() {
-        NavigationView view = (NavigationView) getLayoutInflater().inflate(R.layout.custom_nav_view_base, null);
-        return view;
+        NavigationView navigationView = (NavigationView) getLayoutInflater().inflate(R.layout.custom_nav_view_base, null);
+        return navigationView;
     }
 
     @Override
@@ -109,6 +117,12 @@ public class PathStockActivity extends StockActivity {
 
         LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
         dropout.setOnClickListener(customNavigationBarListener);
+
+        Button logoutButton = (Button) drawer.findViewById(R.id.logout_b);
+        logoutButton.setOnClickListener(customNavigationBarListener);
+
+        View cancelButton = drawer.findViewById(R.id.cancel_b);
+        cancelButton.setOnClickListener(customNavigationBarListener);
 
     }
 }

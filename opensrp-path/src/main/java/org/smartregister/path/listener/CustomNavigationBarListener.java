@@ -17,6 +17,7 @@ import org.smartregister.path.activity.PathStockActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.toolbar.BaseToolbar;
+import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredActivity;
 
 import util.ServiceTools;
@@ -95,9 +96,15 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
                 break;
-            default:
+            case R.id.logout_b:
+                DrishtiApplication application = (DrishtiApplication) context.getApplication();
+                application.logoutCurrentUser();
+                context.finish();
                 break;
-
+            default:
+                if (drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                }
         }
     }
 
