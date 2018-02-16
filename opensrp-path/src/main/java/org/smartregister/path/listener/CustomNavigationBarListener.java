@@ -21,6 +21,7 @@ import org.smartregister.view.activity.SecuredActivity;
 
 import util.ServiceTools;
 
+import static org.smartregister.path.activity.PathStockActivity.CURRENT_LOCATION;
 import static util.PathConstants.JSONFORM.CHILD_ENROLLMENT;
 import static util.PathConstants.JSONFORM.OUT_OF_CATCHMENT;
 
@@ -36,6 +37,10 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
 
     public CustomNavigationBarListener(Activity context, BaseToolbar toolbar) {
         super(context, toolbar);
+    }
+
+    public CustomNavigationBarListener(Activity context, String location) {
+        super(context, location);
     }
 
     @Override
@@ -63,6 +68,7 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
                 break;
             case R.id.stock_control:
                 intent = new Intent(getApplicationContext(), PathStockActivity.class);
+                intent.putExtra(CURRENT_LOCATION, getCurrentLocation());
                 startActivity(intent);
                 drawer.closeDrawer(GravityCompat.START);
                 break;

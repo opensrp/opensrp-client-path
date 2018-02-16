@@ -1,5 +1,6 @@
 package org.smartregister.path.activity;
 
+import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
@@ -20,7 +21,22 @@ import static org.smartregister.util.Log.logError;
 
 public class PathStockActivity extends StockActivity {
 
-    private CustomNavigationBarListener customNavigationBarListener = new CustomNavigationBarListener(this);
+    public static final String CURRENT_LOCATION = "org.smartregister.path.activity.Location";
+
+    private NavigationItemListener navigationItemListener;
+
+    private CustomNavigationBarListener customNavigationBarListener;
+
+    private String location;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        location = getIntent().getStringExtra(CURRENT_LOCATION);
+        customNavigationBarListener = new CustomNavigationBarListener(this, location);
+        navigationItemListener = new NavigationItemListener(this, location);
+        initializeCustomNavbarListeners();
+    }
 
     @Override
     protected String getLoggedInUserInitials() {
@@ -50,13 +66,12 @@ public class PathStockActivity extends StockActivity {
     @Override
     protected NavigationView getNavigationView() {
         NavigationView view = (NavigationView) getLayoutInflater().inflate(R.layout.custom_nav_view_base, null);
-        initializeCustomNavbarListeners();
         return view;
     }
 
     @Override
     protected NavigationView.OnNavigationItemSelectedListener getNavigationViewListener() {
-        return new NavigationItemListener(this);
+        return navigationItemListener;
     }
 
     @Override
@@ -67,15 +82,6 @@ public class PathStockActivity extends StockActivity {
     @Override
     protected Class getControlActivity() {
         return StockControlActivity.class;
-    }
-
-    @Override
-    protected void onCreation() {
-        //setContentView(R.layout.activity_stock);
-    }
-
-    @Override
-    protected void onResumption() {//
     }
 
     private void initializeCustomNavbarListeners() {
