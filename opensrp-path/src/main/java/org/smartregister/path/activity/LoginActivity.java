@@ -69,6 +69,7 @@ import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
 import static org.smartregister.domain.LoginResponse.NO_INTERNET_CONNECTIVITY;
 import static org.smartregister.domain.LoginResponse.SUCCESS;
+import static org.smartregister.domain.LoginResponse.TIMEOUT;
 import static org.smartregister.domain.LoginResponse.UNAUTHORIZED;
 import static org.smartregister.domain.LoginResponse.UNKNOWN_RESPONSE;
 import static org.smartregister.util.Log.logError;
@@ -257,6 +258,8 @@ public class LoginActivity extends AppCompatActivity {
                                 showErrorDialog(getResources().getString(R.string.unknown_response));
                             } else if (loginResponse == UNAUTHORIZED) {
                                 showErrorDialog(getResources().getString(R.string.unauthorized));
+                            } else if (loginResponse == TIMEOUT) {
+                                showErrorDialog(getString(R.string.msg_error_timeout));
                             }
 //                        showErrorDialog(loginResponse.message());
                         }
@@ -338,17 +341,6 @@ public class LoginActivity extends AppCompatActivity {
 
         remoteLoginTask = new RemoteLoginTask(userName, password, afterLoginCheck);
         remoteLoginTask.execute();
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (remoteLoginTask.getStatus() == AsyncTask.Status.RUNNING) {
-                    remoteLoginTask.cancel(true);
-                    remoteLoginTask.onPostExecute(LoginResponse.NO_INTERNET_CONNECTIVITY);
-                }
-            }
-        }, REQUEST_TIMEOUT);
     }
 
     private void fillUserIfExists() {

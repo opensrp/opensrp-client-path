@@ -76,6 +76,8 @@
     <string name="unauthorized_group">Your user group is not allowed to access this device</string>
     <string name="unknown_response">login failed. Try later</string>
     <string name="no_internet_connectivity">No internet connection. Please ensure data connectivity</string>
+    <string name="msg_error_timeout">The server could not be reached. Try again</string>
+
     <string name="form_saved_dialog_title">Form Submission</string>
     <string name="form_saved_success_dialog_message">Form saved successfully!</string>
     <string name="form_saved_failed_dialog_message">Form saving encountered an error. </string>
