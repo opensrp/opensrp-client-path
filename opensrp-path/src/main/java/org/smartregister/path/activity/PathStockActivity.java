@@ -1,146 +1,85 @@
 package org.smartregister.path.activity;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.TextUtils;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import org.smartregister.path.R;
-import org.smartregister.path.listener.CustomNavigationBarListener;
-import org.smartregister.path.listener.NavigationItemListener;
-import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.stock.activity.StockActivity;
+import org.smartregister.path.toolbar.LocationSwitcherToolbar;
+import org.smartregister.stock.StockLibrary;
 import org.smartregister.stock.activity.StockControlActivity;
+import org.smartregister.stock.adapter.StockGridAdapter;
+import org.smartregister.stock.domain.StockType;
 
-import util.JsonFormUtils;
-
-import static org.smartregister.path.activity.LoginActivity.getOpenSRPContext;
-import static org.smartregister.util.Log.logError;
+import java.util.List;
 
 /**
  * Created by samuelgithengi on 2/14/18.
  */
 
-public class PathStockActivity extends StockActivity {
+public class PathStockActivity extends BaseActivity {
 
-    private NavigationItemListener navigationItemListener;
-
-    private CustomNavigationBarListener customNavigationBarListener;
+    private GridView stockGrid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        customNavigationBarListener = new CustomNavigationBarListener(this);
-        navigationItemListener = new NavigationItemListener(this);
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ((TextView) drawer.findViewById(R.id.initials_tv)).setText(getLoggedInUserInitials());
-        String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-                getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        ((TextView) drawer.findViewById(R.id.name_tv)).setText(preferredName);
-        initializeCustomNavbarListeners();
-    }
 
-    @Override
-    protected String getLoggedInUserInitials() {
-        try {
-            String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
-                    getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            if (!TextUtils.isEmpty(preferredName)) {
-                String[] initialsArray = preferredName.split(" ");
-                String initials = "";
-                if (initialsArray.length > 0) {
-                    initials = initialsArray[0].substring(0, 1);
-                    if (initialsArray.length > 1) {
-                        initials = initials + initialsArray[1].substring(0, 1);
-                    }
+        Toolbar toolbar = (Toolbar) findViewById(getToolbarId());
+        toolbar.setTitle(R.string.stock_title);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(getDrawerLayoutId());
+        TextView nameInitials = (TextView) findViewById(R.id.name_inits);
+        nameInitials.setText(getLoggedInUserInitials());
+        nameInitials.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.openDrawer(GravityCompat.START);
                 }
-
-                return initials.toUpperCase();
             }
+        });
+        stockGrid = (GridView) findViewById(R.id.stockgrid);
+    }
 
-        } catch (Exception e) {
-            logError("Error on initView : Getting Preferences: Getting Initials");
-        }
+    private void refreshAdapter() {
+        List<StockType> allStockTypes = StockLibrary.getInstance().getStockTypeRepository().getAllStockTypes(null);
+        StockType[] stockTypes = allStockTypes.toArray(new StockType[allStockTypes.size()]);
+        StockGridAdapter adapter = new StockGridAdapter(this, stockTypes, StockControlActivity.class);
+        stockGrid.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshAdapter();
+    }
+
+    @Override
+    protected int getContentView() {
+        return R.layout.activity_stock;
+    }
+
+    @Override
+    protected int getDrawerLayoutId() {
+        return R.id.drawer_layout;
+    }
+
+    @Override
+    protected int getToolbarId() {
+        return LocationSwitcherToolbar.TOOLBAR_ID;
+    }
+
+    @Override
+    protected Class onBackActivity() {
         return null;
-    }
-
-    @Override
-    protected NavigationView getNavigationView() {
-        NavigationView navigationView = (NavigationView) getLayoutInflater().inflate(R.layout.custom_nav_view_base, null);
-        return navigationView;
-    }
-
-    @Override
-    protected NavigationView.OnNavigationItemSelectedListener getNavigationViewListener() {
-        return navigationItemListener;
-    }
-
-    @Override
-    protected int getNavigationViewWith() {
-        return (int) getResources().getDimension(R.dimen.nav_view_width);
-    }
-
-    @Override
-    protected Class getControlActivity() {
-        return StockControlActivity.class;
-    }
-
-    private void initializeCustomNavbarListeners() {
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
-        syncMenuItem.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout addchild = (LinearLayout) drawer.findViewById(R.id.nav_register);
-        addchild.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout outofcatchment = (LinearLayout) drawer.findViewById(R.id.nav_record_vaccination_out_catchment);
-        outofcatchment.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
-        stockregister.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
-        hia2.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout childregister = (LinearLayout) drawer.findViewById(R.id.child_register);
-        childregister.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        coverage.setOnClickListener(customNavigationBarListener);
-
-        LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
-        dropout.setOnClickListener(customNavigationBarListener);
-
-        Button logoutButton = (Button) drawer.findViewById(R.id.logout_b);
-        logoutButton.setOnClickListener(customNavigationBarListener);
-
-        View cancelButton = drawer.findViewById(R.id.cancel_b);
-        cancelButton.setOnClickListener(customNavigationBarListener);
-
-        View sync = drawer.findViewById(R.id.nav_sync);
-        sync.setOnClickListener(customNavigationBarListener);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            String jsonString = data.getStringExtra("json");
-
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
-
-            JsonFormUtils.saveForm(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM());
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
 }
