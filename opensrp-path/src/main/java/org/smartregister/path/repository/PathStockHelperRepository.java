@@ -65,7 +65,7 @@ public class PathStockHelperRepository extends StockExternalRepository {
     public ActiveChildrenStats getActiveChildrenStat() {
         ActiveChildrenStats activeChildrenStats = new ActiveChildrenStats();
         PathRepository repo = (PathRepository) VaccinatorApplication.getInstance().getRepository();
-        net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
+        SQLiteDatabase db = repo.getReadableDatabase();
         Cursor c = db.rawQuery("Select dob,client_reg_date from ec_child where inactive != 'true' and lost_to_follow_up != 'true' ", null);
         c.moveToFirst();
         boolean thismonth;
@@ -123,7 +123,7 @@ public class PathStockHelperRepository extends StockExternalRepository {
         int countofNextMonthVaccineDue = 0;
         try {
             Repository repo = StockLibrary.getInstance().getRepository();
-            net.sqlcipher.database.SQLiteDatabase db = repo.getReadableDatabase();
+            SQLiteDatabase db = repo.getReadableDatabase();
 
             DateTime today = new DateTime(System.currentTimeMillis());
 

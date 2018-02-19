@@ -99,6 +99,7 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
                 if (drawer.isDrawerOpen(GravityCompat.START)) {
                     drawer.closeDrawer(GravityCompat.START);
                 }
+                break;
         }
     }
 

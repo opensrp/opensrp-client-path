@@ -125,6 +125,9 @@ public class PathStockActivity extends StockActivity {
         View cancelButton = drawer.findViewById(R.id.cancel_b);
         cancelButton.setOnClickListener(customNavigationBarListener);
 
+        View sync = drawer.findViewById(R.id.nav_sync);
+        sync.setOnClickListener(customNavigationBarListener);
+
     }
 
     @Override
@@ -139,4 +142,5 @@ public class PathStockActivity extends StockActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
 }
