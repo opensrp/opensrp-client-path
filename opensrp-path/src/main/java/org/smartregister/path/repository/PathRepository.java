@@ -312,6 +312,8 @@ public class PathRepository extends Repository {
             CumulativeIndicatorRepository.createTable(database);
             CumulativePatientRepository.createTable(database);
 
+            dumpHIA2IndicatorsCSV(database);
+
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion10 " + e.getMessage());
         }

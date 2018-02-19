@@ -50,7 +50,6 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
 
         <receiver android:name=".receiver.Hia2ServiceBroadcastReceiver" />
-        <receiver android:name=".receiver.PathSyncBroadcastReceiver" />
         <receiver android:name=".receiver.VaccinatorAlarmReceiver" />
         <receiver android:name=".receiver.CoverageDropoutBroadcastReceiver" />
         <receiver android:name=".receiver.OnBootReceiver">
