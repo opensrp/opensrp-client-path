@@ -1,6 +1,9 @@
 package org.smartregister.path.activity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
@@ -12,8 +15,11 @@ import android.widget.TextView;
 import org.smartregister.path.R;
 import org.smartregister.path.listener.CustomNavigationBarListener;
 import org.smartregister.path.listener.NavigationItemListener;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.stock.activity.StockActivity;
 import org.smartregister.stock.activity.StockControlActivity;
+
+import util.JsonFormUtils;
 
 import static org.smartregister.path.activity.LoginActivity.getOpenSRPContext;
 import static org.smartregister.util.Log.logError;
@@ -24,20 +30,15 @@ import static org.smartregister.util.Log.logError;
 
 public class PathStockActivity extends StockActivity {
 
-    public static final String CURRENT_LOCATION = "org.smartregister.path.activity.Location";
-
     private NavigationItemListener navigationItemListener;
 
     private CustomNavigationBarListener customNavigationBarListener;
 
-    private String location;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        location = getIntent().getStringExtra(CURRENT_LOCATION);
-        customNavigationBarListener = new CustomNavigationBarListener(this, location);
-        navigationItemListener = new NavigationItemListener(this, location);
         super.onCreate(savedInstanceState);
+        customNavigationBarListener = new CustomNavigationBarListener(this);
+        navigationItemListener = new NavigationItemListener(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ((TextView) drawer.findViewById(R.id.initials_tv)).setText(getLoggedInUserInitials());
         String preferredName = getOpenSRPContext().allSharedPreferences().getANMPreferredName(
@@ -124,5 +125,18 @@ public class PathStockActivity extends StockActivity {
         View cancelButton = drawer.findViewById(R.id.cancel_b);
         cancelButton.setOnClickListener(customNavigationBarListener);
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            String jsonString = data.getStringExtra("json");
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
+
+            JsonFormUtils.saveForm(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM());
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

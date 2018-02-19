@@ -16,7 +16,6 @@ import org.smartregister.view.activity.SecuredActivity;
 
 import util.ServiceTools;
 
-import static org.smartregister.path.activity.PathStockActivity.CURRENT_LOCATION;
 import static util.PathConstants.JSONFORM.CHILD_ENROLLMENT;
 import static util.PathConstants.JSONFORM.OUT_OF_CATCHMENT;
 
@@ -32,10 +31,6 @@ public class NavigationItemListener extends BaseListener implements NavigationVi
 
     public NavigationItemListener(Activity context, BaseToolbar toolbar) {
         super(context, toolbar);
-    }
-
-    public NavigationItemListener(Activity context, String  location) {
-        super(context, location);
     }
 
     @Override
@@ -56,7 +51,6 @@ public class NavigationItemListener extends BaseListener implements NavigationVi
                 startJsonForm(OUT_OF_CATCHMENT, null);
         } else if (id == R.id.stock) {
             Intent intent = new Intent(context, PathStockActivity.class);
-            intent.putExtra(CURRENT_LOCATION, getCurrentLocation());
             context.startActivity(intent);
         } else if (id == R.id.nav_sync) {
             ServiceTools.startService(context.getApplicationContext(), SyncService.class);
