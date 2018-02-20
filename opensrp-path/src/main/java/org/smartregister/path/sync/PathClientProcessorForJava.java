@@ -33,18 +33,14 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.DetailsRepository;
-import org.smartregister.sync.ClientProcessor;
 import org.smartregister.sync.ClientProcessorForJava;
-import org.smartregister.sync.CloudantDataHandler;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
@@ -93,20 +89,20 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                         continue;
                     }
 
-                    processVaccine(event, clientVaccineClassificationJson, eventType.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
+                    processVaccine(eventClient, clientVaccineClassificationJson, eventType.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
                 } else if (eventType.equals(WeightIntentService.EVENT_TYPE) || eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT)) {
                     JSONObject clientWeightClassificationJson = new JSONObject(clientWeightStr);
                     if (isNullOrEmptyJSONObject(clientWeightClassificationJson)) {
                         continue;
                     }
 
-                    processWeight(event, clientWeightClassificationJson, eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
+                    processWeight(eventClient, clientWeightClassificationJson, eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
                 } else if (eventType.equals(RecurringIntentService.EVENT_TYPE)) {
                     JSONObject clientServiceClassificationJson = new JSONObject(clientServiceStr);
                     if (isNullOrEmptyJSONObject(clientServiceClassificationJson)) {
                         continue;
                     }
-                    processService(event, clientServiceClassificationJson);
+                    processService(eventClient, clientServiceClassificationJson);
                 } else if (eventType.equals(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT)) {
                     unsyncEvents.add(event);
                 } else if (eventType.equals(PathConstants.EventType.DEATH)) {
@@ -134,11 +130,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
 
     }
 
-    private Boolean processVaccine(Event vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processVaccine(EventClient vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
-            if (vaccine == null) {
+            if (vaccine == null || vaccine.getEvent() == null) {
                 return false;
             }
 
@@ -164,8 +160,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 vaccineObj.setAnmId(contentValues.getAsString(VaccineRepository.ANMID));
                 vaccineObj.setLocationId(contentValues.getAsString(VaccineRepository.LOCATIONID));
                 vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
-                vaccineObj.setFormSubmissionId(vaccine.getFormSubmissionId());
-                vaccineObj.setEventId(vaccine.getEventId());
+                vaccineObj.setFormSubmissionId(vaccine.getEvent().getFormSubmissionId());
+                vaccineObj.setEventId(vaccine.getEvent().getEventId());
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
                 Utils.addVaccine(vaccineRepository, vaccineObj);
@@ -178,11 +174,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
-    private Boolean processWeight(Event weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processWeight(EventClient weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
 
         try {
 
-            if (weight == null) {
+            if (weight == null || weight.getEvent() == null) {
                 return false;
             }
 
@@ -194,16 +190,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
 
             // save the values to db
             if (contentValues != null && contentValues.size() > 0) {
-                Date date = DateUtil.getDateFromString(contentValues.getAsString(WeightRepository.DATE));
-                if (date == null) {
-                    try {
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                        date = dateFormat.parse(contentValues.getAsString(WeightRepository.DATE));
-                    } catch (Exception e) {
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-                        date = dateFormat.parse(contentValues.getAsString(WeightRepository.DATE));
-                    }
-                }
+                String eventDateStr = contentValues.getAsString(WeightRepository.DATE);
+                Date date = getDate(eventDateStr);
 
                 WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
                 Weight weightObj = new Weight();
@@ -215,8 +203,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 weightObj.setAnmId(contentValues.getAsString(WeightRepository.ANMID));
                 weightObj.setLocationId(contentValues.getAsString(WeightRepository.LOCATIONID));
                 weightObj.setSyncStatus(WeightRepository.TYPE_Synced);
-                weightObj.setFormSubmissionId(weight.getFormSubmissionId());
-                weightObj.setEventId(weight.getEventId());
+                weightObj.setFormSubmissionId(weight.getEvent().getFormSubmissionId());
+                weightObj.setEventId(weight.getEvent().getEventId());
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
 
@@ -230,11 +218,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
-    private Boolean processService(Event service, JSONObject clientVaccineClassificationJson) throws Exception {
+    private Boolean processService(EventClient service, JSONObject clientVaccineClassificationJson) throws Exception {
 
         try {
 
-            if (service == null) {
+            if (service == null || service.getEvent() == null) {
                 return false;
             }
 
@@ -252,18 +240,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                     name = name.replaceAll("_", " ").replace("dose", "").trim();
                 }
 
-                Date date = null;
                 String eventDateStr = contentValues.getAsString(RecurringServiceRecordRepository.DATE);
-                if (StringUtils.isNotBlank(eventDateStr)) {
-                    date = DateUtil.getDateFromString(eventDateStr);
-                    if (date == null) {
-                        try {
-                            date = DateUtil.parseDate(eventDateStr);
-                        } catch (ParseException e) {
-                            Log.e(TAG, e.toString(), e);
-                        }
-                    }
-                }
+                Date date = getDate(eventDateStr);
 
                 String value = null;
 
@@ -300,8 +278,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 serviceObj.setAnmId(contentValues.getAsString(RecurringServiceRecordRepository.ANMID));
                 serviceObj.setLocationId(contentValues.getAsString(RecurringServiceRecordRepository.LOCATIONID));
                 serviceObj.setSyncStatus(RecurringServiceRecordRepository.TYPE_Synced);
-                serviceObj.setFormSubmissionId(service.getFormSubmissionId());
-                serviceObj.setEventId(service.getEventId()); //FIXME hard coded id
+                serviceObj.setFormSubmissionId(service.getEvent().getFormSubmissionId());
+                serviceObj.setEventId(service.getEvent().getEventId()); //FIXME hard coded id
                 serviceObj.setValue(value);
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
 
@@ -316,96 +294,14 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
     }
 
 
-    private ContentValues processCaseModel(Event event, JSONObject clientClassificationJson) {
+    private ContentValues processCaseModel(EventClient eventClient, JSONObject clientClassificationJson) {
         try {
             JSONArray columns = clientClassificationJson.getJSONArray("columns");
-
             ContentValues contentValues = new ContentValues();
 
             for (int i = 0; i < columns.length(); i++) {
                 JSONObject colObject = columns.getJSONObject(i);
-                String columnName = colObject.getString("column_name");
-                JSONObject jsonMapping = colObject.getJSONObject("json_mapping");
-                String dataSegment = null;
-                String fieldName = jsonMapping.getString("field");
-                String fieldValue = null;
-                String responseKey = null;
-                String valueField = jsonMapping.has("value_field") ? jsonMapping.getString("value_field") : null;
-                if (fieldName != null && fieldName.contains(".")) {
-                    String fieldNameArray[] = fieldName.split("\\.");
-                    dataSegment = fieldNameArray[0];
-                    fieldName = fieldNameArray[1];
-                    fieldValue = jsonMapping.has("concept") ? jsonMapping.getString("concept") : (jsonMapping.has("formSubmissionField") ? jsonMapping.getString("formSubmissionField") : null);
-                    if (fieldValue != null) {
-                        responseKey = VALUES_KEY;
-                    }
-                }
-
-                Object docSegment = null;
-
-                if (StringUtils.isNotBlank(dataSegment)) {
-                    //pick data from a specific section of the doc
-                    docSegment = getValue(event, dataSegment);
-
-                } else {
-                    //else the use the main doc as the doc segment
-                    docSegment = event;
-                }
-
-                if (docSegment == null) {
-                    return contentValues;
-                }
-
-                if (docSegment instanceof List) {
-                    List docSegmentList = (List) docSegment;
-
-                    for (Object segment : docSegmentList) {
-                        String columnValue = null;
-                        if (fieldValue == null) {
-                            //this means field_value and response_key are null so pick the value from the json object for the field_name
-                            columnValue = getValueAsString(segment, fieldName);
-                        } else {
-                            //this means field_value and response_key are not null e.g when retrieving some value in the events obs section
-                            String expectedFieldValue = getValueAsString(segment, fieldName);
-                            //some events can only be differentiated by the event_type value eg pnc1,pnc2, anc1,anc2
-
-                            if (expectedFieldValue.equalsIgnoreCase(fieldValue)) {
-                                if (StringUtils.isNotBlank(valueField)) {
-                                    columnValue = getValueAsString(segment, valueField);
-                                }
-
-                                if (columnValue == null) {
-                                    Object valueList = getValue(segment, responseKey);
-                                    if (valueList instanceof List) {
-                                        List<String> values = getValues((List) valueList);
-                                        if (!values.isEmpty()) {
-                                            columnValue = values.get(0);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // after successfully retrieving the column name and value store it in Content value
-                        if (columnValue != null) {
-                            columnValue = getHumanReadableConceptResponse(columnValue, segment);
-                            contentValues.put(columnName, columnValue);
-                        }
-                    }
-
-                } else {
-                    //e.g client attributes section
-                    String columnValue = null;
-
-                    columnValue = getValueAsString(docSegment, fieldName);
-                    // after successfully retrieving the column name and value store it in Content value
-                    if (columnValue != null) {
-                        columnValue = getHumanReadableConceptResponse(columnValue, docSegment);
-                        contentValues.put(columnName, columnValue);
-                    }
-
-                }
-
-
+                processCaseModel(eventClient.getEvent(), eventClient.getClient(), colObject, contentValues);
             }
 
             return contentValues;
@@ -531,5 +427,27 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             Log.e(TAG, e.toString(), e);
         }
         return null;
+    }
+
+    private Date getDate(String eventDateStr) {
+        Date date = null;
+        if (StringUtils.isNotBlank(eventDateStr)) {
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ");
+                date = dateFormat.parse(eventDateStr);
+            } catch (ParseException e) {
+                try {
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                    date = dateFormat.parse(eventDateStr);
+                } catch (ParseException pe) {
+                    try {
+                        date = DateUtil.parseDate(eventDateStr);
+                    } catch (ParseException pee) {
+                        Log.e(TAG, pee.toString(), pee);
+                    }
+                }
+            }
+        }
+        return date;
     }
 }
