@@ -63,7 +63,7 @@ public class SyncService extends Service {
     private Context context;
     private HTTPAgent httpAgent;
 
-    public static final int EVENT_PULL_LIMIT = 100;
+    public static final int EVENT_PULL_LIMIT = 500;
     private static final int EVENT_PUSH_LIMIT = 50;
 
     private volatile HandlerThread mHandlerThread;
@@ -399,7 +399,7 @@ public class SyncService extends Service {
 
 
     private void addRequestToQueue(RequestQueue requestQueue, Request request) {
-        final int TIMEOUT = 30000;
+        final int TIMEOUT = 60000;
         request.setRetryPolicy(new DefaultRetryPolicy(
                 TIMEOUT,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,

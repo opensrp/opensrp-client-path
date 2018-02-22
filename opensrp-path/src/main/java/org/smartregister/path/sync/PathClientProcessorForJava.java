@@ -1,6 +1,5 @@
 package org.smartregister.path.sync;
 
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -9,13 +8,15 @@ import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.domain.db.Client;
 import org.smartregister.domain.db.Event;
 import org.smartregister.domain.db.EventClient;
+import org.smartregister.domain.jsonmapping.ClientClassification;
+import org.smartregister.domain.jsonmapping.ClientField;
+import org.smartregister.domain.jsonmapping.Column;
+import org.smartregister.domain.jsonmapping.Table;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
@@ -65,10 +66,10 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
     @Override
     public void processClient(List<EventClient> eventClients) throws Exception {
 
-        String clientClassificationStr = getFileContents("ec_client_classification.json");
-        String clientVaccineStr = getFileContents("ec_client_vaccine.json");
-        String clientWeightStr = getFileContents("ec_client_weight.json");
-        String clientServiceStr = getFileContents("ec_client_service.json");
+        ClientClassification clientClassification = assetJsonToJava("ec_client_classification.json", ClientClassification.class);
+        Table vaccineTable = assetJsonToJava("ec_client_vaccine.json", Table.class);
+        Table weightTable = assetJsonToJava("ec_client_weight.json", Table.class);
+        Table serviceTable = assetJsonToJava("ec_client_service.json", Table.class);
 
         if (!eventClients.isEmpty()) {
             List<Event> unsyncEvents = new ArrayList<>();
@@ -84,39 +85,35 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 }
 
                 if (eventType.equals(VaccineIntentService.EVENT_TYPE) || eventType.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT)) {
-                    JSONObject clientVaccineClassificationJson = new JSONObject(clientVaccineStr);
-                    if (isNullOrEmptyJSONObject(clientVaccineClassificationJson)) {
+                    if (vaccineTable == null) {
                         continue;
                     }
 
-                    processVaccine(eventClient, clientVaccineClassificationJson, eventType.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
+                    processVaccine(eventClient, vaccineTable, eventType.equals(VaccineIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
                 } else if (eventType.equals(WeightIntentService.EVENT_TYPE) || eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT)) {
-                    JSONObject clientWeightClassificationJson = new JSONObject(clientWeightStr);
-                    if (isNullOrEmptyJSONObject(clientWeightClassificationJson)) {
+                    if (weightTable == null) {
                         continue;
                     }
 
-                    processWeight(eventClient, clientWeightClassificationJson, eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
+                    processWeight(eventClient, weightTable, eventType.equals(WeightIntentService.EVENT_TYPE_OUT_OF_CATCHMENT));
                 } else if (eventType.equals(RecurringIntentService.EVENT_TYPE)) {
-                    JSONObject clientServiceClassificationJson = new JSONObject(clientServiceStr);
-                    if (isNullOrEmptyJSONObject(clientServiceClassificationJson)) {
+                    if (serviceTable == null) {
                         continue;
                     }
-                    processService(eventClient, clientServiceClassificationJson);
+                    processService(eventClient, serviceTable);
                 } else if (eventType.equals(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT)) {
                     unsyncEvents.add(event);
                 } else if (eventType.equals(PathConstants.EventType.DEATH)) {
                     unsyncEvents.add(event);
                 } else if (eventType.equals(PathConstants.EventType.BITRH_REGISTRATION) || eventType.equals(PathConstants.EventType.UPDATE_BITRH_REGISTRATION) || eventType.equals(PathConstants.EventType.NEW_WOMAN_REGISTRATION)) {
-                    JSONObject clientClassificationJson = new JSONObject(clientClassificationStr);
-                    if (isNullOrEmptyJSONObject(clientClassificationJson)) {
+                    if (clientClassification == null) {
                         continue;
                     }
 
                     Client client = eventClient.getClient();
                     //iterate through the events
                     if (client != null) {
-                        processEvent(event, client, clientClassificationJson);
+                        processEvent(event, client, clientClassification);
 
                     }
                 }
@@ -127,10 +124,9 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 unSync(unsyncEvents);
             }
         }
-
     }
 
-    private Boolean processVaccine(EventClient vaccine, JSONObject clientVaccineClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processVaccine(EventClient vaccine, Table vaccineTable, boolean outOfCatchment) throws Exception {
 
         try {
 
@@ -138,11 +134,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            if (clientVaccineClassificationJson == null || clientVaccineClassificationJson.length() == 0) {
+            if (vaccineTable == null) {
                 return false;
             }
 
-            ContentValues contentValues = processCaseModel(vaccine, clientVaccineClassificationJson);
+            ContentValues contentValues = processCaseModel(vaccine, vaccineTable);
 
             // save the values to db
             if (contentValues != null && contentValues.size() > 0) {
@@ -174,7 +170,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
-    private Boolean processWeight(EventClient weight, JSONObject clientWeightClassificationJson, boolean outOfCatchment) throws Exception {
+    private Boolean processWeight(EventClient weight, Table weightTable, boolean outOfCatchment) throws Exception {
 
         try {
 
@@ -182,11 +178,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            if (clientWeightClassificationJson == null || clientWeightClassificationJson.length() == 0) {
+            if (weightTable == null) {
                 return false;
             }
 
-            ContentValues contentValues = processCaseModel(weight, clientWeightClassificationJson);
+            ContentValues contentValues = processCaseModel(weight, weightTable);
 
             // save the values to db
             if (contentValues != null && contentValues.size() > 0) {
@@ -218,7 +214,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
-    private Boolean processService(EventClient service, JSONObject clientVaccineClassificationJson) throws Exception {
+    private Boolean processService(EventClient service, Table serviceTable) throws Exception {
 
         try {
 
@@ -226,11 +222,11 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            if (clientVaccineClassificationJson == null || clientVaccineClassificationJson.length() == 0) {
+            if (serviceTable == null) {
                 return false;
             }
 
-            ContentValues contentValues = processCaseModel(service, clientVaccineClassificationJson);
+            ContentValues contentValues = processCaseModel(service, serviceTable);
 
             // save the values to db
             if (contentValues != null && contentValues.size() > 0) {
@@ -294,14 +290,13 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
     }
 
 
-    private ContentValues processCaseModel(EventClient eventClient, JSONObject clientClassificationJson) {
+    private ContentValues processCaseModel(EventClient eventClient, Table table) {
         try {
-            JSONArray columns = clientClassificationJson.getJSONArray("columns");
+            List<Column> columns = table.columns;
             ContentValues contentValues = new ContentValues();
 
-            for (int i = 0; i < columns.length(); i++) {
-                JSONObject colObject = columns.getJSONObject(i);
-                processCaseModel(eventClient.getEvent(), eventClient.getClient(), colObject, contentValues);
+            for (Column column : columns) {
+                processCaseModel(eventClient.getEvent(), eventClient.getClient(), column, contentValues);
             }
 
             return contentValues;
@@ -357,10 +352,12 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             String registeredAnm = allSharedPreferences.fetchRegisteredANM();
 
-            String clientClassificationStr = getFileContents("ec_client_fields.json");
-            JSONObject clientClassificationJson = new JSONObject(clientClassificationStr);
-            JSONArray bindObjects = clientClassificationJson.getJSONArray("bindobjects");
+            ClientField clientField = assetJsonToJava("ec_client_fields.json", ClientField.class);
+            if (clientField == null) {
+                return false;
+            }
 
+            List<Table> bindObjects = clientField.bindobjects;
             DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(getContext());
 
@@ -377,7 +374,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         return false;
     }
 
-    private boolean unSync(ECSyncUpdater ecUpdater, DetailsRepository detailsRepository, JSONArray bindObjects, Event event, String registeredAnm) {
+    private boolean unSync(ECSyncUpdater ecUpdater, DetailsRepository detailsRepository, List<Table> bindObjects, Event event, String registeredAnm) {
         try {
             String baseEntityId = event.getBaseEntityId();
             String providerId = event.getProviderId();
@@ -391,10 +388,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 boolean detailsDeleted = detailsRepository.deleteDetails(baseEntityId);
                 Log.d(getClass().getName(), "DETAILS_DELETED: " + detailsDeleted);
 
-                for (int i = 0; i < bindObjects.length(); i++) {
-
-                    JSONObject bindObject = bindObjects.getJSONObject(i);
-                    String tableName = bindObject.getString("name");
+                for (Table bindObject : bindObjects) {
+                    String tableName = bindObject.name;
 
                     boolean caseDeleted = deleteCase(tableName, baseEntityId);
                     Log.d(getClass().getName(), "CASE_DELETED: " + caseDeleted);
@@ -402,7 +397,6 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
 
                 // Update coverage reports
                 CoverageDropoutIntentService.unregister(getContext(), baseEntityId);
-
                 return true;
             }
         } catch (Exception e) {
