@@ -33,7 +33,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.LoginActivity;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
-import org.smartregister.path.receiver.PathSyncBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.CohortPatientRepository;
@@ -50,7 +49,6 @@ import org.smartregister.path.repository.StockRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
-import org.smartregister.sync.DrishtiSyncScheduler;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.receiver.TimeChangedBroadcastReceiver;
 
@@ -106,7 +104,6 @@ public class VaccinatorApplication extends DrishtiApplication
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
-        DrishtiSyncScheduler.setReceiverClass(PathSyncBroadcastReceiver.class);
 
         Hia2ServiceBroadcastReceiver.init(this);
         SyncStatusBroadcastReceiver.init(this);
@@ -137,7 +134,6 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     protected void cleanUpSyncState() {
-        DrishtiSyncScheduler.stop(getApplicationContext());
         context.allSharedPreferences().saveIsSyncInProgress(false);
     }
 
@@ -419,26 +415,14 @@ public class VaccinatorApplication extends DrishtiApplication
     }
 
     public static void setAlarms(android.content.Context context) {
-
-        // Prime Numbers to avoid much collution
-        final int TRIGGER_ITERATION_FIVE_MINUTES = 5;
-        final int TRIGGER_ITERATION_SEVEN_MINUTES = 7;
-        final int TRIGGER_ITERATION_ELEVEN_MINUTES = 11;
-        final int TRIGGER_ITERATION_THIRTEEN_MINUTES = 13;
-        final int TRIGGER_ITERATION_SEVENTEEN_MINUTES = 17;
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_FIVE_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVEN_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_ELEVEN_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_THIRTEEN_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
-
-        VaccinatorAlarmReceiver.setAlarm(context, TRIGGER_ITERATION_SEVENTEEN_MINUTES, PathConstants.ServiceType.PULL_UNIQUE_IDS);
-
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.WEIGHT_SYNC_PROCESSING_MINUTES, PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.VACCINE_SYNC_PROCESSING_MINUTES, PathConstants.ServiceType.VACCINE_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.RECURRING_SERVICES_SYNC_PROCESSING_MINUTES, PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.DAILY_TALLIES_GENERATION_MINUTES, PathConstants.ServiceType.DAILY_TALLIES_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.COVERAGE_DROPOUT_GENERATION_MINUTES, PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.IMAGE_UPLOAD_MINUTES, PathConstants.ServiceType.IMAGE_UPLOAD);
+        VaccinatorAlarmReceiver.setAlarm(context, BuildConfig.PULL_UNIQUE_IDS_MINUTES, PathConstants.ServiceType.PULL_UNIQUE_IDS);
     }
+
 
 }
