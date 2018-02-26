@@ -64,6 +64,9 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     private ProgressBar syncProgressBar;
     private int dueOverdueCount = 0;
 
+    private static String DOD_MAIN_CONDITION = " " + PathConstants.EC_CHILD_TABLE.DOD + " is NULL OR " + PathConstants.EC_CHILD_TABLE.DOD + " = '' ";
+
+
     @Override
     protected SecuredNativeSmartRegisterActivity.DefaultOptionsProvider getDefaultOptionsProvider() {
         return new SecuredNativeSmartRegisterActivity.DefaultOptionsProvider() {
@@ -286,7 +289,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         setTablename(tableName);
         SmartRegisterQueryBuilder countqueryBUilder = new SmartRegisterQueryBuilder();
         countqueryBUilder.SelectInitiateMainTableCounts(tableName);
-        mainCondition = " dod is NULL OR dod = '' ";
+        mainCondition = DOD_MAIN_CONDITION;
         countSelect = countqueryBUilder.mainCondition(mainCondition);
 
         SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
@@ -378,7 +381,10 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     }
 
     private String filterSelectionCondition(boolean urgentOnly) {
-        String mainCondition = " (inactive != 'true' and lost_to_follow_up != 'true') AND ( ";
+        String mainCondition = " (" + DOD_MAIN_CONDITION + ") " +
+                " AND (" + PathConstants.EC_CHILD_TABLE.INACTIVE + " IS NULL OR " + PathConstants.EC_CHILD_TABLE.INACTIVE + " != 'true') " +
+                " AND (" + PathConstants.EC_CHILD_TABLE.LOST_TO_FOLLOW_UP + " IS NULL OR " + PathConstants.EC_CHILD_TABLE.LOST_TO_FOLLOW_UP + " != 'true') " +
+                " AND ( ";
         ArrayList<VaccineRepo.Vaccine> vaccines = VaccineRepo.getVaccines("child");
 
         if (vaccines.contains(VaccineRepo.Vaccine.bcg2)) {

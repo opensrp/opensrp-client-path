@@ -790,7 +790,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         ImageView statusImage = (ImageView) findViewById(R.id.statusimage);
         TextView status_name = (TextView) findViewById(R.id.statusname);
         TextView status = (TextView) findViewById(R.id.status);
-        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setColorFilter(Color.TRANSPARENT);
             statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
@@ -798,14 +798,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             status_name.setTextColor(getResources().getColor(R.color.dark_grey));
             status_name.setVisibility(View.VISIBLE);
             status.setText(R.string.status);
-        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
             statusImage.setColorFilter(Color.TRANSPARENT);
             status_name.setVisibility(View.GONE);
             status.setText(R.string.lost_to_follow_up_with_nl);
         }
-        if (!((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())))) {
+        if (!((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())))) {
             statusImage.setImageResource(R.drawable.ic_icon_status_active);
             statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
             status_name.setText(R.string.active);

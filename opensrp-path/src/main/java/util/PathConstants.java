@@ -61,6 +61,10 @@ PathConstants extends AllConstants {
         public static final String DOB = "dob";
         public static final String DOD = "dod";
         public static final String REG_DATE = "client_reg_date";
+        public static final String INACTIVE = "inactive";
+        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+
+
     }
 
     public static final class GENDER {

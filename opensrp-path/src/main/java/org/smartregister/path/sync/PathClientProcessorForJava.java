@@ -129,7 +129,6 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
     private Boolean processVaccine(EventClient vaccine, Table vaccineTable, boolean outOfCatchment) throws Exception {
 
         try {
-
             if (vaccine == null || vaccine.getEvent() == null) {
                 return false;
             }
@@ -137,6 +136,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (vaccineTable == null) {
                 return false;
             }
+
+            Log.i(TAG, "Starting processVaccine table: " + vaccineTable.name);
 
             ContentValues contentValues = processCaseModel(vaccine, vaccineTable);
 
@@ -161,11 +162,13 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
                 Utils.addVaccine(vaccineRepository, vaccineObj);
+
+                Log.i(TAG, "Ending processVaccine table: " + vaccineTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Vaccine Error", e);
             return null;
         }
     }
@@ -181,6 +184,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (weightTable == null) {
                 return false;
             }
+
+            Log.i(TAG, "Starting processWeight table: " + weightTable.name);
 
             ContentValues contentValues = processCaseModel(weight, weightTable);
 
@@ -202,14 +207,14 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 weightObj.setFormSubmissionId(weight.getEvent().getFormSubmissionId());
                 weightObj.setEventId(weight.getEvent().getEventId());
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
-
-
                 weightRepository.add(weightObj);
+
+                Log.i(TAG, "Ending processWeight table: " + weightTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Weight Error", e);
             return null;
         }
     }
@@ -225,6 +230,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (serviceTable == null) {
                 return false;
             }
+
+            Log.i(TAG, "Starting processService table: " + serviceTable.name);
 
             ContentValues contentValues = processCaseModel(service, serviceTable);
 
@@ -280,11 +287,13 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
 
                 recurringServiceRecordRepository.add(serviceObj);
+
+                Log.i(TAG, "Ending processService table: " + serviceTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Service Error", e);
             return null;
         }
     }

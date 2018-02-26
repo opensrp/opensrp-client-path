@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.util.Utils;
@@ -58,24 +59,24 @@ public class StatusEditDialogFragment extends DialogFragment {
         inactiveImageView.setVisibility(View.INVISIBLE);
         lostToFollowUpImageView.setVisibility(View.INVISIBLE);
 
-        if ((!details.containsKey(inactive)) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(""))) {
+        if ((!details.containsKey(inactive)) || (details.containsKey(inactive) && (StringUtils.isBlank(details.get(inactive))))) {
             activeImageView.setVisibility(View.VISIBLE);
             inactiveImageView.setVisibility(View.INVISIBLE);
             lostToFollowUpImageView.setVisibility(View.INVISIBLE);
         }
-        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) {
+        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) {
             activeImageView.setVisibility(View.VISIBLE);
             inactiveImageView.setVisibility(View.INVISIBLE);
             lostToFollowUpImageView.setVisibility(View.INVISIBLE);
 
         }
-        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
             inactiveImageView.setVisibility(View.VISIBLE);
             activeImageView.setVisibility(View.INVISIBLE);
             lostToFollowUpImageView.setVisibility(View.INVISIBLE);
 
         }
-        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             lostToFollowUpImageView.setVisibility(View.VISIBLE);
             inactiveImageView.setVisibility(View.INVISIBLE);
             activeImageView.setVisibility(View.INVISIBLE);
