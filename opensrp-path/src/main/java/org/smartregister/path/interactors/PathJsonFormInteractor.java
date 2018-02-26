@@ -4,7 +4,6 @@ import com.vijay.jsonwizard.constants.JsonFormConstants;
 import com.vijay.jsonwizard.interactors.JsonFormInteractor;
 
 import org.smartregister.path.widgets.PathDatePickerFactory;
-import org.smartregister.path.widgets.PathEditTextFactory;
 
 /**
  * Created by keyman on 11/04/2017.
@@ -20,7 +19,6 @@ public class PathJsonFormInteractor extends JsonFormInteractor {
     @Override
     protected void registerWidgets() {
         super.registerWidgets();
-        map.put(JsonFormConstants.EDIT_TEXT, new PathEditTextFactory());
         map.put(JsonFormConstants.DATE_PICKER, new PathDatePickerFactory());
 //        map.put(JsonFormConstants.LABEL, new PathCalculateLabelFactory());
     }
