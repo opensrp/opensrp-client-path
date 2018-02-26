@@ -36,11 +36,12 @@ import org.json.JSONObject;
 import org.smartregister.AllConstants;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.domain.Response;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
@@ -63,7 +64,7 @@ public class SyncService extends Service {
     private Context context;
     private HTTPAgent httpAgent;
 
-    public static final int EVENT_PULL_LIMIT = 100;
+    public static final int EVENT_PULL_LIMIT = 500;
     private static final int EVENT_PUSH_LIMIT = 50;
 
     private volatile HandlerThread mHandlerThread;
@@ -243,8 +244,8 @@ public class SyncService extends Service {
     private void processClient(Pair<Long, Long> serverVersionPair) {
         try {
             ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
-            List<JSONObject> events = ecUpdater.allEvents(serverVersionPair.first - 1, serverVersionPair.second);
-            PathClientProcessor.getInstance(context).processClient(events);
+            List<EventClient> events = ecUpdater.allEventClients(serverVersionPair.first - 1, serverVersionPair.second);
+            PathClientProcessorForJava.getInstance(context).processClient(events);
             sendSyncStatusBroadcastMessage(FetchStatus.fetched);
         } catch (Exception e) {
             Log.e(getClass().getName(), "Process Client Exception: " + e.getMessage(), e.getCause());
@@ -402,7 +403,7 @@ public class SyncService extends Service {
 
 
     private void addRequestToQueue(RequestQueue requestQueue, Request request) {
-        final int TIMEOUT = 30000;
+        final int TIMEOUT = 60000;
         request.setRetryPolicy(new DefaultRetryPolicy(
                 TIMEOUT,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,

@@ -42,7 +42,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.EventClientRepository;
@@ -236,7 +236,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             AllSharedPreferences allSharedPreferences = new AllSharedPreferences(preferences);
             long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            PathClientProcessorForJava.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
             allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
 
             String imageLocation = getFieldValue(fields, imageKey);
@@ -1892,7 +1892,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
                 long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
                 Date lastSyncDate = new Date(lastSyncTimeStamp);
-                PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+                PathClientProcessorForJava.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
                 allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));

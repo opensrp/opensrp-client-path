@@ -119,7 +119,7 @@ dependencies {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.1.8-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.2.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
