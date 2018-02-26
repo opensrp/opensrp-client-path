@@ -156,6 +156,9 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         if (isPausedOrRefreshList()) {
             initializeQueries();
         }
+        if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+            org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
+        }
         updateSearchView();
         try {
             LoginActivity.setLanguage();
@@ -340,7 +343,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
 
     @Override
     public void onSyncInProgress(FetchStatus fetchStatus) {
-        if(!isPausedOrRefreshList()) {
+        if (!isPausedOrRefreshList()) {
             refreshListView();
         }
     }
