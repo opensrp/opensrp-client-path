@@ -21,7 +21,7 @@ import org.smartregister.path.repository.CumulativePatientRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathClientProcessor;
+import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.repository.BaseRepository;
 
@@ -189,7 +189,7 @@ public class MoveToMyCatchmentUtils {
 
             long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
             Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessor.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+            PathClientProcessorForJava.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
             allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
 
             return true;
