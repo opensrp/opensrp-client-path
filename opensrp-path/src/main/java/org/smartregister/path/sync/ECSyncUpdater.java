@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.domain.db.EventClient;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.util.Utils;
@@ -55,54 +56,18 @@ public class ECSyncUpdater {
         }
     }
 
-    public List<JSONObject> allEvents(long startSyncTimeStamp, long lastSyncTimeStamp) {
+    public List<EventClient> allEventClients(long startSyncTimeStamp, long lastSyncTimeStamp) {
         try {
-            return db.getEvents(startSyncTimeStamp, lastSyncTimeStamp);
+            return db.fetchEventClients(startSyncTimeStamp, lastSyncTimeStamp);
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
         }
         return new ArrayList<>();
     }
 
-    public List<JSONObject> getEvents(Date lastSyncDate) {
+    public List<EventClient> getEvents(Date lastSyncDate, String syncStatus) {
         try {
-            return db.getEvents(lastSyncDate);
-        } catch (Exception e) {
-            Log.e(getClass().getName(), "Exception", e);
-        }
-        return new ArrayList<>();
-    }
-
-    public List<JSONObject> getEventsByBaseEnityId(String baseEntityId) {
-        try {
-            return db.getEventsByBaseEntityId(baseEntityId);
-        } catch (Exception e) {
-            Log.e(getClass().getName(), "Exception", e);
-        }
-        return new ArrayList<>();
-    }
-
-    public JSONObject getEventsByEventId(String eventId) {
-        try {
-            return db.getEventsByEventId(eventId);
-        } catch (Exception e) {
-            Log.e(getClass().getName(), "Exception", e);
-        }
-        return null;
-    }
-
-    public JSONObject getEventsByFormSubmissionId(String formSubmissionId) {
-        try {
-            return db.getEventsByFormSubmissionId(formSubmissionId);
-        } catch (Exception e) {
-            Log.e(getClass().getName(), "Exception", e);
-        }
-        return null;
-    }
-
-    public List<JSONObject> getEvents(Date lastSyncDate, String syncStatus) {
-        try {
-            return db.getEvents(lastSyncDate, syncStatus);
+            return db.fetchEventClients(lastSyncDate, syncStatus);
         } catch (Exception e) {
             Log.e(getClass().getName(), "Exception", e);
         }
