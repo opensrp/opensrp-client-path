@@ -64,7 +64,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     private ProgressBar syncProgressBar;
     private int dueOverdueCount = 0;
 
-    private static String DOD_MAIN_CONDITION = " " + PathConstants.EC_CHILD_TABLE.DOD + " is NULL OR " + PathConstants.EC_CHILD_TABLE.DOD + " = '' ";
+    private static String DOD_MAIN_CONDITION = " ( " + PathConstants.EC_CHILD_TABLE.DOD + " is NULL OR " + PathConstants.EC_CHILD_TABLE.DOD + " = '' ) ";
 
 
     @Override
@@ -381,7 +381,7 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
     }
 
     private String filterSelectionCondition(boolean urgentOnly) {
-        String mainCondition = " (" + DOD_MAIN_CONDITION + ") " +
+        String mainCondition = DOD_MAIN_CONDITION +
                 " AND (" + PathConstants.EC_CHILD_TABLE.INACTIVE + " IS NULL OR " + PathConstants.EC_CHILD_TABLE.INACTIVE + " != 'true') " +
                 " AND (" + PathConstants.EC_CHILD_TABLE.LOST_TO_FOLLOW_UP + " IS NULL OR " + PathConstants.EC_CHILD_TABLE.LOST_TO_FOLLOW_UP + " != 'true') " +
                 " AND ( ";

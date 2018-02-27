@@ -898,13 +898,10 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         String name = openMrsLocationData.getJSONObject("node").getString("name");
         jsonFormObject.put("name", getOpenMrsReadableName(name));
         jsonFormObject.put("key", name);
-        String level = "";
-        try {
-            level = openMrsLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
-        } catch (JSONException e) {
-            Log.e(JsonFormUtils.class.getCanonicalName(), e.getMessage());
-        }
+
+        JSONArray levels = openMrsLocationData.getJSONObject("node").getJSONArray("tags");
         jsonFormObject.put("level", "");
+
         JSONArray children = new JSONArray();
         if (openMrsLocationData.has("children")) {
             Iterator<String> childIterator = openMrsLocationData.getJSONObject("children").keys();
@@ -912,16 +909,26 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 String curChildKey = childIterator.next();
                 getFormJsonData(children, openMrsLocationData.getJSONObject("children").getJSONObject(curChildKey), allowedLevels);
             }
-            if (allowedLevels.contains(level)) {
-                jsonFormObject.put("nodes", children);
-            } else {
+
+            boolean allowed = false;
+            for (int i = 0; i < levels.length(); i++) {
+                if (allowedLevels.contains(levels.getString(i))) {
+                    jsonFormObject.put("nodes", children);
+                    allowed = true;
+                }
+            }
+
+            if (!allowed) {
                 for (int i = 0; i < children.length(); i++) {
                     allLocationData.put(children.getJSONObject(i));
                 }
             }
         }
-        if (allowedLevels.contains(level)) {
-            allLocationData.put(jsonFormObject);
+
+        for (int i = 0; i < levels.length(); i++) {
+            if (allowedLevels.contains(levels.getString(i))) {
+                allLocationData.put(jsonFormObject);
+            }
         }
     }
 

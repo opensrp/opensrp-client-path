@@ -4,7 +4,6 @@ import android.app.FragmentTransaction;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -58,6 +57,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import util.PathConstants;
 
 
 public class ChildUnderFiveFragment extends Fragment {
@@ -142,16 +143,16 @@ public class ChildUnderFiveFragment extends Fragment {
             Weight weight = weightlist.get(i);
             String formattedAge = "";
             if (weight.getDate() != null) {
-
                 Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
-                DateTime birthday = new DateTime(birthdate);
-                Date birth = birthday.toDate();
-                long timeDiff = weighttaken.getTime() - birth.getTime();
-                Log.v("timeDiff is ", timeDiff + "");
-                if (timeDiff >= 0) {
-                    formattedAge = DateUtil.getDuration(timeDiff);
-                    Log.v("age is ", formattedAge);
+                String birthdate = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+                Date birth = util.Utils.dobStringToDate(birthdate);
+                if (birth != null) {
+                    long timeDiff = weighttaken.getTime() - birth.getTime();
+                    Log.v("timeDiff is ", timeDiff + "");
+                    if (timeDiff >= 0) {
+                        formattedAge = DateUtil.getDuration(timeDiff);
+                        Log.v("age is ", formattedAge);
+                    }
                 }
             }
             if (!formattedAge.equalsIgnoreCase("0d")) {
@@ -340,11 +341,10 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
-        Date dob = Calendar.getInstance().getTime();
-        if (!TextUtils.isEmpty(dobString)) {
-            DateTime dateTime = new DateTime(dobString);
-            dob = dateTime.toDate();
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        Date dob = util.Utils.dobStringToDate(dobString);
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
         }
 
         List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
@@ -363,17 +363,16 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), "dob", false);
-        DateTime dob = DateTime.now();
-        if (!TextUtils.isEmpty(dobString)) {
-            dob = new DateTime(dobString);
+        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
+        if (dateTime == null) {
+            dateTime = DateTime.now();
         }
-
 
         List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
                 .findByEntityId(childDetails.entityId());
 
-        ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, serviceRowGroup, true);
+        ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 

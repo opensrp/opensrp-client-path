@@ -42,6 +42,7 @@ import org.smartregister.path.viewstates.PathJsonFormFragmentViewState;
 import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -300,10 +301,10 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
                         if (StringUtils.containsIgnoreCase(key, MotherLookUpUtils.birthDate)) {
                             String dobString = getValue(pc.getColumnmaps(), MotherLookUpUtils.dob, false);
-                            if (StringUtils.isNotBlank(dobString)) {
+                            Date motherDob = util.Utils.dobStringToDate(dobString);
+                            if (motherDob != null) {
                                 try {
-                                    DateTime birthDateTime = new DateTime(dobString);
-                                    text = DatePickerFactory.DATE_FORMAT.format(birthDateTime.toDate());
+                                    text = DatePickerFactory.DATE_FORMAT.format(motherDob);
                                 } catch (Exception e) {
                                     Log.e(getClass().getName(), e.toString(), e);
                                 }

@@ -331,15 +331,12 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
 
         if (contentValues != null && StringUtils.containsIgnoreCase(tableName, "child")) {
-            String dob = contentValues.getAsString("dob");
-
-            if (StringUtils.isBlank(dob)) {
-                return;
+            String dobString = contentValues.getAsString(PathConstants.EC_CHILD_TABLE.DOB);
+            DateTime birthDateTime = Utils.dobStringToDateTime(dobString);
+            if (birthDateTime != null) {
+                VaccineSchedule.updateOfflineAlerts(entityId, birthDateTime, "child");
+                ServiceSchedule.updateOfflineAlerts(entityId, birthDateTime);
             }
-
-            DateTime birthDateTime = new DateTime(dob);
-            VaccineSchedule.updateOfflineAlerts(entityId, birthDateTime, "child");
-            ServiceSchedule.updateOfflineAlerts(entityId, birthDateTime);
         }
 
         Log.i(TAG, "Finished updateFTSsearch table: " + tableName);

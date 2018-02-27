@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
+import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.util.Utils;
 
@@ -25,15 +26,14 @@ import java.util.Map;
 public class StatusEditDialogFragment extends DialogFragment {
     private StatusChangeListener listener;
     private static Map<String, String> details;
-    private static final String inactive = "inactive";
-    private static final String lostToFollowUp = "lost_to_follow_up";
+    private static final String inactive = ChildDetailTabbedActivity.inactive;
+    private static final String lostToFollowUp = ChildDetailTabbedActivity.lostToFollowUp;
 
     private StatusEditDialogFragment(Map<String, String> details) {
         StatusEditDialogFragment.details = details;
     }
 
     public static StatusEditDialogFragment newInstance(Map<String, String> details) {
-
         return new StatusEditDialogFragment(details);
     }
 
@@ -59,30 +59,21 @@ public class StatusEditDialogFragment extends DialogFragment {
         inactiveImageView.setVisibility(View.INVISIBLE);
         lostToFollowUpImageView.setVisibility(View.INVISIBLE);
 
-        if ((!details.containsKey(inactive)) || (details.containsKey(inactive) && (StringUtils.isBlank(details.get(inactive))))) {
-            activeImageView.setVisibility(View.VISIBLE);
-            inactiveImageView.setVisibility(View.INVISIBLE);
-            lostToFollowUpImageView.setVisibility(View.INVISIBLE);
-        }
-        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) {
-            activeImageView.setVisibility(View.VISIBLE);
-            inactiveImageView.setVisibility(View.INVISIBLE);
-            lostToFollowUpImageView.setVisibility(View.INVISIBLE);
-
-        }
         if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
             inactiveImageView.setVisibility(View.VISIBLE);
             activeImageView.setVisibility(View.INVISIBLE);
             lostToFollowUpImageView.setVisibility(View.INVISIBLE);
 
-        }
-        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             lostToFollowUpImageView.setVisibility(View.VISIBLE);
             inactiveImageView.setVisibility(View.INVISIBLE);
             activeImageView.setVisibility(View.INVISIBLE);
 
+        } else {
+            activeImageView.setVisibility(View.VISIBLE);
+            inactiveImageView.setVisibility(View.INVISIBLE);
+            lostToFollowUpImageView.setVisibility(View.INVISIBLE);
         }
-
 
         activeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,7 +124,6 @@ public class StatusEditDialogFragment extends DialogFragment {
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -183,12 +173,12 @@ public class StatusEditDialogFragment extends DialogFragment {
             boolean updateViews = false;
             switch (status) {
                 case ACTIVE:
-                    if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                    if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(inactive, false);
                         updateViews = true;
                     }
 
-                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                    if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                         listener.updateClientAttribute(lostToFollowUp, false);
                         updateViews = true;
                     }
@@ -196,31 +186,18 @@ public class StatusEditDialogFragment extends DialogFragment {
                     break;
 
                 case IN_ACTIVE:
-                    if ((details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(""))) {
+                    if (!details.containsKey(inactive) || !(details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(inactive, true);
-                        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                            listener.updateClientAttribute(lostToFollowUp, false);
-                        }
-                        updateViews = true;
-
-                    } else if (!details.containsKey(inactive)) {
-                        listener.updateClientAttribute(inactive, true);
-                        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                        if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(lostToFollowUp, false);
                         }
                         updateViews = true;
                     }
                     break;
                 case LOST_TO_FOLLOW_UP:
-                    if ((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.FALSE.toString())) || (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(""))) {
+                    if (!details.containsKey(lostToFollowUp) || !(details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString()))) {
                         listener.updateClientAttribute(lostToFollowUp, true);
-                        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-                            listener.updateClientAttribute(inactive, false);
-                        }
-                        updateViews = true;
-                    } else if (!details.containsKey(lostToFollowUp)) {
-                        listener.updateClientAttribute(lostToFollowUp, true);
-                        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
                             listener.updateClientAttribute(inactive, false);
                         }
                         updateViews = true;

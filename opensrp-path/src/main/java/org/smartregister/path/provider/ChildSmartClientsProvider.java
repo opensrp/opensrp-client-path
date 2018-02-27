@@ -110,12 +110,11 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
         fillValue((TextView) convertView.findViewById(R.id.child_mothername), motherName);
 
-        DateTime birthDateTime;
-        String dobString = getValue(pc.getColumnmaps(), PathConstants.KEY.DOB, false);
         String durationString = "";
-        if (StringUtils.isNotBlank(dobString)) {
+        String dobString = getValue(pc.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        DateTime birthDateTime = util.Utils.dobStringToDateTime(dobString);
+        if (birthDateTime != null) {
             try {
-                birthDateTime = new DateTime(dobString);
                 String duration = DateUtil.getDuration(birthDateTime);
                 if (duration != null) {
                     durationString = duration;
@@ -156,7 +155,8 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
 
-        if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+        boolean showButtons = !ChildSmartClientsProvider.class.equals(this.getClass()) || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+        if (showButtons) {
             try {
                 Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
                 Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive, client, cursor), null);
@@ -533,7 +533,8 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
             Map<String, Date> recievedVaccines = receivedVaccines(vaccines);
 
-            List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, new DateTime(dobString), recievedVaccines, alerts);
+            DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
+            List<Map<String, Object>> sch = generateScheduleList(PathConstants.KEY.CHILD, dateTime, recievedVaccines, alerts);
 
             if (vaccines.isEmpty()) {
                 List<VaccineRepo.Vaccine> vList = Arrays.asList(VaccineRepo.Vaccine.values());
