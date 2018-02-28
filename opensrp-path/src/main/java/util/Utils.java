@@ -31,17 +31,26 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONException;
+import org.opensrp.api.domain.Location;
+import org.smartregister.domain.jsonmapping.util.LocationTree;
+import org.smartregister.domain.jsonmapping.util.TreeNode;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.EditWrapper;
+import org.smartregister.path.view.LocationPickerView;
+import org.smartregister.util.AssetHandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -334,5 +343,45 @@ public class Utils {
         Resources r = context.getResources();
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
+    }
+
+    public static ArrayList<String> locationsFromHierarchy() {
+        ArrayList<String> locations = new ArrayList<>();
+        try {
+            String locationData = VaccinatorApplication.getInstance().context().anmLocationController().get();
+            LocationTree locationTree = AssetHandler.jsonStringToJava(locationData, LocationTree.class);
+            if (locationTree != null && locationTree.getLocationsHierarchy() != null) {
+                Map<String, TreeNode<String, Location>> map = locationTree.getLocationsHierarchy();
+                for (TreeNode<String, Location> mapValue : map.values()) {
+                    extractLocations(locations, mapValue);
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e(Utils.class.getCanonicalName(), android.util.Log.getStackTraceString(e));
+        }
+        return locations;
+    }
+
+    public static void extractLocations(ArrayList<String> locationList, TreeNode<String, Location> rawLocationData) {
+        if (rawLocationData == null) {
+            return;
+        }
+        Location node = rawLocationData.getNode();
+        String name = node.getLocationId();
+        Set<String> levels = node.getTags();
+        for (String level : levels) {
+            if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
+                locationList.add(name);
+            }
+        }
+        if (rawLocationData.getChildren() != null) {
+            Map<String, TreeNode<String, Location>> children = rawLocationData.getChildren();
+            if (children != null) {
+                for (TreeNode<String, Location> child : children.values()) {
+                    extractLocations(locationList, child);
+                }
+            }
+        }
+
     }
 }

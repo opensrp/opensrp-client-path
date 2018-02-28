@@ -108,23 +108,8 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     }
 
     private ArrayList<String> getLocations() {
-        ArrayList<String> locations = new ArrayList<>();
         String defaultLocation = getDefaultLocation();
-        try {
-            JSONObject locationData = new JSONObject(openSrpContext.anmLocationController().get());
-            if (locationData.has("locationsHierarchy")
-                    && locationData.getJSONObject("loc" +
-                    "ationsHierarchy").has("map")) {
-                JSONObject map = locationData.getJSONObject("locationsHierarchy").getJSONObject("map");
-                Iterator<String> keys = map.keys();
-                while (keys.hasNext()) {
-                    String curKey = keys.next();
-                    extractLocations(locations, map.getJSONObject(curKey), defaultLocation);
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
+        ArrayList<String> locations = Utils.locationsFromHierarchy();
 
         if (locations.contains(defaultLocation)) {
             locations.remove(defaultLocation);

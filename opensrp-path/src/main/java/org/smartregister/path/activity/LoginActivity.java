@@ -31,14 +31,10 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.domain.LoginResponse;
-import org.smartregister.domain.Response;
-import org.smartregister.domain.ResponseStatus;
 import org.smartregister.domain.TimeStatus;
+import org.smartregister.domain.jsonmapping.LoginResponseData;
 import org.smartregister.event.Listener;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
@@ -47,16 +43,11 @@ import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.util.Log;
 import org.smartregister.util.Utils;
-import org.smartregister.view.BackgroundAction;
-import org.smartregister.view.LockingBackgroundTask;
-import org.smartregister.view.ProgressIndicator;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
@@ -282,53 +273,6 @@ public class LoginActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showMessageDialog(String message, DialogInterface.OnClickListener ok, DialogInterface.OnClickListener cancel) {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(getString(org.smartregister.R.string.login_failed_dialog_title))
-                .setMessage(message)
-                .setPositiveButton("OK", ok)
-                .setNegativeButton("Cancel", cancel)
-                .create();
-
-        dialog.show();
-    }
-
-    private void getLocation() {
-        tryGetLocation(new Listener<Response<String>>() {
-            @Override
-            public void onEvent(Response<String> data) {
-                if (data.status() == ResponseStatus.success) {
-                    getOpenSRPContext().userService().saveAnmLocation(data.payload());
-                }
-            }
-        });
-    }
-
-    private void tryGetLocation(final Listener<Response<String>> afterGet) {
-        LockingBackgroundTask task = new LockingBackgroundTask(new ProgressIndicator() {
-            @Override
-            public void setVisible() {
-            }
-
-            @Override
-            public void setInvisible() {
-                Log.logInfo("Successfully get location");
-            }
-        });
-
-        task.doActionInBackground(new BackgroundAction<Response<String>>() {
-            @Override
-            public Response<String> actionToDoInBackgroundThread() {
-                return getOpenSRPContext().userService().getLocationInformation();
-            }
-
-            @Override
-            public void postExecuteInUIThread(Response<String> result) {
-                afterGet.onEvent(result);
-            }
-        });
-    }
-
     private void tryRemoteLogin(final String userName, final String password, final Listener<LoginResponse> afterLoginCheck) {
         if (remoteLoginTask != null && !remoteLoginTask.isCancelled()) {
             remoteLoginTask.cancel(true);
@@ -369,7 +313,7 @@ public class LoginActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void remoteLoginWith(String userName, String password, String userInfo) {
+    private void remoteLoginWith(String userName, String password, LoginResponseData userInfo) {
         getOpenSRPContext().userService().remoteLogin(userName, password, userInfo);
         goToHome(true);
         if (NetworkUtils.isNetworkAvailable()) {
@@ -473,29 +417,6 @@ public class LoginActivity extends AppCompatActivity {
         return VaccinatorApplication.getInstance().context();
     }
 
-    private void extractLocations(ArrayList<String> locationList, JSONObject rawLocationData)
-            throws JSONException {
-        final String NODE = "node";
-        final String CHILDREN = "children";
-        String name = rawLocationData.getJSONObject(NODE).getString("locationId");
-        JSONArray levels = rawLocationData.getJSONObject(NODE).getJSONArray("tags");
-        for (int i = 0; i < levels.length(); i++) {
-            String level = levels.getString(i);
-
-            if (LocationPickerView.ALLOWED_LEVELS.contains(level)) {
-                locationList.add(name);
-            }
-        }
-        if (rawLocationData.has(CHILDREN)) {
-            Iterator<String> childIterator = rawLocationData.getJSONObject(CHILDREN).keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                extractLocations(locationList, rawLocationData.getJSONObject(CHILDREN).getJSONObject(curChildKey));
-            }
-        }
-
-    }
-
     ////////////////////////////////////////////////////////////////
 // Inner classes
 ////////////////////////////////////////////////////////////////
@@ -535,7 +456,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            ArrayList<String> locationsCSV = locationsCSV();
+            ArrayList<String> locationsCSV = util.Utils.locationsFromHierarchy();
 
             if (locationsCSV.isEmpty()) {
                 return null;
@@ -544,27 +465,5 @@ public class LoginActivity extends AppCompatActivity {
             Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils.join(locationsCSV, ","));
             return null;
         }
-
-        public ArrayList<String> locationsCSV() {
-            final String LOCATIONS_HIERARCHY = "locationsHierarchy";
-            final String MAP = "map";
-            JSONObject locationData;
-            ArrayList<String> locations = new ArrayList<>();
-            try {
-                locationData = new JSONObject(VaccinatorApplication.getInstance().context().anmLocationController().get());
-                if (locationData.has(LOCATIONS_HIERARCHY) && locationData.getJSONObject(LOCATIONS_HIERARCHY).has(MAP)) {
-                    JSONObject map = locationData.getJSONObject(LOCATIONS_HIERARCHY).getJSONObject(MAP);
-                    Iterator<String> keys = map.keys();
-                    while (keys.hasNext()) {
-                        String curKey = keys.next();
-                        extractLocations(locations, map.getJSONObject(curKey));
-                    }
-                }
-            } catch (Exception e) {
-                android.util.Log.e(getClass().getCanonicalName(), android.util.Log.getStackTraceString(e));
-            }
-            return locations;
-        }
     }
-
 }
