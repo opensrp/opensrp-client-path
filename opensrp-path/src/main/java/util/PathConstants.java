@@ -117,4 +117,8 @@ PathConstants extends AllConstants {
         public final static String VACCINE_DATE = "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     }
 
+    public static final class JSONFORM{
+        public final static String CHILD_ENROLLMENT = "child_enrollment";
+        public final static String OUT_OF_CATCHMENT = "out_of_catchment_service";
+    }
 }

@@ -19,6 +19,10 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.AlertRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
+import org.smartregister.stock.StockLibrary;
+import org.smartregister.stock.repository.StockRepository;
+import org.smartregister.stock.repository.StockTypeRepository;
+import org.smartregister.stock.util.StockUtils;
 import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
@@ -93,6 +97,9 @@ public class PathRepository extends Repository {
                 case 10:
                     upgradeToVersion10(db);
                     break;
+                case 11:
+                    upgradeToVersion11Stock(db);
+                    break;
                 default:
                     break;
             }
@@ -110,7 +117,6 @@ public class PathRepository extends Repository {
             Log.e(TAG, "upgradeToVersion7Stock " + e.getMessage());
         }
     }
-
 
     @Override
     public SQLiteDatabase getReadableDatabase() {
@@ -310,6 +316,18 @@ public class PathRepository extends Repository {
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion10 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion11Stock(SQLiteDatabase db) {
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + VaccineTypeRepository.VACCINE_Types_TABLE_NAME);
+            StockTypeRepository.createTable(db);
+            StockUtils.populateStockTypesFromAssets(context, StockLibrary.getInstance().getStockTypeRepository(), db);
+            StockRepository.migrateFromOldStockRepository(db, "Stocks");
+
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion11Stock " + e.getMessage());
         }
     }
 
