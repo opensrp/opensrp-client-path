@@ -27,7 +27,6 @@ import com.vijay.jsonwizard.utils.FormUtils;
 import com.vijay.jsonwizard.widgets.DatePickerFactory;
 
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;

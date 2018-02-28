@@ -1,12 +1,10 @@
 package org.smartregister.path.provider;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;

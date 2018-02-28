@@ -14,7 +14,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.listener.StatusChangeListener;

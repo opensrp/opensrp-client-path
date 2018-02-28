@@ -287,8 +287,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
     private void onQRCodeSucessfullyScanned(String qrCode) {
         Log.i(getClass().getName(), "QR code: " + qrCode);
         if (StringUtils.isNotBlank(qrCode)) {
-            qrCode =  qrCode.replace("-", "");
-            filterList(qrCode);
+            filterList(qrCode.replace("-", ""));
         }
     }
 
