@@ -1,36 +1,28 @@
 Under 5 Clinic Attendance,,,,,,,,,
 01,CHN1-005,Attendance child health <12months (male),n0uHub5ubqH,Number of male children aged < 12 months who attended a clinic this month.,"COUNT of male children aged < 12 months [Sex, Date_Birth] who had >=1 encounter during the reporting month [encounter_date] at this clinic.",Integer,"Birth Registration, Vaccination, Growth Monitoring, Out of Area Service",Monthly,
 02,CHN1-010,Attendance child health <12months (female),IWwblgpMxiS,Number of female children aged < 12 months who attended a clinic this month.,"COUNT of female children aged < 12 months [Sex, Date_Birth] who had >=1 encounter during the reporting month [encounter_date] at this clinic.",Integer,"Birth Registration, Vaccination, Growth Monitoring, Out of Area Service",Monthly,
-03,CHN1-011,Attendance child health <12months (total),MOsC09xuwjD,Number of total children aged < 12 months who attended a clinic this month.,"[CHN1-005] + [CHN1-010]
-[Non-editable in the form]",Integer,NA,Monthly,
+03,CHN1-011,Attendance child health <12months (total),MOsC09xuwjD,Number of total children aged < 12 months who attended a clinic this month.,"[CHN1-005] + [CHN1-010]",Integer,NA,Monthly,
 04,CHN1-015,Attendance child health 12-59 months male,fl4bPFJRI5j,Number of male children aged 12 to 59 months who attended a clinic this month,"COUNT of male children aged 12-59 months [Sex, Date_Birth] who had >=1 encounter during the reporting month [encounter_date] at this clinic.",Integer,"Birth Registration, Vaccination, Growth Monitoring, Out of Area Service",Monthly,
 05,CHN1-020,Attendance child health 12-59 months female,ZDSUD6VHnoh,Number of female children aged 12 to 59 months who attended a clinic this month,"COUNT of female children aged 12-59 months [Sex, Date_Birth] who had >=1 encounter during the reporting month [encounter_date] at this clinic.",Integer,"Birth Registration, Vaccination, Growth Monitoring, Out of Area Service",Monthly,
-06,CHN1-021,Attendance child health 12-59 months (total),ax8GiEGlLFQ,Number of Total children aged 12 to 59 months who attended clinic this month,"[CHN1-015] + [CHN1-020]
-[Non-editable in the form]",Integer,NA,Monthly,
-07,CHN1-025,Attendance child health total,tITcW7u1jvJ,Number of total children < 5 who attended a clinic this month ,"[CHN1-011] + [CHN1-021]
-[Non-editable in the form]",Integer,NA,Monthly,
+06,CHN1-021,Attendance child health 12-59 months (total),ax8GiEGlLFQ,Number of Total children aged 12 to 59 months who attended clinic this month,"[CHN1-015] + [CHN1-020]",Integer,NA,Monthly,
+07,CHN1-025,Attendance child health total,tITcW7u1jvJ,Number of total children < 5 who attended a clinic this month ,"[CHN1-011] + [CHN1-021]",Integer,NA,Monthly,
 08,CHN1-030,Attendance from outside catchment's area,WFxN7txijYV,Number of total children who attended clinic and are not part of clinic's catchment area,"COUNT Number of total children who attended clinic and are not part of clinic's catchment area (i.e., total number of out of catchment area form submissions that month)",Integer,"Birth Registration, Vaccination, Growth Monitoring, Out of Area Service",Monthly,
 Growth Monitoring and Nutrition,,,,,,,,,
 09,CHN2-005,Child weighed 0-23 months,adkGrSGNt3L,Number of total children weighed aged 0-23 months who attended  clinic this month,COUNT number of children aged 0-23 [Date_Birth] months who had at least 1 weight encounter at this clinic during the month,Integer,"Growth Monitoring, Out of Area Service",Monthly,Some children may be weighed twice if they come for a another visit during the month due for example if they was a stock out on the earlier visit. Only one count should be recorded
 10,CHN2-010,Child weighed 24-59 months,sSxqU6qPyXr,Number of total children weighed aged 24-59 months who attended  clinic this month,COUNT number of children aged 24-59 months [Date_Birth] who had = 1 weight encounter at this clinic,Integer,"Growth Monitoring, Out of Area Service",Monthly,
-11,CHN2-015,Total child weighed,EEBSA6jCIc8,Number of total children weighed aged < 5 years who attended  clinic this month,"[CHN2-005] + [CHN2-010]
-[Non-editable in the form]",Integer,NA,Monthly,
+11,CHN2-015,Total child weighed,EEBSA6jCIc8,Number of total children weighed aged < 5 years who attended  clinic this month,"[CHN2-005] + [CHN2-010]",Integer,NA,Monthly,
 12,CHN2-020,Not gaining weight 0-23 months,H5cadfqRh7I,Number of children aged 0-23 months who were weighed this month who did not gain >= 100g of weight from the last weigh-in. ,COUNT number of children 0-23 months [Date_Birth] with [weight current visit - weight previous visit < 100g].,Integer,"Growth Monitoring, Out of Area Service",Monthly,
 13,CHN2-025,Not gaining weight 24-59 months,xWDkbLq9kji,Number of children aged 24-59 months who were weighed this month who did not gain >= 100g of weight from the last weigh-in. ,COUNT number of children 24-59 months [Date_Birth] with [weight current visit - weight previous visit < 100g].,Integer,"Growth Monitoring, Out of Area Service",Monthly,
-14,CHN2-030,Total not gaining weight age < five years,Fxv5RZ9MqeZ,Number of total children aged < five years who were weighed this month and did not gain >= 100g from the last weigh-in.,"[CHN2-020] + [CHN2-025]
-[Non-editable in the form]",Integer,NA,Monthly,
+14,CHN2-030,Total not gaining weight age < five years,Fxv5RZ9MqeZ,Number of total children aged < five years who were weighed this month and did not gain >= 100g from the last weigh-in.,"[CHN2-020] + [CHN2-025]",Integer,NA,Monthly,
 15,CHN2-035,Weight between -2Z &-3Z score 0-23 months,lcpx7xdVC3z,Number of total children age 0-23 months whose weight is between -2Z and -3Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
 16,CHN2-040,Weight between -2Z &-3Z score 24-59 months,hi9sRtkzimM,Number of total children age 24-59 months whose weight is between -2Z and -3Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
-17,CHN2-041,Weight between -2Z &-3Z score < five years,oPxrxHMQA8Y,Number of total children age < 5 years whose weight is between -2Z and -3Z scores,"[CHN2-035] + [CHN2-040]
-[Non-editable in the form]",Integer,NA,Monthly,
+17,CHN2-041,Weight between -2Z &-3Z score < five years,oPxrxHMQA8Y,Number of total children age < 5 years whose weight is between -2Z and -3Z scores,"[CHN2-035] + [CHN2-040]",Integer,NA,Monthly,
 18,CHN2-045,Weight below -3Z scores 0-23 months,LpkrzZezPhP,Number of total children age 0-23 months whose weight is below -3Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
 19,CHN2-050,Weight below -3Z scores 24-59 months,AzLJv6qTtPO,Number of total children age 24-59 months whose weight is below -3Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
-20,CHN2-051,Total weight below -3Z scores < five years,DreuSSBMVPR,Number of total children age < 5 years whose weight below -3Z scores,"[CHN2-045] + [CHN2-050]
-[Non-editable in the form]",Integer,NA,Monthly,
+20,CHN2-051,Total weight below -3Z scores < five years,DreuSSBMVPR,Number of total children age < 5 years whose weight below -3Z scores,"[CHN2-045] + [CHN2-050]",Integer,NA,Monthly,
 21,CHN2-055,Weight above 2Z score 0-23 months,gdrQ69fCF8B,Number of total children age 0-23 months whose weight is above 2Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
 22,CHN2-060,Weight above 2Z score 24-59 months,ke26q8KPQPM,Number of total children age 24-59 months whose weight is above 2Z scores,As per WHO standard,Integer,"Growth Monitoring, Out of Area Service",Monthly,
-23,CHN2-061,Total weight above 2Z < five years,QU21Li9E3yx,Number of total children age < 5 years whose weight is above 2Z scores,"[CHN-055] + [CHN-060]
-[Non-editable in the form]",Integer,NA,Monthly,
+23,CHN2-061,Total weight above 2Z < five years,QU21Li9E3yx,Number of total children age < 5 years whose weight is above 2Z scores,"[CHN-055] + [CHN-060]",Integer,NA,Monthly,
 "Vitamin A, Deworming, and ITNs",,,,,,,,,
 24,CHN2-065,Vitamin A supplement to infant and children 6-11 months,DSbbltBORY3,Number of children age 6-11 months who received vitamin A at this facility in this month,COUNT Number of children age 6-11 months [Date_Birth] who received vitamin A [Vit_A_Provided] at this facility in this month [Vit_A_Provided_Date],Integer,Vitamin A,Monthly,
 25,CHN2-070,Vitamin A supplement to infant and children 12-59 months,JfY9vBHsyzF,Number of children age 12-59 months who received vitamin A at this facility in this month,COUNT Number of children age 12-59 months [Date_Birth] who received vitamin A [Vit_A_Provided] at this facility in this month [Vit_A_Provided_Date],Integer,Vitamin A,Monthly,
