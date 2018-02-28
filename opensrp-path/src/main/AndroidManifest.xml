@@ -75,7 +75,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
         <activity
-            android:name=".activity.StockActivity"
+            android:name=".activity.PathStockActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
@@ -85,6 +85,7 @@
 
         <service android:name=".service.intent.SyncService" />
         <service android:name=".service.intent.ExtendedSyncIntentService" />
+        <service android:name="org.smartregister.stock.sync.StockSyncIntentService" />
         <service android:name=".service.intent.ValidateIntentService" />
         <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />
 
@@ -107,9 +108,16 @@
         </provider>
 
         <activity
-            android:name=".activity.StockControlActivity"
+            android:name="org.smartregister.stock.activity.StockControlActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_stock_control"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
+        <activity
+            android:name="org.smartregister.stock.activity.StockJsonFormActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+
         <activity
             android:name=".activity.CoverageReportsActivity"
             android:screenOrientation="portrait"

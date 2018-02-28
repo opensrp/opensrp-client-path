@@ -23,9 +23,7 @@ import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
-import org.smartregister.immunization.repository.VaccineNameRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
-import org.smartregister.immunization.repository.VaccineTypeRepository;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.BuildConfig;
@@ -35,8 +33,8 @@ import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
-import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortIndicatorRepository;
+import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
 import org.smartregister.path.repository.CumulativeIndicatorRepository;
 import org.smartregister.path.repository.CumulativePatientRepository;
@@ -45,10 +43,12 @@ import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.HIA2IndicatorsRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.repository.PathRepository;
-import org.smartregister.path.repository.StockRepository;
+import org.smartregister.path.repository.PathStockHelperRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
+import org.smartregister.stock.StockLibrary;
+import org.smartregister.stock.repository.StockRepository;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.receiver.TimeChangedBroadcastReceiver;
 
@@ -115,6 +115,9 @@ public class VaccinatorApplication extends DrishtiApplication
         cleanUpSyncState();
         initOfflineSchedules();
         setCrashlyticsUser(context);
+
+        //Initialize stock lib and pass stock helper repository for external db functions
+        StockLibrary.init(context, getRepository(), new PathStockHelperRepository(getRepository()));
     }
 
     public static synchronized VaccinatorApplication getInstance() {
@@ -323,17 +326,9 @@ public class VaccinatorApplication extends DrishtiApplication
 
     public StockRepository stockRepository() {
         if (stockRepository == null) {
-            stockRepository = new StockRepository((PathRepository) getRepository());
+            stockRepository = new StockRepository(getRepository());
         }
         return stockRepository;
-    }
-
-    public VaccineTypeRepository vaccineTypeRepository() {
-        return ImmunizationLibrary.getInstance().vaccineTypeRepository();
-    }
-
-    public VaccineNameRepository vaccineNameRepository() {
-        return ImmunizationLibrary.getInstance().vaccineNameRepository();
     }
 
     public CohortRepository cohortRepository() {
