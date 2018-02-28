@@ -24,9 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -417,17 +415,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         if (vaccineGroups == null) {
             vaccineGroups = new ArrayList<>();
-            String supportedVaccinesString = VaccinatorUtils.getSupportedVaccines(this);
-
-            try {
-                JSONArray supportedVaccines = new JSONArray(supportedVaccinesString);
-
-                for (int i = 0; i < supportedVaccines.length(); i++) {
-                    JSONObject vaccineGroupObject = supportedVaccines.getJSONObject(i);
-                    addVaccineGroup(-1, vaccineGroupObject, vaccineList, alerts);
-                }
-            } catch (JSONException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : supportedVaccines) {
+                addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
             }
         }
 
@@ -469,7 +459,7 @@ public class ChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void addVaccineGroup(int canvasId, JSONObject vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
+    private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
@@ -1125,7 +1115,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 try {
                     vaccineGroups.remove(curGroup);
                     addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            new JSONObject((String) curGroup.getTag(R.id.vaccine_group_vaccine_data)),
+                            curGroup.getVaccineData(),
                             vaccineList, alerts);
                 } catch (Exception e) {
                     Log.e(TAG, Log.getStackTraceString(e));
