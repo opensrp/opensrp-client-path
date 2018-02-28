@@ -311,9 +311,19 @@ public class Utils {
     }
 
     public static Date dobStringToDate(String dobString) {
-        try {
-            DateTime dateTime = new DateTime(dobString);
+        DateTime dateTime = dobStringToDateTime(dobString);
+        if (dateTime != null) {
             return dateTime.toDate();
+        }
+        return null;
+    }
+
+    public static DateTime dobStringToDateTime(String dobString) {
+        try {
+            if (StringUtils.isBlank(dobString)) {
+                return null;
+            }
+            return new DateTime(dobString);
 
         } catch (Exception e) {
             return null;

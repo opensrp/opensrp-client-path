@@ -469,12 +469,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
                         if (!TextUtils.isEmpty(getValue(childDetails.getColumnmaps(), "mother_dob", true))) {
                             try {
-                                DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "mother_dob", true));
-                                Date dob = dateTime.toDate();
-                                Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
-                                long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
-                                if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
-                                    jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                                String motherDobString = getValue(childDetails.getColumnmaps(), "mother_dob", true);
+                                Date dob = util.Utils.dobStringToDate(motherDobString);
+                                if (dob != null) {
+                                    Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
+                                    long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
+                                    if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
+                                        jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                                    }
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, Log.getStackTraceString(e));
@@ -507,9 +509,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", true));
-                        Date dob = dateTime.toDate();
-                        jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+
+                        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, true);
+                        Date dob = util.Utils.dobStringToDate(dobString);
+                        if (dob != null) {
+                            jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                        }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Weight")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
@@ -756,10 +761,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                Date dob = dateTime.toDate();
+            dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+            Date dob = util.Utils.dobStringToDate(dobString);
+            if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
@@ -790,7 +794,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         ImageView statusImage = (ImageView) findViewById(R.id.statusimage);
         TextView status_name = (TextView) findViewById(R.id.statusname);
         TextView status = (TextView) findViewById(R.id.status);
-        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setColorFilter(Color.TRANSPARENT);
             statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
@@ -798,14 +802,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             status_name.setTextColor(getResources().getColor(R.color.dark_grey));
             status_name.setVisibility(View.VISIBLE);
             status.setText(R.string.status);
-        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
             statusImage.setColorFilter(Color.TRANSPARENT);
             status_name.setVisibility(View.GONE);
             status.setText(R.string.lost_to_follow_up_with_nl);
-        }
-        if (!((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())))) {
+        } else {
             statusImage.setImageResource(R.drawable.ic_icon_status_active);
             statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
             status_name.setText(R.string.active);
@@ -988,12 +991,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 gender = Gender.MALE;
             }
 
-            Date dob = null;
-            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                dob = dateTime.toDate();
-            }
+            String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+            Date dob = util.Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
                 weightRepository.add(dob, gender, weight);
@@ -1027,10 +1026,17 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
         String duration = "";
-        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-        if (StringUtils.isNotBlank(dobString)) {
-            DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", false));
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
+
+        Date dob = null;
+        if (dateTime != null) {
             duration = DateUtil.getDuration(dateTime);
+            dob = dateTime.toDate();
+        }
+
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
         }
 
         Photo photo = getProfilePhotoByClient();
@@ -1051,9 +1057,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PMTCT_STATUS_LOWER_CASE, false));
-        weightWrapper.setDateOfBirth(dobString);
 
-        EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, weightWrapper);
+        EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, dob, weightWrapper);
         editWeightDialogFragment.show(ft, DIALOG_TAG);
 
     }
@@ -1176,9 +1181,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                        DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", true));
-                        Date dob = dateTime.toDate();
-                        jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                        String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
+                        Date dob = util.Utils.dobStringToDate(dobString);
+                        if (dob != null) {
+                            jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                        }
                         break;
                     }
                 }
@@ -1392,11 +1399,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         vaccineWrapper.setName(VaccineRepo.Vaccine.bcg2.display());
         vaccineWrapper.setDefaultName(VaccineRepo.Vaccine.bcg2.display());
 
-        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-        Date dob = Calendar.getInstance().getTime();
-        if (!TextUtils.isEmpty(dobString)) {
-            DateTime dateTime = new DateTime(dobString);
-            dob = dateTime.toDate();
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        Date dob = util.Utils.dobStringToDate(dobString);
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
         }
 
         Photo photo = org.smartregister.immunization.util.ImageUtils.profilePhotoByClient(childDetails);
