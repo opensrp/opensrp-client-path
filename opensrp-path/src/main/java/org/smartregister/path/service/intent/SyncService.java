@@ -42,19 +42,18 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessorForJava;
-import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
-import org.smartregister.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Date;
 
+import util.LocationUtils;
 import util.NetworkUtils;
 
 public class SyncService extends Service {
@@ -141,7 +140,7 @@ public class SyncService extends Service {
     private synchronized void fetchRetry(final int count) {
         try {
             // Fetch locations
-            final String locations = Utils.getPreference(context, LocationPickerView.PREF_TEAM_LOCATIONS, "");
+            final String locations = LocationUtils.locationIdsFromHierarchy();
             if (StringUtils.isBlank(locations)) {
                 complete(FetchStatus.fetchedFailed);
                 return;

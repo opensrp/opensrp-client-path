@@ -26,7 +26,7 @@ public class ServiceLocationsAdapter extends BaseAdapter {
     private final HashMap<String, View> views;
     private final Context context;
 
-    public ServiceLocationsAdapter(Context context, ArrayList<String> locationNames, String selectedLocation) {
+    public ServiceLocationsAdapter(Context context, ArrayList<String> locationNames) {
         this.context = context;
         this.locationNames = locationNames == null ? new ArrayList<String>() : locationNames;
         this.views = new HashMap<>();
@@ -93,5 +93,9 @@ public class ServiceLocationsAdapter extends BaseAdapter {
 
     public String getLocationAt(int position) {
         return locationNames.get(position);
+    }
+
+    public ArrayList<String> getLocationNames() {
+        return locationNames;
     }
 }

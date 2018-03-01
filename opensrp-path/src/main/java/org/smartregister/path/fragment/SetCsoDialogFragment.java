@@ -182,7 +182,7 @@ public class SetCsoDialogFragment extends DialogFragment {
 
     private String getDefaultLocation() {
         List<String> rawDefaultLocation = LocationUtils
-                .generateDefaultLocationHierarchy(LocationPickerView.ALLOWED_LEVELS);
+                .generateDefaultLocationHierarchy(LocationUtils.ALLOWED_LEVELS);
 
         if (rawDefaultLocation != null && rawDefaultLocation.size() > 0) {
             return rawDefaultLocation.get(rawDefaultLocation.size() - 1);

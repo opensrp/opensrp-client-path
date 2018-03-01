@@ -1260,12 +1260,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
             db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
 
+            String locationName = allSharedPreferences.fetchCurrentLocality();
+            if (StringUtils.isBlank(locationName)) {
+                locationName = LocationUtils.getDefaultLocation();
+            }
 
             Event event = (Event) new Event()
                     .withBaseEntityId(childDetails.entityId())
                     .withEventDate(new Date())
                     .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(LocationUtils.getOpenMrsLocationId(allSharedPreferences.fetchCurrentLocality()))
+                    .withLocationId(LocationUtils.getOpenMrsLocationId(locationName))
                     .withProviderId(allSharedPreferences.fetchRegisteredANM())
                     .withEntityType(PathConstants.EntityType.CHILD)
                     .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())

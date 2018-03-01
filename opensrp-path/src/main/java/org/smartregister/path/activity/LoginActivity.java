@@ -29,7 +29,6 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.Context;
 import org.smartregister.domain.LoginResponse;
@@ -41,13 +40,11 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
-import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.util.Utils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
@@ -458,13 +455,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            ArrayList<String> locationsCSV = LocationUtils.locationsFromHierarchy();
-
-            if (locationsCSV.isEmpty()) {
-                return null;
-            }
-
-            Utils.writePreference(VaccinatorApplication.getInstance().getApplicationContext(), LocationPickerView.PREF_TEAM_LOCATIONS, StringUtils.join(locationsCSV, ","));
+            LocationUtils.locationIdsFromHierarchy();
             return null;
         }
     }

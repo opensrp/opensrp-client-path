@@ -34,16 +34,6 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     private ServiceLocationsAdapter serviceLocationsAdapter;
     private OnLocationChangeListener onLocationChangeListener;
 
-    public static final String PREF_TEAM_LOCATIONS = "PREF_TEAM_LOCATIONS";
-    public static final ArrayList<String> ALLOWED_LEVELS;
-    public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
-
-    static {
-        ALLOWED_LEVELS = new ArrayList<>();
-        ALLOWED_LEVELS.add("Health Facility");
-        ALLOWED_LEVELS.add("Zone");
-    }
-
     public LocationPickerView(Context context) {
         super(context);
         this.context = context;
@@ -65,7 +55,9 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
         locationPickerDialog.setContentView(R.layout.dialog_location_picker);
 
         ListView locationsLV = (ListView) locationPickerDialog.findViewById(R.id.locations_lv);
-        serviceLocationsAdapter = new ServiceLocationsAdapter(context, getLocations(), getSelectedItem());
+
+        String defaultLocation = LocationUtils.getDefaultLocation();
+        serviceLocationsAdapter = new ServiceLocationsAdapter(context, getLocations(defaultLocation));
         locationsLV.setAdapter(serviceLocationsAdapter);
         locationsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -89,8 +81,9 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
 
     public String getSelectedItem() {
         String selectedLocation = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchCurrentLocality();
-        if (TextUtils.isEmpty(selectedLocation) || !getLocations().contains(selectedLocation)) {
-            selectedLocation = getDefaultLocation();
+        if (TextUtils.isEmpty(selectedLocation) || !serviceLocationsAdapter.getLocationNames().contains(selectedLocation)) {
+            selectedLocation = LocationUtils.getDefaultLocation();
+            VaccinatorApplication.getInstance().context().allSharedPreferences().saveCurrentLocality(selectedLocation);
         }
         return selectedLocation;
     }
@@ -99,9 +92,8 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
         this.onLocationChangeListener = onLocationChangeListener;
     }
 
-    private ArrayList<String> getLocations() {
-        String defaultLocation = getDefaultLocation();
-        ArrayList<String> locations = LocationUtils.locationsFromHierarchy(defaultLocation);
+    private ArrayList<String> getLocations(String defaultLocation) {
+        ArrayList<String> locations = LocationUtils.locationNamesFromHierarchy(defaultLocation);
 
         if (locations.contains(defaultLocation)) {
             locations.remove(defaultLocation);
@@ -112,14 +104,6 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
         return locations;
     }
 
-    private String getDefaultLocation() {
-        List<String> rawDefaultLocation = LocationUtils.generateDefaultLocationHierarchy(ALLOWED_LEVELS);
-
-        if (rawDefaultLocation != null && !rawDefaultLocation.isEmpty()) {
-            return rawDefaultLocation.get(rawDefaultLocation.size() - 1);
-        }
-        return null;
-    }
 
     @Override
     public void onClick(View v) {
