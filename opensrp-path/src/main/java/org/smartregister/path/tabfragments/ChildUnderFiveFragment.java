@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +107,7 @@ public class ChildUnderFiveFragment extends Fragment {
         return underFiveFragment;
     }
 
-    public void loadView(boolean editVaccineMode, boolean editServiceMode, boolean editWeightMode) {
+    public void loadView(final boolean editVaccineMode, final boolean editServiceMode, boolean editWeightMode) {
         try {
             if (fragmentContainer != null) {
                 if (curWeightMode == null || !curWeightMode.equals(Boolean.valueOf(editWeightMode))) {
@@ -214,9 +217,7 @@ public class ChildUnderFiveFragment extends Fragment {
         value.setText(valueString);
     }
 
-    private void updateVaccinationViews(LinearLayout fragmentContainer, boolean editmode) {
-        VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-        List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+    private void updateVaccinationViews(List<Vaccine> vaccineList, List<Alert> alertList, LinearLayout fragmentContainer, boolean editmode) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) fragmentContainer.findViewById(R.id.immunizations);
         vaccineGroupCanvasLL.removeAllViews();
 
@@ -227,18 +228,14 @@ public class ChildUnderFiveFragment extends Fragment {
         title.setText(getString(R.string.immunizations));
         vaccineGroupCanvasLL.addView(title);
 
-        List<Alert> alertList = new ArrayList<>();
-        if (alertService != null) {
-            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                    VaccinateActionUtils.allAlertNames("child"));
-        }
-
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
+        TimingLogger timingLogger = new TimingLogger("TimingLogger","updateVaccinationViews");
         for (VaccineGroup vaccineGroup : supportedVaccines) {
 
             VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
-
+            timingLogger.addSplit("addBcg2SpecialVaccine");
             ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editmode);
+            timingLogger.addSplit("ImmunizationRowGroup init ");
             curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
             curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
                 @Override
@@ -249,29 +246,15 @@ public class ChildUnderFiveFragment extends Fragment {
             });
 
             vaccineGroupCanvasLL.addView(curGroup);
+            timingLogger.addSplit("addView");
         }
+        timingLogger.dumpToLog();
 
     }
 
-    private void updateServiceViews(LinearLayout fragmentContainer, boolean editmode) {
-        List<ServiceRecord> serviceRecords = new ArrayList<>();
-
-        RecurringServiceTypeRepository recurringServiceTypeRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceTypeRepository();
-        RecurringServiceRecordRepository recurringServiceRecordRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceRecordRepository();
-
-        if (recurringServiceRecordRepository != null) {
-            serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
-        }
-
-        Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-        if (recurringServiceTypeRepository != null) {
-            List<String> types = recurringServiceTypeRepository.fetchTypes();
-            for (String type : types) {
-                List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
-                serviceTypeMap.put(type, subTypes);
-            }
-        }
-
+    private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap,
+                                    List<ServiceRecord> serviceRecords, List<Alert> alertList,
+                                    LinearLayout fragmentContainer, boolean editmode) {
         LinearLayout serviceGroupCanvasLL = (LinearLayout) fragmentContainer.findViewById(R.id.services);
         serviceGroupCanvasLL.removeAllViews();
 
@@ -281,12 +264,6 @@ public class ChildUnderFiveFragment extends Fragment {
         title.setTextColor(getResources().getColor(R.color.text_black));
         title.setText(getString(R.string.recurring));
         serviceGroupCanvasLL.addView(title);
-
-        List<Alert> alertList = new ArrayList<>();
-        if (alertService != null) {
-            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                    VaccinateActionUtils.allAlertNames(serviceTypeMap.values()));
-        }
 
         try {
             for (String type : serviceTypeMap.keySet()) {
@@ -371,7 +348,7 @@ public class ChildUnderFiveFragment extends Fragment {
         this.alertService = alertService;
     }
 
-    private class AddVaccinationServiceViewsAsyncTask extends AsyncTask<Void, Void, Void> {
+    private class AddVaccinationServiceViewsAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private boolean editVaccineMode;
         private boolean editServiceMode;
@@ -387,21 +364,100 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
+        protected void onPostExecute(Map<String, NamedObject<?>> map) {
+            List<Vaccine> vaccineList = new ArrayList<>();
+            Map<String, List<ServiceType>> serviceTypeMap = new HashMap<>();
+            List<ServiceRecord> serviceRecords = new ArrayList<>();
+            List<Alert> alertList = new ArrayList<>();
+
+            if (map.containsKey(Vaccine.class.getName())) {
+                NamedObject<?> namedObject = map.get(Vaccine.class.getName());
+                if (namedObject != null) {
+                    vaccineList = (List<Vaccine>) namedObject.object;
+                }
+            }
+
+            if (map.containsKey(ServiceType.class.getName())) {
+                NamedObject<?> namedObject = map.get(ServiceType.class.getName());
+                if (namedObject != null) {
+                    serviceTypeMap = (Map<String, List<ServiceType>>) namedObject.object;
+                }
+
+            }
+
+            if (map.containsKey(ServiceRecord.class.getName())) {
+                NamedObject<?> namedObject = map.get(ServiceRecord.class.getName());
+                if (namedObject != null) {
+                    serviceRecords = (List<ServiceRecord>) namedObject.object;
+                }
+            }
+
+
+            if (map.containsKey(Alert.class.getName())) {
+                NamedObject<?> namedObject = map.get(Alert.class.getName());
+                if (namedObject != null) {
+                    alertList = (List<Alert>) namedObject.object;
+                }
+
+            }
+
             if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
-                updateVaccinationViews(fragmentContainer, editVaccineMode);
+                updateVaccinationViews(vaccineList, alertList, fragmentContainer, editVaccineMode);
                 curVaccineMode = editVaccineMode;
             }
 
-            if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
-                updateServiceViews(fragmentContainer, editServiceMode);
+            /*if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
+                updateServiceViews(serviceTypeMap, serviceRecords, alertList, fragmentContainer, editServiceMode);
                 curServiceMode = editServiceMode;
-            }
+            }*/
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
-            return null;
+        protected Map<String, NamedObject<?>> doInBackground(Void... params) {
+
+            Map<String, NamedObject<?>> map = new HashMap<>();
+
+            VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+
+            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+            map.put(vaccineNamedObject.name, vaccineNamedObject);
+
+            List<ServiceRecord> serviceRecords = new ArrayList<>();
+
+            RecurringServiceTypeRepository recurringServiceTypeRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceRecordRepository();
+
+            if (recurringServiceRecordRepository != null) {
+                serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+            }
+
+            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+            map.put(serviceNamedObject.name, serviceNamedObject);
+
+            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
+            if (recurringServiceTypeRepository != null) {
+                List<String> types = recurringServiceTypeRepository.fetchTypes();
+                for (String type : types) {
+                    List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
+                    serviceTypeMap.put(type, subTypes);
+                }
+            }
+
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+
+
+            List<Alert> alertList = new ArrayList<>();
+            if (alertService != null) {
+                alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
+                        VaccinateActionUtils.allAlertNames(serviceTypeMap.values()));
+            }
+
+            NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+            map.put(alertNamedObject.name, alertNamedObject);
+
+            return map;
         }
     }
 
