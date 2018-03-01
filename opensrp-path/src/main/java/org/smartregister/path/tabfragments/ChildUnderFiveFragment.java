@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -229,13 +228,10 @@ public class ChildUnderFiveFragment extends Fragment {
         vaccineGroupCanvasLL.addView(title);
 
         List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(getActivity());
-        TimingLogger timingLogger = new TimingLogger("TimingLogger","updateVaccinationViews");
         for (VaccineGroup vaccineGroup : supportedVaccines) {
 
             VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
-            timingLogger.addSplit("addBcg2SpecialVaccine");
             ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editmode);
-            timingLogger.addSplit("ImmunizationRowGroup init ");
             curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
             curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
                 @Override
@@ -246,9 +242,7 @@ public class ChildUnderFiveFragment extends Fragment {
             });
 
             vaccineGroupCanvasLL.addView(curGroup);
-            timingLogger.addSplit("addView");
         }
-        timingLogger.dumpToLog();
 
     }
 
@@ -406,10 +400,10 @@ public class ChildUnderFiveFragment extends Fragment {
                 curVaccineMode = editVaccineMode;
             }
 
-            /*if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
+            if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
                 updateServiceViews(serviceTypeMap, serviceRecords, alertList, fragmentContainer, editServiceMode);
                 curServiceMode = editServiceMode;
-            }*/
+            }
         }
 
         @Override
