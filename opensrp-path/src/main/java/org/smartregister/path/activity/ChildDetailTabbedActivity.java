@@ -850,7 +850,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private void setupViewPager(ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        //adapter.addFragment(childDataFragment, "Registration Data");
+        adapter.addFragment(childDataFragment, "Registration Data");
         adapter.addFragment(childUnderFiveFragment, "Under Five History");
         viewPager.setAdapter(adapter);
     }
