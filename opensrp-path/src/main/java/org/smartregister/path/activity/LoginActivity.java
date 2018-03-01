@@ -53,6 +53,7 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import util.LocationUtils;
 import util.NetworkUtils;
 import util.PathConstants;
 
@@ -246,8 +247,9 @@ public class LoginActivity extends AppCompatActivity {
                                 showErrorDialog(getResources().getString(R.string.unknown_response));
                             } else if (loginResponse == UNAUTHORIZED) {
                                 showErrorDialog(getResources().getString(R.string.unauthorized));
+                            } else {
+                                showErrorDialog(loginResponse.message());
                             }
-//                        showErrorDialog(loginResponse.message());
                         }
                     }
                 }
@@ -456,7 +458,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            ArrayList<String> locationsCSV = util.Utils.locationsFromHierarchy();
+            ArrayList<String> locationsCSV = LocationUtils.locationsFromHierarchy();
 
             if (locationsCSV.isEmpty()) {
                 return null;

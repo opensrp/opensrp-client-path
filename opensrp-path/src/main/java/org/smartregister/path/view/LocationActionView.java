@@ -57,7 +57,7 @@ public class LocationActionView extends LinearLayout {
         setLayoutParams(layoutParams);
 
         itemText = (LocationPickerView) findViewById(R.id.item_text);
-        itemText.init(openSrpContext);
+        itemText.init();
     }
 
     public String getSelectedItem() {

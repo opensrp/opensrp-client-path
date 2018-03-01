@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.smartregister.Context;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -22,7 +21,7 @@ import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
-import util.JsonFormUtils;
+import util.LocationUtils;
 import util.PathConstants;
 
 import static android.view.View.INVISIBLE;
@@ -90,7 +89,7 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
         viewParent.setVisibility(View.GONE);
 
         clinicSelection = (LocationPickerView) view.findViewById(R.id.clinic_selection);
-        clinicSelection.init(context());
+        clinicSelection.init();
 
     }
 
@@ -119,15 +118,10 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
 
     protected void updateLocationText() {
         if (clinicSelection != null) {
-            clinicSelection.setText(JsonFormUtils.getOpenMrsReadableName(
+            clinicSelection.setText(LocationUtils.getOpenMrsReadableName(
                     clinicSelection.getSelectedItem()));
-            try {
-
-                String locationId = JsonFormUtils.getOpenMrsLocationId(context(), clinicSelection.getSelectedItem());
-                context().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            String locationId = LocationUtils.getOpenMrsLocationId(clinicSelection.getSelectedItem());
+            context().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
         }
     }
 

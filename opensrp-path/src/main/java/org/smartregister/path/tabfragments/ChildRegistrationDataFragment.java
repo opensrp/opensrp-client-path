@@ -11,7 +11,6 @@ import android.widget.TableRow;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.DateUtil;
@@ -24,6 +23,7 @@ import java.util.Date;
 import java.util.Map;
 
 import util.JsonFormUtils;
+import util.LocationUtils;
 import util.PathConstants;
 
 
@@ -97,7 +97,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
             WidgetFactory wd = new WidgetFactory();
 
-            tvChildsHomeHealthFacility.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "Home_Facility", false))));
+            tvChildsHomeHealthFacility.setText(LocationUtils.getOpenMrsReadableName(LocationUtils.getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
             tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));
             tvChildsRegisterCardNumber.setText(Utils.getValue(detailsMap, "Child_Register_Card_Number", false));
             tvChildsBirthCertificateNumber.setText(Utils.getValue(detailsMap, "Child_Birth_Certificate", false));
@@ -162,16 +162,16 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildsPlaceOfBirth.setText(placeOfBirthChoice);
             String childsBirthHealthFacility = Utils.getValue(detailsMap, "Birth_Facility_Name", false);
-            tvChildsBirthHealthFacility.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsBirthHealthFacility)));
+            tvChildsBirthHealthFacility.setText(LocationUtils.getOpenMrsReadableName(LocationUtils.getOpenMrsLocationName(childsBirthHealthFacility)));
 
-            if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsBirthHealthFacility)).equalsIgnoreCase("other")) {
+            if (LocationUtils.getOpenMrsReadableName(LocationUtils.getOpenMrsLocationName(childsBirthHealthFacility)).equalsIgnoreCase("other")) {
                 tableRowChildsOtherBirthFacility.setVisibility(View.VISIBLE);
                 tvChildsOtherBirthFacility.setText(Utils.getValue(detailsMap, "Birth_Facility_Name_Other", true));
             }
 
             String childsResidentialArea = Utils.getValue(detailsMap, "address3", false);
-            tvChildsResidentialArea.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsResidentialArea)));
-            if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsResidentialArea)).equalsIgnoreCase("other")) {
+            tvChildsResidentialArea.setText(LocationUtils.getOpenMrsReadableName(LocationUtils.getOpenMrsLocationName(childsResidentialArea)));
+            if (LocationUtils.getOpenMrsReadableName(LocationUtils.getOpenMrsLocationName(childsResidentialArea)).equalsIgnoreCase("other")) {
                 tableRowChildsOtherResidentialArea.setVisibility(View.VISIBLE);
                 tvChildsOtherResidentialArea.setText(Utils.getValue(detailsMap, "address5", true));
             }

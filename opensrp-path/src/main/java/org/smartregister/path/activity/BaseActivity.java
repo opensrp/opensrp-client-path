@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import util.JsonFormUtils;
+import util.LocationUtils;
 import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
@@ -408,8 +409,7 @@ public abstract class BaseActivity extends AppCompatActivity
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                String locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        locationSwitcherToolbar.getCurrentLocation());
+                String locationId = LocationUtils.getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
 
                 startJsonForm(formName, entityId, locationId);
             }
@@ -419,8 +419,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     protected void startJsonForm(String formName, String entityId, String locationId) throws Exception {
-        JsonFormUtils.startForm(this, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
-                formName, entityId, null, locationId);
+        JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,
