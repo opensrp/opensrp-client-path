@@ -1,6 +1,7 @@
 package org.smartregister.path.activity;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
@@ -659,7 +660,7 @@ public class ChildImmunizationActivity extends BaseActivity
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev);
+            ft.remove(prev); // come back here
         }
         ft.addToBackStack(null);
 
@@ -1451,9 +1452,20 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private class ShowGrowthChartTask extends AsyncTask<Void, Void, List<Weight>> {
+        FragmentTransaction ft;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            FragmentManager fragmentManager = ChildImmunizationActivity.this.getFragmentManager();
+            Fragment prev = fragmentManager.findFragmentByTag(DIALOG_TAG);
+            ft = fragmentManager.beginTransaction();
+            if (prev != null) {
+                Log.d("duplicate fragment", "found duplicate fragment"); // remove this
+                this.cancel(true);
+                return;
+            }
+             // remove this comment
             showProgressDialog();
         }
 
@@ -1482,14 +1494,8 @@ public class ChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(List<Weight> allWeights) {
             super.onPostExecute(allWeights);
             hideProgressDialog();
-            FragmentTransaction ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
-            Fragment prev = ChildImmunizationActivity.this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-            if (prev != null) {
-                ft.remove(prev);
-            }
+
             ft.addToBackStack(null);
-
-
             GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, allWeights);
             growthDialogFragment.show(ft, DIALOG_TAG);
         }
