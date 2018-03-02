@@ -3,13 +3,13 @@ package org.smartregister.path.listener;
 import android.app.Activity;
 import android.util.Log;
 
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 
 import util.JsonFormUtils;
 
 import static org.smartregister.path.activity.BaseActivity.REQUEST_CODE_GET_JSON;
-import static org.smartregister.path.activity.LoginActivity.getOpenSRPContext;
 
 /**
  * Created by samuelgithengi on 2/14/18.
@@ -36,11 +36,9 @@ public class BaseListener {
             String locationId = null;
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        locationSwitcherToolbar.getCurrentLocation());
+                locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
             }
-            JsonFormUtils.startForm(context, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
-                    formName, entityId, null, locationId);
+            JsonFormUtils.startForm(context, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);

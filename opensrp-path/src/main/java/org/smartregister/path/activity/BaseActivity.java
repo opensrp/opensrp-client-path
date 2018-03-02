@@ -44,6 +44,7 @@ import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.CustomNavigationBarListener;
 import org.smartregister.path.listener.NavigationItemListener;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -408,8 +409,8 @@ public abstract class BaseActivity extends AppCompatActivity
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                String locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        locationSwitcherToolbar.getCurrentLocation());
+                String locationId =
+                        LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
 
                 startJsonForm(formName, entityId, locationId);
             }
@@ -419,8 +420,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     protected void startJsonForm(String formName, String entityId, String locationId) throws Exception {
-        JsonFormUtils.startForm(this, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
-                formName, entityId, null, locationId);
+        JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,

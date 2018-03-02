@@ -33,6 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.reflect.TypeToken;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -41,7 +43,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.Context;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -72,6 +73,7 @@ import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -85,6 +87,7 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AssetHandler;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -418,12 +421,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private String getmetaDataForEditForm() {
-        Context context = getOpenSRPContext();
         try {
             JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("child_enrollment");
             LocationPickerView lpv = new LocationPickerView(getApplicationContext());
-            lpv.init(context);
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form, context);
+            lpv.init();
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.entityId());
@@ -536,21 +538,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        JSONArray birthFacilityHierarchy = null;
+                        List<String> birthFacilityHierarchy = null;
                         String birthFacilityName = getValue(detailmaps, "Birth_Facility_Name", false);
 
                         if (birthFacilityName != null) {
                             if (birthFacilityName.equalsIgnoreCase("other")) {
-                                birthFacilityHierarchy = new JSONArray();
-                                birthFacilityHierarchy.put(birthFacilityName);
+                                birthFacilityHierarchy = new ArrayList<>();
+                                birthFacilityHierarchy.add(birthFacilityName);
                             } else {
-                                birthFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                        getOpenSRPContext(), birthFacilityName);
+                                birthFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(birthFacilityName);
                             }
                         }
 
-                        if (birthFacilityHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchy.toString());
+                        String birthFacilityHierarchyString = AssetHandler.javaToJsonString(birthFacilityHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(birthFacilityHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
                         }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name_Other")) {
@@ -558,18 +561,19 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area")) {
-                        JSONArray residentialAreaHierarchy = null;
+                        List<String> residentialAreaHierarchy;
                         String address3 = getValue(detailmaps, "address3", false);
                         if (address3 != null && address3.equalsIgnoreCase("Other")) {
-                            residentialAreaHierarchy = new JSONArray();
-                            residentialAreaHierarchy.put(address3);
+                            residentialAreaHierarchy = new ArrayList<>();
+                            residentialAreaHierarchy.add(address3);
                         } else {
-                            residentialAreaHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                    getOpenSRPContext(), address3);
+                            residentialAreaHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(address3);
                         }
 
-                        if (residentialAreaHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, residentialAreaHierarchy.toString());
+                        String residentialAreaHierarchyString = AssetHandler.javaToJsonString(residentialAreaHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(residentialAreaHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, residentialAreaHierarchyString);
                         }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area_Other")) {
@@ -592,11 +596,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, PMTCT_STATUS_LOWER_CASE, true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
-                        JSONArray homeFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                getOpenSRPContext(), getValue(detailmaps,
-                                        "Home_Facility", false));
-                        if (homeFacilityHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchy.toString());
+                        List<String> homeFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(getValue(detailmaps,
+                                "Home_Facility", false));
+
+                        String homeFacilityHierarchyString = AssetHandler.javaToJsonString(homeFacilityHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(homeFacilityHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchyString);
                         }
                     }
 
@@ -1252,12 +1258,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
             db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
 
+            String locationName = allSharedPreferences.fetchCurrentLocality();
+            if (StringUtils.isBlank(locationName)) {
+                locationName = LocationHelper.getInstance().getDefaultLocation();
+            }
 
             Event event = (Event) new Event()
                     .withBaseEntityId(childDetails.entityId())
                     .withEventDate(new Date())
                     .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(allSharedPreferences.fetchCurrentLocality())
+                    .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
                     .withProviderId(allSharedPreferences.fetchRegisteredANM())
                     .withEntityType(PathConstants.EntityType.CHILD)
                     .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())

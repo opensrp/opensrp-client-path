@@ -137,7 +137,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            Log.i(TAG, "Starting processVaccine table: " + vaccineTable.name);
+            Log.d(TAG, "Starting processVaccine table: " + vaccineTable.name);
 
             ContentValues contentValues = processCaseModel(vaccine, vaccineTable);
 
@@ -163,7 +163,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
 
                 Utils.addVaccine(vaccineRepository, vaccineObj);
 
-                Log.i(TAG, "Ending processVaccine table: " + vaccineTable.name);
+                Log.d(TAG, "Ending processVaccine table: " + vaccineTable.name);
             }
             return true;
 
@@ -185,7 +185,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            Log.i(TAG, "Starting processWeight table: " + weightTable.name);
+            Log.d(TAG, "Starting processWeight table: " + weightTable.name);
 
             ContentValues contentValues = processCaseModel(weight, weightTable);
 
@@ -209,7 +209,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
                 weightRepository.add(weightObj);
 
-                Log.i(TAG, "Ending processWeight table: " + weightTable.name);
+                Log.d(TAG, "Ending processWeight table: " + weightTable.name);
             }
             return true;
 
@@ -231,7 +231,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 return false;
             }
 
-            Log.i(TAG, "Starting processService table: " + serviceTable.name);
+            Log.d(TAG, "Starting processService table: " + serviceTable.name);
 
             ContentValues contentValues = processCaseModel(service, serviceTable);
 
@@ -288,7 +288,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
 
                 recurringServiceRecordRepository.add(serviceObj);
 
-                Log.i(TAG, "Ending processService table: " + serviceTable.name);
+                Log.d(TAG, "Ending processService table: " + serviceTable.name);
             }
             return true;
 
@@ -321,7 +321,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             return;
         }
 
-        Log.i(TAG, "Starting updateFTSsearch table: " + tableName);
+        Log.d(TAG, "Starting updateFTSsearch table: " + tableName);
 
         AllCommonsRepository allCommonsRepository = org.smartregister.CoreLibrary.getInstance().context().
                 allCommonsRepositoryobjects(tableName);
@@ -339,7 +339,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             }
         }
 
-        Log.i(TAG, "Finished updateFTSsearch table: " + tableName);
+        Log.d(TAG, "Finished updateFTSsearch table: " + tableName);
     }
 
     @Override
