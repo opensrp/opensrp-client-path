@@ -70,8 +70,7 @@ public class LocationSwitcherToolbar extends BaseToolbar {
     @Override
     public void prepareMenu() {
         if (baseActivity != null) {
-            LocationActionView locationActionView = new LocationActionView(baseActivity,
-                    baseActivity.getOpenSRPContext());
+            LocationActionView locationActionView = new LocationActionView(baseActivity);
 
             locationActionView.getLocationPickerView()
                     .setOnLocationChangeListener(new LocationPickerView.OnLocationChangeListener() {

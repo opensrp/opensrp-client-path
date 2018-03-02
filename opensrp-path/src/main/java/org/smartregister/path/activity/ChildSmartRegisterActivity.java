@@ -28,6 +28,7 @@ import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.fragment.BaseSmartRegisterFragment;
 import org.smartregister.path.fragment.ChildSmartRegisterFragment;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
@@ -143,9 +144,8 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         try {
             if (mBaseFragment instanceof ChildSmartRegisterFragment) {
                 LocationPickerView locationPickerView = ((ChildSmartRegisterFragment) mBaseFragment).getLocationPickerView();
-                String locationId = JsonFormUtils.getOpenMrsLocationId(context(), locationPickerView.getSelectedItem());
-                JsonFormUtils.startForm(this, context(), REQUEST_CODE_GET_JSON, formName, entityId,
-                        metaData, locationId);
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
+                JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));

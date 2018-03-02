@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import util.PathConstants;
+
 /**
  * Created by keyman on 11/04/2017.
  */
@@ -26,9 +28,9 @@ public class PathDatePickerFactory extends DatePickerFactory {
         super.attachJson(stepName, context, formFragment, jsonObject, editText, duration);
 
         try {
-            if (jsonObject.has("look_up") && jsonObject.get("look_up").toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
+            if (jsonObject.has(PathConstants.KEY.LOOK_UP) && jsonObject.get(PathConstants.KEY.LOOK_UP).toString().equalsIgnoreCase(Boolean.TRUE.toString())) {
 
-                String entityId = jsonObject.getString("entity_id");
+                String entityId = jsonObject.getString(PathConstants.KEY.ENTITY_ID);
 
                 Map<String, List<View>> lookupMap = formFragment.getLookUpMap();
                 List<View> lookUpViews = new ArrayList<>();

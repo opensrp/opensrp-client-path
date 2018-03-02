@@ -65,6 +65,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.domain.RegisterClickables;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.path.view.SiblingPicturesGroup;
@@ -91,7 +92,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import util.ImageUtils;
-import util.JsonFormUtils;
 import util.PathConstants;
 
 
@@ -704,11 +704,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();
-        try {
-            bundle.putString(PathConstants.KEY.LOCATION_NAME, JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(), toolbar.getCurrentLocation()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        bundle.putString(PathConstants.KEY.LOCATION_NAME, LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
         bundle.putSerializable(EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(EXTRA_REGISTER_CLICKABLES, registerClickables);
         intent.putExtras(bundle);
@@ -761,12 +757,7 @@ public class ChildImmunizationActivity extends BaseActivity
             weight.setKg(tag.getWeight());
             weight.setDate(tag.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            try {
-                weight.setLocationId(JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        toolbar.getCurrentLocation()));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            weight.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
 
             Gender gender = Gender.UNKNOWN;
             String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
@@ -945,12 +936,7 @@ public class ChildImmunizationActivity extends BaseActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        try {
-            vaccine.setLocationId(JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                    toolbar.getCurrentLocation()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {
@@ -1164,14 +1150,7 @@ public class ChildImmunizationActivity extends BaseActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = null;
-
-        try {
-            locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                    toolbar.getCurrentLocation());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
