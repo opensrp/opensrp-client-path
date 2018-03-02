@@ -13,7 +13,6 @@ import org.smartregister.path.R;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import util.JsonFormUtils;
 import util.LocationUtils;
 
 /**

@@ -1128,10 +1128,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      */
     public static void startForm(Activity context,
                                  int jsonFormActivityRequestCode,
-                                 String formName, String entityId,
+                                 String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
         Intent intent = new Intent(context, PathJsonFormActivity.class);
 
+        String entityId = uniqueId;
         JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
         if (form != null) {
             form.getJSONObject("metadata").put("encounter_location", currentLocationId);

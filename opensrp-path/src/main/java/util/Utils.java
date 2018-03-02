@@ -337,16 +337,10 @@ public class Utils {
     }
 
     public static boolean isEmptyMap(Map map) {
-        if (map == null || map.isEmpty()) {
-            return true;
-        }
-        return false;
+        return map == null || map.isEmpty();
     }
 
     public static boolean isEmptyCollection(Collection collection) {
-        if (collection == null || collection.isEmpty()) {
-            return true;
-        }
-        return false;
+        return collection == null || collection.isEmpty();
     }
 }

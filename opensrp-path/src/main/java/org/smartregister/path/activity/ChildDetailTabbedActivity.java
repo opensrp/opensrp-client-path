@@ -422,7 +422,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private String getmetaDataForEditForm() {
-        Context context = getOpenSRPContext();
         try {
             JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("child_enrollment");
             LocationPickerView lpv = new LocationPickerView(getApplicationContext());
@@ -563,7 +562,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area")) {
-                        List<String> residentialAreaHierarchy = null;
+                        List<String> residentialAreaHierarchy;
                         String address3 = getValue(detailmaps, "address3", false);
                         if (address3 != null && address3.equalsIgnoreCase("Other")) {
                             residentialAreaHierarchy = new ArrayList<>();

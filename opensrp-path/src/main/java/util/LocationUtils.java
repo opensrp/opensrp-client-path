@@ -61,7 +61,7 @@ public class LocationUtils {
         ArrayList<String> locations = new ArrayList<>();
         try {
             LinkedHashMap<String, TreeNode<String, Location>> map = map();
-            if (map != null) {
+            if (!Utils.isEmptyMap(map)) {
                 for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                     List<String> foundLocations = extractLocations(entry.getValue(), fetchLocationIds, defaultLocation);
                     if (!Utils.isEmptyCollection(foundLocations)) {
@@ -70,7 +70,7 @@ public class LocationUtils {
                 }
             }
         } catch (Exception e) {
-            android.util.Log.e(Utils.class.getCanonicalName(), android.util.Log.getStackTraceString(e));
+            Log.e(Utils.class.getCanonicalName(), Log.getStackTraceString(e));
         }
         return locations;
     }
@@ -91,7 +91,7 @@ public class LocationUtils {
         try {
             if (StringUtils.isNotBlank(locationName)) {
                 LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (map != null) {
+                if (!Utils.isEmptyMap(map)) {
                     for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                         String curResult = getOpenMrsLocationId(locationName, entry.getValue());
                         if (StringUtils.isNotBlank(curResult)) {
@@ -112,7 +112,7 @@ public class LocationUtils {
         try {
             if (StringUtils.isNotBlank(locationId)) {
                 LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (map != null) {
+                if (!Utils.isEmptyMap(map)) {
                     for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                         String curResult = getOpenMrsLocationName(locationId, entry.getValue());
                         if (StringUtils.isNotBlank(curResult)) {
@@ -145,7 +145,7 @@ public class LocationUtils {
         try {
             if (locationId != null) {
                 LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (map != null) {
+                if (!Utils.isEmptyMap(map)) {
                     for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                         List<String> curResult = getOpenMrsLocationHierarchy(locationId, entry.getValue(), new ArrayList<String>());
                         if (!Utils.isEmptyCollection(curResult)) {
@@ -172,7 +172,7 @@ public class LocationUtils {
             String defaultLocationUuid = allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
 
             LinkedHashMap<String, TreeNode<String, Location>> map = map();
-            if (map != null) {
+            if (!Utils.isEmptyMap(map)) {
                 for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                     List<String> curResult = getDefaultLocationHierarchy(defaultLocationUuid, entry.getValue(), new ArrayList<String>(), allowedLevels);
                     if (!Utils.isEmptyCollection(curResult)) {
@@ -191,7 +191,7 @@ public class LocationUtils {
         List<FormLocation> formLocationList = new ArrayList<>();
         try {
             LinkedHashMap<String, TreeNode<String, Location>> map = map();
-            if (map != null) {
+            if (!Utils.isEmptyMap(map)) {
                 for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
                     List<FormLocation> foundLocationList = getFormJsonData(entry.getValue(), allowedLevels);
                     if (!Utils.isEmptyCollection(foundLocationList)) {
@@ -269,7 +269,7 @@ public class LocationUtils {
             }
 
             LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(rawLocationData);
-            if (childMap != null) {
+            if (!Utils.isEmptyMap(childMap)) {
                 for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                     ArrayList<String> childLocations = extractLocations(childEntry.getValue(), fetchLocationIds, defaultLocation);
                     if (!Utils.isEmptyCollection(childLocations)) {
@@ -300,7 +300,7 @@ public class LocationUtils {
             }
 
             LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(openMrsLocations);
-            if (childMap != null) {
+            if (!Utils.isEmptyMap(childMap)) {
                 for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                     String curResult = getOpenMrsLocationId(locationName, childEntry.getValue());
                     if (StringUtils.isNotBlank(curResult)) {
@@ -331,7 +331,7 @@ public class LocationUtils {
             }
 
             LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(openMrsLocations);
-            if (childMap != null) {
+            if (!Utils.isEmptyMap(childMap)) {
                 for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                     String curResult = getOpenMrsLocationName(locationId, childEntry.getValue());
                     if (StringUtils.isNotBlank(curResult)) {
@@ -375,7 +375,7 @@ public class LocationUtils {
             }
 
             LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(openMrsLocationData);
-            if (childMap != null) {
+            if (!Utils.isEmptyMap(childMap)) {
                 for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                     List<String> curResult = getDefaultLocationHierarchy(defaultLocationUuid, childEntry.getValue(), heirachy, allowedLevels);
                     if (!Utils.isEmptyCollection(curResult)) {
@@ -413,7 +413,7 @@ public class LocationUtils {
 
 
             LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(openMrsLocationData);
-            if (childMap != null) {
+            if (!Utils.isEmptyMap(childMap)) {
                 List<FormLocation> children = new ArrayList<>();
                 for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                     List<FormLocation> childFormLocations = getFormJsonData(childEntry.getValue(), allowedLevels);
@@ -504,7 +504,7 @@ public class LocationUtils {
         }
 
         LinkedHashMap<String, TreeNode<String, Location>> childMap = childMap(openMrsLocation);
-        if (childMap != null) {
+        if (!Utils.isEmptyMap(childMap)) {
             for (Map.Entry<String, TreeNode<String, Location>> childEntry : childMap.entrySet()) {
                 List<String> curResult = getOpenMrsLocationHierarchy(locationId, childEntry.getValue(), hierarchy);
                 if (!Utils.isEmptyCollection(curResult)) {

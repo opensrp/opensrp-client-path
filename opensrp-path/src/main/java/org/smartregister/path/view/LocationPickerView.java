@@ -18,7 +18,6 @@ import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import util.LocationUtils;
 import util.Utils;

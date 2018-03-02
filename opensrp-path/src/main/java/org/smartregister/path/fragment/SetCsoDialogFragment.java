@@ -22,14 +22,10 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.BaseReportActivity;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.CoverageHolder;
-import org.smartregister.path.view.LocationPickerView;
 
 import java.util.List;
 

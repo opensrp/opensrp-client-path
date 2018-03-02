@@ -1,20 +1,12 @@
 package org.smartregister.path.widgets;
 
 import android.content.Context;
-import android.text.InputType;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import com.rengwuxian.materialedittext.MaterialEditText;
-import com.rey.material.util.ViewUtil;
 import com.vijay.jsonwizard.fragments.JsonFormFragment;
-import com.vijay.jsonwizard.interfaces.CommonListener;
-import com.vijay.jsonwizard.interfaces.JsonApi;
 import com.vijay.jsonwizard.widgets.EditTextFactory;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.path.R;
 import org.smartregister.path.watchers.HIA2ReportFormTextWatcher;
