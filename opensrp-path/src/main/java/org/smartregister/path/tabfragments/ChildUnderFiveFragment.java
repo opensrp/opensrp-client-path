@@ -58,6 +58,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.AsyncTaskUtils;
 import util.PathConstants;
 
 
@@ -359,41 +360,10 @@ public class ChildUnderFiveFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
-            List<Vaccine> vaccineList = new ArrayList<>();
-            Map<String, List<ServiceType>> serviceTypeMap = new HashMap<>();
-            List<ServiceRecord> serviceRecords = new ArrayList<>();
-            List<Alert> alertList = new ArrayList<>();
-
-            if (map.containsKey(Vaccine.class.getName())) {
-                NamedObject<?> namedObject = map.get(Vaccine.class.getName());
-                if (namedObject != null) {
-                    vaccineList = (List<Vaccine>) namedObject.object;
-                }
-            }
-
-            if (map.containsKey(ServiceType.class.getName())) {
-                NamedObject<?> namedObject = map.get(ServiceType.class.getName());
-                if (namedObject != null) {
-                    serviceTypeMap = (Map<String, List<ServiceType>>) namedObject.object;
-                }
-
-            }
-
-            if (map.containsKey(ServiceRecord.class.getName())) {
-                NamedObject<?> namedObject = map.get(ServiceRecord.class.getName());
-                if (namedObject != null) {
-                    serviceRecords = (List<ServiceRecord>) namedObject.object;
-                }
-            }
-
-
-            if (map.containsKey(Alert.class.getName())) {
-                NamedObject<?> namedObject = map.get(Alert.class.getName());
-                if (namedObject != null) {
-                    alertList = (List<Alert>) namedObject.object;
-                }
-
-            }
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
             if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
                 updateVaccinationViews(vaccineList, alertList, fragmentContainer, editVaccineMode);
