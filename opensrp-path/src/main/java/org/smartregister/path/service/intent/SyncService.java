@@ -39,6 +39,7 @@ import org.smartregister.domain.Response;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessorForJava;
@@ -53,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import util.LocationUtils;
 import util.NetworkUtils;
 
 public class SyncService extends Service {
@@ -140,7 +140,7 @@ public class SyncService extends Service {
     private synchronized void fetchRetry(final int count) {
         try {
             // Fetch locations
-            final String locations = LocationUtils.locationIdsFromHierarchy();
+            final String locations = LocationHelper.getInstance().locationIdsFromHierarchy();
             if (StringUtils.isBlank(locations)) {
                 complete(FetchStatus.fetchedFailed);
                 return;

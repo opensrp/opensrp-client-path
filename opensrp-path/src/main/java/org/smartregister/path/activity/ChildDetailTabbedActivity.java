@@ -43,7 +43,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.Context;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -74,6 +73,7 @@ import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -109,7 +109,6 @@ import java.util.Map;
 
 import util.ImageUtils;
 import util.JsonFormUtils;
-import util.LocationUtils;
 import util.PathConstants;
 
 import static org.smartregister.util.Utils.getName;
@@ -547,7 +546,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                                 birthFacilityHierarchy = new ArrayList<>();
                                 birthFacilityHierarchy.add(birthFacilityName);
                             } else {
-                                birthFacilityHierarchy = LocationUtils.getOpenMrsLocationHierarchy(birthFacilityName);
+                                birthFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(birthFacilityName);
                             }
                         }
 
@@ -568,7 +567,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                             residentialAreaHierarchy = new ArrayList<>();
                             residentialAreaHierarchy.add(address3);
                         } else {
-                            residentialAreaHierarchy = LocationUtils.getOpenMrsLocationHierarchy(address3);
+                            residentialAreaHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(address3);
                         }
 
                         String residentialAreaHierarchyString = AssetHandler.javaToJsonString(residentialAreaHierarchy, new TypeToken<List<String>>() {
@@ -597,7 +596,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, PMTCT_STATUS_LOWER_CASE, true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
-                        List<String> homeFacilityHierarchy = LocationUtils.getOpenMrsLocationHierarchy(getValue(detailmaps,
+                        List<String> homeFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(getValue(detailmaps,
                                 "Home_Facility", false));
 
                         String homeFacilityHierarchyString = AssetHandler.javaToJsonString(homeFacilityHierarchy, new TypeToken<List<String>>() {
@@ -1261,14 +1260,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
             String locationName = allSharedPreferences.fetchCurrentLocality();
             if (StringUtils.isBlank(locationName)) {
-                locationName = LocationUtils.getDefaultLocation();
+                locationName = LocationHelper.getInstance().getDefaultLocation();
             }
 
             Event event = (Event) new Event()
                     .withBaseEntityId(childDetails.entityId())
                     .withEventDate(new Date())
                     .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(LocationUtils.getOpenMrsLocationId(locationName))
+                    .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
                     .withProviderId(allSharedPreferences.fetchRegisteredANM())
                     .withEntityType(PathConstants.EntityType.CHILD)
                     .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())

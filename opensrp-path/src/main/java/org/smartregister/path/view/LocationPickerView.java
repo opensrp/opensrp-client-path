@@ -14,12 +14,12 @@ import android.widget.ListView;
 import org.smartregister.path.R;
 import org.smartregister.path.adapter.ServiceLocationsAdapter;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.view.customcontrols.CustomFontTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-import util.LocationUtils;
 import util.Utils;
 
 /**
@@ -55,7 +55,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
 
         ListView locationsLV = (ListView) locationPickerDialog.findViewById(R.id.locations_lv);
 
-        String defaultLocation = LocationUtils.getDefaultLocation();
+        String defaultLocation = LocationHelper.getInstance().getDefaultLocation();
         serviceLocationsAdapter = new ServiceLocationsAdapter(context, getLocations(defaultLocation));
         locationsLV.setAdapter(serviceLocationsAdapter);
         locationsLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -63,7 +63,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 VaccinatorApplication.getInstance().context().allSharedPreferences().saveCurrentLocality(serviceLocationsAdapter
                         .getLocationAt(position));
-                LocationPickerView.this.setText(LocationUtils.getOpenMrsReadableName(
+                LocationPickerView.this.setText(LocationHelper.getInstance().getOpenMrsReadableName(
                         serviceLocationsAdapter.getLocationAt(position)));
                 if (onLocationChangeListener != null) {
                     onLocationChangeListener.onLocationChange(serviceLocationsAdapter
@@ -72,7 +72,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
                 locationPickerDialog.dismiss();
             }
         });
-        this.setText(LocationUtils.getOpenMrsReadableName(getSelectedItem()));
+        this.setText(LocationHelper.getInstance().getOpenMrsReadableName(getSelectedItem()));
 
         setClickable(true);
         setOnClickListener(this);
@@ -81,7 +81,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     public String getSelectedItem() {
         String selectedLocation = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchCurrentLocality();
         if (TextUtils.isEmpty(selectedLocation) || !serviceLocationsAdapter.getLocationNames().contains(selectedLocation)) {
-            selectedLocation = LocationUtils.getDefaultLocation();
+            selectedLocation = LocationHelper.getInstance().getDefaultLocation();
             VaccinatorApplication.getInstance().context().allSharedPreferences().saveCurrentLocality(selectedLocation);
         }
         return selectedLocation;
@@ -92,7 +92,7 @@ public class LocationPickerView extends CustomFontTextView implements View.OnCli
     }
 
     private ArrayList<String> getLocations(String defaultLocation) {
-        ArrayList<String> locations = LocationUtils.locationNamesFromHierarchy(defaultLocation);
+        ArrayList<String> locations = LocationHelper.getInstance().locationNamesFromHierarchy(defaultLocation);
 
         if (locations.contains(defaultLocation)) {
             locations.remove(defaultLocation);

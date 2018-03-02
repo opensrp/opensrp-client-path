@@ -1,6 +1,5 @@
-package util;
+package org.smartregister.path.helper;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,16 +21,22 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import util.Utils;
+
 /**
  * Created by keyman on 3/1/2018.
  */
 
-public class LocationUtils {
-    private static final String TAG = "LocationUtils";
+public class LocationHelper {
+    private static final String TAG = "LocationHelper";
 
-    public static final String PREF_TEAM_LOCATIONS = "PREF_TEAM_LOCATIONS";
     public static final ArrayList<String> ALLOWED_LEVELS;
-    public static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
+    private static final String DEFAULT_LOCATION_LEVEL = "Health Facility";
+    private static LocationHelper instance;
+
+    private ArrayList<String> locationIds;
+    private ArrayList<String> locationNames;
+    private String defaultLocation;
 
     static {
         ALLOWED_LEVELS = new ArrayList<>();
@@ -39,25 +44,32 @@ public class LocationUtils {
         ALLOWED_LEVELS.add("Zone");
     }
 
-    public static String locationIdsFromHierarchy() {
-        Context context = VaccinatorApplication.getInstance().getApplicationContext();
-        String locations = org.smartregister.util.Utils.getPreference(context, LocationUtils.PREF_TEAM_LOCATIONS, "");
-        if (StringUtils.isBlank(locations)) {
-
-            ArrayList<String> locationList = locationsFromHierarchy(true, null);
-            if (!Utils.isEmptyCollection(locationList)) {
-                locations = StringUtils.join(locationList, ",");
-                org.smartregister.util.Utils.writePreference(context, LocationUtils.PREF_TEAM_LOCATIONS, locations);
-            }
+    public static LocationHelper getInstance() {
+        if (instance == null) {
+            instance = new LocationHelper();
         }
-        return locations;
+        return instance;
     }
 
-    public static ArrayList<String> locationNamesFromHierarchy(String defaultLocation) {
-        return locationsFromHierarchy(false, defaultLocation);
+    public String locationIdsFromHierarchy() {
+        if (Utils.isEmptyCollection(locationIds)) {
+            locationIds = locationsFromHierarchy(true, null);
+        }
+
+        if (!Utils.isEmptyCollection(locationIds)) {
+            return StringUtils.join(locationIds, ",");
+        }
+        return null;
     }
 
-    public static ArrayList<String> locationsFromHierarchy(boolean fetchLocationIds, String defaultLocation) {
+    public ArrayList<String> locationNamesFromHierarchy(String defaultLocation) {
+        if (Utils.isEmptyCollection(locationNames)) {
+            locationNames = locationsFromHierarchy(false, defaultLocation);
+        }
+        return locationNames;
+    }
+
+    public ArrayList<String> locationsFromHierarchy(boolean fetchLocationIds, String defaultLocation) {
         ArrayList<String> locations = new ArrayList<>();
         try {
             LinkedHashMap<String, TreeNode<String, Location>> map = map();
@@ -75,29 +87,33 @@ public class LocationUtils {
         return locations;
     }
 
-    public static String getDefaultLocation() {
-        List<String> rawDefaultLocation = LocationUtils.generateDefaultLocationHierarchy(ALLOWED_LEVELS);
+    public String getDefaultLocation() {
+        if (StringUtils.isBlank(defaultLocation)) {
+            List<String> rawDefaultLocation = generateDefaultLocationHierarchy(ALLOWED_LEVELS);
 
-        if (rawDefaultLocation != null && !rawDefaultLocation.isEmpty()) {
-            return rawDefaultLocation.get(rawDefaultLocation.size() - 1);
+            if (!Utils.isEmptyCollection(rawDefaultLocation)) {
+                defaultLocation = rawDefaultLocation.get(rawDefaultLocation.size() - 1);
+            }
+
         }
-        return null;
+        return defaultLocation;
     }
 
 
-    public static String getOpenMrsLocationId(String locationName) {
-        String response = locationName;
+    public String getOpenMrsLocationId(String locationName) {
+        if (StringUtils.isBlank(locationName)) {
+            return null;
+        }
 
+        String response = locationName;
         try {
-            if (StringUtils.isNotBlank(locationName)) {
-                LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (!Utils.isEmptyMap(map)) {
-                    for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
-                        String curResult = getOpenMrsLocationId(locationName, entry.getValue());
-                        if (StringUtils.isNotBlank(curResult)) {
-                            response = curResult;
-                            break;
-                        }
+            LinkedHashMap<String, TreeNode<String, Location>> map = map();
+            if (!Utils.isEmptyMap(map)) {
+                for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
+                    String curResult = getOpenMrsLocationId(locationName, entry.getValue());
+                    if (StringUtils.isNotBlank(curResult)) {
+                        response = curResult;
+                        break;
                     }
                 }
             }
@@ -107,24 +123,25 @@ public class LocationUtils {
         return response;
     }
 
-    public static String getOpenMrsLocationName(String locationId) {
+    public String getOpenMrsLocationName(String locationId) {
+        if (StringUtils.isBlank(locationId)) {
+            Log.e(TAG, "Location id is null");
+            return null;
+        }
+
         String response = locationId;
         try {
-            if (StringUtils.isNotBlank(locationId)) {
-                LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (!Utils.isEmptyMap(map)) {
-                    for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
-                        String curResult = getOpenMrsLocationName(locationId, entry.getValue());
-                        if (StringUtils.isNotBlank(curResult)) {
-                            response = curResult;
-                            break;
-                        }
+            LinkedHashMap<String, TreeNode<String, Location>> map = map();
+            if (!Utils.isEmptyMap(map)) {
+                for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
+                    String curResult = getOpenMrsLocationName(locationId, entry.getValue());
+                    if (StringUtils.isNotBlank(curResult)) {
+                        response = curResult;
+                        break;
                     }
-                } else {
-                    Log.e(TAG, "locationData doesn't have locationHierarchy");
                 }
             } else {
-                Log.e(TAG, "Location id is null");
+                Log.e(TAG, "locationData doesn't have locationHierarchy");
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -139,25 +156,25 @@ public class LocationUtils {
      * @param locationId The ID for the location we want the hierarchy for
      * @return The name hierarchy (starting with the top-most parent) for the location or {@code NULL} if location id is not found
      */
-    public static List<String> getOpenMrsLocationHierarchy(String locationId) {
+    public List<String> getOpenMrsLocationHierarchy(String locationId) {
+        if (StringUtils.isBlank(locationId)) {
+            Log.e(TAG, "Location id is null");
+            return new ArrayList<>();
+        }
         List<String> response = null;
 
         try {
-            if (locationId != null) {
-                LinkedHashMap<String, TreeNode<String, Location>> map = map();
-                if (!Utils.isEmptyMap(map)) {
-                    for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
-                        List<String> curResult = getOpenMrsLocationHierarchy(locationId, entry.getValue(), new ArrayList<String>());
-                        if (!Utils.isEmptyCollection(curResult)) {
-                            response = curResult;
-                            break;
-                        }
+            LinkedHashMap<String, TreeNode<String, Location>> map = map();
+            if (!Utils.isEmptyMap(map)) {
+                for (Map.Entry<String, TreeNode<String, Location>> entry : map.entrySet()) {
+                    List<String> curResult = getOpenMrsLocationHierarchy(locationId, entry.getValue(), new ArrayList<String>());
+                    if (!Utils.isEmptyCollection(curResult)) {
+                        response = curResult;
+                        break;
                     }
-                } else {
-                    Log.e(TAG, "locationData doesn't have locationHierarchy");
                 }
             } else {
-                Log.e(TAG, "Location id is null");
+                Log.e(TAG, "locationData doesn't have locationHierarchy");
             }
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
@@ -166,7 +183,11 @@ public class LocationUtils {
     }
 
 
-    public static List<String> generateDefaultLocationHierarchy(ArrayList<String> allowedLevels) {
+    public List<String> generateDefaultLocationHierarchy(ArrayList<String> allowedLevels) {
+        if (Utils.isEmptyCollection(allowedLevels)) {
+            return new ArrayList<>();
+        }
+
         try {
             AllSharedPreferences allSharedPreferences = VaccinatorApplication.getInstance().context().allSharedPreferences();
             String defaultLocationUuid = allSharedPreferences.fetchDefaultLocalityId(allSharedPreferences.fetchRegisteredANM());
@@ -187,7 +208,11 @@ public class LocationUtils {
     }
 
 
-    public static List<FormLocation> generateLocationHierarchyTree(boolean withOtherOption, ArrayList<String> allowedLevels) {
+    public List<FormLocation> generateLocationHierarchyTree(boolean withOtherOption, ArrayList<String> allowedLevels) {
+        if (Utils.isEmptyCollection(allowedLevels)) {
+            return new ArrayList<>();
+        }
+
         List<FormLocation> formLocationList = new ArrayList<>();
         try {
             LinkedHashMap<String, TreeNode<String, Location>> map = map();
@@ -215,8 +240,8 @@ public class LocationUtils {
         return formLocationList;
     }
 
-    public static String getOpenMrsReadableName(String name) {
-        if (name == null) {
+    public String getOpenMrsReadableName(String name) {
+        if (StringUtils.isBlank(name)) {
             return "";
         }
 
@@ -241,9 +266,7 @@ public class LocationUtils {
     }
 
     // Private methods
-
-
-    private static ArrayList<String> extractLocations(TreeNode<String, Location> rawLocationData, boolean fetchLocationIds, String defaultLocation) {
+    private ArrayList<String> extractLocations(TreeNode<String, Location> rawLocationData, boolean fetchLocationIds, String defaultLocation) {
 
         ArrayList<String> locationList = new ArrayList<>();
         try {
@@ -284,7 +307,7 @@ public class LocationUtils {
         return locationList;
     }
 
-    private static String getOpenMrsLocationId(String locationName, TreeNode<String, Location> openMrsLocations) {
+    private String getOpenMrsLocationId(String locationName, TreeNode<String, Location> openMrsLocations) {
         try {
             if (openMrsLocations == null) {
                 return null;
@@ -314,7 +337,7 @@ public class LocationUtils {
         return null;
     }
 
-    private static String getOpenMrsLocationName(String locationId, TreeNode<String, Location> openMrsLocations) {
+    private String getOpenMrsLocationName(String locationId, TreeNode<String, Location> openMrsLocations) {
         try {
             if (openMrsLocations == null) {
                 return null;
@@ -348,7 +371,7 @@ public class LocationUtils {
         return null;
     }
 
-    private static List<String> getDefaultLocationHierarchy(String defaultLocationUuid, TreeNode<String,
+    private List<String> getDefaultLocationHierarchy(String defaultLocationUuid, TreeNode<String,
             Location> openMrsLocationData, List<String> parents, ArrayList<String> allowedLevels) {
         try {
             List<String> heirachy = new ArrayList<>(parents);
@@ -389,8 +412,8 @@ public class LocationUtils {
         return null;
     }
 
-    private static List<FormLocation> getFormJsonData(TreeNode<String, Location> openMrsLocationData,
-                                                      ArrayList<String> allowedLevels) {
+    private List<FormLocation> getFormJsonData(TreeNode<String, Location> openMrsLocationData,
+                                               ArrayList<String> allowedLevels) {
         List<FormLocation> allLocationData = new ArrayList<>();
         try {
             FormLocation formLocation = new FormLocation();
@@ -454,7 +477,7 @@ public class LocationUtils {
      *
      * @return The sorted options
      */
-    private static List<FormLocation> sortTreeViewQuestionOptions
+    private List<FormLocation> sortTreeViewQuestionOptions
     (List<FormLocation> treeViewOptions) {
         if (Utils.isEmptyCollection(treeViewOptions)) {
             return treeViewOptions;
@@ -482,9 +505,9 @@ public class LocationUtils {
     }
 
 
-    private static List<String> getOpenMrsLocationHierarchy(String locationId,
-                                                            TreeNode<String, Location> openMrsLocation,
-                                                            List<String> parents) {
+    private List<String> getOpenMrsLocationHierarchy(String locationId,
+                                                     TreeNode<String, Location> openMrsLocation,
+                                                     List<String> parents) {
         List<String> hierarchy = new ArrayList<>(parents);
         if (openMrsLocation == null) {
             return null;
@@ -519,7 +542,7 @@ public class LocationUtils {
     }
 
 
-    private static LinkedHashMap<String, TreeNode<String, Location>> map() {
+    private LinkedHashMap<String, TreeNode<String, Location>> map() {
         String locationData = VaccinatorApplication.getInstance().context().anmLocationController().get();
         LocationTree locationTree = AssetHandler.jsonStringToJava(locationData, LocationTree.class);
         if (locationTree != null) {
@@ -529,7 +552,7 @@ public class LocationUtils {
         return null;
     }
 
-    private static LinkedHashMap<String, TreeNode<String, Location>> childMap
+    private LinkedHashMap<String, TreeNode<String, Location>> childMap
             (TreeNode<String, Location> treeNode) {
         if (treeNode.getChildren() != null) {
             return treeNode.getChildren();

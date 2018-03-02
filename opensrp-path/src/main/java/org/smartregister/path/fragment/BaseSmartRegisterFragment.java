@@ -17,11 +17,11 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseRegisterActivity;
 import org.smartregister.path.activity.ChildImmunizationActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
 
-import util.LocationUtils;
 import util.PathConstants;
 
 import static android.view.View.INVISIBLE;
@@ -118,9 +118,9 @@ public class BaseSmartRegisterFragment extends SecuredNativeSmartRegisterCursorA
 
     protected void updateLocationText() {
         if (clinicSelection != null) {
-            clinicSelection.setText(LocationUtils.getOpenMrsReadableName(
+            clinicSelection.setText(LocationHelper.getInstance().getOpenMrsReadableName(
                     clinicSelection.getSelectedItem()));
-            String locationId = LocationUtils.getOpenMrsLocationId(clinicSelection.getSelectedItem());
+            String locationId = LocationHelper.getInstance().getOpenMrsLocationId(clinicSelection.getSelectedItem());
             context().allSharedPreferences().savePreference(PathConstants.CURRENT_LOCATION_ID, locationId);
         }
     }

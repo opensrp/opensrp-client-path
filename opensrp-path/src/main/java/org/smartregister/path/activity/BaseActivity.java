@@ -44,6 +44,7 @@ import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.CustomNavigationBarListener;
 import org.smartregister.path.listener.NavigationItemListener;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
@@ -58,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import util.JsonFormUtils;
-import util.LocationUtils;
 import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
@@ -409,7 +409,8 @@ public abstract class BaseActivity extends AppCompatActivity
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                String locationId = LocationUtils.getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
+                String locationId =
+                        LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
 
                 startJsonForm(formName, entityId, locationId);
             }

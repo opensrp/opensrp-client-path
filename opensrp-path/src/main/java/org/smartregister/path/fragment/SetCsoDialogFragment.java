@@ -26,10 +26,9 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.domain.CoverageHolder;
+import org.smartregister.path.helper.LocationHelper;
 
 import java.util.List;
-
-import util.LocationUtils;
 
 /**
  * Created by keyman on 22/12/17.
@@ -177,8 +176,8 @@ public class SetCsoDialogFragment extends DialogFragment {
     }
 
     private String getDefaultLocation() {
-        List<String> rawDefaultLocation = LocationUtils
-                .generateDefaultLocationHierarchy(LocationUtils.ALLOWED_LEVELS);
+        List<String> rawDefaultLocation = LocationHelper.getInstance()
+                .generateDefaultLocationHierarchy(LocationHelper.ALLOWED_LEVELS);
 
         if (rawDefaultLocation != null && rawDefaultLocation.size() > 0) {
             return rawDefaultLocation.get(rawDefaultLocation.size() - 1);

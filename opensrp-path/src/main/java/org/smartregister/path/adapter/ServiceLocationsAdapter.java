@@ -9,11 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.smartregister.path.R;
+import org.smartregister.path.helper.LocationHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import util.LocationUtils;
 
 /**
  * @author Jason Rogena - jrogena@ona.io
@@ -56,7 +55,7 @@ public class ServiceLocationsAdapter extends BaseAdapter {
             view.setId(position + 2321);
 
             TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-            text1.setText(LocationUtils.getOpenMrsReadableName(locationNames.get(position)));
+            text1.setText(LocationHelper.getInstance().getOpenMrsReadableName(locationNames.get(position)));
             views.put(locationNames.get(position), view);
         }
 

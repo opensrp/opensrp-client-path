@@ -38,6 +38,7 @@ import org.smartregister.event.Listener;
 import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.repository.AllSharedPreferences;
@@ -50,7 +51,6 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import util.LocationUtils;
 import util.NetworkUtils;
 import util.PathConstants;
 
@@ -455,7 +455,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            LocationUtils.locationIdsFromHierarchy();
+            LocationHelper.getInstance().locationIdsFromHierarchy();
             return null;
         }
     }

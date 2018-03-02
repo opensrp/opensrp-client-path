@@ -543,6 +543,10 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private void localSearch() {
         initListMode();
 
+        CountExecute();
+
+        refresh();
+
         super.filterandSortInInitializeQueries();
     }
 

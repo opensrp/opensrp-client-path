@@ -28,6 +28,7 @@ import org.smartregister.path.adapter.PathRegisterActivityPagerAdapter;
 import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.fragment.BaseSmartRegisterFragment;
 import org.smartregister.path.fragment.ChildSmartRegisterFragment;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.provider.SmartRegisterClientsProvider;
 import org.smartregister.repository.AllSharedPreferences;
@@ -40,7 +41,6 @@ import org.smartregister.view.viewpager.OpenSRPViewPager;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import util.JsonFormUtils;
-import util.LocationUtils;
 import util.barcode.Barcode;
 import util.barcode.BarcodeIntentIntegrator;
 import util.barcode.BarcodeIntentResult;
@@ -144,7 +144,7 @@ public class ChildSmartRegisterActivity extends BaseRegisterActivity {
         try {
             if (mBaseFragment instanceof ChildSmartRegisterFragment) {
                 LocationPickerView locationPickerView = ((ChildSmartRegisterFragment) mBaseFragment).getLocationPickerView();
-                String locationId = LocationUtils.getOpenMrsLocationId(locationPickerView.getSelectedItem());
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(locationPickerView.getSelectedItem());
                 JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
             }
         } catch (Exception e) {

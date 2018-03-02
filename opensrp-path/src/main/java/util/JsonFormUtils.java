@@ -41,6 +41,7 @@ import org.smartregister.path.activity.ChildSmartRegisterActivity;
 import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.jsonmapping.FormLocation;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -161,7 +162,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         JSONArray valueArray = new JSONArray(rawValue);
                         if (valueArray.length() > 0) {
                             String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                            String lastLocationId = LocationUtils.getOpenMrsLocationId(lastLocationName);
+                            String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
                             fields.getJSONObject(i).put("value", lastLocationId);
                         }
                     } catch (Exception e) {
@@ -825,11 +826,11 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             healthFacilities.add("District");
             healthFacilities.add("Health Facility");
 
-            List<String> defaultLocation = LocationUtils.generateDefaultLocationHierarchy(allLevels);
-            List<String> defaultFacility = LocationUtils.generateDefaultLocationHierarchy(healthFacilities);
-            List<FormLocation> upToFacilities = LocationUtils.generateLocationHierarchyTree(false, healthFacilities);
-            List<FormLocation> upToFacilitiesWithOther = LocationUtils.generateLocationHierarchyTree(true, healthFacilities);
-            List<FormLocation> entireTree = LocationUtils.generateLocationHierarchyTree(true, allLevels);
+            List<String> defaultLocation = LocationHelper.getInstance().generateDefaultLocationHierarchy(allLevels);
+            List<String> defaultFacility = LocationHelper.getInstance().generateDefaultLocationHierarchy(healthFacilities);
+            List<FormLocation> upToFacilities = LocationHelper.getInstance().generateLocationHierarchyTree(false, healthFacilities);
+            List<FormLocation> upToFacilitiesWithOther = LocationHelper.getInstance().generateLocationHierarchyTree(true, healthFacilities);
+            List<FormLocation> entireTree = LocationHelper.getInstance().generateLocationHierarchyTree(true, allLevels);
 
             String defaultLocationString = AssetHandler.javaToJsonString(defaultLocation,
                     new TypeToken<List<String>>() {
@@ -1122,7 +1123,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * @param context                     The activity form is being launched from
      * @param jsonFormActivityRequestCode The request code to be used to launch {@link PathJsonFormActivity}
      * @param formName                    The name of the form to launch
-     * @param entityId                    The unique entity id for the form (e.g child's ZEIR id)
+     * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location
      * @throws Exception
      */
@@ -1502,7 +1503,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             JSONArray valueArray = new JSONArray(rawValue);
                             if (valueArray.length() > 0) {
                                 String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                                String lastLocationId = LocationUtils.getOpenMrsLocationId(lastLocationName);
+                                String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
                                 fields.getJSONObject(i).put("value", lastLocationId);
                             }
                         } catch (Exception e) {
