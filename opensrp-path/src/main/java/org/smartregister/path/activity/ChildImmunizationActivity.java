@@ -660,7 +660,8 @@ public class ChildImmunizationActivity extends BaseActivity
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
         if (prev != null) {
-            ft.remove(prev); // come back here
+            Log.d("duplicate fragments", "duplicate weight fragments exist!");
+            return;
         }
         ft.addToBackStack(null);
 
@@ -1461,7 +1462,7 @@ public class ChildImmunizationActivity extends BaseActivity
             Fragment prev = fragmentManager.findFragmentByTag(DIALOG_TAG);
             ft = fragmentManager.beginTransaction();
             if (prev != null) {
-                Log.d("duplicate fragment", "found duplicate fragment"); // remove this
+                Log.d("duplicate fragment", "found duplicate growth fragment"); // remove this
                 this.cancel(true);
                 return;
             }
