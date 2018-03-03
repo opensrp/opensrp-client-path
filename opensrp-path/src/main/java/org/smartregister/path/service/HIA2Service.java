@@ -512,8 +512,8 @@ public class HIA2Service {
         try {
 
             String query = "SELECT count(*) AS count FROM (SELECT DISTINCT child.base_entity_id,"+ ageQuery() +
-                        " FROM weights w INNER JOIN ec_child child ON w.base_entity_id = child.base_entity_id WHERE '"+ reportDate +"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) "+
-                        "AND age BETWEEN 24 AND 59 AND w.z_score > 2);";
+                    " FROM weights w INNER JOIN ec_child child ON w.base_entity_id = child.base_entity_id WHERE '"+ reportDate +"'=strftime('%Y-%m-%d',datetime(w.date/1000, 'unixepoch')) "+
+                    "AND age BETWEEN 24 AND 59 AND w.z_score > 2);";
 
             int count = executeQueryAndReturnCount(query);
             hia2Report.put(CHN2_060, count);
