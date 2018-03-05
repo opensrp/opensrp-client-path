@@ -45,6 +45,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 /**
  * @author Maimoona
@@ -132,7 +134,7 @@ public class Utils {
     public static int addAsInts(boolean ignoreEmpty, String... vals) {
         int i = 0;
         for (String v : vals) {
-            i += ignoreEmpty && StringUtils.isBlank(v) ? 0 : Integer.parseInt(v);
+            i += ignoreEmpty && isBlank(v) ? 0 : Integer.parseInt(v);
         }
         return i;
     }
@@ -193,7 +195,7 @@ public class Utils {
             vaccineRepository.add(vaccine);
 
             String name = vaccine.getName();
-            if (StringUtils.isBlank(name)) {
+            if (isBlank(name)) {
                 return;
             }
 
@@ -244,7 +246,7 @@ public class Utils {
 
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
-        if (StringUtils.isBlank(vaccine) || startDate == null) {
+        if (isBlank(vaccine) || startDate == null) {
             return null;
         }
 
@@ -322,7 +324,7 @@ public class Utils {
 
     public static DateTime dobStringToDateTime(String dobString) {
         try {
-            if (StringUtils.isBlank(dobString)) {
+            if (isBlank(dobString)) {
                 return null;
             }
             return new DateTime(dobString);
@@ -341,7 +343,7 @@ public class Utils {
     public static Fragment findDuplicateFragment(FragmentManager fragmentManager, String tag, String className)
             throws IllegalArgumentException {
 
-        if (fragmentManager == null || isEmptyStringOrNull(tag) || isEmptyStringOrNull(className)) {
+        if (fragmentManager == null || isBlank(tag) || isBlank(className)) {
             throw new IllegalArgumentException("None of the function arguments can be null or empty!");
         }
 
@@ -354,10 +356,6 @@ public class Utils {
         return null;
     }
 
-    public static boolean isEmptyStringOrNull(String s) {
-        return (s == null || s.equals(""));
-    }
-  
     public static boolean isEmptyMap(Map map) {
         return map == null || map.isEmpty();
     }
