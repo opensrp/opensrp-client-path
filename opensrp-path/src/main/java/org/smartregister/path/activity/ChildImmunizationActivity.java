@@ -95,7 +95,6 @@ import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
 
-
 /**
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
@@ -657,12 +656,14 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        FragmentManager fragmentManager = this.getFragmentManager();
+        RecordWeightDialogFragment prev = (RecordWeightDialogFragment) util.Utils.findDuplicateFragment(fragmentManager,
+                DIALOG_TAG, RecordWeightDialogFragment.class.getName());
         if (prev != null) {
-            Log.d("duplicate fragments", "duplicate weight fragments exist!");
             return;
         }
+
+        FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -846,13 +847,14 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        FragmentManager fragmentManager = this.getFragmentManager();
+        Fragment prev = util.Utils.findDuplicateFragment(fragmentManager, DIALOG_TAG,
+                ServiceDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
 
+        FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
@@ -1459,14 +1461,14 @@ public class ChildImmunizationActivity extends BaseActivity
         protected void onPreExecute() {
             super.onPreExecute();
             FragmentManager fragmentManager = ChildImmunizationActivity.this.getFragmentManager();
-            Fragment prev = fragmentManager.findFragmentByTag(DIALOG_TAG);
-            ft = fragmentManager.beginTransaction();
+            Fragment prev = util.Utils.findDuplicateFragment(fragmentManager, DIALOG_TAG,
+                    GrowthDialogFragment.class.getName());
             if (prev != null) {
-                Log.d("duplicate fragment", "found duplicate growth fragment"); // remove this
                 this.cancel(true);
                 return;
             }
-             // remove this comment
+
+            ft = fragmentManager.beginTransaction();
             showProgressDialog();
         }
 

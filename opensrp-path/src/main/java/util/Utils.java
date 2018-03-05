@@ -16,6 +16,8 @@
 
 package util;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -335,4 +337,25 @@ public class Utils {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
     }
+
+    public static Fragment findDuplicateFragment(FragmentManager fragmentManager, String tag, String className)
+            throws IllegalArgumentException {
+
+        if (fragmentManager == null || isEmptyStringOrNull(tag) || isEmptyStringOrNull(className)) {
+            throw new IllegalArgumentException("None of the function arguments can be null or empty!");
+        }
+
+        Fragment fragment = fragmentManager.findFragmentByTag(tag);
+        if (fragment == null) {
+            return null;
+        } else if (fragment.getClass().getName().equals(className)) {
+            return fragment;
+        }
+        return null;
+    }
+
+    public static boolean isEmptyStringOrNull(String s) {
+        return (s == null || s.equals(""));
+    }
 }
+
