@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -33,12 +34,15 @@ import org.smartregister.domain.ProfileImage;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.jsonmapping.VaccineGroup;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildSmartRegisterActivity;
 import org.smartregister.path.activity.PathJsonFormActivity;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.jsonmapping.FormLocation;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -61,15 +65,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import id.zelory.compressor.Compressor;
 
@@ -90,10 +91,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     public static final String encounterType = "Update Birth Registration";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    private static final String LOCATION_HIERARCHY = "locationsHierarchy";
-    private static final String MAP = "map";
-
 
     public static final SimpleDateFormat dd_MM_yyyy = new SimpleDateFormat("dd-MM-yyyy");
     //public static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
@@ -166,7 +163,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                         JSONArray valueArray = new JSONArray(rawValue);
                         if (valueArray.length() > 0) {
                             String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                            String lastLocationId = getOpenMrsLocationId(openSrpContext, lastLocationName);
+                            String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
                             fields.getJSONObject(i).put("value", lastLocationId);
                         }
                     } catch (Exception e) {
@@ -813,141 +810,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     }
 
 
-    private static JSONArray generateLocationHierarchyTree(org.smartregister.Context context, boolean withOtherOption, ArrayList<String> allowedLevels) {
-        JSONArray array = new JSONArray();
-        try {
-            JSONObject locationData = new JSONObject(context.anmLocationController().get());
-            if (locationData.has(LOCATION_HIERARCHY)
-                    && locationData.getJSONObject(LOCATION_HIERARCHY).has(MAP)) {
-                JSONObject map = locationData.getJSONObject(LOCATION_HIERARCHY).getJSONObject(MAP);
-                Iterator<String> keys = map.keys();
-                while (keys.hasNext()) {
-                    String curKey = keys.next();
-                    getFormJsonData(array, map.getJSONObject(curKey), allowedLevels);
-                }
-            }
-
-            array = sortTreeViewQuestionOptions(array);
-        } catch (JSONException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-
-        if (withOtherOption) {
-            try {
-                JSONObject other = new JSONObject();
-                other.put("name", "Other");
-                other.put("key", "Other");
-                other.put("level", "");
-                array.put(other);
-            } catch (JSONException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
-            }
-        }
-        return array;
-    }
-
-    public static JSONArray generateDefaultLocationHierarchy(org.smartregister.Context context, ArrayList<String> allowedLevels) {
-        try {
-            String defaultLocationUuid = context.allSharedPreferences()
-                    .fetchDefaultLocalityId(context.allSharedPreferences().fetchRegisteredANM());
-            JSONObject locationData = new JSONObject(context.anmLocationController().get());
-            if (locationData.has(LOCATION_HIERARCHY)
-                    && locationData.getJSONObject(LOCATION_HIERARCHY).has(MAP)) {
-                JSONObject map = locationData.getJSONObject(LOCATION_HIERARCHY).getJSONObject(MAP);
-                Iterator<String> keys = map.keys();
-                while (keys.hasNext()) {
-                    String curKey = keys.next();
-                    JSONArray curResult = getDefaultLocationHierarchy(defaultLocationUuid, map.getJSONObject(curKey), new JSONArray(), allowedLevels);
-                    if (curResult != null) {
-                        return curResult;
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-        return null;
-    }
-
-    private static JSONArray getDefaultLocationHierarchy(String defaultLocationUuid, JSONObject openMrsLocationData, JSONArray parents, ArrayList<String> allowedLevels) throws JSONException {
-        JSONArray levels = openMrsLocationData.getJSONObject("node").getJSONArray("tags");
-        for (int i = 0; i < levels.length(); i++) {
-            if (allowedLevels.contains(levels.getString(i))) {
-                parents.put(openMrsLocationData.getJSONObject("node").getString("name"));
-            }
-        }
-
-        if (openMrsLocationData.getJSONObject("node").getString("locationId").equals(defaultLocationUuid)) {
-            return parents;
-        }
-
-        if (openMrsLocationData.has("children")) {
-            Iterator<String> childIterator = openMrsLocationData.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                JSONArray curResult = getDefaultLocationHierarchy(defaultLocationUuid, openMrsLocationData.getJSONObject("children").getJSONObject(curChildKey), new JSONArray(parents.toString()), allowedLevels);
-                if (curResult != null) return curResult;
-            }
-        }
-
-        return null;
-    }
-
-    private static void getFormJsonData(JSONArray allLocationData, JSONObject openMrsLocationData, ArrayList<String> allowedLevels) throws JSONException {
-        JSONObject jsonFormObject = new JSONObject();
-        String name = openMrsLocationData.getJSONObject("node").getString("name");
-        jsonFormObject.put("name", getOpenMrsReadableName(name));
-        jsonFormObject.put("key", name);
-        String level = "";
-        try {
-            level = openMrsLocationData.getJSONObject("node").getJSONArray("tags").getString(0);
-        } catch (JSONException e) {
-            Log.e(JsonFormUtils.class.getCanonicalName(), e.getMessage());
-        }
-        jsonFormObject.put("level", "");
-        JSONArray children = new JSONArray();
-        if (openMrsLocationData.has("children")) {
-            Iterator<String> childIterator = openMrsLocationData.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                getFormJsonData(children, openMrsLocationData.getJSONObject("children").getJSONObject(curChildKey), allowedLevels);
-            }
-            if (allowedLevels.contains(level)) {
-                jsonFormObject.put("nodes", children);
-            } else {
-                for (int i = 0; i < children.length(); i++) {
-                    allLocationData.put(children.getJSONObject(i));
-                }
-            }
-        }
-        if (allowedLevels.contains(level)) {
-            allLocationData.put(jsonFormObject);
-        }
-    }
-
-    public static String getOpenMrsReadableName(String name) {
-        if (name == null) {
-            return "";
-        }
-
-        String readableName = new String(name);
-
-        Pattern prefixPattern = Pattern.compile("^[a-z]{2} (.*)$");
-        Matcher prefixMatcher = prefixPattern.matcher(readableName);
-        if (prefixMatcher.find()) {
-            readableName = prefixMatcher.group(1);
-        }
-
-        if (readableName.contains(":")) {
-            String[] splitName = readableName.split(":");
-            readableName = splitName[splitName.length - 1].trim();
-        }
-
-        return readableName;
-    }
-
-    public static void addChildRegLocHierarchyQuestions(JSONObject form,
-                                                        org.smartregister.Context context) {
+    public static void addChildRegLocHierarchyQuestions(JSONObject form) {
         try {
             JSONArray questions = form.getJSONObject("step1").getJSONArray("fields");
             ArrayList<String> allLevels = new ArrayList<>();
@@ -964,38 +827,64 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             healthFacilities.add("District");
             healthFacilities.add("Health Facility");
 
-            JSONArray defaultLocation = generateDefaultLocationHierarchy(context, allLevels);
-            JSONArray defaultFacility = generateDefaultLocationHierarchy(context, healthFacilities);
-            JSONArray upToFacilities = generateLocationHierarchyTree(context, false, healthFacilities);
-            JSONArray upToFacilitiesWithOther = generateLocationHierarchyTree(context, true, healthFacilities);
-            JSONArray entireTree = generateLocationHierarchyTree(context, true, allLevels);
+            List<String> defaultLocation = LocationHelper.getInstance().generateDefaultLocationHierarchy(allLevels);
+            List<String> defaultFacility = LocationHelper.getInstance().generateDefaultLocationHierarchy(healthFacilities);
+            List<FormLocation> upToFacilities = LocationHelper.getInstance().generateLocationHierarchyTree(false, healthFacilities);
+            List<FormLocation> upToFacilitiesWithOther = LocationHelper.getInstance().generateLocationHierarchyTree(true, healthFacilities);
+            List<FormLocation> entireTree = LocationHelper.getInstance().generateLocationHierarchyTree(true, allLevels);
+
+            String defaultLocationString = AssetHandler.javaToJsonString(defaultLocation,
+                    new TypeToken<List<String>>() {
+                    }.getType());
+
+            String defaultFacilityString = AssetHandler.javaToJsonString(defaultFacility,
+                    new TypeToken<List<String>>() {
+                    }.getType());
+
+            String upToFacilitiesString = AssetHandler.javaToJsonString(upToFacilities,
+                    new TypeToken<List<FormLocation>>() {
+                    }.getType());
+
+            String upToFacilitiesWithOtherString = AssetHandler.javaToJsonString(upToFacilitiesWithOther,
+                    new TypeToken<List<FormLocation>>() {
+                    }.getType());
+
+            String entireTreeString = AssetHandler.javaToJsonString(entireTree,
+                    new TypeToken<List<FormLocation>>() {
+                    }.getType());
 
             for (int i = 0; i < questions.length(); i++) {
                 if (questions.getJSONObject(i).getString("key").equals("Home_Facility")) {
-                    questions.getJSONObject(i).put("tree", new JSONArray(upToFacilities.toString()));
-                    if (defaultFacility != null) {
-                        questions.getJSONObject(i).put("default", defaultFacility.toString());
+                    if (StringUtils.isNotBlank(upToFacilitiesString)) {
+                        questions.getJSONObject(i).put("tree", new JSONArray(upToFacilitiesString));
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        questions.getJSONObject(i).put("default", defaultFacilityString);
                     }
                 } else if (questions.getJSONObject(i).getString("key").equals("Birth_Facility_Name")) {
-                    questions.getJSONObject(i).put("tree", new JSONArray(upToFacilitiesWithOther.toString()));
-                    if (defaultFacility != null) {
-                        questions.getJSONObject(i).put("default", defaultFacility.toString());
+                    if (StringUtils.isNotBlank(upToFacilitiesWithOtherString)) {
+                        questions.getJSONObject(i).put("tree", new JSONArray(upToFacilitiesWithOtherString));
+                    }
+                    if (StringUtils.isNotBlank(defaultFacilityString)) {
+                        questions.getJSONObject(i).put("default", defaultFacilityString);
                     }
                 } else if (questions.getJSONObject(i).getString("key").equals("Residential_Area")) {
-                    questions.getJSONObject(i).put("tree", new JSONArray(entireTree.toString()));
-                    if (defaultLocation != null) {
-                        questions.getJSONObject(i).put("default", defaultLocation.toString());
+                    if (StringUtils.isNotBlank(entireTreeString)) {
+                        questions.getJSONObject(i).put("tree", new JSONArray(entireTreeString));
+                    }
+                    if (StringUtils.isNotBlank(defaultLocationString)) {
+                        questions.getJSONObject(i).put("default", defaultLocationString);
                     }
                 }
             }
-        } catch (JSONException e) {
-            //Log.e(TAG, Log.getStackTraceString(e));
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
     private static void addAddAvailableVaccines(Context context, JSONObject form) {
-        String supportedVaccinesString = VaccinatorUtils.getSupportedVaccines(context);
-        if (StringUtils.isNotEmpty(supportedVaccinesString) && form != null) {
+        List<VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(context);
+        if (supportedVaccines != null && !supportedVaccines.isEmpty() && form != null) {
             // For each of the vaccine groups, create a checkbox question
             try {
                 JSONArray questionList = form.getJSONObject("step1").getJSONArray("fields");
@@ -1007,28 +896,24 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 vaccinationLabel.put("openmrs_entity", "-");
                 vaccinationLabel.put("openmrs_entity_id", "-");
                 questionList.put(vaccinationLabel);
-                JSONArray supportedVaccines = new JSONArray(supportedVaccinesString);
 
                 HashMap<String, ArrayList<JSONObject>> vaccineTypeConstraints = new HashMap<>();
-                for (int i = 0; i < supportedVaccines.length(); i++) {
-                    JSONObject curVaccineGroup = supportedVaccines.getJSONObject(i);
-                    JSONArray vaccines = curVaccineGroup.getJSONArray("vaccines");
-                    for (int j = 0; j < vaccines.length(); j++) {
-                        JSONObject curVaccine = vaccines.getJSONObject(j);
-                        if (!vaccineTypeConstraints.containsKey(curVaccine.getString("type"))) {
-                            vaccineTypeConstraints.put(curVaccine.getString("type"),
+                for (VaccineGroup curVaccineGroup : supportedVaccines) {
+                    for (org.smartregister.immunization.domain.jsonmapping.Vaccine curVaccine : curVaccineGroup.vaccines) {
+                        if (!vaccineTypeConstraints.containsKey(curVaccine.type)) {
+                            vaccineTypeConstraints.put(curVaccine.type,
                                     new ArrayList<JSONObject>());
                         }
                         ArrayList<String> vaccineNamesDefined = new ArrayList<>();
-                        if (curVaccine.has("vaccine_separator")) {
-                            String unsplitNames = curVaccine.getString("name");
-                            String separator = curVaccine.getString("vaccine_separator");
+                        if (curVaccine.vaccine_separator != null) {
+                            String unsplitNames = curVaccine.name;
+                            String separator = curVaccine.vaccine_separator;
                             String[] splitValues = unsplitNames.split(separator);
                             for (String splitValue : splitValues) {
                                 vaccineNamesDefined.add(splitValue);
                             }
                         } else {
-                            vaccineNamesDefined.add(curVaccine.getString("name"));
+                            vaccineNamesDefined.add(curVaccine.name);
                         }
 
                         for (String curVaccineName : vaccineNamesDefined) {
@@ -1036,37 +921,35 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             curConstraint.put("vaccine", curVaccineName);
                             curConstraint.put("type", "array");
                             curConstraint.put("ex",
-                                    "notEqualTo(step1:" + curVaccineGroup.getString("id") + ", \"[\"" + curVaccineName + "\"]\")");
-                            curConstraint.put("err", "Cannot be given with the other " + curVaccine.getString("type") + " dose");
-                            vaccineTypeConstraints.get(curVaccine.getString("type")).add(curConstraint);
+                                    "notEqualTo(step1:" + curVaccineGroup.id + ", \"[\"" + curVaccineName + "\"]\")");
+                            curConstraint.put("err", "Cannot be given with the other " + curVaccine.type + " dose");
+                            vaccineTypeConstraints.get(curVaccine.type).add(curConstraint);
                         }
                     }
                 }
 
-                for (int i = 0; i < supportedVaccines.length(); i++) {
-                    JSONObject curVaccineGroup = supportedVaccines.getJSONObject(i);
+                for (VaccineGroup curVaccineGroup : supportedVaccines) {
                     JSONObject curQuestion = new JSONObject();
-                    curQuestion.put("key", curVaccineGroup.getString("id"));
+                    curQuestion.put("key", curVaccineGroup.id);
                     curQuestion.put("type", "check_box");
                     curQuestion.put("is_vaccine_group", true);
-                    curQuestion.put("label", curVaccineGroup.getString("name"));
+                    curQuestion.put("label", curVaccineGroup.name);
                     curQuestion.put("openmrs_entity_parent", "-");
                     curQuestion.put("openmrs_entity", "-");
                     curQuestion.put("openmrs_entity_id", "-");
 
-                    JSONArray vaccines = curVaccineGroup.getJSONArray("vaccines");
                     JSONArray options = new JSONArray();
-                    for (int j = 0; j < vaccines.length(); j++) {
+                    for (org.smartregister.immunization.domain.jsonmapping.Vaccine curVaccine : curVaccineGroup.vaccines) {
                         ArrayList<String> definedVaccineNames = new ArrayList<>();
-                        if (vaccines.getJSONObject(j).has("vaccine_separator")) {
-                            String rawNames = vaccines.getJSONObject(j).getString("name");
-                            String separator = vaccines.getJSONObject(j).getString("vaccine_separator");
+                        if (curVaccine.vaccine_separator != null) {
+                            String rawNames = curVaccine.name;
+                            String separator = curVaccine.vaccine_separator;
                             String[] split = rawNames.split(separator);
                             for (String aSplit : split) {
                                 definedVaccineNames.add(aSplit);
                             }
                         } else {
-                            definedVaccineNames.add(vaccines.getJSONObject(j).getString("name"));
+                            definedVaccineNames.add(curVaccine.name);
                         }
 
                         for (String curVaccineName : definedVaccineNames) {
@@ -1077,8 +960,8 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             JSONArray constraints = new JSONArray();
 
                             // Add the constraints
-                            if (vaccineTypeConstraints.containsKey(vaccines.getJSONObject(j).getString("type"))) {
-                                for (JSONObject curConstraint : vaccineTypeConstraints.get(vaccines.getJSONObject(j).getString("type"))) {
+                            if (vaccineTypeConstraints.containsKey(curVaccine.type)) {
+                                for (JSONObject curConstraint : vaccineTypeConstraints.get(curVaccine.type)) {
                                     if (!curConstraint.getString("vaccine")
                                             .equals(curVaccineName)) {
                                         JSONObject constraintClone = new JSONObject(curConstraint.toString());
@@ -1104,181 +987,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
         }
     }
-
-    public static String getOpenMrsLocationId(org.smartregister.Context context,
-                                              String locationName) throws JSONException {
-        String response = locationName;
-
-        if (locationName != null) {
-            JSONObject locationData = new JSONObject(context.anmLocationController().get());
-            if (locationData.has(LOCATION_HIERARCHY)
-                    && locationData.getJSONObject(LOCATION_HIERARCHY).has(MAP)) {
-                JSONObject map = locationData.getJSONObject(LOCATION_HIERARCHY).getJSONObject(MAP);
-                Iterator<String> keys = map.keys();
-                while (keys.hasNext()) {
-                    String curKey = keys.next();
-                    String curResult = getOpenMrsLocationId(locationName, map.getJSONObject(curKey));
-
-                    if (curResult != null) {
-                        response = curResult;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return response;
-    }
-
-    private static String getOpenMrsLocationId(String locationName, JSONObject openMrsLocations)
-            throws JSONException {
-        String name = openMrsLocations.getJSONObject("node").getString("name");
-
-        if (locationName.equals(name)) {
-            return openMrsLocations.getJSONObject("node").getString("locationId");
-        }
-
-        if (openMrsLocations.has("children")) {
-            Iterator<String> childIterator = openMrsLocations.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                String curResult = getOpenMrsLocationId(locationName,
-                        openMrsLocations.getJSONObject("children").getJSONObject(curChildKey));
-                if (curResult != null) {
-                    return curResult;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * This method returns the name hierarchy of a location given it's id
-     *
-     * @param context
-     * @param locationId The ID for the location we want the hierarchy for
-     * @return The name hierarchy (starting with the top-most parent) for the location or {@code NULL} if location id is not found
-     */
-    public static JSONArray getOpenMrsLocationHierarchy(org.smartregister.Context context,
-                                                        String locationId) {
-        JSONArray response = null;
-
-        try {
-            if (locationId != null) {
-                JSONObject locationData = new JSONObject(context.anmLocationController().get());
-                Log.d(TAG, "Location data is " + locationData);
-                if (locationData.has(LOCATION_HIERARCHY)
-                        && locationData.getJSONObject(LOCATION_HIERARCHY).has(MAP)) {
-                    JSONObject map = locationData.getJSONObject(LOCATION_HIERARCHY).getJSONObject(MAP);
-                    Iterator<String> keys = map.keys();
-                    while (keys.hasNext()) {
-                        String curKey = keys.next();
-                        JSONArray curResult = getOpenMrsLocationHierarchy(locationId, map.getJSONObject(curKey), new JSONArray());
-
-                        if (curResult != null) {
-                            response = curResult;
-                            break;
-                        }
-                    }
-                } else {
-                    Log.e(TAG, "locationData doesn't have locationHierarchy");
-                }
-            } else {
-                Log.e(TAG, "Location id is null");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-
-        return response;
-    }
-
-    private static JSONArray getOpenMrsLocationHierarchy(String locationId,
-                                                         JSONObject openMrsLocation,
-                                                         JSONArray parents) throws JSONException {
-        JSONArray hierarchy = new JSONArray(parents.toString());
-        hierarchy.put(openMrsLocation.getJSONObject("node").getString("name"));
-        String id = openMrsLocation.getJSONObject("node").getString("locationId");
-        Log.d(TAG, "Current location id is " + id);
-        if (locationId.equals(id)) {
-            return hierarchy;
-        }
-
-        if (openMrsLocation.has("children")) {
-            Iterator<String> childIterator = openMrsLocation.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                JSONArray curResult = getOpenMrsLocationHierarchy(locationId,
-                        openMrsLocation.getJSONObject("children").getJSONObject(curChildKey),
-                        hierarchy);
-                if (curResult != null) return curResult;
-            }
-        } else {
-            Log.d(TAG, id + " does not have children");
-        }
-
-        return null;
-    }
-
-    public static String getOpenMrsLocationName(org.smartregister.Context context,
-                                                String locationId) {
-        String response = locationId;
-        try {
-            if (locationId != null) {
-                JSONObject locationData = new JSONObject(context.anmLocationController().get());
-                Log.d(TAG, "Location data is " + locationData);
-                if (locationData.has(LOCATION_HIERARCHY)
-                        && locationData.getJSONObject(LOCATION_HIERARCHY).has(MAP)) {
-                    JSONObject map = locationData.getJSONObject(LOCATION_HIERARCHY).getJSONObject(MAP);
-                    Iterator<String> keys = map.keys();
-                    while (keys.hasNext()) {
-                        String curKey = keys.next();
-                        String curResult = getOpenMrsLocationName(locationId, map.getJSONObject(curKey));
-
-                        if (curResult != null) {
-                            response = curResult;
-                            break;
-                        }
-                    }
-                } else {
-                    Log.e(TAG, "locationData doesn't have locationHierarchy");
-                }
-            } else {
-                Log.e(TAG, "Location id is null");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, Log.getStackTraceString(e));
-        }
-
-        return response;
-    }
-
-    private static String getOpenMrsLocationName(String locationId, JSONObject openMrsLocations)
-            throws JSONException {
-        String id = openMrsLocations.getJSONObject("node").getString("locationId");
-        Log.d(TAG, "Current location id is " + id);
-        if (locationId.equals(id)) {
-            return openMrsLocations.getJSONObject("node").getString("name");
-        }
-
-        if (openMrsLocations.has("children")) {
-            Iterator<String> childIterator = openMrsLocations.getJSONObject("children").keys();
-            while (childIterator.hasNext()) {
-                String curChildKey = childIterator.next();
-                String curResult = getOpenMrsLocationName(locationId,
-                        openMrsLocations.getJSONObject("children").getJSONObject(curChildKey));
-                if (curResult != null) {
-                    return curResult;
-                }
-            }
-        } else {
-            Log.d(TAG, id + " does not have children");
-        }
-
-        return null;
-    }
-
 
     public static void saveReportDeceased(Context context, org.smartregister.Context openSrpContext,
                                           String jsonString, String providerId, String locationId, String entityId) {
@@ -1408,20 +1116,19 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
      * Starts an instance of JsonFormActivity with the provided form details
      *
      * @param context                     The activity form is being launched from
-     * @param openSrpContext              Current OpenSRP context
      * @param jsonFormActivityRequestCode The request code to be used to launch {@link PathJsonFormActivity}
      * @param formName                    The name of the form to launch
-     * @param entityId                    The unique entity id for the form (e.g child's ZEIR id)
-     * @param metaData                    The form's meta data
+     * @param uniqueId                    The unique entity id for the form (e.g child's ZEIR id)
      * @param currentLocationId           OpenMRS id for the current device's location
      * @throws Exception
      */
-    public static void startForm(Activity context, org.smartregister.Context openSrpContext,
+    public static void startForm(Activity context,
                                  int jsonFormActivityRequestCode,
-                                 String formName, String entityId, String metaData,
+                                 String formName, String uniqueId,
                                  String currentLocationId) throws Exception {
         Intent intent = new Intent(context, PathJsonFormActivity.class);
 
+        String entityId = uniqueId;
         JSONObject form = FormUtils.getInstance(context).getFormJson(formName);
         if (form != null) {
             form.getJSONObject("metadata").put("encounter_location", currentLocationId);
@@ -1440,7 +1147,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                     entityId = entityId.replace("-", "");
                 }
 
-                JsonFormUtils.addChildRegLocHierarchyQuestions(form, openSrpContext);
+                JsonFormUtils.addChildRegLocHierarchyQuestions(form);
 
                 // Inject zeir id into the form
                 JSONObject stepOne = form.getJSONObject(JsonFormUtils.STEP1);
@@ -1521,34 +1228,6 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         return event;
     }
 
-    /**
-     * This method sorts the options provided for a native form tree view question
-     *
-     * @return The sorted options
-     */
-    private static JSONArray sortTreeViewQuestionOptions(JSONArray treeViewOptions) throws JSONException {
-        JSONArray sortedTree = new JSONArray();
-
-        HashMap<String, JSONObject> sortMap = new HashMap<>();
-        for (int i = 0; i < treeViewOptions.length(); i++) {
-            sortMap.put(treeViewOptions.getJSONObject(i).getString("name"), treeViewOptions.getJSONObject(i));
-        }
-
-        ArrayList<String> sortedKeys = new ArrayList<>(sortMap.keySet());
-        Collections.sort(sortedKeys);
-
-        for (String curOptionName : sortedKeys) {
-            JSONObject curOption = sortMap.get(curOptionName);
-            if (curOption.has("nodes")) {
-                curOption.put("nodes", sortTreeViewQuestionOptions(curOption.getJSONArray("nodes")));
-            }
-
-            sortedTree.put(curOption);
-        }
-
-        return sortedTree;
-    }
-
     public static Event createMoveToCatchmentEvent(Context context, org.smartregister.domain.db.Event referenceEvent, String fromLocationId, String toProviderId, String toLocationId) {
 
         try {
@@ -1600,7 +1279,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
 
             return event;
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
             return null;
         }
@@ -1819,7 +1498,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                             JSONArray valueArray = new JSONArray(rawValue);
                             if (valueArray.length() > 0) {
                                 String lastLocationName = valueArray.getString(valueArray.length() - 1);
-                                String lastLocationId = getOpenMrsLocationId(openSrpContext, lastLocationName);
+                                String lastLocationId = LocationHelper.getInstance().getOpenMrsLocationId(lastLocationName);
                                 fields.getJSONObject(i).put("value", lastLocationId);
                             }
                         } catch (Exception e) {

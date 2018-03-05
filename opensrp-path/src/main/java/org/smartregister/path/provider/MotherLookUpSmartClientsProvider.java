@@ -1,12 +1,10 @@
 package org.smartregister.path.provider;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
@@ -19,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import util.PathConstants;
 
 import static org.smartregister.util.Utils.fillValue;
 import static org.smartregister.util.Utils.getName;
@@ -113,15 +113,8 @@ public class MotherLookUpSmartClientsProvider {
     }
 
     private DateTime dob(CommonPersonObjectClient pc) {
-        String dobString = getValue(pc.getColumnmaps(), "dob", false);
-        if (StringUtils.isNotBlank(dobString)) {
-            try {
-                return new DateTime(dobString);
-            } catch (Exception e) {
-                Log.e(getClass().getName(), e.toString(), e);
-            }
-        }
-        return null;
+        String dobString = getValue(pc.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        return util.Utils.dobStringToDateTime(dobString);
     }
 
     private String name(CommonPersonObjectClient pc) {

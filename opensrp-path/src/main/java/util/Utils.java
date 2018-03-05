@@ -311,9 +311,19 @@ public class Utils {
     }
 
     public static Date dobStringToDate(String dobString) {
-        try {
-            DateTime dateTime = new DateTime(dobString);
+        DateTime dateTime = dobStringToDateTime(dobString);
+        if (dateTime != null) {
             return dateTime.toDate();
+        }
+        return null;
+    }
+
+    public static DateTime dobStringToDateTime(String dobString) {
+        try {
+            if (StringUtils.isBlank(dobString)) {
+                return null;
+            }
+            return new DateTime(dobString);
 
         } catch (Exception e) {
             return null;
@@ -324,5 +334,13 @@ public class Utils {
         Resources r = context.getResources();
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
+    }
+
+    public static boolean isEmptyMap(Map map) {
+        return map == null || map.isEmpty();
+    }
+
+    public static boolean isEmptyCollection(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
 }

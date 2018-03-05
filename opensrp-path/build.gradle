@@ -119,14 +119,14 @@ dependencies {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.2.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.2.2-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.2.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.2.1-SNAPSHOT@aar') {
         transitive = true
     }
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.3-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.4-SNAPSHOT@aar') {
         transitive = true
     }
 

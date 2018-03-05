@@ -33,6 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.reflect.TypeToken;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -41,7 +43,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.Context;
 import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
@@ -72,6 +73,7 @@ import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -85,6 +87,7 @@ import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
+import org.smartregister.util.AssetHandler;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -418,12 +421,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private String getmetaDataForEditForm() {
-        Context context = getOpenSRPContext();
         try {
             JSONObject form = FormUtils.getInstance(getApplicationContext()).getFormJson("child_enrollment");
             LocationPickerView lpv = new LocationPickerView(getApplicationContext());
-            lpv.init(context);
-            JsonFormUtils.addChildRegLocHierarchyQuestions(form, context);
+            lpv.init();
+            JsonFormUtils.addChildRegLocHierarchyQuestions(form);
             Log.d(TAG, "Form is " + form.toString());
             if (form != null) {
                 form.put(JsonFormUtils.ENTITY_ID, childDetails.entityId());
@@ -469,12 +471,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
                         if (!TextUtils.isEmpty(getValue(childDetails.getColumnmaps(), "mother_dob", true))) {
                             try {
-                                DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "mother_dob", true));
-                                Date dob = dateTime.toDate();
-                                Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
-                                long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
-                                if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
-                                    jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                                String motherDobString = getValue(childDetails.getColumnmaps(), "mother_dob", true);
+                                Date dob = util.Utils.dobStringToDate(motherDobString);
+                                if (dob != null) {
+                                    Date defaultDate = DATE_FORMAT.parse(JsonFormUtils.MOTHER_DEFAULT_DOB);
+                                    long timeDiff = Math.abs(dob.getTime() - defaultDate.getTime());
+                                    if (timeDiff > 86400000) { // Mother's date of birth occurs more than a day from the default date
+                                        jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                                    }
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG, Log.getStackTraceString(e));
@@ -507,9 +511,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", true));
-                        Date dob = dateTime.toDate();
-                        jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+
+                        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, true);
+                        Date dob = util.Utils.dobStringToDate(dobString);
+                        if (dob != null) {
+                            jsonObject.put(JsonFormUtils.VALUE, DATE_FORMAT.format(dob));
+                        }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Weight")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
@@ -531,21 +538,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name")) {
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
-                        JSONArray birthFacilityHierarchy = null;
+                        List<String> birthFacilityHierarchy = null;
                         String birthFacilityName = getValue(detailmaps, "Birth_Facility_Name", false);
 
                         if (birthFacilityName != null) {
                             if (birthFacilityName.equalsIgnoreCase("other")) {
-                                birthFacilityHierarchy = new JSONArray();
-                                birthFacilityHierarchy.put(birthFacilityName);
+                                birthFacilityHierarchy = new ArrayList<>();
+                                birthFacilityHierarchy.add(birthFacilityName);
                             } else {
-                                birthFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                        getOpenSRPContext(), birthFacilityName);
+                                birthFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(birthFacilityName);
                             }
                         }
 
-                        if (birthFacilityHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchy.toString());
+                        String birthFacilityHierarchyString = AssetHandler.javaToJsonString(birthFacilityHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(birthFacilityHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, birthFacilityHierarchyString);
                         }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Birth_Facility_Name_Other")) {
@@ -553,18 +561,19 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.READ_ONLY, true);
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area")) {
-                        JSONArray residentialAreaHierarchy = null;
+                        List<String> residentialAreaHierarchy;
                         String address3 = getValue(detailmaps, "address3", false);
                         if (address3 != null && address3.equalsIgnoreCase("Other")) {
-                            residentialAreaHierarchy = new JSONArray();
-                            residentialAreaHierarchy.put(address3);
+                            residentialAreaHierarchy = new ArrayList<>();
+                            residentialAreaHierarchy.add(address3);
                         } else {
-                            residentialAreaHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                    getOpenSRPContext(), address3);
+                            residentialAreaHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(address3);
                         }
 
-                        if (residentialAreaHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, residentialAreaHierarchy.toString());
+                        String residentialAreaHierarchyString = AssetHandler.javaToJsonString(residentialAreaHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(residentialAreaHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, residentialAreaHierarchyString);
                         }
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Residential_Area_Other")) {
@@ -587,11 +596,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                         jsonObject.put(JsonFormUtils.VALUE, getValue(detailmaps, PMTCT_STATUS_LOWER_CASE, true));
                     }
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Home_Facility")) {
-                        JSONArray homeFacilityHierarchy = JsonFormUtils.getOpenMrsLocationHierarchy(
-                                getOpenSRPContext(), getValue(detailmaps,
-                                        "Home_Facility", false));
-                        if (homeFacilityHierarchy != null) {
-                            jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchy.toString());
+                        List<String> homeFacilityHierarchy = LocationHelper.getInstance().getOpenMrsLocationHierarchy(getValue(detailmaps,
+                                "Home_Facility", false));
+
+                        String homeFacilityHierarchyString = AssetHandler.javaToJsonString(homeFacilityHierarchy, new TypeToken<List<String>>() {
+                        }.getType());
+                        if (StringUtils.isNotBlank(homeFacilityHierarchyString)) {
+                            jsonObject.put(JsonFormUtils.VALUE, homeFacilityHierarchyString);
                         }
                     }
 
@@ -756,10 +767,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (StringUtils.isNotBlank(childId)) {
                 childId = childId.replace("-", "");
             }
-            dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                Date dob = dateTime.toDate();
+            dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+            Date dob = util.Utils.dobStringToDate(dobString);
+            if (dob != null) {
                 long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
 
                 if (timeDiff >= 0) {
@@ -790,7 +800,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         ImageView statusImage = (ImageView) findViewById(R.id.statusimage);
         TextView status_name = (TextView) findViewById(R.id.statusname);
         TextView status = (TextView) findViewById(R.id.status);
-        if (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        if (details.containsKey(inactive) && details.get(inactive) != null && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setColorFilter(Color.TRANSPARENT);
             statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
@@ -798,14 +808,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             status_name.setTextColor(getResources().getColor(R.color.dark_grey));
             status_name.setVisibility(View.VISIBLE);
             status.setText(R.string.status);
-        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+        } else if (details.containsKey(lostToFollowUp) && details.get(lostToFollowUp) != null && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
             statusImage.clearColorFilter();
             statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
             statusImage.setColorFilter(Color.TRANSPARENT);
             status_name.setVisibility(View.GONE);
             status.setText(R.string.lost_to_follow_up_with_nl);
-        }
-        if (!((details.containsKey(lostToFollowUp) && details.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) || (details.containsKey(inactive) && details.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())))) {
+        } else {
             statusImage.setImageResource(R.drawable.ic_icon_status_active);
             statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
             status_name.setText(R.string.active);
@@ -988,12 +997,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 gender = Gender.MALE;
             }
 
-            Date dob = null;
-            String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                dob = dateTime.toDate();
-            }
+            String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+            Date dob = util.Utils.dobStringToDate(dobString);
 
             if (dob != null && gender != Gender.UNKNOWN) {
                 weightRepository.add(dob, gender, weight);
@@ -1027,10 +1032,17 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
         String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
         String duration = "";
-        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-        if (StringUtils.isNotBlank(dobString)) {
-            DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", false));
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
+
+        Date dob = null;
+        if (dateTime != null) {
             duration = DateUtil.getDuration(dateTime);
+            dob = dateTime.toDate();
+        }
+
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
         }
 
         Photo photo = getProfilePhotoByClient();
@@ -1051,9 +1063,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         weightWrapper.setPatientAge(duration);
         weightWrapper.setPhoto(photo);
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PMTCT_STATUS_LOWER_CASE, false));
-        weightWrapper.setDateOfBirth(dobString);
 
-        EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, weightWrapper);
+        EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, dob, weightWrapper);
         editWeightDialogFragment.show(ft, DIALOG_TAG);
 
     }
@@ -1176,9 +1187,11 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     if (jsonObject.getString(JsonFormUtils.KEY).equalsIgnoreCase("Date_Birth")) {
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-                        DateTime dateTime = new DateTime(getValue(childDetails.getColumnmaps(), "dob", true));
-                        Date dob = dateTime.toDate();
-                        jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                        String dobString = getValue(childDetails.getColumnmaps(), "dob", true);
+                        Date dob = util.Utils.dobStringToDate(dobString);
+                        if (dob != null) {
+                            jsonObject.put(JsonFormUtils.VALUE, simpleDateFormat.format(dob));
+                        }
                         break;
                     }
                 }
@@ -1245,12 +1258,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
             db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
 
+            String locationName = allSharedPreferences.fetchCurrentLocality();
+            if (StringUtils.isBlank(locationName)) {
+                locationName = LocationHelper.getInstance().getDefaultLocation();
+            }
 
             Event event = (Event) new Event()
                     .withBaseEntityId(childDetails.entityId())
                     .withEventDate(new Date())
                     .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(allSharedPreferences.fetchCurrentLocality())
+                    .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
                     .withProviderId(allSharedPreferences.fetchRegisteredANM())
                     .withEntityType(PathConstants.EntityType.CHILD)
                     .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
@@ -1392,11 +1409,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         vaccineWrapper.setName(VaccineRepo.Vaccine.bcg2.display());
         vaccineWrapper.setDefaultName(VaccineRepo.Vaccine.bcg2.display());
 
-        String dobString = getValue(childDetails.getColumnmaps(), "dob", false);
-        Date dob = Calendar.getInstance().getTime();
-        if (!TextUtils.isEmpty(dobString)) {
-            DateTime dateTime = new DateTime(dobString);
-            dob = dateTime.toDate();
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        Date dob = util.Utils.dobStringToDate(dobString);
+        if (dob == null) {
+            dob = Calendar.getInstance().getTime();
         }
 
         Photo photo = org.smartregister.immunization.util.ImageUtils.profilePhotoByClient(childDetails);
