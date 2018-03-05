@@ -245,11 +245,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                android.app.Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
+                android.app.Fragment prev = util.Utils.findDuplicateFragment(getParent(), DIALOG_TAG,
+                        StatusEditDialogFragment.class.getName());
                 if (prev != null) {
-                    ft.remove(prev);
+                    return;
                 }
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
                 StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
             }
         });

@@ -162,14 +162,16 @@ public class SetCsoDialogFragment extends DialogFragment {
 
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
-        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(holder);
-        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-        Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
+
+        Fragment prev = util.Utils.findDuplicateFragment(activity, dialogTag,
+                SetCsoDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return (SetCsoDialogFragment) prev;
         }
+        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
+        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(holder);
         dialogFragment.show(ft, dialogTag);
 
         return dialogFragment;

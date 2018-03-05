@@ -37,15 +37,17 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
 
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
-        NotInCatchmentDialogFragment dialogFragment = new NotInCatchmentDialogFragment(activity,
-                zeirId);
-        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-        Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
+
+        Fragment prev = util.Utils.findDuplicateFragment(activity, dialogTag,
+                NotInCatchmentDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return (NotInCatchmentDialogFragment) prev;
         }
+        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
+        NotInCatchmentDialogFragment dialogFragment = new NotInCatchmentDialogFragment(activity,
+                zeirId);
         dialogFragment.show(ft, dialogTag);
 
         return dialogFragment;

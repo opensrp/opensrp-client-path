@@ -200,12 +200,11 @@ public class HIA2ReportsActivity extends BaseActivity {
 
     private void sendReport(final Date month) {
         if (month != null) {
-            FragmentTransaction ft = getFragmentManager()
-                    .beginTransaction();
-            android.app.Fragment prev = getFragmentManager()
-                    .findFragmentByTag("SendMonthlyDraftDialogFragment");
+
+            android.app.Fragment prev = util.Utils.findDuplicateFragment(this,
+                    "SendMonthlyDraftDialogFragment", SendMonthlyDraftDialogFragment.class.getName());
             if (prev != null) {
-                ft.remove(prev);
+                return;
             }
 
             String monthString = new SimpleDateFormat("MMM yyyy").format(month);
@@ -224,6 +223,9 @@ public class HIA2ReportsActivity extends BaseActivity {
                                     startService(intent);
                                 }
                             });
+
+            FragmentTransaction ft = getFragmentManager()
+                    .beginTransaction();
             ft.add(newFragment, "SendMonthlyDraftDialogFragment");
             ft.commitAllowingStateLoss();
         }

@@ -297,11 +297,14 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
-        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-        android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
+
+        android.app.Fragment prev = util.Utils.findDuplicateFragment(getActivity(),
+                DIALOG_TAG, VaccinationEditDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
+
+        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -319,11 +322,14 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
-        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-        android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
+
+        android.app.Fragment prev = util.Utils.findDuplicateFragment(getActivity(), DIALOG_TAG,
+                ServiceEditDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
+
+        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
