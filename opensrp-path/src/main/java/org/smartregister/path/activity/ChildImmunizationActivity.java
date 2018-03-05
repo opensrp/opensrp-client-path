@@ -1455,7 +1455,7 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private class ShowGrowthChartTask extends AsyncTask<Void, Void, List<Weight>> {
-        FragmentTransaction ft;
+        private FragmentTransaction ft;
 
         @Override
         protected void onPreExecute() {
