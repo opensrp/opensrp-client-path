@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -43,6 +44,7 @@ import org.smartregister.immunization.domain.ServiceSchedule;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
+import org.smartregister.immunization.domain.VaccineCondition;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.fragment.ServiceDialogFragment;
@@ -116,6 +118,13 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
+
+    /**
+     * These variables are related to OPV 4 Alert fix - This fixes the presence of OPV 4 when OPV 0
+     * has been given. Alerts with these issues are not generated on client-side.
+     */
+    private boolean isOPV0Given = false;
+    private boolean isOPV4AlertPresent = false;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -1244,6 +1253,8 @@ public class ChildImmunizationActivity extends BaseActivity
                 alertList = alertService.findByEntityId(childDetails.entityId());
             }
 
+            alertList = fixOPV4AlertIfOPV0GivenAndConditionPresent(vaccineList, alertList);
+
             Map<String, NamedObject<?>> map = new HashMap<>();
 
             NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
@@ -1262,6 +1273,53 @@ public class ChildImmunizationActivity extends BaseActivity
             map.put(alertsNamedObject.name, alertsNamedObject);
 
             return map;
+        }
+
+        /**
+         * Removes the OPV 4 alert from the alerts list if OPV 0 has been given and the pre-condition
+         * for OPV 0 as "not_given" still exists in the conditions. This is a bug fix for
+         * server-generated alerts not following the condition
+         *
+         * @param vaccineList
+         * @param alertList
+         * @return
+         */
+        private List<Alert> fixOPV4AlertIfOPV0GivenAndConditionPresent(List<Vaccine> vaccineList, List<Alert> alertList) {
+            VaccineRepo.Vaccine opv4Vaccine = VaccineRepo.Vaccine.opv4;
+            VaccineSchedule opv4Schedule = VaccineSchedule.getVaccineSchedule(opv4Vaccine.category(), opv4Vaccine.display());
+
+            ArrayList<VaccineCondition> conditions = opv4Schedule.getConditions();
+
+            boolean conditionExists = false;
+            for (VaccineCondition condition: conditions) {
+                if (condition instanceof VaccineCondition.NotGivenCondition && VaccineRepo.Vaccine.opv0.display().equals(condition.getVaccine().display())) {
+                    conditionExists = true;
+                    break;
+                }
+            }
+
+            if (!conditionExists) {
+                return alertList;
+            }
+
+            Alert alert = VaccinateActionUtils.getAlert(alertList, VaccineRepo.Vaccine.opv4);
+            isOPV4AlertPresent = alert != null;
+
+            if (isOPV4AlertPresent) {
+                for (Vaccine vaccine: vaccineList) {
+                    if (VaccineRepo.Vaccine.opv0.display().equals(vaccine.getName())) {
+                        isOPV0Given = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isOPV4AlertPresent && isOPV0Given) {
+                alertList.remove(alert);
+                alertService.deleteAlert(alert.caseId(), alert.visitCode());
+            }
+
+            return alertList;
         }
     }
 
