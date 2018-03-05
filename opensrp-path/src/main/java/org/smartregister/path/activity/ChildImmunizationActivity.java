@@ -598,6 +598,11 @@ public class ChildImmunizationActivity extends BaseActivity
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Fragment prev = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
+                        DIALOG_TAG, GrowthDialogFragment.class.getName());
+                if (prev != null) {
+                    return;
+                }
                 Utils.startAsyncTask(new ShowGrowthChartTask(), null);
             }
         });
@@ -1389,13 +1394,6 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Fragment prev = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
-                    DIALOG_TAG, GrowthDialogFragment.class.getName());
-            if (prev != null) {
-                this.cancel(true);
-                return;
-            }
-
             ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
             showProgressDialog();
         }

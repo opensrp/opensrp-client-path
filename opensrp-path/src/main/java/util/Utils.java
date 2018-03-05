@@ -346,7 +346,8 @@ public class Utils {
 
         if (activity == null || isBlank(tag) || isBlank(className)) {
             Toast.makeText(activity, "Error displaying dialog! Please try again.",
-                    Toast.LENGTH_SHORT);
+                    Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         FragmentManager fragmentManager = activity.getFragmentManager();
