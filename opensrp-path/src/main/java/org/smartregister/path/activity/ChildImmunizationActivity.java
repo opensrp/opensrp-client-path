@@ -24,9 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -65,6 +63,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.domain.RegisterClickables;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.path.view.SiblingPicturesGroup;
@@ -90,8 +89,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import util.AsyncTaskUtils;
 import util.ImageUtils;
-import util.JsonFormUtils;
 import util.PathConstants;
 
 
@@ -417,17 +416,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         if (vaccineGroups == null) {
             vaccineGroups = new ArrayList<>();
-            String supportedVaccinesString = VaccinatorUtils.getSupportedVaccines(this);
-
-            try {
-                JSONArray supportedVaccines = new JSONArray(supportedVaccinesString);
-
-                for (int i = 0; i < supportedVaccines.length(); i++) {
-                    JSONObject vaccineGroupObject = supportedVaccines.getJSONObject(i);
-                    addVaccineGroup(-1, vaccineGroupObject, vaccineList, alerts);
-                }
-            } catch (JSONException e) {
-                Log.e(TAG, Log.getStackTraceString(e));
+            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
+            for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : supportedVaccines) {
+                addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
             }
         }
 
@@ -469,7 +460,7 @@ public class ChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private void addVaccineGroup(int canvasId, JSONObject vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
+    private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
@@ -704,11 +695,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private void launchDetailActivity(Context fromContext, CommonPersonObjectClient childDetails, RegisterClickables registerClickables) {
         Intent intent = new Intent(fromContext, ChildDetailTabbedActivity.class);
         Bundle bundle = new Bundle();
-        try {
-            bundle.putString(PathConstants.KEY.LOCATION_NAME, JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(), toolbar.getCurrentLocation()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        bundle.putString(PathConstants.KEY.LOCATION_NAME, LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
         bundle.putSerializable(EXTRA_CHILD_DETAILS, childDetails);
         bundle.putSerializable(EXTRA_REGISTER_CLICKABLES, registerClickables);
         intent.putExtras(bundle);
@@ -761,12 +748,7 @@ public class ChildImmunizationActivity extends BaseActivity
             weight.setKg(tag.getWeight());
             weight.setDate(tag.getUpdatedWeightDate().toDate());
             weight.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-            try {
-                weight.setLocationId(JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        toolbar.getCurrentLocation()));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            weight.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
 
             Gender gender = Gender.UNKNOWN;
             String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
@@ -945,12 +927,7 @@ public class ChildImmunizationActivity extends BaseActivity
         vaccine.setName(tag.getName());
         vaccine.setDate(tag.getUpdatedVaccineDate().toDate());
         vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
-        try {
-            vaccine.setLocationId(JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                    toolbar.getCurrentLocation()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
 
         String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
         if (StringUtils.isNumeric(lastChar)) {
@@ -1125,7 +1102,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 try {
                     vaccineGroups.remove(curGroup);
                     addVaccineGroup(Integer.valueOf((String) curGroup.getTag(R.id.vaccine_group_parent_id)),
-                            new JSONObject((String) curGroup.getTag(R.id.vaccine_group_vaccine_data)),
+                            curGroup.getVaccineData(),
                             vaccineList, alerts);
                 } catch (Exception e) {
                     Log.e(TAG, Log.getStackTraceString(e));
@@ -1164,14 +1141,7 @@ public class ChildImmunizationActivity extends BaseActivity
         ServiceWrapper[] arrayTags = {tag};
         SaveServiceTask backgroundTask = new SaveServiceTask();
         String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
-        String locationId = null;
-
-        try {
-            locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                    toolbar.getCurrentLocation());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
 
         backgroundTask.setProviderId(providerId);
         backgroundTask.setLocationId(locationId);
@@ -1223,53 +1193,11 @@ public class ChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
             hideProgressDialog();
 
-            List<Vaccine> vaccineList = new ArrayList<>();
-            Weight weight = null;
-
-            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-            List<ServiceRecord> serviceRecords = new ArrayList<>();
-
-            List<Alert> alertList = new ArrayList<>();
-
-            if (map.containsKey(Weight.class.getName())) {
-                NamedObject<?> namedObject = map.get(Weight.class.getName());
-                if (namedObject != null) {
-                    weight = (Weight) namedObject.object;
-                }
-
-            }
-
-            if (map.containsKey(Vaccine.class.getName())) {
-                NamedObject<?> namedObject = map.get(Vaccine.class.getName());
-                if (namedObject != null) {
-                    vaccineList = (List<Vaccine>) namedObject.object;
-                }
-
-            }
-
-            if (map.containsKey(ServiceType.class.getName())) {
-                NamedObject<?> namedObject = map.get(ServiceType.class.getName());
-                if (namedObject != null) {
-                    serviceTypeMap = (Map<String, List<ServiceType>>) namedObject.object;
-                }
-
-            }
-
-            if (map.containsKey(ServiceRecord.class.getName())) {
-                NamedObject<?> namedObject = map.get(ServiceRecord.class.getName());
-                if (namedObject != null) {
-                    serviceRecords = (List<ServiceRecord>) namedObject.object;
-                }
-
-            }
-
-            if (map.containsKey(Alert.class.getName())) {
-                NamedObject<?> namedObject = map.get(Alert.class.getName());
-                if (namedObject != null) {
-                    alertList = (List<Alert>) namedObject.object;
-                }
-
-            }
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+            Weight weight = AsyncTaskUtils.retriveWeight(map);
 
             updateWeightViews(weight);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
