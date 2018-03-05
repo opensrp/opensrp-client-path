@@ -1030,7 +1030,7 @@ public class HIA2Service {
      */
     private void getCHN3085() {
         try {
-            int count = getVaccineCount("measles_1", "=18", false);
+            int count = getVaccineCount("measles_2", "between 18 and 19", false);
             hia2Report.put(CHN3_085, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_085 " + e.getMessage());
@@ -1042,7 +1042,7 @@ public class HIA2Service {
      */
     private void getCHN3085O() {
         try {
-            int count = getVaccineCount("measles_1", "=18", true);
+            int count = getVaccineCount("measles_2", "between 18 and 19", true);
             hia2Report.put(CHN3_085_O, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_085_O " + e.getMessage());
@@ -1066,9 +1066,11 @@ public class HIA2Service {
     private int getVaccineCount(String vaccine, String age, boolean outOfArea) {
         int count = 0;
         try {
-            String vaccineCondition = vaccine.contains("measles") ? "(lower(v.name)='" + vaccine.toLowerCase() + "' or lower(v.name)='mr_1')" : "lower(v.name)='" + vaccine.toLowerCase() + "'";
-            String query = "select count(*) as count, " + ageQuery() + " from vaccines v left join ec_child child on child.base_entity_id=v.base_entity_id " +
-                    "where age " + age + " and  '" + reportDate + "'=strftime('%Y-%m-%d',datetime(v.date/1000, 'unixepoch')) and v.out_of_area=" + (outOfArea ? 1 : 0) + " and " + vaccineCondition;
+
+            String vaccineCondition = vaccine.contains("measles") ? "(lower(v.name) = '"+vaccine.toLowerCase()+"' OR lower(v.name) = 'mr"+vaccine.substring(vaccine.lastIndexOf('_'))+"');" : "lower(v.name) = '" + vaccine.toLowerCase() + "';";
+            String query = "SELECT count(*) AS count, " + ageQuery() + " FROM vaccines v INNER JOIN ec_child child ON child.base_entity_id = v.base_entity_id " +
+                    "WHERE age " + age + " AND '" + reportDate + "' = strftime('%Y-%m-%d',datetime(v.date/1000, 'unixepoch')) AND v.out_of_area = " + (outOfArea ? 1 : 0) + " AND " + vaccineCondition;
+
             count = executeQueryAndReturnCount(query);
         } catch (Exception e) {
             Log.logError(TAG, vaccine.toUpperCase() + e.getMessage());
