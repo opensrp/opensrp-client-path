@@ -44,6 +44,9 @@ import org.smartregister.Context;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
+import org.smartregister.path.listener.CustomNavigationBarListener;
+import org.smartregister.path.listener.NavigationItemListener;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.service.intent.SyncService;
 import org.smartregister.path.sync.ECSyncUpdater;
@@ -78,11 +81,13 @@ public abstract class BaseActivity extends AppCompatActivity
     private static final String TAG = "BaseActivity";
     private BaseToolbar toolbar;
     private Menu menu;
-    private static final int REQUEST_CODE_GET_JSON = 3432;
+    public static final int REQUEST_CODE_GET_JSON = 3432;
     private Snackbar syncStatusSnackbar;
     private ProgressDialog progressDialog;
     private ArrayList<Notification> notifications;
     private BaseActivityToggle toggle;
+    private NavigationItemListener navigationItemListener;
+    private CustomNavigationBarListener customNavigationBarListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,9 @@ public abstract class BaseActivity extends AppCompatActivity
         notifications = new ArrayList<>();
 
         initializeProgressDialog();
+
+        navigationItemListener = new NavigationItemListener(this, toolbar);
+        customNavigationBarListener = new CustomNavigationBarListener(this, toolbar);
     }
 
     @Override
@@ -202,83 +210,28 @@ public abstract class BaseActivity extends AppCompatActivity
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         LinearLayout syncMenuItem = (LinearLayout) drawer.findViewById(R.id.nav_sync);
-        syncMenuItem.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startSync();
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        });
+        syncMenuItem.setOnClickListener(customNavigationBarListener);
+
         LinearLayout addchild = (LinearLayout) drawer.findViewById(R.id.nav_register);
-        addchild.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startJsonForm("child_enrollment", null);
-                drawer.closeDrawer(GravityCompat.START);
+        addchild.setOnClickListener(customNavigationBarListener);
 
-            }
-        });
         LinearLayout outofcatchment = (LinearLayout) drawer.findViewById(R.id.nav_record_vaccination_out_catchment);
-        outofcatchment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startJsonForm("out_of_catchment_service", null);
-                drawer.closeDrawer(GravityCompat.START);
+        outofcatchment.setOnClickListener(customNavigationBarListener);
 
-            }
-        });
         LinearLayout stockregister = (LinearLayout) drawer.findViewById(R.id.stock_control);
-        stockregister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), StockActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
+        stockregister.setOnClickListener(customNavigationBarListener);
 
-            }
-        });
         LinearLayout childregister = (LinearLayout) drawer.findViewById(R.id.child_register);
-        childregister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                VaccinatorApplication.setCrashlyticsUser(VaccinatorApplication.getInstance().context());
-                Intent intent = new Intent(getApplicationContext(), ChildSmartRegisterActivity.class);
-                intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
-                startActivity(intent);
-                finish();
-                drawer.closeDrawer(GravityCompat.START);
-            }
-        });
+        childregister.setOnClickListener(customNavigationBarListener);
+
         LinearLayout hia2 = (LinearLayout) drawer.findViewById(R.id.hia2_reports);
-        hia2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), HIA2ReportsActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
+        hia2.setOnClickListener(customNavigationBarListener);
 
-            }
-        });
         LinearLayout coverage = (LinearLayout) drawer.findViewById(R.id.coverage_reports);
-        coverage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), CoverageReportsActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
+        coverage.setOnClickListener(customNavigationBarListener);
 
-            }
-        });
         LinearLayout dropout = (LinearLayout) drawer.findViewById(R.id.dropout_reports);
-        dropout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), DropoutReportsActivity.class);
-                startActivity(intent);
-                drawer.closeDrawer(GravityCompat.START);
-
-            }
-        });
+        dropout.setOnClickListener(customNavigationBarListener);
 
     }
 
@@ -413,24 +366,8 @@ public abstract class BaseActivity extends AppCompatActivity
         return null;
     }
 
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_register) {
-            startJsonForm("child_enrollment", null);
-        } else if (id == R.id.nav_record_vaccination_out_catchment) {
-            startJsonForm("out_of_catchment_service", null);
-        } else if (id == R.id.nav_sync) {
-            startSync();
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(getDrawerLayoutId());
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
+        return navigationItemListener.onNavigationItemSelected(item);
     }
 
     private void startSync() {
@@ -472,8 +409,8 @@ public abstract class BaseActivity extends AppCompatActivity
         try {
             if (toolbar instanceof LocationSwitcherToolbar) {
                 LocationSwitcherToolbar locationSwitcherToolbar = (LocationSwitcherToolbar) toolbar;
-                String locationId = JsonFormUtils.getOpenMrsLocationId(getOpenSRPContext(),
-                        locationSwitcherToolbar.getCurrentLocation());
+                String locationId =
+                        LocationHelper.getInstance().getOpenMrsLocationId(locationSwitcherToolbar.getCurrentLocation());
 
                 startJsonForm(formName, entityId, locationId);
             }
@@ -483,8 +420,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     protected void startJsonForm(String formName, String entityId, String locationId) throws Exception {
-        JsonFormUtils.startForm(this, getOpenSRPContext(), REQUEST_CODE_GET_JSON,
-                formName, entityId, null, locationId);
+        JsonFormUtils.startForm(this, REQUEST_CODE_GET_JSON, formName, entityId, locationId);
     }
 
     protected void showNotification(int message, int notificationIcon, int positiveButtonText,

@@ -3,17 +3,15 @@ package org.smartregister.path.tabfragments;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableRow;
 
-import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
-import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.DateUtil;
@@ -26,6 +24,7 @@ import java.util.Date;
 import java.util.Map;
 
 import util.JsonFormUtils;
+import util.PathConstants;
 
 
 public class ChildRegistrationDataFragment extends Fragment {
@@ -98,7 +97,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
             WidgetFactory wd = new WidgetFactory();
 
-            tvChildsHomeHealthFacility.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), Utils.getValue(detailsMap, "Home_Facility", false))));
+            tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
             tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));
             tvChildsRegisterCardNumber.setText(Utils.getValue(detailsMap, "Child_Register_Card_Number", false));
             tvChildsBirthCertificateNumber.setText(Utils.getValue(detailsMap, "Child_Birth_Certificate", false));
@@ -106,18 +105,14 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvChildsLastName.setText(Utils.getValue(childDetailsColumnMaps, "last_name", true));
             tvChildsSex.setText(Utils.getValue(childDetailsColumnMaps, "gender", true));
 
-            boolean containsDOB = Utils.getValue(childDetails.getColumnmaps(), "dob", true).isEmpty();
-            String childsDateOfBirth = !containsDOB ? ChildDetailTabbedActivity.DATE_FORMAT.format(new DateTime(Utils.getValue(childDetails.getColumnmaps(), "dob", true)).toDate()) : "";
-
-            tvChildsDOB.setText(childsDateOfBirth);
-
             String formattedAge = "";
-            String dobString = Utils.getValue(childDetailsColumnMaps, "dob", false);
-            if (!TextUtils.isEmpty(dobString)) {
-                DateTime dateTime = new DateTime(dobString);
-                Date dob = dateTime.toDate();
-                long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
+            String dobString = Utils.getValue(childDetailsColumnMaps, PathConstants.EC_CHILD_TABLE.DOB, false);
+            Date dob = util.Utils.dobStringToDate(dobString);
+            if (dob != null) {
+                String childsDateOfBirth = ChildDetailTabbedActivity.DATE_FORMAT.format(dob);
+                tvChildsDOB.setText(childsDateOfBirth);
 
+                long timeDiff = Calendar.getInstance().getTimeInMillis() - dob.getTime();
                 if (timeDiff >= 0) {
                     formattedAge = DateUtil.getDuration(timeDiff);
                 }
@@ -138,22 +133,19 @@ public class ChildRegistrationDataFragment extends Fragment {
             tvMotherFirstName.setText(Utils.getValue(childDetailsColumnMaps, "mother_first_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_first_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_first_name", true));
             tvMotherLastName.setText(Utils.getValue(childDetailsColumnMaps, "mother_last_name", true).isEmpty() ? Utils.getValue(childDetails.getDetails(), "mother_last_name", true) : Utils.getValue(childDetailsColumnMaps, "mother_last_name", true));
 
-            String motherDob = Utils.getValue(childDetails, "mother_dob", true);
-
-            try {
-                DateTime dateTime = new DateTime(motherDob);
-                Date mother_dob = dateTime.toDate();
-                motherDob = ChildDetailTabbedActivity.DATE_FORMAT.format(mother_dob);
-            } catch (Exception e) {
-                Log.e(getClass().getCanonicalName(), e.getMessage());
+            String motherDobString = Utils.getValue(childDetails, "mother_dob", true);
+            Date motherDob = util.Utils.dobStringToDate(motherDobString);
+            if (motherDob != null) {
+                motherDobString = ChildDetailTabbedActivity.DATE_FORMAT.format(motherDob);
             }
+
 
             // If default mother dob ... set it as blank
-            if (motherDob != null && motherDob.equals(JsonFormUtils.MOTHER_DEFAULT_DOB)) {
-                motherDob = "";
+            if (motherDobString != null && motherDobString.equals(JsonFormUtils.MOTHER_DEFAULT_DOB)) {
+                motherDobString = "";
             }
 
-            tvMotherDOB.setText(motherDob);
+            tvMotherDOB.setText(motherDobString);
             tvMotherNRCNo.setText(Utils.getValue(childDetails, "mother_nrc_number", true));
             tvMotherPhoneNumber.setText(Utils.getValue(detailsMap, "Mother_Guardian_Number", true));
             tvFatherFullName.setText(Utils.getValue(detailsMap, "Father_Guardian_Name", true));
@@ -170,16 +162,16 @@ public class ChildRegistrationDataFragment extends Fragment {
 
             tvChildsPlaceOfBirth.setText(placeOfBirthChoice);
             String childsBirthHealthFacility = Utils.getValue(detailsMap, "Birth_Facility_Name", false);
-            tvChildsBirthHealthFacility.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsBirthHealthFacility)));
+            tvChildsBirthHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsBirthHealthFacility)));
 
-            if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsBirthHealthFacility)).equalsIgnoreCase("other")) {
+            if (LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsBirthHealthFacility)).equalsIgnoreCase("other")) {
                 tableRowChildsOtherBirthFacility.setVisibility(View.VISIBLE);
                 tvChildsOtherBirthFacility.setText(Utils.getValue(detailsMap, "Birth_Facility_Name_Other", true));
             }
 
             String childsResidentialArea = Utils.getValue(detailsMap, "address3", false);
-            tvChildsResidentialArea.setText(JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName(VaccinatorApplication.getInstance().context(), childsResidentialArea)));
-            if (JsonFormUtils.getOpenMrsReadableName(JsonFormUtils.getOpenMrsLocationName( VaccinatorApplication.getInstance().context(), childsResidentialArea)).equalsIgnoreCase("other")) {
+            tvChildsResidentialArea.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsResidentialArea)));
+            if (LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(childsResidentialArea)).equalsIgnoreCase("other")) {
                 tableRowChildsOtherResidentialArea.setVisibility(View.VISIBLE);
                 tvChildsOtherResidentialArea.setText(Utils.getValue(detailsMap, "address5", true));
             }

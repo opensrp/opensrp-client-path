@@ -61,6 +61,10 @@ PathConstants extends AllConstants {
         public static final String DOB = "dob";
         public static final String DOD = "dod";
         public static final String REG_DATE = "client_reg_date";
+        public static final String INACTIVE = "inactive";
+        public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
+
+
     }
 
     public static final class GENDER {
@@ -83,7 +87,6 @@ PathConstants extends AllConstants {
         public static final String MOTHER_LAST_NAME = "mother_last_name";
         public static final String ZEIR_ID = "zeir_id";
         public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
-        public static final String DOB = "dob";
         public static final String GENDER = "gender";
         public static final String MOTHER_BASE_ENTITY_ID = "mother_base_entity_id";
         public static final String INACTIVE = "inactive";
@@ -117,4 +120,8 @@ PathConstants extends AllConstants {
         public final static String VACCINE_DATE = "1410AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
     }
 
+    public static final class JSONFORM{
+        public final static String CHILD_ENROLLMENT = "child_enrollment";
+        public final static String OUT_OF_CATCHMENT = "out_of_catchment_service";
+    }
 }

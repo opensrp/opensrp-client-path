@@ -541,7 +541,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     }
 
     private void localSearch() {
-
         initListMode();
 
         CountExecute();
@@ -729,13 +728,15 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
                 if (StringUtils.isBlank(statusConditionString)) {
                     if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                        statusConditionString += " (" + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' AND " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "') ";
+                        statusConditionString += " ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' ) " +
+                                " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "' ) ) ";
                     } else {
                         statusConditionString += " " + key + " = '" + value + "'";
                     }
                 } else {
                     if (key.contains(ACTIVE) && !key.contains(INACTIVE)) {
-                        statusConditionString += " OR (" + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' AND " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "') ";
+                        statusConditionString += " OR ( ( " + tableName + "." + INACTIVE + " IS NULL OR " + tableName + "." + INACTIVE + " != '" + Boolean.TRUE.toString() + "' ) " +
+                                " AND ( " + tableName + "." + LOST_TO_FOLLOW_UP + " IS NULL OR " + tableName + "." + LOST_TO_FOLLOW_UP + " != '" + Boolean.TRUE.toString() + "' ) ) ";
 
                     } else {
                         statusConditionString += " OR " + key + " = '" + value + "'";

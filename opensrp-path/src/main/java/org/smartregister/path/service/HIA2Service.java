@@ -715,7 +715,7 @@ public class HIA2Service {
      */
     private void getCHN3025() {
         try {
-            int count = getVaccineCount("opv_3", "<12", true);
+            int count = getVaccineCount("opv_3", "<12", false);
             hia2Report.put(CHN3_025, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_025 " + e.getMessage());
@@ -727,7 +727,7 @@ public class HIA2Service {
      */
     private void getCHN3025O() {
         try {
-            int count = getVaccineCount("opv_3", "<12", false);
+            int count = getVaccineCount("opv_3", "<12", true);
             hia2Report.put(CHN3_025_O, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_025 " + e.getMessage());

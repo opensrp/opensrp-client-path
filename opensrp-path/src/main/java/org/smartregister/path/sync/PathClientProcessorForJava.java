@@ -129,7 +129,6 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
     private Boolean processVaccine(EventClient vaccine, Table vaccineTable, boolean outOfCatchment) throws Exception {
 
         try {
-
             if (vaccine == null || vaccine.getEvent() == null) {
                 return false;
             }
@@ -137,6 +136,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (vaccineTable == null) {
                 return false;
             }
+
+            Log.d(TAG, "Starting processVaccine table: " + vaccineTable.name);
 
             ContentValues contentValues = processCaseModel(vaccine, vaccineTable);
 
@@ -161,11 +162,13 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
                 Utils.addVaccine(vaccineRepository, vaccineObj);
+
+                Log.d(TAG, "Ending processVaccine table: " + vaccineTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Vaccine Error", e);
             return null;
         }
     }
@@ -181,6 +184,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (weightTable == null) {
                 return false;
             }
+
+            Log.d(TAG, "Starting processWeight table: " + weightTable.name);
 
             ContentValues contentValues = processCaseModel(weight, weightTable);
 
@@ -202,14 +207,14 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 weightObj.setFormSubmissionId(weight.getEvent().getFormSubmissionId());
                 weightObj.setEventId(weight.getEvent().getEventId());
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
-
-
                 weightRepository.add(weightObj);
+
+                Log.d(TAG, "Ending processWeight table: " + weightTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Weight Error", e);
             return null;
         }
     }
@@ -225,6 +230,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             if (serviceTable == null) {
                 return false;
             }
+
+            Log.d(TAG, "Starting processService table: " + serviceTable.name);
 
             ContentValues contentValues = processCaseModel(service, serviceTable);
 
@@ -280,11 +287,13 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
 
                 recurringServiceRecordRepository.add(serviceObj);
+
+                Log.d(TAG, "Ending processService table: " + serviceTable.name);
             }
             return true;
 
         } catch (Exception e) {
-            Log.e(TAG, e.toString(), e);
+            Log.e(TAG, "Process Service Error", e);
             return null;
         }
     }
@@ -312,7 +321,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
             return;
         }
 
-        Log.i(TAG, "Starting updateFTSsearch table: " + tableName);
+        Log.d(TAG, "Starting updateFTSsearch table: " + tableName);
 
         AllCommonsRepository allCommonsRepository = org.smartregister.CoreLibrary.getInstance().context().
                 allCommonsRepositoryobjects(tableName);
@@ -322,18 +331,15 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
 
         if (contentValues != null && StringUtils.containsIgnoreCase(tableName, "child")) {
-            String dob = contentValues.getAsString("dob");
-
-            if (StringUtils.isBlank(dob)) {
-                return;
+            String dobString = contentValues.getAsString(PathConstants.EC_CHILD_TABLE.DOB);
+            DateTime birthDateTime = Utils.dobStringToDateTime(dobString);
+            if (birthDateTime != null) {
+                VaccineSchedule.updateOfflineAlerts(entityId, birthDateTime, "child");
+                ServiceSchedule.updateOfflineAlerts(entityId, birthDateTime);
             }
-
-            DateTime birthDateTime = new DateTime(dob);
-            VaccineSchedule.updateOfflineAlerts(entityId, birthDateTime, "child");
-            ServiceSchedule.updateOfflineAlerts(entityId, birthDateTime);
         }
 
-        Log.i(TAG, "Finished updateFTSsearch table: " + tableName);
+        Log.d(TAG, "Finished updateFTSsearch table: " + tableName);
     }
 
     @Override
