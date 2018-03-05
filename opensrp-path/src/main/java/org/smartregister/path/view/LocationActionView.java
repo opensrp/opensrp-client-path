@@ -15,38 +15,32 @@ import org.smartregister.path.R;
  */
 
 public class LocationActionView extends LinearLayout {
-    private static final String TAG = "LocationActionView";
     private final Context context;
-    private final org.smartregister.Context openSrpContext;
     private LocationPickerView itemText;
 
-    public LocationActionView(Context context, org.smartregister.Context openSrpContext) {
+    public LocationActionView(Context context) {
         super(context);
         this.context = context;
-        this.openSrpContext = openSrpContext;
         init();
     }
 
-    public LocationActionView(Context context, org.smartregister.Context openSrpContext, AttributeSet attrs) {
+    public LocationActionView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        this.openSrpContext = openSrpContext;
         init();
     }
 
-    public LocationActionView(Context context, org.smartregister.Context openSrpContext, AttributeSet attrs, int defStyleAttr) {
+    public LocationActionView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         this.context = context;
-        this.openSrpContext = openSrpContext;
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public LocationActionView(Context context, org.smartregister.Context openSrpContext,
+    public LocationActionView(Context context,
                               AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         this.context = context;
-        this.openSrpContext = openSrpContext;
         init();
     }
 
@@ -57,7 +51,7 @@ public class LocationActionView extends LinearLayout {
         setLayoutParams(layoutParams);
 
         itemText = (LocationPickerView) findViewById(R.id.item_text);
-        itemText.init(openSrpContext);
+        itemText.init();
     }
 
     public String getSelectedItem() {
