@@ -11,8 +11,11 @@ import org.smartregister.util.Log;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -1003,7 +1006,7 @@ public class HIA2Service {
      */
     private void getCHN3080() {
         try {
-            int count = getVaccineCountWithH1A2Status("<12", false);
+            int count = countChildFullyImmunized("<12" ,false,false);
             hia2Report.put(CHN3_080, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_080 " + e.getMessage());
@@ -1011,11 +1014,11 @@ public class HIA2Service {
     }
 
     /**
-     * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at outreach conducyed by this facility
+     * Number of children < one year who have received the complete BCG, OPV series, DPT-Hib+Hep1 series, PCV series , RV series and measles/MR 1 within 10 days of each antigen being due at outreach conducted by this facility
      */
     private void getCHN3080O() {
         try {
-            int count = getVaccineCountWithH1A2Status("<12", true);
+            int count = countChildFullyImmunized("<12" ,true,false);
             hia2Report.put(CHN3_080_O, count);
         } catch (Exception e) {
             Log.logError(TAG, "CHN3_080_O " + e.getMessage());
@@ -1208,5 +1211,88 @@ public class HIA2Service {
             }
 
         return count;
+    }
+
+    private int countChildFullyImmunized(@NonNull final String age, final boolean outOfArea,final boolean checkMeasles2Mr2){
+
+        int count = 0;
+        String query = "SELECT child.base_entity_id AS base_entity_id,"+ageQuery()+" FROM vaccines vaccine INNER join ec_child child ON vaccine.base_entity_id = child.base_entity_id WHERE vaccine.name IN "+((checkMeasles2Mr2)? "('measles_2','mr_2')" : "('measles_1','mr_1')")+" AND '"+
+                reportDate+"' = strftime('%Y-%m-%d',datetime(vaccine.date/1000,'unixepoch')) AND out_of_area = "+((outOfArea)? 1 : 0)+" AND age "+age+" AND hia2_status = 'Within';";
+
+        String[] beids = getColumnValues(database,query,"base_entity_id");
+
+        if(beids != null && beids.length > 0)
+            for (String beid : beids)
+                if(isChildFullyImmunized(beid,outOfArea,checkMeasles2Mr2))
+                    count++;
+
+        return count;
+    }
+
+    private boolean isChildFullyImmunized(String beid, boolean outOfArea,boolean checkMeasles2Mr2) {
+
+        return (
+                        (bcgDoseCompleted(beid,outOfArea) &&
+                        opvSeriesCompleted(beid,outOfArea) &&
+                        pentaSeriesCompleted(beid,outOfArea) &&
+                        pcvSeriesCompleted(beid,outOfArea) &&
+                        rotaSeriesCompleted(beid,outOfArea) &&
+                        measles1Mr1DoseCompleted(beid,outOfArea)) &&
+                        (!checkMeasles2Mr2 || measles2Mr2DoseCompleted(beid,outOfArea))
+        );
+    }
+
+    private boolean vaccineSeriesCompleted(@NonNull final String beid,@NonNull final String vaccineNameWildCard,final boolean outOfArea,final int expectedDifference,@NonNull final String... requiredVaccines){
+
+        Set<String> requiredVaccinesSet;
+        Set<String> aquiredVaccinesSet;
+        String query = "SELECT name FROM vaccines WHERE base_entity_id = '"+beid+"' AND name LIKE '"+vaccineNameWildCard+"' AND out_of_area = "+((outOfArea)? 1 : 0)+" AND hia2_status = 'Within';";
+        String[] aquiredVaccines = getColumnValues(database,query,"name");
+
+        if(aquiredVaccines != null && aquiredVaccines.length > 0) {
+
+            requiredVaccinesSet = new HashSet<>(Arrays.asList(requiredVaccines));
+            aquiredVaccinesSet = new HashSet<>(Arrays.asList(aquiredVaccines));
+
+            requiredVaccinesSet.removeAll(aquiredVaccinesSet);
+
+            return requiredVaccinesSet.size() == expectedDifference;
+        }
+        return false;
+    }
+
+    private boolean bcgDoseCompleted(String beid, boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"%bcg%",outOfArea,1,"bcg","bcg_2");
+    }
+
+    private boolean opvSeriesCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"%opv%",outOfArea,1,"opv_0","opv_1","opv_2","opv_3","opv_4");
+    }
+
+    private boolean pentaSeriesCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"%penta%",outOfArea,0,"penta_1","penta_2","penta_3");
+    }
+
+    private boolean pcvSeriesCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"%pcv%",outOfArea,0,"pcv_1","pcv_2","pcv_3");
+    }
+
+    private boolean rotaSeriesCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"%rota%",outOfArea,0,"rota_1","rota_2");
+    }
+
+    private boolean measles1Mr1DoseCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"m%_1",outOfArea,1,"measles_1","mr_1");
+    }
+
+    private boolean measles2Mr2DoseCompleted(String beid,boolean outOfArea){
+
+        return vaccineSeriesCompleted(beid,"m%_2",outOfArea,1,"measles_2","mr_2");
     }
 }
