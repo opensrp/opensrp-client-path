@@ -516,9 +516,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
 
-        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 UndoVaccinationDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
@@ -538,9 +538,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
 
-        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 UndoServiceDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
@@ -598,9 +598,9 @@ public class ChildImmunizationActivity extends BaseActivity
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Fragment prev = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
+                Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
                         DIALOG_TAG, GrowthDialogFragment.class.getName());
-                if (prev != null) {
+                if (prevPair.first) {
                     return;
                 }
                 Utils.startAsyncTask(new ShowGrowthChartTask(), null);
@@ -654,9 +654,9 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        RecordWeightDialogFragment prev = (RecordWeightDialogFragment) util.Utils.findDuplicateFragment(this,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this,
                 DIALOG_TAG, RecordWeightDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
@@ -805,9 +805,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
 
-        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 VaccinationDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
@@ -836,9 +836,9 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 ServiceDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 

@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -201,9 +202,9 @@ public class HIA2ReportsActivity extends BaseActivity {
     private void sendReport(final Date month) {
         if (month != null) {
 
-            android.app.Fragment prev = util.Utils.findDuplicateFragment(this,
+            Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this,
                     "SendMonthlyDraftDialogFragment", SendMonthlyDraftDialogFragment.class.getName());
-            if (prev != null) {
+            if (prevPair.first) {
                 return;
             }
 

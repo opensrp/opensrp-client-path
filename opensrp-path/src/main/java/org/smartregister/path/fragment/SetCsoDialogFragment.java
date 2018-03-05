@@ -8,6 +8,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -163,10 +164,10 @@ public class SetCsoDialogFragment extends DialogFragment {
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
 
-        Fragment prev = util.Utils.findDuplicateFragment(activity, dialogTag,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(activity, dialogTag,
                 SetCsoDialogFragment.class.getName());
-        if (prev != null) {
-            return (SetCsoDialogFragment) prev;
+        if (prevPair.first && prevPair.second != null) {
+            return (SetCsoDialogFragment) prevPair.second;
         }
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);

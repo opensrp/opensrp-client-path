@@ -22,6 +22,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -245,9 +246,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                android.app.Fragment prev = util.Utils.findDuplicateFragment(getParent(), DIALOG_TAG,
+                Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(getParent(), DIALOG_TAG,
                         StatusEditDialogFragment.class.getName());
-                if (prev != null) {
+                if (prevPair.first) {
                     return;
                 }
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -395,9 +396,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 startFormActivity("report_deceased", childDetails.entityId(), reportDeceasedMetadata);
                 return true;
             case R.id.change_status:
-                android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                         StatusEditDialogFragment.class.getName());
-                if (prev != null) {
+                if (prevPair.first) {
                     return true;
                 }
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
@@ -1018,9 +1019,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     public void showWeightDialog(int i) {
-        android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 EditWeightDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
@@ -1438,9 +1439,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
 
 
-        android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 VaccinationDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();

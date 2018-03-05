@@ -26,6 +26,7 @@ import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -33,7 +34,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
@@ -341,23 +341,23 @@ public class Utils {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
     }
-  
-    public static Fragment findDuplicateFragment(Activity activity, String tag, String className) {
+
+    public static Pair<Boolean, Fragment> findDuplicateFragment(Activity activity, String tag, String className) {
 
         if (activity == null || isBlank(tag) || isBlank(className)) {
             Toast.makeText(activity, "Error displaying dialog! Please try again.",
                     Toast.LENGTH_SHORT).show();
-            return null;
+            return Pair.create(true, null);
         }
 
         FragmentManager fragmentManager = activity.getFragmentManager();
         Fragment fragment = fragmentManager.findFragmentByTag(tag);
         if (fragment == null) {
-            return null;
+            return Pair.create(false, null);
         } else if (fragment.getClass().getName().equals(className)) {
-            return fragment;
+            return Pair.create(true, fragment);
         }
-        return null;
+        return Pair.create(false, fragment);
     }
 
     public static boolean isEmptyMap(Map map) {

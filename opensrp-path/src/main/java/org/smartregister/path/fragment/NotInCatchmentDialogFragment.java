@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +39,10 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
 
-        Fragment prev = util.Utils.findDuplicateFragment(activity, dialogTag,
+        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(activity, dialogTag,
                 NotInCatchmentDialogFragment.class.getName());
-        if (prev != null) {
-            return (NotInCatchmentDialogFragment) prev;
+        if (prevPair.first && prevPair.second != null) {
+            return (NotInCatchmentDialogFragment) prevPair.second;
         }
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);

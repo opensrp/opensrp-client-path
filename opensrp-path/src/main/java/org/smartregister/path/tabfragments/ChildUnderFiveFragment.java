@@ -298,9 +298,9 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
 
-        android.app.Fragment prev = util.Utils.findDuplicateFragment(getActivity(),
+        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(getActivity(),
                 DIALOG_TAG, VaccinationEditDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
@@ -323,9 +323,9 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
 
-        android.app.Fragment prev = util.Utils.findDuplicateFragment(getActivity(), DIALOG_TAG,
+        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(getActivity(), DIALOG_TAG,
                 ServiceEditDialogFragment.class.getName());
-        if (prev != null) {
+        if (prevPair.first) {
             return;
         }
 
