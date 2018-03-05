@@ -22,16 +22,13 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseActivity;
 import org.smartregister.path.activity.BaseReportActivity;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.CoverageHolder;
-import org.smartregister.path.view.LocationPickerView;
+import org.smartregister.path.helper.LocationHelper;
 
-import util.JsonFormUtils;
+import java.util.List;
 
 /**
  * Created by keyman on 22/12/17.
@@ -179,17 +176,12 @@ public class SetCsoDialogFragment extends DialogFragment {
     }
 
     private String getDefaultLocation() {
-        JSONArray rawDefaultLocation = JsonFormUtils
-                .generateDefaultLocationHierarchy(VaccinatorApplication.getInstance().context(), LocationPickerView.ALLOWED_LEVELS);
+        List<String> rawDefaultLocation = LocationHelper.getInstance()
+                .generateDefaultLocationHierarchy(LocationHelper.ALLOWED_LEVELS);
 
-        if (rawDefaultLocation != null && rawDefaultLocation.length() > 0) {
-            try {
-                return rawDefaultLocation.getString(rawDefaultLocation.length() - 1);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        if (rawDefaultLocation != null && rawDefaultLocation.size() > 0) {
+            return rawDefaultLocation.get(rawDefaultLocation.size() - 1);
         }
-
         return null;
     }
 

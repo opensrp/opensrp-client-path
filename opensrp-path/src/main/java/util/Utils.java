@@ -337,7 +337,7 @@ public class Utils {
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
         return Math.round(px);
     }
-
+  
     public static Fragment findDuplicateFragment(FragmentManager fragmentManager, String tag, String className)
             throws IllegalArgumentException {
 
@@ -356,6 +356,14 @@ public class Utils {
 
     public static boolean isEmptyStringOrNull(String s) {
         return (s == null || s.equals(""));
+    }
+  
+    public static boolean isEmptyMap(Map map) {
+        return map == null || map.isEmpty();
+    }
+
+    public static boolean isEmptyCollection(Collection collection) {
+        return collection == null || collection.isEmpty();
     }
 }
 

@@ -8,6 +8,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.DailyTally;
 import org.smartregister.path.domain.Hia2Indicator;
@@ -102,7 +103,7 @@ public class DailyTalliesRepository extends BaseRepository {
                     cv.put(DailyTalliesRepository.COLUMN_INDICATOR_ID, indicator.getId());
                     cv.put(DailyTalliesRepository.COLUMN_VALUE, indicatorValue);
                     cv.put(DailyTalliesRepository.COLUMN_PROVIDER_ID, userName);
-                    cv.put(DailyTalliesRepository.COLUMN_DAY, DAY_FORMAT.parse(day).getTime());
+                    cv.put(DailyTalliesRepository.COLUMN_DAY, StringUtils.isNotBlank(day) ? DAY_FORMAT.parse(day).getTime() : null);
                     cv.put(DailyTalliesRepository.COLUMN_UPDATED_AT, Calendar.getInstance().getTimeInMillis());
 
                     database.insertWithOnConflict(TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
