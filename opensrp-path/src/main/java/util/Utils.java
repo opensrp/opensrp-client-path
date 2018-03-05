@@ -16,6 +16,7 @@
 
 package util;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -340,13 +342,14 @@ public class Utils {
         return Math.round(px);
     }
   
-    public static Fragment findDuplicateFragment(FragmentManager fragmentManager, String tag, String className)
-            throws IllegalArgumentException {
+    public static Fragment findDuplicateFragment(Activity activity, String tag, String className) {
 
-        if (fragmentManager == null || isBlank(tag) || isBlank(className)) {
-            throw new IllegalArgumentException("None of the function arguments can be null or empty!");
+        if (activity == null || isBlank(tag) || isBlank(className)) {
+            Toast.makeText(activity, "Error displaying dialog! Please try again.",
+                    Toast.LENGTH_SHORT);
         }
 
+        FragmentManager fragmentManager = activity.getFragmentManager();
         Fragment fragment = fragmentManager.findFragmentByTag(tag);
         if (fragment == null) {
             return null;

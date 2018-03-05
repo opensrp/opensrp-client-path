@@ -1,7 +1,6 @@
 package org.smartregister.path.activity;
 
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -517,12 +515,14 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
+
+        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                UndoVaccinationDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
 
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
@@ -537,12 +537,14 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
+
+        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                UndoServiceDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
 
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
@@ -647,14 +649,13 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        FragmentManager fragmentManager = this.getFragmentManager();
-        RecordWeightDialogFragment prev = (RecordWeightDialogFragment) util.Utils.findDuplicateFragment(fragmentManager,
+        RecordWeightDialogFragment prev = (RecordWeightDialogFragment) util.Utils.findDuplicateFragment(this,
                 DIALOG_TAG, RecordWeightDialogFragment.class.getName());
         if (prev != null) {
             return;
         }
 
-        FragmentTransaction ft = fragmentManager.beginTransaction();
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -799,12 +800,13 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
 
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                VaccinationDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
 
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -829,14 +831,13 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-        FragmentManager fragmentManager = this.getFragmentManager();
-        Fragment prev = util.Utils.findDuplicateFragment(fragmentManager, DIALOG_TAG,
+        Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
                 ServiceDialogFragment.class.getName());
         if (prev != null) {
             return;
         }
 
-        FragmentTransaction ft = fragmentManager.beginTransaction();
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
@@ -1388,15 +1389,14 @@ public class ChildImmunizationActivity extends BaseActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            FragmentManager fragmentManager = ChildImmunizationActivity.this.getFragmentManager();
-            Fragment prev = util.Utils.findDuplicateFragment(fragmentManager, DIALOG_TAG,
-                    GrowthDialogFragment.class.getName());
+            Fragment prev = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
+                    DIALOG_TAG, GrowthDialogFragment.class.getName());
             if (prev != null) {
                 this.cancel(true);
                 return;
             }
 
-            ft = fragmentManager.beginTransaction();
+            ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
             showProgressDialog();
         }
 
