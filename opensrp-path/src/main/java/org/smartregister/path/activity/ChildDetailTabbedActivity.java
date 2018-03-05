@@ -395,11 +395,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 startFormActivity("report_deceased", childDetails.entityId(), reportDeceasedMetadata);
                 return true;
             case R.id.change_status:
-                FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-                android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+                android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                        StatusEditDialogFragment.class.getName());
                 if (prev != null) {
-                    ft.remove(prev);
+                    return true;
                 }
+                FragmentTransaction ft = this.getFragmentManager().beginTransaction();
                 StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
                 return true;
             case R.id.report_adverse_event:
@@ -1017,13 +1018,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     public void showWeightDialog(int i) {
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                EditWeightDialogFragment.class.getName());
         if (prev != null) {
-            ft.remove(prev);
+            return;
         }
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
-
 
         String childName = constructChildName();
         String gender = getValue(childDetails.getColumnmaps(), "gender", true);
@@ -1436,12 +1437,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             vaccineList = new ArrayList<>();
         }
 
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
 
+        android.app.Fragment prev = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
+                VaccinationDialogFragment.class.getName());
+        if (prev != null) {
+            return;
+        }
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
