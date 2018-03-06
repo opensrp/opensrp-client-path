@@ -17,11 +17,13 @@
 package util;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
@@ -45,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -342,6 +345,25 @@ public class Utils {
         return Math.round(px);
     }
 
+    public static int findDuplicateDialogFragment(Activity activity, String tag) {
+
+        if (activity == null || isBlank(tag)) {
+            Toast.makeText(activity, "Error displaying dialog! Please try again.",
+                    Toast.LENGTH_SHORT).show();
+            return -1;
+        }
+
+        FragmentManager fragmentManager = activity.getFragmentManager();
+        Fragment dialogFragment =  fragmentManager.findFragmentByTag(tag);
+        if (dialogFragment != null) {
+            return 1;
+        }
+
+        Log.d("message", "about to return 0 in findduplicatedialogfragment with tag: " + tag + " and hashcode " + activity.hashCode());
+        return 0;
+    }
+
+    // TODO: remove this
     public static Pair<Boolean, Fragment> findDuplicateFragment(Activity activity, String tag, String className) {
 
         if (activity == null || isBlank(tag) || isBlank(className)) {

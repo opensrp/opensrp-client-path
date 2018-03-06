@@ -594,22 +594,25 @@ public class ChildImmunizationActivity extends BaseActivity
 
         updateRecordWeightViews(weightWrapper);
 
-        ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
+        final ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(ChildImmunizationActivity.this,
-                        DIALOG_TAG, GrowthDialogFragment.class.getName());
-                if (prevPair.first) {
+                growthChartButton.setEnabled(false);
+                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildImmunizationActivity.this,
+                        GrowthDialogFragment.class.getName());
+                if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+                    growthChartButton.setEnabled(true);
                     return;
                 }
-                Utils.startAsyncTask(new ShowGrowthChartTask(), null);
+                Utils.startAsyncTask(new ShowGrowthChartTask(growthChartButton), null);
             }
         });
+
     }
 
     private void updateRecordWeightViews(WeightWrapper weightWrapper) {
-        View recordWeight = findViewById(R.id.record_weight);
+        final View recordWeight = findViewById(R.id.record_weight);
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
@@ -621,7 +624,9 @@ public class ChildImmunizationActivity extends BaseActivity
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                recordWeight.setEnabled(false);
                 showWeightDialog(view);
+                recordWeight.setEnabled(true);
             }
         });
 
@@ -654,9 +659,10 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(this,
-                DIALOG_TAG, RecordWeightDialogFragment.class.getName());
-        if (prevPair.first) {
+        String dialogTag = RecordWeightDialogFragment.class.getName();
+        int isDuplicate = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        if (isDuplicate == -1 || isDuplicate == 1) {
+            Log.d("Duplicate fragment", "Found duplicate weight dialog fragment");
             return;
         }
 
@@ -671,7 +677,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         WeightWrapper weightWrapper = (WeightWrapper) view.getTag();
         RecordWeightDialogFragment recordWeightDialogFragment = RecordWeightDialogFragment.newInstance(dob, weightWrapper);
-        recordWeightDialogFragment.show(ft, DIALOG_TAG);
+        recordWeightDialogFragment.show(ft, dialogTag);
 
     }
 
@@ -1389,12 +1395,14 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private class ShowGrowthChartTask extends AsyncTask<Void, Void, List<Weight>> {
-        private FragmentTransaction ft;
+        private ImageButton growthChartButton;
+        ShowGrowthChartTask(ImageButton growthChartButton) {
+            this.growthChartButton = growthChartButton;
+        }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
             showProgressDialog();
         }
 
@@ -1423,10 +1431,11 @@ public class ChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(List<Weight> allWeights) {
             super.onPostExecute(allWeights);
             hideProgressDialog();
-
+            FragmentTransaction ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
             ft.addToBackStack(null);
             GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, allWeights);
-            growthDialogFragment.show(ft, DIALOG_TAG);
+            growthDialogFragment.show(ft, growthDialogFragment.getClass().getName());
+            growthChartButton.setEnabled(true);
         }
     }
 
