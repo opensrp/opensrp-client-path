@@ -164,10 +164,12 @@ public class SetCsoDialogFragment extends DialogFragment {
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
 
-        Pair<Boolean, Fragment> prevPair = util.Utils.findDuplicateFragment(activity, dialogTag,
-                SetCsoDialogFragment.class.getName());
-        if (prevPair.first && prevPair.second != null) {
-            return (SetCsoDialogFragment) prevPair.second;
+        dialogTag = SetCsoDialogFragment.class.getName();
+        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(activity, dialogTag);
+        if (isDuplicateDialog == 1) {
+            return (SetCsoDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
+        } else if (isDuplicateDialog == -1) {
+            return null;
         }
         FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);

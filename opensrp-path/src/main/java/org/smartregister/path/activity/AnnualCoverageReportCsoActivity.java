@@ -90,7 +90,9 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
         csoValue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                v.setEnabled(false);
                 SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, BaseReportActivity.DIALOG_TAG, getHolder());
+                v.setEnabled(true);
             }
         });
         if (getHolder().getSize() == null) {

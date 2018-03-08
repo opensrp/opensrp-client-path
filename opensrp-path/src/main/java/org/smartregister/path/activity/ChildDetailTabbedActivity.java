@@ -242,17 +242,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         });
         detailtoolbar.setTitle(updateActivityTitle());
 
-        LinearLayout statusview = (LinearLayout) findViewById(R.id.statusview);
+        final LinearLayout statusview = (LinearLayout) findViewById(R.id.statusview);
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(getParent(), DIALOG_TAG,
-                        StatusEditDialogFragment.class.getName());
-                if (prevPair.first) {
+                statusview.setEnabled(false);
+
+                String dialogTag = StatusEditDialogFragment.class.getName();
+                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
+                        dialogTag);
+                if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                     return;
                 }
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
+                StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
+
+                statusview.setEnabled(true);
             }
         });
 
@@ -396,18 +401,24 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 startFormActivity("report_deceased", childDetails.entityId(), reportDeceasedMetadata);
                 return true;
             case R.id.change_status:
-                Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
-                        StatusEditDialogFragment.class.getName());
-                if (prevPair.first) {
+                item.setEnabled(false);
+
+                String dialogTag = StatusEditDialogFragment.class.getName();
+                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+                if (isDuplicateDialog == 1 || isDuplicateDialog == -1) {
                     return true;
                 }
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
+                StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
+
+                item.setEnabled(true);
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
             case R.id.record_bcg_2:
+                item.setEnabled(false);
                 showBcg2DialogFragment();
+                item.setEnabled(true);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -1019,11 +1030,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     public void showWeightDialog(int i) {
-        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
-                EditWeightDialogFragment.class.getName());
-        if (prevPair.first) {
+        String dialogTag = EditWeightDialogFragment.class.getName();
+        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
+
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
@@ -1068,7 +1080,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PMTCT_STATUS_LOWER_CASE, false));
 
         EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, dob, weightWrapper);
-        editWeightDialogFragment.show(ft, DIALOG_TAG);
+        editWeightDialogFragment.show(ft, dialogTag);
 
     }
 
@@ -1405,7 +1417,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void showBcg2DialogFragment() {
-
         VaccineWrapper vaccineWrapper = new VaccineWrapper();
         vaccineWrapper.setId(childDetails.entityId());
         vaccineWrapper.setGender(childDetails.getDetails().get("gender"));
@@ -1438,17 +1449,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             vaccineList = new ArrayList<>();
         }
 
-
-        Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this, DIALOG_TAG,
-                VaccinationDialogFragment.class.getName());
-        if (prevPair.first) {
+        String dialogTag = ChildDetailTabbedActivity.class.getName();
+        int isDuplicateFragment = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
         FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
+        vaccinationDialogFragment.show(ft, dialogTag);
     }
 
     @Override

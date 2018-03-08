@@ -201,10 +201,9 @@ public class HIA2ReportsActivity extends BaseActivity {
 
     private void sendReport(final Date month) {
         if (month != null) {
-
-            Pair<Boolean, android.app.Fragment> prevPair = util.Utils.findDuplicateFragment(this,
-                    "SendMonthlyDraftDialogFragment", SendMonthlyDraftDialogFragment.class.getName());
-            if (prevPair.first) {
+            String dialogTag = SendMonthlyDraftDialogFragment.class.getName();
+            int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+            if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                 return;
             }
 
@@ -227,7 +226,7 @@ public class HIA2ReportsActivity extends BaseActivity {
 
             FragmentTransaction ft = getFragmentManager()
                     .beginTransaction();
-            ft.add(newFragment, "SendMonthlyDraftDialogFragment");
+            ft.add(newFragment, dialogTag);
             ft.commitAllowingStateLoss();
         }
     }
