@@ -122,6 +122,8 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private AdvancedSearchPaginatedCursorAdapter clientAdapter;
 
+    private BroadcastReceiver connectionChangeReciever;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -141,6 +143,15 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             updateLocationText();
             updateSeachLimits();
             resetForm();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (connectionChangeReciever != null) {
+            getActivity().unregisterReceiver(connectionChangeReciever);
         }
     }
 
@@ -344,6 +355,22 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         } else {
             myCatchment.setChecked(true);
             outsideInside.setChecked(false);
+        }
+
+        if (connectionChangeReciever == null) {
+            connectionChangeReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (!Utils.isConnectedToNetwork(getActivity())) {
+                        myCatchment.setChecked(true);
+                        outsideInside.setChecked(false);
+                    }
+                }
+            };
+
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            getActivity().registerReceiver(connectionChangeReciever, intentFilter);
         }
 
     }
@@ -962,8 +989,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
     }
 
-    private void refreshBaseRegister() {
+    private void refreshAndSwitchToBaseRegister() {
         ((ChildSmartRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
+        ((ChildSmartRegisterActivity) getActivity()).switchToBaseFragment(null);
     }
 
     private void moveToMyCatchmentArea(final List<String> ids) {
@@ -1131,7 +1159,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             if (jsonObject != null) {
                 if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
                     clientAdapter.notifyDataSetChanged();
-                    refreshBaseRegister();
+                    refreshAndSwitchToBaseRegister();
                 } else {
                     Toast.makeText(getActivity(), "Error Processing Records", Toast.LENGTH_SHORT).show();
                 }
