@@ -246,7 +246,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                statusview.setEnabled(false);
+                v.setEnabled(false);
 
                 String dialogTag = StatusEditDialogFragment.class.getName();
                 int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
@@ -257,7 +257,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
 
-                statusview.setEnabled(true);
+                v.setEnabled(true);
             }
         });
 

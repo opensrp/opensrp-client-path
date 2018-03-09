@@ -387,27 +387,21 @@ public class ChildImmunizationActivity extends BaseActivity
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
-                    curGroup.setEnabled(false);
                     if (dialogOpen) {
                         return;
                     }
                     dialogOpen = true;
                     addServiceDialogFragment(serviceWrapper, serviceGroup);
-                    curGroup.setEnabled(true);
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    curGroup.setEnabled(false);
-
                     if (dialogOpen) {
                         return;
                     }
                     dialogOpen = true;
                     addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
-
-                    curGroup.setEnabled(true);
                 }
             });
             serviceGroupCanvasLL.addView(curGroup);
@@ -471,20 +465,16 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
-                curGroup.setEnabled(false);
                 if (dialogOpen) {
                     return;
                 }
                 dialogOpen = true;
                 addVaccinationDialogFragment(dueVaccines, vaccineGroup);
-                curGroup.setEnabled(true);
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                curGroup.setEnabled(false);
-
                 if (dialogOpen) {
                     return;
                 }
@@ -492,23 +482,17 @@ public class ChildImmunizationActivity extends BaseActivity
                 ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                 vaccineWrappers.add(vaccine);
                 addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
-
-                curGroup.setEnabled(true);
             }
         });
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                curGroup.setEnabled(false);
-
                 if (dialogOpen) {
                     return;
                 }
 
                 dialogOpen = true;
                 addVaccineUndoDialogFragment(vaccineGroup, vaccine);
-
-                curGroup.setEnabled(true);
             }
         });
 
@@ -612,11 +596,11 @@ public class ChildImmunizationActivity extends BaseActivity
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                growthChartButton.setEnabled(false);
+                v.setEnabled(false);
                 int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildImmunizationActivity.this,
                         GrowthDialogFragment.class.getName());
                 if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
-                    growthChartButton.setEnabled(true);
+                    v.setEnabled(true);
                     return;
                 }
                 Utils.startAsyncTask(new ShowGrowthChartTask(growthChartButton), null);
@@ -638,9 +622,9 @@ public class ChildImmunizationActivity extends BaseActivity
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                recordWeight.setEnabled(false);
+                view.setEnabled(false);
                 showWeightDialog(view);
-                recordWeight.setEnabled(true);
+                view.setEnabled(true);
             }
         });
 
@@ -1012,16 +996,18 @@ public class ChildImmunizationActivity extends BaseActivity
                         public void onClick(View v) {
                             View recordWeight = findViewById(R.id.record_weight);
 
-                            recordWeight.setEnabled(false);
+                            v.setEnabled(false);
                             showWeightDialog(recordWeight);
-                            recordWeight.setEnabled(true);
+                            v.setEnabled(true);
 
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            v.setEnabled(false);
                             hideNotification();
+                            v.setEnabled(true);
                         }
                     }, null);
         }
