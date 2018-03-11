@@ -41,10 +41,13 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
-    /*
-        returns a SetCsoDialogFragment if it exists and null if an error in displaying the dialog
-        occurs
-    */
+    /**
+     *
+     * @param activity
+     * @param dialogTag
+     * @param zeirId
+     * @return NotInCatchmentDialogFragment if successful and null if there's an error in displaying the dialog
+     */
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
 

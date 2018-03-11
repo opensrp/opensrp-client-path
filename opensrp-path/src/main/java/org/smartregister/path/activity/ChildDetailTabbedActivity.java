@@ -413,6 +413,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (isDuplicateDialog == 1) {
                     return true;
                 } else if (isDuplicateDialog == -1) {
+                    // error in displaying the dialog
                     return false;
                 }
 

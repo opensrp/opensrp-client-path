@@ -342,8 +342,31 @@ public class Utils {
         return Math.round(px);
     }
 
+    /**
+     * This class prevents duplicate and/or undesirable dialogs from popping up on multiple, quick
+     * and succesive clicks on a view that launches a dialog.
+     */
     public static class DuplicateDialogGuard {
         private static final long PROHIBITED_INTERVAL = 1000L;
+
+        /**
+         * This function finds duplicate dialog fragments (fragments of the same type), if any.
+         *
+         * The function returns -1 in case of an error caused by invalid arguments or in the case
+         * that the time interval between calls to this function is lower than the set threshold.
+         *
+         * A 1 is returned in the case that a duplicate dialog, with tag {@param dialog}, is found
+         * and a 0 if none is found.
+         *
+         * If a 1 or -1 is returned, the calling method should not try to launch a dialog of any type.
+         *
+         * If a 0 is returned, it should be safe to launch a dialog.
+         *
+         * @param activity
+         * @param dialogTag
+         * @param lastDialogOpened
+         * @return an int indicating whether it is ok to launch a dialog
+         */
         public static int findDuplicateDialogFragment(Activity activity, String dialogTag, HashMap<String, Long> lastDialogOpened) {
             if (activity == null || isBlank(dialogTag) || lastDialogOpened == null) {
                 Toast.makeText(activity, "Error displaying dialog! Please try again.",
@@ -352,7 +375,6 @@ public class Utils {
             }
 
             if (!isProhibitedIntervalLapsed(lastDialogOpened)) {
-                // cannot open a new dialog before 1.2s elapse since the last call to this function
                 return -1;
             }
 
@@ -367,13 +389,23 @@ public class Utils {
                     fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag(dialogTag));
                 }
             }  else {
-                // set the type and timestamp for the last dialog opened to this current dialog
+                // set the tag of last dialog opened to the current dialog's and update the timestamp
                 lastDialogOpened.clear();
                 lastDialogOpened.put(dialogTag, Calendar.getInstance().getTimeInMillis());
             }
             return 0;
         }
 
+        /**
+         * Returns true if the PROHIBITED_INTERVAL before trying to launch another dialog has elapsed
+         * and false otherwise
+         *
+         * {@param lastDialogOpened} is a map that contains the tag identifying the last dialog type
+         * opened (based on tag) and that is mapped to a timestamp of when the dialog was opened
+         *
+         * @param lastDialogOpened
+         * @return boolean
+         */
         private static boolean isProhibitedIntervalLapsed(HashMap<String, Long> lastDialogOpened) {
             if (!lastDialogOpened.isEmpty()) {
                 long lastDialogOpenedTimeStamp = -1;

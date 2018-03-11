@@ -164,10 +164,14 @@ public class SetCsoDialogFragment extends DialogFragment {
         }
     }
 
-    /*
-        returns a SetCsoDialogFragment if it exists and null if an error in displaying the dialog
-        occurs
-    */
+    /**
+     *
+     * @param activity
+     * @param dialogTag
+     * @param holder
+     *
+     * @return SetCsoDialogFragment if successful and null if there's an error in displaying the dialog
+     */
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
 
