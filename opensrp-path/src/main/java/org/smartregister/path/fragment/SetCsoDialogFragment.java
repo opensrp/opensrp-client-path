@@ -2,13 +2,11 @@ package org.smartregister.path.fragment;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Pair;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -29,7 +27,10 @@ import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.helper.LocationHelper;
 
+import java.util.HashMap;
 import java.util.List;
+
+import util.Utils;
 
 /**
  * Created by keyman on 22/12/17.
@@ -38,6 +39,7 @@ public class SetCsoDialogFragment extends DialogFragment {
 
     private CoverageHolder holder;
     private OnSetCsoListener listener;
+    private static HashMap<String, Long> lastOpenedDialog;
 
     public static SetCsoDialogFragment newInstance(CoverageHolder holder) {
         SetCsoDialogFragment f = new SetCsoDialogFragment();
@@ -52,6 +54,7 @@ public class SetCsoDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        lastOpenedDialog = new HashMap<>();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
@@ -161,11 +164,16 @@ public class SetCsoDialogFragment extends DialogFragment {
         }
     }
 
+    /*
+        returns a SetCsoDialogFragment if it exists and null if an error in displaying the dialog
+        occurs
+    */
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
 
         dialogTag = SetCsoDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(activity, dialogTag);
+        int isDuplicateDialog = Utils.DuplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag, lastOpenedDialog);
         if (isDuplicateDialog == 1) {
             return (SetCsoDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
         } else if (isDuplicateDialog == -1) {

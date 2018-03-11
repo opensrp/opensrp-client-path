@@ -73,7 +73,7 @@ public class ChildUnderFiveFragment extends Fragment {
     private Boolean curVaccineMode = null;
     private Boolean curServiceMode = null;
     private Boolean curWeightMode = null;
-
+    private HashMap<String, Long> lastDialogOpened;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -102,6 +102,8 @@ public class ChildUnderFiveFragment extends Fragment {
         DetailsRepository detailsRepository = ((ChildDetailTabbedActivity) getActivity()).getDetailsRepository();
         childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
         Detailsmap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+        lastDialogOpened = new HashMap<>();
 
         loadView(false, false, false);
         return underFiveFragment;
@@ -209,6 +211,8 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
+
+
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
         TableRow tableRow = (TableRow) fragmentContainer.findViewById(R.id.tablerowcontainer);
         TextView label = (TextView) tableRow.findViewById(R.id.label);
@@ -267,10 +271,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 curGroup.setOnServiceUndoClickListener(new ServiceRowGroup.OnServiceUndoClickListener() {
                     @Override
                     public void onUndoClick(ServiceRowGroup serviceRowGroup, ServiceWrapper service) {
-                        // come back here
-                        curGroup.setOnServiceUndoClickListener(null);
                         addServiceDialogFragment(service, serviceRowGroup);
-                        curGroup.setOnServiceUndoClickListener(this);
                     }
                 });
 
@@ -301,7 +302,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
         String dialogTag = VaccinationEditDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(getActivity(), dialogTag);
+        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                dialogTag, lastDialogOpened);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -325,7 +327,9 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
         String dialogTag = ServiceEditDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(getActivity(), dialogTag);
+
+        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                dialogTag, lastDialogOpened);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -345,6 +349,7 @@ public class ChildUnderFiveFragment extends Fragment {
         ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
         serviceEditDialogFragment.show(ft, dialogTag);
     }
+
 
     public void setAlertService(AlertService alertService) {
         this.alertService = alertService;

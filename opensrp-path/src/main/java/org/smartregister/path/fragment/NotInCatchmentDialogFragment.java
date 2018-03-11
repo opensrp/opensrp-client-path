@@ -2,11 +2,9 @@ package org.smartregister.path.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +14,10 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseRegisterActivity;
 import org.smartregister.path.activity.ChildSmartRegisterActivity;
 
+import java.util.HashMap;
+
+import util.Utils;
+
 /**
  * Created by Jason Rogena - jrogena@ona.io on 14/03/2017.
  */
@@ -24,6 +26,7 @@ import org.smartregister.path.activity.ChildSmartRegisterActivity;
 public class NotInCatchmentDialogFragment extends DialogFragment implements View.OnClickListener {
     private final BaseRegisterActivity parentActivity;
     private final String zeirId;
+    private static HashMap<String, Long> lastOpenedDialog;
 
     private NotInCatchmentDialogFragment(BaseRegisterActivity parentActivity, String zeirId) {
         this.parentActivity = parentActivity;
@@ -33,14 +36,21 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        lastOpenedDialog = new HashMap<>();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
+    /*
+        returns a SetCsoDialogFragment if it exists and null if an error in displaying the dialog
+        occurs
+    */
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
 
         dialogTag = NotInCatchmentDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(activity, dialogTag);
+        int isDuplicateDialog = Utils.DuplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag, lastOpenedDialog);
         if (isDuplicateDialog == 1) {
             return (NotInCatchmentDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
         } else if (isDuplicateDialog == -1) {

@@ -22,7 +22,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -104,6 +103,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -156,10 +156,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
 
     private static final String CHILD = "child";
+    private HashMap<String, Long> lastDialogOpened;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        lastDialogOpened = new HashMap<>();
+
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
             Serializable serializable = extras.getSerializable(EXTRA_CHILD_DETAILS);
@@ -249,8 +253,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 v.setEnabled(false);
 
                 String dialogTag = StatusEditDialogFragment.class.getName();
-                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
-                        dialogTag);
+                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
+                        dialogTag, lastDialogOpened);
                 if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                     return;
                 }
@@ -404,10 +408,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 item.setEnabled(false);
 
                 String dialogTag = StatusEditDialogFragment.class.getName();
-                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
-                if (isDuplicateDialog == 1 || isDuplicateDialog == -1) {
+                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this,
+                        dialogTag, lastDialogOpened);
+                if (isDuplicateDialog == 1) {
                     return true;
+                } else if (isDuplicateDialog == -1) {
+                    return false;
                 }
+
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
                 StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
 
@@ -1031,7 +1039,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     public void showWeightDialog(int i) {
         String dialogTag = EditWeightDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -1450,7 +1459,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
 
         String dialogTag = ChildDetailTabbedActivity.class.getName();
-        int isDuplicateFragment = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this,
+                dialogTag, lastDialogOpened);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }

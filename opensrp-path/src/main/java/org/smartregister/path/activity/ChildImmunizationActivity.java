@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
@@ -114,6 +113,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
+    private HashMap<String, Long> lastDialogOpened;
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -140,6 +140,8 @@ public class ChildImmunizationActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        lastDialogOpened = new HashMap<>();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -516,7 +518,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
         String dialogTag = UndoVaccinationDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -537,7 +540,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
         String dialogTag = UndoServiceDialogFragment.class.getName();
-        int isDuplicateFragment = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
@@ -597,8 +601,8 @@ public class ChildImmunizationActivity extends BaseActivity
             @Override
             public void onClick(View v) {
                 v.setEnabled(false);
-                int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(ChildImmunizationActivity.this,
-                        GrowthDialogFragment.class.getName());
+                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(ChildImmunizationActivity.this,
+                        GrowthDialogFragment.class.getName(), lastDialogOpened);
                 if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                     v.setEnabled(true);
                     return;
@@ -658,9 +662,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void showWeightDialog(View view) {
         String dialogTag = RecordWeightDialogFragment.class.getName();
-        int isDuplicate = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicate = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicate == -1 || isDuplicate == 1) {
-            Log.d("Duplicate fragment", "Found duplicate weight dialog fragment");
             return;
         }
 
@@ -809,7 +813,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
         String dialogTag = VaccinationDialogFragment.class.getName();
-        int isDuplicateFragment = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
@@ -840,7 +845,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
         String dialogTag = ServiceDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.findDuplicateDialogFragment(this, dialogTag);
+        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
+                lastDialogOpened);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }

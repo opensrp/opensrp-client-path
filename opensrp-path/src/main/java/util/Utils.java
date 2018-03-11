@@ -17,18 +17,14 @@
 package util;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.text.InputType;
 import android.text.Spanned;
 import android.util.Log;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -47,7 +43,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -345,41 +342,50 @@ public class Utils {
         return Math.round(px);
     }
 
-    public static int findDuplicateDialogFragment(Activity activity, String tag) {
+    public static class DuplicateDialogGuard {
+        private static final long PROHIBITED_INTERVAL = 1000L;
+        public static int findDuplicateDialogFragment(Activity activity, String dialogTag, HashMap<String, Long> lastDialogOpened) {
+            if (activity == null || isBlank(dialogTag) || lastDialogOpened == null) {
+                Toast.makeText(activity, "Error displaying dialog! Please try again.",
+                        Toast.LENGTH_SHORT).show();
+                return -1;
+            }
 
-        if (activity == null || isBlank(tag)) {
-            Toast.makeText(activity, "Error displaying dialog! Please try again.",
-                    Toast.LENGTH_SHORT).show();
-            return -1;
+            if (!isProhibitedIntervalLapsed(lastDialogOpened)) {
+                // cannot open a new dialog before 1.2s elapse since the last call to this function
+                return -1;
+            }
+
+            if (lastDialogOpened.containsKey(dialogTag)) {
+                if (Calendar.getInstance().getTimeInMillis() - lastDialogOpened.get(dialogTag) < PROHIBITED_INTERVAL) {
+                    return 1;
+                }
+                // remove previous dialog of this type if it exists
+                lastDialogOpened.put(dialogTag, Calendar.getInstance().getTimeInMillis());
+                FragmentManager fragmentManager = activity.getFragmentManager();
+                if (fragmentManager.findFragmentByTag(dialogTag) != null) {
+                    fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag(dialogTag));
+                }
+            }  else {
+                // set the type and timestamp for the last dialog opened to this current dialog
+                lastDialogOpened.clear();
+                lastDialogOpened.put(dialogTag, Calendar.getInstance().getTimeInMillis());
+            }
+            return 0;
         }
 
-        FragmentManager fragmentManager = activity.getFragmentManager();
-        Fragment dialogFragment =  fragmentManager.findFragmentByTag(tag);
-        if (dialogFragment != null) {
-            return 1;
+        private static boolean isProhibitedIntervalLapsed(HashMap<String, Long> lastDialogOpened) {
+            if (!lastDialogOpened.isEmpty()) {
+                long lastDialogOpenedTimeStamp = -1;
+                for (long timeStamp : lastDialogOpened.values()) {
+                    lastDialogOpenedTimeStamp = timeStamp;
+                }
+                if (Calendar.getInstance().getTimeInMillis() - lastDialogOpenedTimeStamp < PROHIBITED_INTERVAL) {
+                    return false;
+                }
+            }
+            return true;
         }
-
-        Log.d("message", "about to return 0 in findduplicatedialogfragment with tag: " + tag + " and hashcode " + activity.hashCode());
-        return 0;
-    }
-
-    // TODO: remove this
-    public static Pair<Boolean, Fragment> findDuplicateFragment(Activity activity, String tag, String className) {
-
-        if (activity == null || isBlank(tag) || isBlank(className)) {
-            Toast.makeText(activity, "Error displaying dialog! Please try again.",
-                    Toast.LENGTH_SHORT).show();
-            return Pair.create(true, null);
-        }
-
-        FragmentManager fragmentManager = activity.getFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentByTag(tag);
-        if (fragment == null) {
-            return Pair.create(false, null);
-        } else if (fragment.getClass().getName().equals(className)) {
-            return Pair.create(true, fragment);
-        }
-        return Pair.create(false, fragment);
     }
 
     public static boolean isEmptyMap(Map map) {
