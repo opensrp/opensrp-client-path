@@ -164,6 +164,16 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
 
+        <activity
+            android:name="org.smartregister.stock.activity.OrderDetailsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar"/>
+
+        <activity
+            android:name="org.smartregister.stock.activity.OrderListActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoTitle.NoActionBar"/>
+
     </application>
 
 </manifest>
