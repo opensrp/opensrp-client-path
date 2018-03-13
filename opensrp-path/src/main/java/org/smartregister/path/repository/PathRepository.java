@@ -20,6 +20,8 @@ import org.smartregister.repository.AlertRepository;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.stock.StockLibrary;
+import org.smartregister.stock.repository.OrderRepository;
+import org.smartregister.stock.repository.ShipmentRepository;
 import org.smartregister.stock.repository.StockRepository;
 import org.smartregister.stock.repository.StockTypeRepository;
 import org.smartregister.stock.util.StockUtils;
@@ -100,6 +102,11 @@ public class PathRepository extends Repository {
                 case 11:
                     upgradeToVersion11Stock(db);
                     break;
+
+                case 12:
+                    upgradeToVersion12OrdersAndShipments(db);
+                    break;
+
                 default:
                     break;
             }
@@ -329,6 +336,11 @@ public class PathRepository extends Repository {
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion11Stock " + e.getMessage());
         }
+    }
+
+    private void upgradeToVersion12OrdersAndShipments(SQLiteDatabase db) {
+        OrderRepository.createTable(db);
+        ShipmentRepository.createTable(db);
     }
 
     private void addFieldsToFTSTable(SQLiteDatabase database, String originalTableName, List<String> newlyAddedFields) {

@@ -7,6 +7,7 @@ import android.content.Intent;
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.service.ActionService;
+import org.smartregister.stock.sync.OrdersSyncIntentService;
 import org.smartregister.stock.sync.StockSyncIntentService;
 
 import util.NetworkUtils;
@@ -44,6 +45,7 @@ public class ExtendedSyncIntentService extends IntentService {
             actionService.fetchNewActions();
 
             startSyncValidation();
+
         }
         startZscoreRefresh();
     }
@@ -60,6 +62,11 @@ public class ExtendedSyncIntentService extends IntentService {
 
     private void startZscoreRefresh() {
         Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
+        startService(intent);
+    }
+
+    private void startOrdersSync() {
+        Intent intent = new Intent(this, OrdersSyncIntentService.class);
         startService(intent);
     }
 

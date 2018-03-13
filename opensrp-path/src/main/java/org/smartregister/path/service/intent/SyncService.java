@@ -45,6 +45,7 @@ import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
+import org.smartregister.stock.sync.OrdersSyncIntentService;
 
 import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
@@ -127,6 +128,13 @@ public class SyncService extends Service {
             Log.e(getClass().getName(), e.getMessage(), e);
             complete(FetchStatus.fetchedFailed);
         }
+
+        startOrdersSync();
+    }
+
+    private void startOrdersSync() {
+        Intent intent = new Intent(this, OrdersSyncIntentService.class);
+        startService(intent);
     }
 
     private void pullECFromServer() {

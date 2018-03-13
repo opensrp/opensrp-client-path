@@ -1,16 +1,20 @@
 package org.smartregister.path.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 
 import org.smartregister.path.R;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.stock.StockLibrary;
+import org.smartregister.stock.activity.OrderListActivity;
+import org.smartregister.stock.activity.StockActivity;
 import org.smartregister.stock.activity.StockControlActivity;
 import org.smartregister.stock.adapter.StockGridAdapter;
 import org.smartregister.stock.domain.StockType;
@@ -46,6 +50,16 @@ public class PathStockActivity extends BaseActivity {
             }
         });
         stockGrid = (GridView) findViewById(R.id.stockgrid);
+
+
+        // Enable Orders page to be called
+        Button ordersBtn = (Button) findViewById(R.id.btn_stock_orders);
+        ordersBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(PathStockActivity.this, OrderListActivity.class));
+            }
+        });
     }
 
     private void refreshAdapter() {
