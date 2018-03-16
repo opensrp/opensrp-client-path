@@ -39,7 +39,7 @@ public class SetCsoDialogFragment extends DialogFragment {
 
     private CoverageHolder holder;
     private OnSetCsoListener listener;
-    private static HashMap<String, Long> lastOpenedDialog;
+    private static Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     public static SetCsoDialogFragment newInstance(CoverageHolder holder) {
         SetCsoDialogFragment f = new SetCsoDialogFragment();
@@ -54,7 +54,7 @@ public class SetCsoDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        lastOpenedDialog = new HashMap<>();
+        duplicateDialogGuard = new Utils.DuplicateDialogGuard();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
@@ -175,9 +175,8 @@ public class SetCsoDialogFragment extends DialogFragment {
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
 
-        dialogTag = SetCsoDialogFragment.class.getName();
-        int isDuplicateDialog = Utils.DuplicateDialogGuard.findDuplicateDialogFragment(activity,
-                dialogTag, lastOpenedDialog);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag);
         if (isDuplicateDialog == 1) {
             return (SetCsoDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
         } else if (isDuplicateDialog == -1) {

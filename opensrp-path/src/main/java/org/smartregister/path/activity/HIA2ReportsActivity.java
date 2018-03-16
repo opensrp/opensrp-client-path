@@ -47,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,6 @@ import java.util.Map;
 import util.JsonFormUtils;
 import util.PathConstants;
 
-import static util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment;
 
 /**
  * Created by coder on 6/7/17.
@@ -66,7 +64,8 @@ public class HIA2ReportsActivity extends BaseActivity {
     public static final int MONTH_SUGGESTION_LIMIT = 3;
     private static final String FORM_KEY_CONFIRM = "confirm";
     private static final List<String> readOnlyList = new ArrayList<>(Arrays.asList(HIA2Service.CHN1_011, HIA2Service.CHN1_021, HIA2Service.CHN1_025, HIA2Service.CHN2_015, HIA2Service.CHN2_030, HIA2Service.CHN2_041, HIA2Service.CHN2_051, HIA2Service.CHN2_061));
-    private HashMap<String, Long> lastOpenedDialog;
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
+    private final String DIALOG_TAG = "org.smartregister.path.activity.HIA2ReportsActivity";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -90,7 +89,7 @@ public class HIA2ReportsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        lastOpenedDialog = new HashMap<>();
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         ActionBarDrawerToggle toggle = getDrawerToggle();
         toggle.setDrawerIndicatorEnabled(false);
@@ -207,9 +206,8 @@ public class HIA2ReportsActivity extends BaseActivity {
 
     private void sendReport(final Date month) {
         if (month != null) {
-            String dialogTag = SendMonthlyDraftDialogFragment.class.getName();
-            int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this,
-                    dialogTag, lastOpenedDialog);
+            int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this,
+                    DIALOG_TAG);
             if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                 return;
             }
@@ -233,7 +231,7 @@ public class HIA2ReportsActivity extends BaseActivity {
 
             FragmentTransaction ft = getFragmentManager()
                     .beginTransaction();
-            ft.add(newFragment, dialogTag);
+            ft.add(newFragment, DIALOG_TAG);
             ft.commitAllowingStateLoss();
         }
     }

@@ -34,6 +34,7 @@ import util.Utils;
  */
 public class AnnualCoverageReportCsoActivity extends BaseReportActivity implements SetCsoDialogFragment.OnSetCsoListener {
 
+    private String DIALOG_TAG = "org.smartregister.path.activity.AnnualCoverageReportCsoActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,16 +84,14 @@ public class AnnualCoverageReportCsoActivity extends BaseReportActivity implemen
 
     private void updateCsoUnder1Population(boolean userAction) {
         if (userAction && getHolder() != null && getHolder().getSize() == null) {
-            SetCsoDialogFragment.launchDialog(this, BaseReportActivity.DIALOG_TAG, getHolder());
+            SetCsoDialogFragment.launchDialog(this, DIALOG_TAG, getHolder());
         }
 
         EditText csoValue = (EditText) findViewById(R.id.cso_value);
         csoValue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setEnabled(false);
-                SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, BaseReportActivity.DIALOG_TAG, getHolder());
-                v.setEnabled(true);
+                SetCsoDialogFragment.launchDialog(AnnualCoverageReportCsoActivity.this, DIALOG_TAG, getHolder());
             }
         });
         if (getHolder().getSize() == null) {

@@ -66,14 +66,14 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private Map<String, String> Detailsmap;
     private AlertService alertService;
     private LinearLayout fragmentContainer;
     private Boolean curVaccineMode = null;
     private Boolean curServiceMode = null;
     private Boolean curWeightMode = null;
-    private HashMap<String, Long> lastDialogOpened;
+    private final String DIALOG_TAG = "org.smartregister.path.tabfragments.ChildUnderFiveFragment";
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -103,7 +103,7 @@ public class ChildUnderFiveFragment extends Fragment {
         childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
         Detailsmap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-        lastDialogOpened = new HashMap<>();
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         loadView(false, false, false);
         return underFiveFragment;
@@ -301,9 +301,8 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
-        String dialogTag = VaccinationEditDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
-                dialogTag, lastDialogOpened);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                DIALOG_TAG);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -322,14 +321,13 @@ public class ChildUnderFiveFragment extends Fragment {
         if (vaccineList == null) vaccineList = new ArrayList<>();
 
         VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment.newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
-        vaccinationDialogFragment.show(ft, dialogTag);
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
-        String dialogTag = ServiceEditDialogFragment.class.getName();
 
-        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
-                dialogTag, lastDialogOpened);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                DIALOG_TAG);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -347,7 +345,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 .findByEntityId(childDetails.entityId());
 
         ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
-        serviceEditDialogFragment.show(ft, dialogTag);
+        serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
 

@@ -347,7 +347,11 @@ public class Utils {
      * and succesive clicks on a view that launches a dialog.
      */
     public static class DuplicateDialogGuard {
-        private static final long PROHIBITED_INTERVAL = 1000L;
+        private static final long PROHIBITED_INTERVAL = 1300L;
+        private HashMap<String, Long> lastDialogOpened;
+        public DuplicateDialogGuard() {
+            lastDialogOpened = new HashMap<>();
+        }
 
         /**
          * This function finds duplicate dialog fragments (fragments of the same type), if any.
@@ -355,7 +359,7 @@ public class Utils {
          * The function returns -1 in case of an error caused by invalid arguments or in the case
          * that the time interval between calls to this function is lower than the set threshold.
          *
-         * A 1 is returned in the case that a duplicate dialog, with tag {@param dialog}, is found
+         * A 1 is returned in the case that a duplicate dialog, with tag {@param dialogTag}, is found
          * and a 0 if none is found.
          *
          * If a 1 or -1 is returned, the calling method should not try to launch a dialog of any type.
@@ -364,17 +368,16 @@ public class Utils {
          *
          * @param activity
          * @param dialogTag
-         * @param lastDialogOpened
          * @return an int indicating whether it is ok to launch a dialog
          */
-        public static int findDuplicateDialogFragment(Activity activity, String dialogTag, HashMap<String, Long> lastDialogOpened) {
-            if (activity == null || isBlank(dialogTag) || lastDialogOpened == null) {
+        public int findDuplicateDialogFragment(Activity activity, String dialogTag) {
+            if (activity == null || isBlank(dialogTag)) {
                 Toast.makeText(activity, "Error displaying dialog! Please try again.",
                         Toast.LENGTH_SHORT).show();
                 return -1;
             }
 
-            if (!isProhibitedIntervalLapsed(lastDialogOpened)) {
+            if (!isProhibitedIntervalLapsed()) {
                 return -1;
             }
 
@@ -400,13 +403,9 @@ public class Utils {
          * Returns true if the PROHIBITED_INTERVAL before trying to launch another dialog has elapsed
          * and false otherwise
          *
-         * {@param lastDialogOpened} is a map that contains the tag identifying the last dialog type
-         * opened (based on tag) and that is mapped to a timestamp of when the dialog was opened
-         *
-         * @param lastDialogOpened
          * @return boolean
          */
-        private static boolean isProhibitedIntervalLapsed(HashMap<String, Long> lastDialogOpened) {
+        private boolean isProhibitedIntervalLapsed() {
             if (!lastDialogOpened.isEmpty()) {
                 long lastDialogOpenedTimeStamp = -1;
                 for (long timeStamp : lastDialogOpened.values()) {

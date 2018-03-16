@@ -136,7 +136,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
     private ChildRegistrationDataFragment childDataFragment;
     private ChildUnderFiveFragment childUnderFiveFragment;
-    public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
     private File currentfile;
     private String location_name = "";
@@ -156,13 +155,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
 
     private static final String CHILD = "child";
-    private HashMap<String, Long> lastDialogOpened;
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
+    private final String DIALOG_TAG = "org.smartregister.path.activity.ChildDetailTabbedActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        lastDialogOpened = new HashMap<>();
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         Bundle extras = this.getIntent().getExtras();
         if (extras != null) {
@@ -250,18 +250,13 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         statusview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setEnabled(false);
-
-                String dialogTag = StatusEditDialogFragment.class.getName();
-                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
-                        dialogTag, lastDialogOpened);
+                int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(ChildDetailTabbedActivity.this,
+                        DIALOG_TAG);
                 if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
                     return;
                 }
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
-
-                v.setEnabled(true);
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
             }
         });
 
@@ -405,11 +400,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 startFormActivity("report_deceased", childDetails.entityId(), reportDeceasedMetadata);
                 return true;
             case R.id.change_status:
-                item.setEnabled(false);
-
-                String dialogTag = StatusEditDialogFragment.class.getName();
-                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this,
-                        dialogTag, lastDialogOpened);
+                int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this,
+                        DIALOG_TAG);
                 if (isDuplicateDialog == 1) {
                     return true;
                 } else if (isDuplicateDialog == -1) {
@@ -418,16 +410,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 }
 
                 FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-                StatusEditDialogFragment.newInstance(details).show(ft, dialogTag);
-
-                item.setEnabled(true);
+                StatusEditDialogFragment.newInstance(details).show(ft, DIALOG_TAG);
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
             case R.id.record_bcg_2:
-                item.setEnabled(false);
                 showBcg2DialogFragment();
-                item.setEnabled(true);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -1039,9 +1027,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     public void showWeightDialog(int i) {
-        String dialogTag = EditWeightDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -1090,7 +1077,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PMTCT_STATUS_LOWER_CASE, false));
 
         EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, dob, weightWrapper);
-        editWeightDialogFragment.show(ft, dialogTag);
+        editWeightDialogFragment.show(ft, DIALOG_TAG);
 
     }
 
@@ -1459,9 +1446,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             vaccineList = new ArrayList<>();
         }
 
-        String dialogTag = ChildDetailTabbedActivity.class.getName();
-        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this,
-                dialogTag, lastDialogOpened);
+        int isDuplicateFragment = duplicateDialogGuard.findDuplicateDialogFragment(this,
+                DIALOG_TAG);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
@@ -1469,7 +1455,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         ft.addToBackStack(null);
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, dialogTag);
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
     @Override

@@ -14,8 +14,6 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseRegisterActivity;
 import org.smartregister.path.activity.ChildSmartRegisterActivity;
 
-import java.util.HashMap;
-
 import util.Utils;
 
 /**
@@ -26,7 +24,7 @@ import util.Utils;
 public class NotInCatchmentDialogFragment extends DialogFragment implements View.OnClickListener {
     private final BaseRegisterActivity parentActivity;
     private final String zeirId;
-    private static HashMap<String, Long> lastOpenedDialog;
+    private static Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     private NotInCatchmentDialogFragment(BaseRegisterActivity parentActivity, String zeirId) {
         this.parentActivity = parentActivity;
@@ -37,7 +35,7 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        lastOpenedDialog = new HashMap<>();
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
@@ -51,9 +49,8 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
 
-        dialogTag = NotInCatchmentDialogFragment.class.getName();
-        int isDuplicateDialog = Utils.DuplicateDialogGuard.findDuplicateDialogFragment(activity,
-                dialogTag, lastOpenedDialog);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag);
         if (isDuplicateDialog == 1) {
             return (NotInCatchmentDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
         } else if (isDuplicateDialog == -1) {

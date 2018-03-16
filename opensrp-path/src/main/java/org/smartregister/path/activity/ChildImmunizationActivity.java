@@ -102,7 +102,6 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final String EXTRA_CHILD_DETAILS = "child_details";
     private static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private static final ArrayList<String> COMBINED_VACCINES;
@@ -113,7 +112,8 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
-    private HashMap<String, Long> lastDialogOpened;
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
+    private static String DIALOG_TAG = "org.smartregister.path.activity.ChildImmunizationActivity";
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -135,13 +135,12 @@ public class ChildImmunizationActivity extends BaseActivity
     private CommonPersonObjectClient childDetails;
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
-    private boolean dialogOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        lastDialogOpened = new HashMap<>();
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -389,20 +388,12 @@ public class ChildImmunizationActivity extends BaseActivity
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     addServiceDialogFragment(serviceWrapper, serviceGroup);
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
                 }
             });
@@ -467,20 +458,12 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
-                if (dialogOpen) {
-                    return;
-                }
-                dialogOpen = true;
                 addVaccinationDialogFragment(dueVaccines, vaccineGroup);
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
-                dialogOpen = true;
                 ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                 vaccineWrappers.add(vaccine);
                 addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
@@ -489,11 +472,6 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
-
-                dialogOpen = true;
                 addVaccineUndoDialogFragment(vaccineGroup, vaccine);
             }
         });
@@ -517,9 +495,8 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
-        String dialogTag = UndoVaccinationDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -529,19 +506,12 @@ public class ChildImmunizationActivity extends BaseActivity
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
-        undoVaccinationDialogFragment.show(ft, dialogTag);
-        undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        undoVaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-        String dialogTag = UndoServiceDialogFragment.class.getName();
-        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicateFragment = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
@@ -551,13 +521,7 @@ public class ChildImmunizationActivity extends BaseActivity
         serviceGroup.setModalOpen(true);
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
-        undoServiceDialogFragment.show(ft, dialogTag);
-        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        undoServiceDialogFragment.show(ft, DIALOG_TAG);
     }
 
     private void updateWeightViews(Weight lastUnsyncedWeight) {
@@ -600,11 +564,9 @@ public class ChildImmunizationActivity extends BaseActivity
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setEnabled(false);
-                int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(ChildImmunizationActivity.this,
-                        GrowthDialogFragment.class.getName(), lastDialogOpened);
+                int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(ChildImmunizationActivity.this,
+                        DIALOG_TAG);
                 if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
-                    v.setEnabled(true);
                     return;
                 }
                 Utils.startAsyncTask(new ShowGrowthChartTask(growthChartButton), null);
@@ -626,9 +588,7 @@ public class ChildImmunizationActivity extends BaseActivity
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                view.setEnabled(false);
                 showWeightDialog(view);
-                view.setEnabled(true);
             }
         });
 
@@ -661,9 +621,8 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        String dialogTag = RecordWeightDialogFragment.class.getName();
-        int isDuplicate = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicate = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicate == -1 || isDuplicate == 1) {
             return;
         }
@@ -679,7 +638,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
         WeightWrapper weightWrapper = (WeightWrapper) view.getTag();
         RecordWeightDialogFragment recordWeightDialogFragment = RecordWeightDialogFragment.newInstance(dob, weightWrapper);
-        recordWeightDialogFragment.show(ft, dialogTag);
+        recordWeightDialogFragment.show(ft, DIALOG_TAG);
 
     }
 
@@ -812,9 +771,8 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
-        String dialogTag = VaccinationDialogFragment.class.getName();
-        int isDuplicateFragment = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicateFragment = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
             return;
         }
@@ -833,20 +791,12 @@ public class ChildImmunizationActivity extends BaseActivity
         if (vaccineList == null) vaccineList = new ArrayList<>();
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, dialogTag);
-        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
-
+        vaccinationDialogFragment.show(ft, DIALOG_TAG);
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
-        String dialogTag = ServiceDialogFragment.class.getName();
-        int isDuplicateDialog = util.Utils.DuplicateDialogGuard.findDuplicateDialogFragment(this, dialogTag,
-                lastDialogOpened);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
         if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
             return;
         }
@@ -865,13 +815,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 .findByEntityId(childDetails.entityId());
 
         ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
-        serviceDialogFragment.show(ft, dialogTag);
-        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
+        serviceDialogFragment.show(ft, DIALOG_TAG);
     }
 
     private void performRegisterActions() {
@@ -1001,19 +945,14 @@ public class ChildImmunizationActivity extends BaseActivity
                         @Override
                         public void onClick(View v) {
                             View recordWeight = findViewById(R.id.record_weight);
-
-                            v.setEnabled(false);
                             showWeightDialog(recordWeight);
-                            v.setEnabled(true);
 
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            v.setEnabled(false);
                             hideNotification();
-                            v.setEnabled(true);
                         }
                     }, null);
         }
@@ -1444,7 +1383,6 @@ public class ChildImmunizationActivity extends BaseActivity
             ft.addToBackStack(null);
             GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, allWeights);
             growthDialogFragment.show(ft, growthDialogFragment.getClass().getName());
-            growthChartButton.setEnabled(true);
         }
     }
 
