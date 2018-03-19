@@ -52,6 +52,7 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceSchedule;
@@ -122,6 +123,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private Menu overflow;
     private ChildDetailsToolbar detailtoolbar;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
     private TextView saveButton;
     private static final int REQUEST_CODE_GET_JSON = 3432;
     private static final int REQUEST_TAKE_PHOTO = 1;
@@ -129,11 +132,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     //////////////////////////////////////////////////
     private static final String TAG = "ChildDetails";
     public static final String EXTRA_CHILD_DETAILS = "child_details";
+    public static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    private ChildRegistrationDataFragment childDataFragment;
+    private ChildUnderFiveFragment childUnderFiveFragment;
     public static final String DIALOG_TAG = "ChildDetailActivity_DIALOG_TAG";
 
     private File currentfile;
     private String location_name = "";
+
+    private ViewPagerAdapter adapter;
 
     // Data
     private CommonPersonObjectClient childDetails;
@@ -149,10 +157,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private static final String CHILD = "child";
 
-    private SectionsPagerAdapter sectionsPagerAdapter;
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,6 +168,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
         }
 
+
         location_name = extras.getString("location_name");
         detailsRepository = detailsRepository == null ? this.getOpenSRPContext().detailsRepository() : detailsRepository;
         details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
@@ -171,16 +176,16 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         setContentView(R.layout.child_detail_activity_simple_tabs);
 
-        // Setup View Pager
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        childDataFragment = new ChildRegistrationDataFragment();
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+        childDataFragment.setArguments(this.getIntent().getExtras());
 
-        tabLayout.setupWithViewPager(viewPager);
+        childUnderFiveFragment = new ChildUnderFiveFragment();
+        childUnderFiveFragment.setArguments(this.getIntent().getExtras());
+
 
         detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
+
 
         saveButton = (TextView) detailtoolbar.findViewById(R.id.save);
         saveButton.setVisibility(View.INVISIBLE);
@@ -189,9 +194,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             public void onClick(View v) {
                 detailtoolbar.showOverflowMenu();
                 invalidateOptionsMenu();
-                if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-                    sectionsPagerAdapter.childUnderFiveFragment.loadView();
-                }
+                childUnderFiveFragment.loadView();
 
                 saveButton.setVisibility(View.INVISIBLE);
             }
@@ -205,7 +208,31 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+
         initiallization();
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 0) {
+                    saveButton.setVisibility(View.INVISIBLE);
+                    invalidateOptionsMenu();
+                    childUnderFiveFragment.loadView();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        setupViewPager(viewPager);
 
         detailtoolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,7 +255,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
         });
 
-
+        tabLayout.setupWithViewPager(viewPager);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         allSharedPreferences = new AllSharedPreferences(preferences);
@@ -289,20 +316,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         boolean showWeightEdit = false;
         for (int i = 0; i < weightlist.size(); i++) {
             Weight weight = weightlist.get(i);
-            org.smartregister.domain.db.Event event = null;
-            EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-            if (weight.getEventId() != null) {
-                event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
-            } else if (weight.getFormSubmissionId() != null) {
-                event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
-            }
-            if (event != null) {
-                Date weight_create_date = event.getDateCreated().toDate();
-                if (!DateUtil.checkIfDateThreeMonthsOlder(weight_create_date)) {
-                    showWeightEdit = true;
-                }
-            } else {
-                showWeightEdit = true;
+            showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+            if (showWeightEdit) {
+                break;
             }
         }
 
@@ -335,9 +351,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-                    sectionsPagerAdapter.childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_VACCINE);
-                }
+                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_VACCINE);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -348,9 +362,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-                    sectionsPagerAdapter.childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_SERVICE);
-                }
+                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_SERVICE);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -360,9 +372,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-                    sectionsPagerAdapter.childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_WEIGHT);
-                }
+                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_WEIGHT);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -632,11 +642,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
-
-                if (sectionsPagerAdapter.childRegistrationDataFragment != null) {
-                    sectionsPagerAdapter.childRegistrationDataFragment.childDetails = childDetails;
-                    sectionsPagerAdapter.childRegistrationDataFragment.loadData();
-                }
+                childDataFragment.childDetails = childDetails;
+                childDataFragment.loadData();
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
@@ -836,6 +843,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
     }
 
+    private void setupViewPager(ViewPager viewPager) {
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        adapter.addFragment(childDataFragment, "Registration Data");
+        adapter.addFragment(childUnderFiveFragment, "Under Five History");
+        viewPager.setAdapter(adapter);
+    }
+
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -983,11 +998,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
             tag.setDbKey(weight.getId());
         }
-
-        if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-            sectionsPagerAdapter.childUnderFiveFragment.loadView();
-        }
-
+        childUnderFiveFragment.loadView();
     }
 
     public void showWeightDialog(int i) {
@@ -1147,9 +1158,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
             invalidateOptionsMenu();
-            if (sectionsPagerAdapter.childUnderFiveFragment != null) {
-                sectionsPagerAdapter.childUnderFiveFragment.loadView();
-            }
+            childUnderFiveFragment.loadView();
         }
     }
 
@@ -1343,6 +1352,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return childDetails;
     }
 
+    public ViewPagerAdapter getViewPagerAdapter() {
+        return adapter;
+    }
+
     public DetailsRepository getDetailsRepository() {
         return detailsRepository;
     }
@@ -1427,14 +1440,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
-    }
-
-    public void showProgress() {
-        showProgressDialog(getString(R.string.updating_dialog_title), null);
-    }
-
-    public void hideProgress() {
-        hideProgressDialog();
     }
 
     ////////////////////////////////////////////////////////////////
@@ -1649,62 +1654,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
-        }
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-        private ChildRegistrationDataFragment childRegistrationDataFragment;
-        private ChildUnderFiveFragment childUnderFiveFragment;
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            Bundle args = ChildDetailTabbedActivity.this.getIntent().getExtras();
-            switch (position) {
-                case 0:
-                    if (saveButton != null && saveButton.getVisibility() == View.VISIBLE) {
-                        saveButton.performClick();
-                    }
-                    if (childRegistrationDataFragment == null) {
-                        childRegistrationDataFragment = ChildRegistrationDataFragment.newInstance(args);
-                    }
-                    return childRegistrationDataFragment;
-                case 1:
-                    if (childUnderFiveFragment == null) {
-                        childUnderFiveFragment = ChildUnderFiveFragment.newInstance(args);
-                    }
-                    return childUnderFiveFragment;
-                default:
-                    break;
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.child_detail_registration_fragment);
-                case 1:
-                    return getString(R.string.child_detail_under_five_fragment);
-                default:
-                    break;
-            }
-            return null;
         }
     }
 }
