@@ -1191,7 +1191,6 @@ public class ChildImmunizationActivity extends BaseActivity
         @SuppressWarnings("unchecked")
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
-            hideProgressDialog();
 
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
@@ -1203,6 +1202,8 @@ public class ChildImmunizationActivity extends BaseActivity
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
+
+            hideProgressDialog();
         }
 
         @Override

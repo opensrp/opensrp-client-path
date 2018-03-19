@@ -67,13 +67,22 @@ public class ChildUnderFiveFragment extends Fragment {
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
     private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
-    private Map<String, String> Detailsmap;
+    private Map<String, String> detailsmap;
     private AlertService alertService;
     private LinearLayout fragmentContainer;
-    private Boolean curVaccineMode = null;
-    private Boolean curServiceMode = null;
-    private Boolean curWeightMode = null;
 
+    private Boolean curVaccineMode;
+    private Boolean curServiceMode;
+    private Boolean curWeightMode;
+
+    public static ChildUnderFiveFragment newInstance(Bundle args) {
+        ChildUnderFiveFragment fragment = new ChildUnderFiveFragment();
+        if (args == null) {
+            args = new Bundle();
+        }
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -101,47 +110,60 @@ public class ChildUnderFiveFragment extends Fragment {
 
         DetailsRepository detailsRepository = ((ChildDetailTabbedActivity) getActivity()).getDetailsRepository();
         childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
-        Detailsmap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        detailsmap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-        loadView(false, false, false);
         return underFiveFragment;
     }
 
-    public void loadView(final boolean editVaccineMode, final boolean editServiceMode, boolean editWeightMode) {
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        loadView(STATUS.NONE);
+    }
+
+    public void loadView() {
+        loadView(STATUS.NONE);
+    }
+
+    public void loadView(STATUS status) {
         try {
             if (fragmentContainer != null) {
-                if (curWeightMode == null || !curWeightMode.equals(Boolean.valueOf(editWeightMode))) {
-                    loadWeightView(editWeightMode);
-                    curWeightMode = editWeightMode;
-                }
 
-                AddVaccinationServiceViewsAsyncTask addVaccinationServiceViewsAsyncTask = new AddVaccinationServiceViewsAsyncTask(editVaccineMode, editServiceMode);
-                Utils.startAsyncTask(addVaccinationServiceViewsAsyncTask, null);
+                boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
+                boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
+                boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
+
+                boolean processVaccine = curVaccineMode == null || !curVaccineMode.equals(editVaccineMode);
+                boolean processService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
+                boolean processWeight = curWeightMode == null || !curWeightMode.equals(editWeightMode);
+
+                if (processVaccine || processService || processWeight) {
+                    LoadAsyncTask loadAsyncTask = new LoadAsyncTask(editVaccineMode, editServiceMode, editWeightMode);
+                    loadAsyncTask.setProcess(processVaccine, processService, processWeight);
+                    Utils.startAsyncTask(loadAsyncTask, null);
+                }
             }
         } catch (Exception e) {
             Log.e(getClass().getName(), Log.getStackTraceString(e));
         }
     }
 
-    public void loadWeightView(boolean editWeightMode) {
+    public void loadWeightView(List<Weight> weightList, boolean editWeightMode) {
         if (fragmentContainer != null) {
             createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
-            createWeightLayout(fragmentContainer, editWeightMode);
+            createWeightLayout(weightList, fragmentContainer, editWeightMode);
         }
     }
 
-    private void createWeightLayout(LinearLayout fragmentContainer, boolean editmode) {
+    private void createWeightLayout(List<Weight> weightList, LinearLayout fragmentContainer, boolean editmode) {
         LinkedHashMap<Long, Pair<String, String>> weightmap = new LinkedHashMap<>();
         ArrayList<Boolean> weighteditmode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
-        WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
-        List<Weight> weightlist = wp.findLast5(childDetails.entityId());
-        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(getActivity());
-
-
-        for (int i = 0; i < weightlist.size(); i++) {
-            Weight weight = weightlist.get(i);
+        ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(getActivity());
+        for (int i = 0; i < weightList.size(); i++) {
+            Weight weight = weightList.get(i);
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weighttaken = weight.getDate();
@@ -165,9 +187,9 @@ public class ChildUnderFiveFragment extends Fragment {
                 org.smartregister.domain.db.Event event = null;
                 EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
                 if (weight.getEventId() != null) {
-                    event = ecUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
+                    event = ecSyncUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
                 } else if (weight.getFormSubmissionId() != null) {
-                    event = ecUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
+                    event = ecSyncUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
                 }
                 if (event != null) {
                     Date weight_create_date = event.getDateCreated().toDate();
@@ -197,7 +219,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         }
         if (weightmap.size() < 5) {
-            weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(Detailsmap, "Birth_Weight", true) + " kg"));
+            weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsmap, "Birth_Weight", true) + " kg"));
             weighteditmode.add(false);
             listeners.add(null);
         }
@@ -339,90 +361,123 @@ public class ChildUnderFiveFragment extends Fragment {
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
-    public void setAlertService(AlertService alertService) {
-        this.alertService = alertService;
-    }
-
-    private class AddVaccinationServiceViewsAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
+    private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private boolean editVaccineMode;
         private boolean editServiceMode;
+        private boolean editWeightMode;
 
-        public AddVaccinationServiceViewsAsyncTask(boolean editVaccineMode, boolean editServiceMode) {
+        private boolean processWeight;
+        private boolean processVaccine;
+        private boolean processService;
+
+        private LoadAsyncTask(boolean editVaccineMode, boolean editServiceMode, boolean editWeightMode) {
             this.editVaccineMode = editVaccineMode;
             this.editServiceMode = editServiceMode;
+            this.editWeightMode = editWeightMode;
+        }
+
+        private void setProcess(boolean processVaccine, boolean processService, boolean processWeight) {
+            this.processVaccine = processVaccine;
+            this.processService = processService;
+            this.processWeight = processWeight;
+
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            ((ChildDetailTabbedActivity) getActivity()).showProgress();
         }
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
+            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
-            if (curVaccineMode == null || !curVaccineMode.equals(Boolean.valueOf(editVaccineMode))) {
+            if (processWeight) {
+                loadWeightView(weightList, editWeightMode);
+                curWeightMode = editWeightMode;
+            }
+
+            if (processVaccine) {
                 updateVaccinationViews(vaccineList, alertList, fragmentContainer, editVaccineMode);
                 curVaccineMode = editVaccineMode;
             }
 
-            if (curServiceMode == null || !curServiceMode.equals(Boolean.valueOf(editServiceMode))) {
+            if (processService) {
                 updateServiceViews(serviceTypeMap, serviceRecords, alertList, fragmentContainer, editServiceMode);
                 curServiceMode = editServiceMode;
             }
+
+            ((ChildDetailTabbedActivity) getActivity()).hideProgress();
         }
 
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
-
             Map<String, NamedObject<?>> map = new HashMap<>();
 
-            VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
-            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+            if (processWeight) {
+                WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
+                List<Weight> weightList = wp.findLast5(childDetails.entityId());
 
-            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
-            map.put(vaccineNamedObject.name, vaccineNamedObject);
-
-            List<ServiceRecord> serviceRecords = new ArrayList<>();
-
-            RecurringServiceTypeRepository recurringServiceTypeRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceTypeRepository();
-            RecurringServiceRecordRepository recurringServiceRecordRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceRecordRepository();
-
-            if (recurringServiceRecordRepository != null) {
-                serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+                NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
+                map.put(weightNamedObject.name, weightNamedObject);
             }
 
-            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
-            map.put(serviceNamedObject.name, serviceNamedObject);
+            if (processVaccine) {
+                VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+                List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
 
-            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
-            if (recurringServiceTypeRepository != null) {
-                List<String> types = recurringServiceTypeRepository.fetchTypes();
-                for (String type : types) {
-                    List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
-                    serviceTypeMap.put(type, subTypes);
+                NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+                map.put(vaccineNamedObject.name, vaccineNamedObject);
+            }
+
+            if (processService) {
+                List<ServiceRecord> serviceRecords = new ArrayList<>();
+
+                RecurringServiceTypeRepository recurringServiceTypeRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceTypeRepository();
+                RecurringServiceRecordRepository recurringServiceRecordRepository = ((ChildDetailTabbedActivity) getActivity()).getVaccinatorApplicationInstance().recurringServiceRecordRepository();
+
+                if (recurringServiceRecordRepository != null) {
+                    serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
                 }
+
+                NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+                map.put(serviceNamedObject.name, serviceNamedObject);
+
+                Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
+                if (recurringServiceTypeRepository != null) {
+                    List<String> types = recurringServiceTypeRepository.fetchTypes();
+                    for (String type : types) {
+                        List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
+                        serviceTypeMap.put(type, subTypes);
+                    }
+                }
+
+                NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+                map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
             }
 
-            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
-            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+            if (processVaccine || processService) {
+                List<Alert> alertList = new ArrayList<>();
+                if (alertService != null) {
+                    alertList = alertService.findByEntityId(childDetails.entityId());
+                }
 
-
-            List<Alert> alertList = new ArrayList<>();
-            if (alertService != null) {
-                alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                        VaccinateActionUtils.allAlertNames(serviceTypeMap.values()));
+                NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+                map.put(alertNamedObject.name, alertNamedObject);
             }
-
-            NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
-            map.put(alertNamedObject.name, alertNamedObject);
 
             return map;
         }
+    }
+
+    public enum STATUS {
+        NONE, EDIT_WEIGHT, EDIT_VACCINE, EDIT_SERVICE
     }
 
 }
