@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
@@ -37,10 +39,8 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.NamedObject;
-import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.repository.DetailsRepository;
-import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
@@ -149,6 +149,17 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
+    public void loadWeightView(boolean editWeightMode) {
+        if (fragmentContainer != null) {
+            WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
+            List<Weight> weightList = wp.findLast5(childDetails.entityId());
+
+            createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
+            createWeightLayout(weightList, fragmentContainer, editWeightMode);
+        }
+    }
+
+
     public void loadWeightView(List<Weight> weightList, boolean editWeightMode) {
         if (fragmentContainer != null) {
             createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
@@ -157,11 +168,12 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void createWeightLayout(List<Weight> weightList, LinearLayout fragmentContainer, boolean editmode) {
+        TimingLogger timingLogger = new TimingLogger("TimingLogger", "createWeightLayout");
+
         LinkedHashMap<Long, Pair<String, String>> weightmap = new LinkedHashMap<>();
         ArrayList<Boolean> weighteditmode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
-        ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(getActivity());
         for (int i = 0; i < weightList.size(); i++) {
             Weight weight = weightList.get(i);
             String formattedAge = "";
@@ -178,33 +190,20 @@ public class ChildUnderFiveFragment extends Fragment {
                     }
                 }
             }
+            timingLogger.addSplit("time diff calc");
+
             if (!formattedAge.equalsIgnoreCase("0d")) {
+                timingLogger.addSplit("start less than three month calc");
                 weightmap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
 
-                ////////////////////////check 3 months///////////////////////////////
-                boolean less_than_three_months_event_created = false;
-
-                org.smartregister.domain.db.Event event = null;
-                EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
-                if (weight.getEventId() != null) {
-                    event = ecSyncUpdater.convert(db.getEventsByEventId(weight.getEventId()), org.smartregister.domain.db.Event.class);
-                } else if (weight.getFormSubmissionId() != null) {
-                    event = ecSyncUpdater.convert(db.getEventsByFormSubmissionId(weight.getFormSubmissionId()), org.smartregister.domain.db.Event.class);
-                }
-                if (event != null) {
-                    Date weight_create_date = event.getDateCreated().toDate();
-                    if (!DateUtil.checkIfDateThreeMonthsOlder(weight_create_date)) {
-                        less_than_three_months_event_created = true;
-                    }
-                } else {
-                    less_than_three_months_event_created = true;
-                }
-                ///////////////////////////////////////////////////////////////////////
-                if (less_than_three_months_event_created) {
+                boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
+                if (lessThanThreeMonthsEventCreated) {
                     weighteditmode.add(editmode);
                 } else {
                     weighteditmode.add(false);
                 }
+
+                timingLogger.addSplit("finish less than three month calc");
 
                 final int finalI = i;
                 View.OnClickListener onclicklistener = new View.OnClickListener() {
@@ -218,16 +217,21 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
         }
+        timingLogger.addSplit("weight loop");
+
         if (weightmap.size() < 5) {
             weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsmap, "Birth_Weight", true) + " kg"));
             weighteditmode.add(false);
             listeners.add(null);
         }
+        timingLogger.addSplit("birth weight");
 
         WidgetFactory wd = new WidgetFactory();
         if (weightmap.size() > 0) {
             wd.createWeightWidget(inflater, fragmentContainer, weightmap, listeners, weighteditmode);
         }
+        timingLogger.addSplit("create weight widget");
+        timingLogger.dumpToLog();
     }
 
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
@@ -387,38 +391,47 @@ public class ChildUnderFiveFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            ((ChildDetailTabbedActivity) getActivity()).showProgress();
         }
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
+            TimingLogger timingLogger = new TimingLogger("TimingLogger", "onPostExecute");
+
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
+            timingLogger.addSplit("extraction done");
+
             if (processWeight) {
                 loadWeightView(weightList, editWeightMode);
                 curWeightMode = editWeightMode;
             }
+            timingLogger.addSplit("weight loaded");
+
 
             if (processVaccine) {
                 updateVaccinationViews(vaccineList, alertList, fragmentContainer, editVaccineMode);
                 curVaccineMode = editVaccineMode;
             }
+            timingLogger.addSplit("vaccines loaded");
 
             if (processService) {
                 updateServiceViews(serviceTypeMap, serviceRecords, alertList, fragmentContainer, editServiceMode);
                 curServiceMode = editServiceMode;
             }
+            timingLogger.addSplit("services loaded");
+            timingLogger.dumpToLog();
 
-            ((ChildDetailTabbedActivity) getActivity()).hideProgress();
         }
 
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
             Map<String, NamedObject<?>> map = new HashMap<>();
+
+            TimingLogger timingLogger = new TimingLogger("TimingLogger", "doInBackground");
 
             if (processWeight) {
                 WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
@@ -427,6 +440,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
                 map.put(weightNamedObject.name, weightNamedObject);
             }
+            timingLogger.addSplit("weight fetched");
 
             if (processVaccine) {
                 VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
@@ -435,6 +449,7 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
                 map.put(vaccineNamedObject.name, vaccineNamedObject);
             }
+            timingLogger.addSplit("vaccines fetched");
 
             if (processService) {
                 List<ServiceRecord> serviceRecords = new ArrayList<>();
@@ -445,22 +460,30 @@ public class ChildUnderFiveFragment extends Fragment {
                 if (recurringServiceRecordRepository != null) {
                     serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
                 }
+                timingLogger.addSplit("fetch services");
 
                 NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
                 map.put(serviceNamedObject.name, serviceNamedObject);
 
                 Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
                 if (recurringServiceTypeRepository != null) {
-                    List<String> types = recurringServiceTypeRepository.fetchTypes();
-                    for (String type : types) {
-                        List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
-                        serviceTypeMap.put(type, subTypes);
+                    List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                    timingLogger.addSplit("fetch service type");
+                    for (ServiceType serviceType : serviceTypes) {
+                        String type = serviceType.getType();
+                        List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                        if (serviceTypeList == null) {
+                            serviceTypeList = new ArrayList<>();
+                        }
+                        serviceTypeList.add(serviceType);
+                        serviceTypeMap.put(type, serviceTypeList);
                     }
                 }
 
                 NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
                 map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
             }
+            timingLogger.addSplit("services fetched");
 
             if (processVaccine || processService) {
                 List<Alert> alertList = new ArrayList<>();
@@ -471,6 +494,9 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
                 map.put(alertNamedObject.name, alertNamedObject);
             }
+            timingLogger.addSplit("alerts fetched");
+            timingLogger.dumpToLog();
+
 
             return map;
         }

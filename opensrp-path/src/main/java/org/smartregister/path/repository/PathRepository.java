@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.smartregister.commonregistry.CommonFtsObject;
+import org.smartregister.domain.db.Column;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.repository.ZScoreRepository;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
@@ -99,6 +100,9 @@ public class PathRepository extends Repository {
                     break;
                 case 11:
                     upgradeToVersion11Stock(db);
+                    break;
+                case 12:
+                    upgradeToVersion12(db);
                     break;
                 default:
                     break;
@@ -328,6 +332,19 @@ public class PathRepository extends Repository {
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion11Stock " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion12(SQLiteDatabase db) {
+        try {
+            Column[] columns = {EventClientRepository.event_column.formSubmissionId};
+            EventClientRepository.createIndex(db, EventClientRepository.Table.event, columns);
+
+            db.execSQL(WeightRepository.ALTER_ADD_CREATED_AT_COLUMN);
+            WeightRepository.migrateCreatedAt(db);
+
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion12 " + e.getMessage());
         }
     }
 
