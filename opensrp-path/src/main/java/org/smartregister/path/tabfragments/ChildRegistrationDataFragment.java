@@ -31,6 +31,15 @@ public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
 
+    public static ChildRegistrationDataFragment newInstance(Bundle args) {
+        ChildRegistrationDataFragment fragment = new ChildRegistrationDataFragment();
+        if (args == null) {
+            args = new Bundle();
+        }
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public ChildRegistrationDataFragment() {
         // Required empty public constructor
     }
@@ -50,8 +59,14 @@ public class ChildRegistrationDataFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
-        loadData();
         return fragmentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        loadData();
     }
 
     public void loadData() {

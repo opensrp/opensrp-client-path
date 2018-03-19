@@ -279,4 +279,7 @@
     <string name="dropout_cohort_bcg_size_header">(Cohort Size - M/MR 1) / Cohort Size </string>
     <string name="dropout_cohort_penta_size_header">(Cohort Size - Penta 3) / Cohort Size </string>
 
+    <string name="child_detail_registration_fragment">Registration Data</string>
+    <string name="child_detail_under_five_fragment">Under Five History</string>
+
 </resources>

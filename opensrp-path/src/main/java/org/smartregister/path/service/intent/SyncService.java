@@ -1,5 +1,6 @@
 package org.smartregister.path.service.intent;
 
+import android.app.IntentService;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,20 +14,6 @@ import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.NetworkResponse;
-import com.android.volley.ParseError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
-import com.android.volley.toolbox.Volley;
-
-import net.vidageek.mirror.dsl.Mirror;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -46,17 +33,15 @@ import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 
-import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import util.NetworkUtils;
 
-public class SyncService extends Service {
+public class SyncService extends IntentService {
     private static final String ADD_URL = "/rest/event/add";
     public static final String SYNC_URL = "/rest/event/sync";
 
@@ -66,40 +51,20 @@ public class SyncService extends Service {
     public static final int EVENT_PULL_LIMIT = 500;
     private static final int EVENT_PUSH_LIMIT = 50;
 
-    private volatile HandlerThread mHandlerThread;
-    private ServiceHandler mServiceHandler;
-    private RequestQueue mainRequestQueue;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        mHandlerThread = new HandlerThread("SyncService.HandlerThread", Process.THREAD_PRIORITY_BACKGROUND);
-        mHandlerThread.start();
-
-        mServiceHandler = new ServiceHandler(mHandlerThread.getLooper());
-
-        context = getBaseContext();
-        httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+    public SyncService() {
+        super("SyncService");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Message msg = mServiceHandler.obtainMessage();
-        msg.arg1 = startId;
-        mServiceHandler.sendMessage(msg);
-
-        return START_NOT_STICKY;
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+        context = getBaseContext();
+        httpAgent = VaccinatorApplication.getInstance().context().getHttpAgent();
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
-    public void onDestroy() {
-        mHandlerThread.quit();
+    protected void onHandleIntent(@Nullable Intent intent) {
+        handleSync();
     }
 
     protected void handleSync() {
@@ -130,10 +95,6 @@ public class SyncService extends Service {
     }
 
     private void pullECFromServer() {
-        fetchRetry();
-    }
-
-    private void fetchRetry() {
         fetchRetry(0);
     }
 
@@ -159,86 +120,52 @@ public class SyncService extends Service {
             String url = baseUrl + SYNC_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
             Log.i(SyncService.class.getName(), "URL: " + url);
 
-            JsonRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, new com.android.volley.Response.Listener<JSONObject>() {
-                @Override
-                @SuppressWarnings("unchecked")
-                public void onResponse(JSONObject jsonObject) {
-                    int eCount = fetchNumberOfEvents(jsonObject);
-                    Log.i(getClass().getName(), "Response Success Event Count: " + eCount);
+            if (httpAgent == null) {
+                complete(FetchStatus.fetchedFailed);
+            }
 
-                    if (eCount == 0) {
-                        complete(FetchStatus.nothingFetched);
-                    } else {
-                        fetchRetry();
-                    }
-                }
-            }, new com.android.volley.Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (error != null) {
-                        Log.e(getClass().getName(), "Fetch Retry Error Response Exception: " + error.getMessage(), error.getCause());
-                        NetworkResponse networkResponse = error.networkResponse;
-                        if (networkResponse != null) {
-                            Log.e(getClass().getName(), "Status Code: " + networkResponse.statusCode);
-                        }
-                    }
+            Response resp = httpAgent.fetch(url);
+            if (resp.isFailure()) {
+                fetchFailed(count);
+            }
 
-                    if (count < 2) {
-                        int newCount = count + 1;
-                        fetchRetry(newCount);
-                    } else {
-                        complete(FetchStatus.fetchedFailed);
-                    }
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    return authHeaders();
+            JSONObject jsonObject = new JSONObject((String) resp.payload());
+
+            int eCount = fetchNumberOfEvents(jsonObject);
+            Log.i(getClass().getName(), "Parse Network Event Count: " + eCount);
+
+            if (eCount == 0) {
+                complete(FetchStatus.nothingFetched);
+            } else if (eCount < 0) {
+                fetchFailed(count);
+            } else if (eCount > 0) {
+                final Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
+                long lastServerVersion = serverVersionPair.second - 1;
+                if (eCount < EVENT_PULL_LIMIT) {
+                    lastServerVersion = serverVersionPair.second;
                 }
 
-                @Override
-                protected com.android.volley.Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-                    try {
-                        String jsonString = new String(response.data,
-                                HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
+                ecSyncUpdater.saveAllClientsAndEvents(jsonObject);
+                ecSyncUpdater.updateLastSyncTimeStamp(lastServerVersion);
 
-                        JSONObject jsonObject = new JSONObject(jsonString);
+                processClient(serverVersionPair);
 
-                        int eCount = fetchNumberOfEvents(jsonObject);
-                        Log.i(getClass().getName(), "Parse Network Event Count: " + eCount);
-
-                        if (eCount < 0) {
-                            return com.android.volley.Response.error(new ParseError(new Exception("Error")));
-                        } else if (eCount > 0) {
-                            final Pair<Long, Long> serverVersionPair = getMinMaxServerVersions(jsonObject);
-                            long lastServerVersion = serverVersionPair.second - 1;
-                            if (eCount < EVENT_PULL_LIMIT) {
-                                lastServerVersion = serverVersionPair.second;
-                            }
-
-                            ecSyncUpdater.saveAllClientsAndEvents(jsonObject);
-                            ecSyncUpdater.updateLastSyncTimeStamp(lastServerVersion);
-
-                            processClient(serverVersionPair);
-                        }
-                        return com.android.volley.Response.success(jsonObject,
-                                HttpHeaderParser.parseCacheHeaders(response));
-                    } catch (UnsupportedEncodingException e) {
-                        return com.android.volley.Response.error(new ParseError(e));
-                    } catch (JSONException je) {
-                        return com.android.volley.Response.error(new ParseError(je));
-                    } catch (Exception e) {
-                        return com.android.volley.Response.error(new ParseError(e));
-                    }
-                }
-            };
-
-            addRequestToQueue(mainRequestQueue, jsonRequest);
+                fetchRetry(0);
+            }
         } catch (Exception e) {
             Log.e(getClass().getName(), "Fetch Retry Exception: " + e.getMessage(), e.getCause());
+            fetchFailed(count);
         }
     }
 
+    public void fetchFailed(int count) {
+        if (count < 2) {
+            int newCount = count + 1;
+            fetchRetry(newCount);
+        } else {
+            complete(FetchStatus.fetchedFailed);
+        }
+    }
 
     private void processClient(Pair<Long, Long> serverVersionPair) {
         try {
@@ -298,7 +225,6 @@ public class SyncService extends Service {
         }
     }
 
-
     private void sendSyncStatusBroadcastMessage(FetchStatus fetchStatus) {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
@@ -307,23 +233,14 @@ public class SyncService extends Service {
     }
 
     private void complete(FetchStatus fetchStatus) {
-
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
 
-        if (isEmptyReuestQueue(mainRequestQueue)) {
-            intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, true);
-        }
-
         sendBroadcast(intent);
 
-        if (isEmptyReuestQueue(mainRequestQueue)) {
-            ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
-            ecSyncUpdater.updateLastCheckTimeStamp(new Date().getTime());
-
-            stopSelf();
-        }
+        ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
+        ecSyncUpdater.updateLastCheckTimeStamp(new Date().getTime());
     }
 
     private void drishtiLogInfo(String message) {
@@ -391,48 +308,4 @@ public class SyncService extends Service {
         return count;
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean isEmptyReuestQueue(RequestQueue requestQueue) {
-        synchronized (requestQueue) {
-            final Object mObject = new Mirror().on(requestQueue).get().field("mCurrentRequests");
-            final Set<Request<?>> mCurrentRequests = (Set<Request<?>>) mObject;
-            return mCurrentRequests.isEmpty();
-        }
-    }
-
-
-    private void addRequestToQueue(RequestQueue requestQueue, Request request) {
-        final int TIMEOUT = 60000;
-        request.setRetryPolicy(new DefaultRetryPolicy(
-                TIMEOUT,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(request);
-    }
-
-
-////////////////////////////////////////////////////////////////
-// Inner classes
-////////////////////////////////////////////////////////////////
-
-    private final class ServiceHandler extends Handler {
-        private ServiceHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message message) {
-            mainRequestQueue = Volley.newRequestQueue(context);
-            mainRequestQueue.addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
-                @Override
-                public void onRequestFinished(Request<Object> request) {
-                    if (isEmptyReuestQueue(mainRequestQueue)) {
-                        complete(FetchStatus.nothingFetched);
-                    }
-                }
-            });
-            handleSync();
-        }
-    }
 }
