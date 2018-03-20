@@ -1,5 +1,5 @@
 {
-  "name": "vaccines",
+  "name": "weights",
   "columns": [
     {
       "column_name": "base_entity_id",
@@ -30,6 +30,19 @@
       "column_name": "location_id",
       "json_mapping": {
         "field": "locationId"
+      }
+    },
+    {
+      "column_name": "z_score",
+      "json_mapping": {
+        "field": "obs.fieldCode",
+        "concept": "162584AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      }
+    },
+    {
+      "column_name": "created_at",
+      "json_mapping": {
+        "field": "dateCreated"
       }
     }
   ]

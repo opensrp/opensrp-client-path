@@ -1,7 +1,6 @@
 package org.smartregister.path.viewcomponents;
 
 import android.util.Pair;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,23 +49,16 @@ public class WidgetFactory {
     }
 
     public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String, String>> last_five_weight_map, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
-
-        TimingLogger timingLogger = new TimingLogger("TimingLogger", "createWeightWidget");
         LinearLayout tableLayout = (LinearLayout) fragmentContainer.findViewById(R.id.weightvalues);
         tableLayout.removeAllViews();
-        timingLogger.addSplit("removeAll");
 
         int i = 0;
         for (Map.Entry<Long, Pair<String, String>> entry : last_five_weight_map.entrySet()) {
             Pair<String, String> pair = entry.getValue();
             View view = createTableRowForWeight(inflater, tableLayout, pair.first, pair.second, editenabled.get(i), listeners.get(i));
-            timingLogger.addSplit("createView");
 
             tableLayout.addView(view);
-            timingLogger.addSplit("addView");
             i++;
         }
-
-        timingLogger.dumpToLog();
     }
 }

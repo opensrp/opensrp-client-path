@@ -1,5 +1,5 @@
 {
-  "name": "vaccines",
+  "name": "recurring_service_records",
   "columns": [
     {
       "column_name": "base_entity_id",
@@ -52,6 +52,12 @@
       "column_name": "location_id",
       "json_mapping": {
         "field": "locationId"
+      }
+    },
+    {
+      "column_name": "created_at",
+      "json_mapping": {
+        "field": "dateCreated"
       }
     }
   ]

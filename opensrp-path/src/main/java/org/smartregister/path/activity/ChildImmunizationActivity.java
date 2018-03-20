@@ -1234,10 +1234,15 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             if (recurringServiceTypeRepository != null) {
-                List<String> types = recurringServiceTypeRepository.fetchTypes();
-                for (String type : types) {
-                    List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
-                    serviceTypeMap.put(type, subTypes);
+                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                for (ServiceType serviceType : serviceTypes) {
+                    String type = serviceType.getType();
+                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                    if (serviceTypeList == null) {
+                        serviceTypeList = new ArrayList<>();
+                    }
+                    serviceTypeList.add(serviceType);
+                    serviceTypeMap.put(type, serviceTypeList);
                 }
             }
 
@@ -1312,12 +1317,8 @@ public class ChildImmunizationActivity extends BaseActivity
             RecurringServiceRecordRepository recurringServiceRecordRepository = VaccinatorApplication.getInstance().recurringServiceRecordRepository();
             List<ServiceRecord> serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-            List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-            String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
-
             AlertService alertService = getOpenSRPContext().alertService();
-            List<Alert> alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
+            List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
 
             return Triple.of(list, serviceRecordList, alertList);
 
@@ -1356,12 +1357,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
                 ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
-                RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
-
                 AlertService alertService = getOpenSRPContext().alertService();
-                alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
+                alertList = alertService.findByEntityId(childDetails.entityId());
 
             }
             return null;
@@ -1490,8 +1487,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, PathConstants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                    VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+            alertList = alertService.findByEntityId(childDetails.entityId());
 
             return pair;
         }
@@ -1536,8 +1532,7 @@ public class ChildImmunizationActivity extends BaseActivity
                     if (dateTime != null) {
                         affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, PathConstants.KEY.CHILD);
                         vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-                        alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                                VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+                        alertList = alertService.findByEntityId(childDetails.entityId());
                     }
                 }
             }

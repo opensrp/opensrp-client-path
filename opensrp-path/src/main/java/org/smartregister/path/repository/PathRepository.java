@@ -343,6 +343,12 @@ public class PathRepository extends Repository {
             db.execSQL(WeightRepository.ALTER_ADD_CREATED_AT_COLUMN);
             WeightRepository.migrateCreatedAt(db);
 
+            db.execSQL(VaccineRepository.ALTER_ADD_CREATED_AT_COLUMN);
+            VaccineRepository.migrateCreatedAt(db);
+
+            db.execSQL(RecurringServiceRecordRepository.ALTER_ADD_CREATED_AT_COLUMN);
+            RecurringServiceRecordRepository.migrateCreatedAt(db);
+
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion12 " + e.getMessage());
         }

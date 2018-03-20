@@ -529,7 +529,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         @Override
         protected Void doInBackground(Void... params) {
             vaccines = vaccineRepository.findByEntityId(entityId);
-            List<Alert> alerts = alertService.findByEntityIdAndAlertNames(entityId, VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+            List<Alert> alerts = alertService.findByEntityId(entityId);
 
             Map<String, Date> recievedVaccines = receivedVaccines(vaccines);
 
