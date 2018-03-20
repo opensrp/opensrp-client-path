@@ -64,15 +64,56 @@ import static org.smartregister.util.Log.logError;
 import static org.smartregister.util.Log.logVerbose;
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText userNameEditText;
-    private EditText passwordEditText;
-    private ProgressDialog progressDialog;
     public static final String ENGLISH_LOCALE = "en";
     private static final String URDU_LOCALE = "ur";
     private static final String ENGLISH_LANGUAGE = "English";
     private static final String URDU_LANGUAGE = "Urdu";
+    private EditText userNameEditText;
+    private EditText passwordEditText;
+    private ProgressDialog progressDialog;
     private android.content.Context appContext;
     private RemoteLoginTask remoteLoginTask;
+
+    public static void setLanguage() {
+        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
+        String preferredLocale = allSharedPreferences.fetchLanguagePreference();
+        Resources res = getOpenSRPContext().applicationContext().getResources();
+        // Change locale settings in the app.
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = new Locale(preferredLocale);
+        res.updateConfiguration(conf, dm);
+
+    }
+
+    public static String switchLanguagePreference() {
+        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
+
+        String preferredLocale = allSharedPreferences.fetchLanguagePreference();
+        if (URDU_LOCALE.equals(preferredLocale)) {
+            allSharedPreferences.saveLanguagePreference(URDU_LOCALE);
+            Resources res = getOpenSRPContext().applicationContext().getResources();
+            // Change locale settings in the app.
+            DisplayMetrics dm = res.getDisplayMetrics();
+            android.content.res.Configuration conf = res.getConfiguration();
+            conf.locale = new Locale(URDU_LOCALE);
+            res.updateConfiguration(conf, dm);
+            return URDU_LANGUAGE;
+        } else {
+            allSharedPreferences.saveLanguagePreference(ENGLISH_LOCALE);
+            Resources res = getOpenSRPContext().applicationContext().getResources();
+            // Change locale settings in the app.
+            DisplayMetrics dm = res.getDisplayMetrics();
+            android.content.res.Configuration conf = res.getConfiguration();
+            conf.locale = new Locale(ENGLISH_LOCALE);
+            res.updateConfiguration(conf, dm);
+            return ENGLISH_LANGUAGE;
+        }
+    }
+
+    public static Context getOpenSRPContext() {
+        return VaccinatorApplication.getInstance().context();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -206,9 +247,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-
     private void remoteLogin(final View view, final String userName, final String password) {
-        getOpenSRPContext().allSharedPreferences().saveIsSyncInitial(true);
         if (!getOpenSRPContext().allSharedPreferences().fetchBaseURL("").isEmpty()) {
             tryRemoteLogin(userName, password, new Listener<LoginResponse>() {
                 public void onEvent(LoginResponse loginResponse) {
@@ -218,6 +257,7 @@ public class LoginActivity extends AppCompatActivity {
                             TimeStatus timeStatus = getOpenSRPContext().userService().validateDeviceTime(
                                     loginResponse.payload(), PathConstants.MAX_SERVER_TIME_DIFFERENCE);
                             if (!PathConstants.TIME_CHECK || timeStatus.equals(TimeStatus.OK)) {
+                                getOpenSRPContext().allSharedPreferences().saveIsSyncInitial(true);
                                 remoteLoginWith(userName, password, loginResponse.payload());
                                 Intent intent = new Intent(appContext, PullUniqueIdsIntentService.class);
                                 appContext.startService(intent);
@@ -344,43 +384,6 @@ public class LoginActivity extends AppCompatActivity {
         return new SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(new java.util.Date(ze.getTime()));
     }
 
-    public static void setLanguage() {
-        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
-        String preferredLocale = allSharedPreferences.fetchLanguagePreference();
-        Resources res = getOpenSRPContext().applicationContext().getResources();
-        // Change locale settings in the app.
-        DisplayMetrics dm = res.getDisplayMetrics();
-        Configuration conf = res.getConfiguration();
-        conf.locale = new Locale(preferredLocale);
-        res.updateConfiguration(conf, dm);
-
-    }
-
-    public static String switchLanguagePreference() {
-        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
-
-        String preferredLocale = allSharedPreferences.fetchLanguagePreference();
-        if (URDU_LOCALE.equals(preferredLocale)) {
-            allSharedPreferences.saveLanguagePreference(URDU_LOCALE);
-            Resources res = getOpenSRPContext().applicationContext().getResources();
-            // Change locale settings in the app.
-            DisplayMetrics dm = res.getDisplayMetrics();
-            android.content.res.Configuration conf = res.getConfiguration();
-            conf.locale = new Locale(URDU_LOCALE);
-            res.updateConfiguration(conf, dm);
-            return URDU_LANGUAGE;
-        } else {
-            allSharedPreferences.saveLanguagePreference(ENGLISH_LOCALE);
-            Resources res = getOpenSRPContext().applicationContext().getResources();
-            // Change locale settings in the app.
-            DisplayMetrics dm = res.getDisplayMetrics();
-            android.content.res.Configuration conf = res.getConfiguration();
-            conf.locale = new Locale(ENGLISH_LOCALE);
-            res.updateConfiguration(conf, dm);
-            return ENGLISH_LANGUAGE;
-        }
-    }
-
     private void positionViews() {
         final ScrollView canvasSV = (ScrollView) findViewById(R.id.canvasSV);
         if (canvasSV == null) {
@@ -410,10 +413,6 @@ public class LoginActivity extends AppCompatActivity {
                 canvasRL.setMinimumHeight(windowHeight);
             }
         });
-    }
-
-    public static Context getOpenSRPContext() {
-        return VaccinatorApplication.getInstance().context();
     }
 
     ////////////////////////////////////////////////////////////////

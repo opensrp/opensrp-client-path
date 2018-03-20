@@ -158,7 +158,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
         AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(context));
 
-        boolean showButtons = !allSharedPreferences.fetchIsSyncInitial() && (!ChildSmartClientsProvider.class.equals(this.getClass()) || !SyncStatusBroadcastReceiver.getInstance().isSyncing());
+        boolean showButtons = !ChildSmartClientsProvider.class.equals(this.getClass()) ||  !allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
         if (showButtons) {
             try {
                 Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
