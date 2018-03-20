@@ -30,6 +30,7 @@ import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.path.wrapper.WeightViewRecordUpdateWrapper;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -53,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 import util.ImageUtils;
 import util.PathConstants;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static org.smartregister.immunization.util.VaccinatorUtils.generateScheduleList;
 import static org.smartregister.immunization.util.VaccinatorUtils.nextVaccineDue;
@@ -154,8 +156,9 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
+        AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(context));
 
-        boolean showButtons = !ChildSmartClientsProvider.class.equals(this.getClass()) || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+        boolean showButtons = !allSharedPreferences.fetchIsSyncInitial() && (!ChildSmartClientsProvider.class.equals(this.getClass()) || !SyncStatusBroadcastReceiver.getInstance().isSyncing());
         if (showButtons) {
             try {
                 Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
