@@ -21,6 +21,7 @@ import org.smartregister.repository.EventClientRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.stock.StockLibrary;
 import org.smartregister.stock.repository.OrderRepository;
+import org.smartregister.stock.repository.ShipmentLineItemRepository;
 import org.smartregister.stock.repository.ShipmentRepository;
 import org.smartregister.stock.repository.StockRepository;
 import org.smartregister.stock.repository.StockTypeRepository;
@@ -341,6 +342,7 @@ public class PathRepository extends Repository {
     private void upgradeToVersion12OrdersAndShipments(SQLiteDatabase db) {
         OrderRepository.createTable(db);
         ShipmentRepository.createTable(db);
+        ShipmentLineItemRepository.createTable(db);
     }
 
     private void addFieldsToFTSTable(SQLiteDatabase database, String originalTableName, List<String> newlyAddedFields) {

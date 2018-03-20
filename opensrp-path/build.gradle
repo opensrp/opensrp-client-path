@@ -75,7 +75,7 @@ android {
         }
 
         debug {
-            resValue "string", 'opensrp_url', '"https://zeir-stage.smartregister.org/opensrp"'
+            resValue "string", 'opensrp_url', '"https://vreach-stage.smartregister.org/opensrp"'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '2'
@@ -130,7 +130,7 @@ dependencies {
         transitive = true
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.12-OPENLMIS-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-stock:1.0.58-OPENLMIS-SNAPSHOT@aar') {
         transitive = true
     }
 

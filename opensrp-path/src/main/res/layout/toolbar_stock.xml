@@ -64,7 +64,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Orders"
-                android:layout_gravity="end"/>
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:background="@drawable/orders_button_bg"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:textSize="20sp"
+                android:layout_gravity="end|center_vertical"/>
         </FrameLayout>
     </org.smartregister.path.toolbar.LocationSwitcherToolbar>
 
