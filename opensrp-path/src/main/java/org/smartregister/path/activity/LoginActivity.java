@@ -208,7 +208,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void remoteLogin(final View view, final String userName, final String password) {
-
+        getOpenSRPContext().allSharedPreferences().saveIsSyncInitial(true);
         if (!getOpenSRPContext().allSharedPreferences().fetchBaseURL("").isEmpty()) {
             tryRemoteLogin(userName, password, new Listener<LoginResponse>() {
                 public void onEvent(LoginResponse loginResponse) {
