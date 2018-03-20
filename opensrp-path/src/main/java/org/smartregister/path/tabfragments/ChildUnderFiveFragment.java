@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.DateTime;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
+import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
@@ -139,7 +140,8 @@ public class ChildUnderFiveFragment extends Fragment {
                 boolean processWeight = curWeightMode == null || !curWeightMode.equals(editWeightMode);
 
                 if (processVaccine || processService || processWeight) {
-                    LoadAsyncTask loadAsyncTask = new LoadAsyncTask(editVaccineMode, editServiceMode, editWeightMode);
+                    LoadAsyncTask loadAsyncTask = new LoadAsyncTask(status);
+                    loadAsyncTask.setEdits(editVaccineMode, editServiceMode, editWeightMode);
                     loadAsyncTask.setProcess(processVaccine, processService, processWeight);
                     Utils.startAsyncTask(loadAsyncTask, null);
                 }
@@ -168,8 +170,6 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void createWeightLayout(List<Weight> weightList, LinearLayout fragmentContainer, boolean editmode) {
-        TimingLogger timingLogger = new TimingLogger("TimingLogger", "createWeightLayout");
-
         LinkedHashMap<Long, Pair<String, String>> weightmap = new LinkedHashMap<>();
         ArrayList<Boolean> weighteditmode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
@@ -190,10 +190,8 @@ public class ChildUnderFiveFragment extends Fragment {
                     }
                 }
             }
-            timingLogger.addSplit("time diff calc");
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                timingLogger.addSplit("start less than three month calc");
                 weightmap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
@@ -202,8 +200,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 } else {
                     weighteditmode.add(false);
                 }
-
-                timingLogger.addSplit("finish less than three month calc");
 
                 final int finalI = i;
                 View.OnClickListener onclicklistener = new View.OnClickListener() {
@@ -217,21 +213,17 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
         }
-        timingLogger.addSplit("weight loop");
 
         if (weightmap.size() < 5) {
             weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsmap, "Birth_Weight", true) + " kg"));
             weighteditmode.add(false);
             listeners.add(null);
         }
-        timingLogger.addSplit("birth weight");
 
         WidgetFactory wd = new WidgetFactory();
         if (weightmap.size() > 0) {
             wd.createWeightWidget(inflater, fragmentContainer, weightmap, listeners, weighteditmode);
         }
-        timingLogger.addSplit("create weight widget");
-        timingLogger.dumpToLog();
     }
 
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
@@ -365,6 +357,69 @@ public class ChildUnderFiveFragment extends Fragment {
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
+    private void updateOptionMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+        boolean showVaccineList = false;
+        for (int i = 0; i < vaccineList.size(); i++) {
+            Vaccine vaccine = vaccineList.get(i);
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
+            if (check) {
+                showVaccineList = true;
+                break;
+            }
+        }
+
+        boolean showServiceList = false;
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
+            if (check) {
+                showServiceList = true;
+                break;
+
+            }
+        }
+
+        boolean showWeightEdit = false;
+        for (int i = 0; i < weightList.size(); i++) {
+            Weight weight = weightList.get(i);
+            showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+            if (showWeightEdit) {
+                break;
+            }
+        }
+
+        boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
+
+        ((ChildDetailTabbedActivity) getActivity()).updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
+    }
+
+    private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return false;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return false;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return false;
+        }
+
+        int bcgOffsetInWeeks = 12;
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
+
+        Calendar today = Calendar.getInstance();
+
+        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
+    }
+
+    ////////////////////////////////////////////////////////////////
+    // Inner classes
+    ////////////////////////////////////////////////////////////////
     private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private boolean editVaccineMode;
@@ -375,7 +430,14 @@ public class ChildUnderFiveFragment extends Fragment {
         private boolean processVaccine;
         private boolean processService;
 
-        private LoadAsyncTask(boolean editVaccineMode, boolean editServiceMode, boolean editWeightMode) {
+        private STATUS status;
+
+        private LoadAsyncTask(STATUS status) {
+            this.status = status;
+
+        }
+
+        private void setEdits(boolean editVaccineMode, boolean editServiceMode, boolean editWeightMode) {
             this.editVaccineMode = editVaccineMode;
             this.editServiceMode = editServiceMode;
             this.editWeightMode = editWeightMode;
@@ -385,7 +447,6 @@ public class ChildUnderFiveFragment extends Fragment {
             this.processVaccine = processVaccine;
             this.processService = processService;
             this.processWeight = processWeight;
-
         }
 
         @Override
@@ -395,7 +456,6 @@ public class ChildUnderFiveFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
-            TimingLogger timingLogger = new TimingLogger("TimingLogger", "onPostExecute");
 
             List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
@@ -403,35 +463,30 @@ public class ChildUnderFiveFragment extends Fragment {
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
-            timingLogger.addSplit("extraction done");
+            if (status.equals(STATUS.NONE)) {
+                updateOptionMenu(vaccineList, serviceRecords, weightList, alertList);
+            }
 
             if (processWeight) {
                 loadWeightView(weightList, editWeightMode);
                 curWeightMode = editWeightMode;
             }
-            timingLogger.addSplit("weight loaded");
-
 
             if (processVaccine) {
                 updateVaccinationViews(vaccineList, alertList, fragmentContainer, editVaccineMode);
                 curVaccineMode = editVaccineMode;
             }
-            timingLogger.addSplit("vaccines loaded");
 
             if (processService) {
                 updateServiceViews(serviceTypeMap, serviceRecords, alertList, fragmentContainer, editServiceMode);
                 curServiceMode = editServiceMode;
             }
-            timingLogger.addSplit("services loaded");
-            timingLogger.dumpToLog();
 
         }
 
         @Override
         protected Map<String, NamedObject<?>> doInBackground(Void... params) {
             Map<String, NamedObject<?>> map = new HashMap<>();
-
-            TimingLogger timingLogger = new TimingLogger("TimingLogger", "doInBackground");
 
             if (processWeight) {
                 WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
@@ -440,7 +495,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
                 map.put(weightNamedObject.name, weightNamedObject);
             }
-            timingLogger.addSplit("weight fetched");
 
             if (processVaccine) {
                 VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
@@ -449,7 +503,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
                 map.put(vaccineNamedObject.name, vaccineNamedObject);
             }
-            timingLogger.addSplit("vaccines fetched");
 
             if (processService) {
                 List<ServiceRecord> serviceRecords = new ArrayList<>();
@@ -460,7 +513,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 if (recurringServiceRecordRepository != null) {
                     serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
                 }
-                timingLogger.addSplit("fetch services");
 
                 NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
                 map.put(serviceNamedObject.name, serviceNamedObject);
@@ -468,7 +520,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
                 if (recurringServiceTypeRepository != null) {
                     List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                    timingLogger.addSplit("fetch service type");
                     for (ServiceType serviceType : serviceTypes) {
                         String type = serviceType.getType();
                         List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
@@ -483,7 +534,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
                 map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
             }
-            timingLogger.addSplit("services fetched");
 
             if (processVaccine || processService) {
                 List<Alert> alertList = new ArrayList<>();
@@ -494,10 +544,6 @@ public class ChildUnderFiveFragment extends Fragment {
                 NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
                 map.put(alertNamedObject.name, alertNamedObject);
             }
-            timingLogger.addSplit("alerts fetched");
-            timingLogger.dumpToLog();
-
-
             return map;
         }
     }
