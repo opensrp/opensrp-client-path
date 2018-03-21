@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.google.common.reflect.TypeToken;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
@@ -49,9 +50,11 @@ import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
+import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceSchedule;
+import org.smartregister.immunization.domain.ServiceType;
 import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
@@ -60,12 +63,15 @@ import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
+import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.util.RecurringServiceUtils;
+import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.StatusChangeListener;
@@ -97,10 +103,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.AsyncTaskUtils;
 import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
@@ -139,7 +148,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private CommonPersonObjectClient childDetails;
     private Map<String, String> detailsMap;
     ////////////////////////////////////////////////
-    public DetailsRepository detailsRepository;
 
     public static final String inactive = "inactive";
     public static final String lostToFollowUp = "lost_to_follow_up";
@@ -163,12 +171,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         setContentView(R.layout.child_detail_activity_simple_tabs);
 
         childDataFragment = new ChildRegistrationDataFragment();
-
         childDataFragment.setArguments(this.getIntent().getExtras());
 
         childUnderFiveFragment = new ChildUnderFiveFragment();
         childUnderFiveFragment.setArguments(this.getIntent().getExtras());
-
 
         detailtoolbar = (ChildDetailsToolbar) findViewById(R.id.child_detail_toolbar);
 
@@ -177,11 +183,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                detailtoolbar.showOverflowMenu();
-                invalidateOptionsMenu();
-                childUnderFiveFragment.loadView();
-
-                saveButton.setVisibility(View.INVISIBLE);
+                resetOptionsMenu();
             }
         });
 
@@ -205,9 +207,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             @Override
             public void onPageSelected(int position) {
                 if (position == 0) {
-                    saveButton.setVisibility(View.INVISIBLE);
-                    invalidateOptionsMenu();
-                    childUnderFiveFragment.loadView();
+                    if(saveButton.getVisibility() == View.VISIBLE) {
+                       resetOptionsMenu();
+                    }
                 }
             }
 
@@ -242,14 +244,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void initiallization() {
-        detailsRepository = detailsRepository == null ? this.getOpenSRPContext().detailsRepository() : detailsRepository;
-        detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-        util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        profileWidget();
         ((TextView) detailtoolbar.findViewById(R.id.title)).setText(updateActivityTitle());
-
+        profileWidget();
     }
 
     @Override
@@ -263,10 +263,79 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         overflow.findItem(R.id.weight_data).setEnabled(false);
         overflow.findItem(R.id.record_bcg_2).setVisible(false);
 
+        Utils.startAsyncTask(new LoadAsyncTask(), null);
         return true;
     }
 
-    public void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
+    private void resetOptionsMenu(){
+        detailtoolbar.showOverflowMenu();
+        invalidateOptionsMenu();
+
+        saveButton.setVisibility(View.INVISIBLE);
+    }
+
+    public void updateOptionsMenu(List<Vaccine> vaccineList, List<ServiceRecord> serviceRecordList, List<Weight> weightList, List<Alert> alertList) {
+        boolean showVaccineList = false;
+        for (int i = 0; i < vaccineList.size(); i++) {
+            Vaccine vaccine = vaccineList.get(i);
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(vaccine);
+            if (check) {
+                showVaccineList = true;
+                break;
+            }
+        }
+
+        boolean showServiceList = false;
+        for (ServiceRecord serviceRecord : serviceRecordList) {
+            boolean check = VaccinateActionUtils.lessThanThreeMonths(serviceRecord);
+            if (check) {
+                showServiceList = true;
+                break;
+
+            }
+        }
+
+        boolean showWeightEdit = false;
+        for (int i = 0; i < weightList.size(); i++) {
+            Weight weight = weightList.get(i);
+            showWeightEdit = WeightUtils.lessThanThreeMonths(weight);
+            if (showWeightEdit) {
+                break;
+            }
+        }
+
+        boolean showRecordBcg2 = showRecordBcg2(vaccineList, alertList);
+
+        updateOptionsMenu(showVaccineList, showServiceList, showWeightEdit, showRecordBcg2);
+    }
+
+    private boolean showRecordBcg2(List<Vaccine> vaccineList, List<Alert> alerts) {
+        if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
+            return false;
+        }
+
+        Vaccine bcg = VaccinateActionUtils.getVaccine(vaccineList, VaccineRepo.Vaccine.bcg);
+        if (bcg == null) {
+            return false;
+        }
+
+        Alert alert = VaccinateActionUtils.getAlert(alerts, VaccineRepo.Vaccine.bcg2);
+        if (alert == null || alert.isComplete()) {
+            return false;
+        }
+
+        int bcgOffsetInWeeks = 12;
+        Calendar twelveWeeksLaterDate = Calendar.getInstance();
+        twelveWeeksLaterDate.setTime(bcg.getDate());
+        twelveWeeksLaterDate.add(Calendar.WEEK_OF_YEAR, bcgOffsetInWeeks);
+
+        Calendar today = Calendar.getInstance();
+
+        return today.getTime().after(twelveWeeksLaterDate.getTime()) || DateUtils.isSameDay(twelveWeeksLaterDate, today);
+    }
+
+    private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
+
         if (showVaccineList) {
             overflow.findItem(R.id.immunization_data).setEnabled(true);
         }
@@ -297,7 +366,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_VACCINE);
+                Utils.startAsyncTask(new LoadAsyncTask(STATUS.EDIT_VACCINE), null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -308,7 +377,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_SERVICE);
+                Utils.startAsyncTask(new LoadAsyncTask(STATUS.EDIT_SERVICE), null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -318,7 +387,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (viewPager.getCurrentItem() != 1) {
                     viewPager.setCurrentItem(1);
                 }
-                childUnderFiveFragment.loadView(ChildUnderFiveFragment.STATUS.EDIT_WEIGHT);
+                Utils.startAsyncTask(new LoadAsyncTask(STATUS.EDIT_WEIGHT), null);
                 saveButton.setVisibility(View.VISIBLE);
                 for (int i = 0; i < overflow.size(); i++) {
                     overflow.getItem(i).setVisible(false);
@@ -587,7 +656,12 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
                 childDataFragment.childDetails = childDetails;
-                childDataFragment.loadData();
+
+                DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+                detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+                util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+                childDataFragment.loadData(detailsMap);
+
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
             }
@@ -724,7 +798,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             }
         }
         updateProfilePicture(gender);
-        updateStatus();
     }
 
     @Override
@@ -940,7 +1013,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
             tag.setDbKey(weight.getId());
         }
-        childUnderFiveFragment.loadView();
+
+        Utils.startAsyncTask(new LoadAsyncTask(), null);
     }
 
     public void showWeightDialog(int i) {
@@ -1099,8 +1173,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         CoverageDropoutIntentService.updateIndicators(ChildDetailTabbedActivity.this, childDetails.entityId(), Utils.dobToDateTime(childDetails).toDate(), tag.getName(), tag.getUpdatedVaccineDate().toDate());
 
         if (tag.getName().equalsIgnoreCase(VaccineRepo.Vaccine.bcg2.display())) {
-            invalidateOptionsMenu();
-            childUnderFiveFragment.loadView();
+            resetOptionsMenu();
         }
     }
 
@@ -1180,6 +1253,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             db.addorUpdateClient(childDetails.entityId(), client);
 
 
+            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
             detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
             ContentValues contentValues = new ContentValues();
             //Add the base_entity_id
@@ -1221,14 +1295,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        initiallization();
-        updateActivityTitle();
     }
 
     //Recurring Service
@@ -1274,11 +1340,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public ViewPagerAdapter getViewPagerAdapter() {
         return adapter;
     }
-
-    public DetailsRepository getDetailsRepository() {
-        return detailsRepository;
-    }
-
 
     private void showBcg2DialogFragment() {
 
@@ -1338,6 +1399,123 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     ////////////////////////////////////////////////////////////////
     // Inner classes
     ////////////////////////////////////////////////////////////////
+    public enum STATUS {
+        NONE, EDIT_WEIGHT, EDIT_VACCINE, EDIT_SERVICE
+    }
+
+    private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
+
+        private STATUS status;
+
+        private LoadAsyncTask() {
+            this.status = STATUS.NONE;
+        }
+
+        private LoadAsyncTask(STATUS status) {
+            this.status = status;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgressDialog(getString(R.string.updating_dialog_title), null);
+        }
+
+        @Override
+        protected void onPostExecute(Map<String, NamedObject<?>> map) {
+
+            detailsMap = AsyncTaskUtils.extractDetailsMap(map);
+            util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+            List<Weight> weightList = AsyncTaskUtils.extractWeights(map);
+            List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
+            Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
+            List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
+            List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
+
+            updateStatus();
+
+            boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
+            boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
+            boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
+
+            if (STATUS.NONE.equals(status)) {
+                updateOptionsMenu(vaccineList, serviceRecords, weightList, alertList);
+                childDataFragment.loadData(detailsMap);
+            }
+
+            childUnderFiveFragment.setDetailsMap(detailsMap);
+            childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
+            childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
+            childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            hideProgressDialog();
+        }
+
+        @Override
+        protected Map<String, NamedObject<?>> doInBackground(Void... params) {
+            Map<String, NamedObject<?>> map = new HashMap<>();
+
+            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+            Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+            NamedObject<Map<String, String>> detailsNamedObject = new NamedObject<>(Map.class.getName(), detailsMap);
+            map.put(detailsNamedObject.name, detailsNamedObject);
+
+            WeightRepository wp = VaccinatorApplication.getInstance().weightRepository();
+            List<Weight> weightList = wp.findLast5(childDetails.entityId());
+
+            NamedObject<List<Weight>> weightNamedObject = new NamedObject<>(Weight.class.getName(), weightList);
+            map.put(weightNamedObject.name, weightNamedObject);
+
+            VaccineRepository vaccineRepository = VaccinatorApplication.getInstance().vaccineRepository();
+            List<Vaccine> vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
+
+            NamedObject<List<Vaccine>> vaccineNamedObject = new NamedObject<>(Vaccine.class.getName(), vaccineList);
+            map.put(vaccineNamedObject.name, vaccineNamedObject);
+
+            List<ServiceRecord> serviceRecords = new ArrayList<>();
+
+            RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
+            RecurringServiceRecordRepository recurringServiceRecordRepository = VaccinatorApplication.getInstance().recurringServiceRecordRepository();
+
+            if (recurringServiceRecordRepository != null) {
+                serviceRecords = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
+            }
+
+            NamedObject<List<ServiceRecord>> serviceNamedObject = new NamedObject<>(ServiceRecord.class.getName(), serviceRecords);
+            map.put(serviceNamedObject.name, serviceNamedObject);
+
+            Map<String, List<ServiceType>> serviceTypeMap = new LinkedHashMap<>();
+            if (recurringServiceTypeRepository != null) {
+                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                for (ServiceType serviceType : serviceTypes) {
+                    String type = serviceType.getType();
+                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                    if (serviceTypeList == null) {
+                        serviceTypeList = new ArrayList<>();
+                    }
+                    serviceTypeList.add(serviceType);
+                    serviceTypeMap.put(type, serviceTypeList);
+                }
+            }
+
+            NamedObject<Map<String, List<ServiceType>>> serviceTypeNamedObject = new NamedObject<>(ServiceType.class.getName(), serviceTypeMap);
+            map.put(serviceTypeNamedObject.name, serviceTypeNamedObject);
+
+            List<Alert> alertList = new ArrayList<>();
+            AlertService alertService = getOpenSRPContext().alertService();
+            if (alertService != null) {
+                alertList = alertService.findByEntityId(childDetails.entityId());
+            }
+
+            NamedObject<List<Alert>> alertNamedObject = new NamedObject<>(Alert.class.getName(), alertList);
+            map.put(alertNamedObject.name, alertNamedObject);
+
+            return map;
+        }
+    }
+
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
 
         private View view;

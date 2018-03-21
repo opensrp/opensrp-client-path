@@ -39,7 +39,10 @@ import shared.BaseUnitTest;
 import shared.customshadows.ImmunizationRowAdapterShadow;
 import shared.customshadows.ImmunizationRowCardShadow;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 
@@ -83,7 +86,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         CoreLibrary.init(context_);
 
-        activity.detailsRepository = getDetailsRepository();
         controller.setup();
     }
 
@@ -544,13 +546,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void getDetailsRepositoryShouldNotReturnNull() {
-
-        assertNotNull(activity.getDetailsRepository());
-
-    }
-
-    @Test
     public void onReturnSelectItemOptionsShouldReturnTrue() {
         assertTrue(activity.onPrepareOptionsMenu(null));
 
@@ -627,7 +622,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
-        activity.detailsRepository = getDetailsRepository();
         controller.setup();
 
         //Certify started successfully by checking if at least one random element rendered
@@ -657,7 +651,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
 
-        activity.detailsRepository = getDetailsRepository();
         controller.setup();
         LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
         assertNotNull(statusView);
@@ -698,7 +691,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
 
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
-        activity.detailsRepository = getDetailsRepository();
         controller.setup();
 
         LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
@@ -733,7 +725,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         controller = Robolectric.buildActivity(ChildDetailTabbedActivityTestVersion.class, intent);
         activity = controller.get();
 
-        activity.detailsRepository = getDetailsRepository();
         controller.setup();
         LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
         assertNotNull(statusView);
