@@ -81,5 +81,15 @@ public class AsyncTaskUtils {
         return new ArrayList<>();
     }
 
+    public static Map<String, String> extractDetailsMap(Map<String, NamedObject<?>> map) {
+        if (map.containsKey(Map.class.getName())) {
+            NamedObject<?> namedObject = map.get(Map.class.getName());
+            if (namedObject != null) {
+                return (Map<String, String>) namedObject.object;
+            }
+        }
+        return new HashMap<>();
+    }
+
 
 }
