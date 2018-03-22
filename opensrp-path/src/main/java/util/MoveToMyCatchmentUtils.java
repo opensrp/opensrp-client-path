@@ -19,7 +19,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.CumulativePatient;
 import org.smartregister.path.repository.CumulativePatientRepository;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
-import org.smartregister.path.service.intent.SyncService;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.AllSharedPreferences;
@@ -81,7 +81,7 @@ public class MoveToMyCatchmentUtils {
         String idString = StringUtils.join(ids, ",");
 
         String paramString = "?baseEntityId=" + urlEncode(idString.trim()) + "&limit=1000";
-        String uri = baseUrl + SyncService.SYNC_URL + paramString;
+        String uri = baseUrl + SyncIntentService.SYNC_URL + paramString;
 
         return context.getHttpAgent().fetch(uri);
     }
