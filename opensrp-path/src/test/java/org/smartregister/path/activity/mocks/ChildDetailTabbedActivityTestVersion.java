@@ -20,11 +20,6 @@ public class ChildDetailTabbedActivityTestVersion extends ChildDetailTabbedActiv
     }
 
     @Override
-    protected Photo getProfilePhotoByClient() {
-        return new Photo();
-    }
-
-    @Override
     protected void onStart() {
         super.onStart();
     }
