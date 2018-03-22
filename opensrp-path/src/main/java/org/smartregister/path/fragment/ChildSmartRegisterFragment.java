@@ -159,7 +159,9 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         if (isPausedOrRefreshList()) {
             initializeQueries();
         }
-        if (!SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
+
+        AllSharedPreferences allSharedPreferences = context().allSharedPreferences();
+        if (!allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing()) {
             org.smartregister.util.Utils.startAsyncTask(new CountDueAndOverDue(), null);
         }
         updateSearchView();
@@ -282,7 +284,11 @@ public class ChildSmartRegisterFragment extends BaseSmartRegisterFragment implem
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         ChildSmartClientsProvider hhscp = new ChildSmartClientsProvider(getActivity(),
-                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository(), context().commonrepository(tableName));
+                clientActionHandler, context().alertService(),
+                VaccinatorApplication.getInstance().vaccineRepository(),
+                VaccinatorApplication.getInstance().weightRepository(),
+                context().commonrepository(tableName),
+                context().allSharedPreferences());
         clientAdapter = new SmartRegisterPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
         clientsView.setAdapter(clientAdapter);
 
