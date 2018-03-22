@@ -16,6 +16,8 @@
 
 package util;
 
+import android.app.Activity;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -28,8 +30,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
@@ -41,7 +43,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 /**
@@ -130,7 +136,7 @@ public class Utils {
     public static int addAsInts(boolean ignoreEmpty, String... vals) {
         int i = 0;
         for (String v : vals) {
-            i += ignoreEmpty && StringUtils.isBlank(v) ? 0 : Integer.parseInt(v);
+            i += ignoreEmpty && isBlank(v) ? 0 : Integer.parseInt(v);
         }
         return i;
     }
@@ -191,7 +197,7 @@ public class Utils {
             vaccineRepository.add(vaccine);
 
             String name = vaccine.getName();
-            if (StringUtils.isBlank(name)) {
+            if (isBlank(name)) {
                 return;
             }
 
@@ -242,7 +248,7 @@ public class Utils {
 
     public static Date getCohortEndDate(String vaccine, Date startDate) {
 
-        if (StringUtils.isBlank(vaccine) || startDate == null) {
+        if (isBlank(vaccine) || startDate == null) {
             return null;
         }
 
@@ -320,7 +326,7 @@ public class Utils {
 
     public static DateTime dobStringToDateTime(String dobString) {
         try {
-            if (StringUtils.isBlank(dobString)) {
+            if (isBlank(dobString)) {
                 return null;
             }
             return new DateTime(dobString);
@@ -336,6 +342,83 @@ public class Utils {
         return Math.round(px);
     }
 
+    /**
+     * This class prevents duplicate and/or undesirable dialogs from popping up on multiple, quick
+     * and succesive clicks on a view that launches a dialog.
+     */
+    public static class DuplicateDialogGuard {
+        private static final long PROHIBITED_INTERVAL = 1300L;
+        private HashMap<String, Long> lastDialogOpened;
+        public DuplicateDialogGuard() {
+            lastDialogOpened = new HashMap<>();
+        }
+
+        /**
+         * This function finds duplicate dialog fragments (fragments of the same type), if any.
+         *
+         * The function returns -1 in case of an error caused by invalid arguments or in the case
+         * that the time interval between calls to this function is lower than the set threshold.
+         *
+         * A 1 is returned in the case that a duplicate dialog, with tag {@param dialogTag}, is found
+         * and a 0 if none is found.
+         *
+         * If a 1 or -1 is returned, the calling method should not try to launch a dialog of any type.
+         *
+         * If a 0 is returned, it should be safe to launch a dialog.
+         *
+         * @param activity
+         * @param dialogTag
+         * @return an int indicating whether it is ok to launch a dialog
+         */
+        public int findDuplicateDialogFragment(Activity activity, String dialogTag) {
+            if (activity == null || isBlank(dialogTag)) {
+                Toast.makeText(activity, "Error displaying dialog! Please try again.",
+                        Toast.LENGTH_SHORT).show();
+                return -1;
+            }
+
+            if (!isProhibitedIntervalLapsed()) {
+                return -1;
+            }
+
+            if (lastDialogOpened.containsKey(dialogTag)) {
+                if (Calendar.getInstance().getTimeInMillis() - lastDialogOpened.get(dialogTag) < PROHIBITED_INTERVAL) {
+                    return 1;
+                }
+                // remove previous dialog of this type if it exists
+                lastDialogOpened.put(dialogTag, Calendar.getInstance().getTimeInMillis());
+                FragmentManager fragmentManager = activity.getFragmentManager();
+                if (fragmentManager.findFragmentByTag(dialogTag) != null) {
+                    fragmentManager.beginTransaction().remove(fragmentManager.findFragmentByTag(dialogTag));
+                }
+            }  else {
+                // set the tag of last dialog opened to the current dialog's and update the timestamp
+                lastDialogOpened.clear();
+                lastDialogOpened.put(dialogTag, Calendar.getInstance().getTimeInMillis());
+            }
+            return 0;
+        }
+
+        /**
+         * Returns true if the PROHIBITED_INTERVAL before trying to launch another dialog has elapsed
+         * and false otherwise
+         *
+         * @return boolean
+         */
+        private boolean isProhibitedIntervalLapsed() {
+            if (!lastDialogOpened.isEmpty()) {
+                long lastDialogOpenedTimeStamp = -1;
+                for (long timeStamp : lastDialogOpened.values()) {
+                    lastDialogOpenedTimeStamp = timeStamp;
+                }
+                if (Calendar.getInstance().getTimeInMillis() - lastDialogOpenedTimeStamp < PROHIBITED_INTERVAL) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     public static boolean isEmptyMap(Map map) {
         return map == null || map.isEmpty();
     }
@@ -344,3 +427,4 @@ public class Utils {
         return collection == null || collection.isEmpty();
     }
 }
+

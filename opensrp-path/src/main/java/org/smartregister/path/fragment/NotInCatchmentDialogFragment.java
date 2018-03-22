@@ -2,7 +2,6 @@ package org.smartregister.path.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +14,8 @@ import org.smartregister.path.R;
 import org.smartregister.path.activity.BaseRegisterActivity;
 import org.smartregister.path.activity.ChildSmartRegisterActivity;
 
+import util.Utils;
+
 /**
  * Created by Jason Rogena - jrogena@ona.io on 14/03/2017.
  */
@@ -23,6 +24,7 @@ import org.smartregister.path.activity.ChildSmartRegisterActivity;
 public class NotInCatchmentDialogFragment extends DialogFragment implements View.OnClickListener {
     private final BaseRegisterActivity parentActivity;
     private final String zeirId;
+    private static Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     private NotInCatchmentDialogFragment(BaseRegisterActivity parentActivity, String zeirId) {
         this.parentActivity = parentActivity;
@@ -32,20 +34,34 @@ public class NotInCatchmentDialogFragment extends DialogFragment implements View
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
+    /**
+     *
+     * @param activity
+     * @param dialogTag
+     * @param zeirId
+     * @return NotInCatchmentDialogFragment if successful and null if there's an error in displaying the dialog
+     */
     public static NotInCatchmentDialogFragment launchDialog(BaseRegisterActivity activity,
                                                             String dialogTag, String zeirId) {
-        NotInCatchmentDialogFragment dialogFragment = new NotInCatchmentDialogFragment(activity,
-                zeirId);
-        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-        Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag);
+        if (isDuplicateDialog == 1) {
+            return (NotInCatchmentDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
+        } else if (isDuplicateDialog == -1) {
+            return null;
         }
+
+        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
+        NotInCatchmentDialogFragment dialogFragment = new NotInCatchmentDialogFragment(activity,
+                zeirId);
         dialogFragment.show(ft, dialogTag);
 
         return dialogFragment;

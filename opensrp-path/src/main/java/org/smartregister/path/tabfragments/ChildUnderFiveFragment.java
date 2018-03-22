@@ -66,14 +66,14 @@ public class ChildUnderFiveFragment extends Fragment {
 
     private LayoutInflater inflater;
     private CommonPersonObjectClient childDetails;
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private Map<String, String> Detailsmap;
     private AlertService alertService;
     private LinearLayout fragmentContainer;
     private Boolean curVaccineMode = null;
     private Boolean curServiceMode = null;
     private Boolean curWeightMode = null;
-
+    private final String DIALOG_TAG = "org.smartregister.path.tabfragments.ChildUnderFiveFragment";
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     public ChildUnderFiveFragment() {
         // Required empty public constructor
@@ -102,6 +102,8 @@ public class ChildUnderFiveFragment extends Fragment {
         DetailsRepository detailsRepository = ((ChildDetailTabbedActivity) getActivity()).getDetailsRepository();
         childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
         Detailsmap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         loadView(false, false, false);
         return underFiveFragment;
@@ -186,10 +188,11 @@ public class ChildUnderFiveFragment extends Fragment {
 
                 final int finalI = i;
                 View.OnClickListener onclicklistener = new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
+                        v.setEnabled(false);
                         ((ChildDetailTabbedActivity) getActivity()).showWeightDialog(finalI);
+                        v.setEnabled(true);
                     }
                 };
                 listeners.add(onclicklistener);
@@ -207,6 +210,8 @@ public class ChildUnderFiveFragment extends Fragment {
             wd.createWeightWidget(inflater, fragmentContainer, weightmap, listeners, weighteditmode);
         }
     }
+
+
 
     private void createPTCMTVIEW(LinearLayout fragmentContainer, String labelString, String valueString) {
         TableRow tableRow = (TableRow) fragmentContainer.findViewById(R.id.tablerowcontainer);
@@ -232,13 +237,12 @@ public class ChildUnderFiveFragment extends Fragment {
         for (VaccineGroup vaccineGroup : supportedVaccines) {
 
             VaccinateActionUtils.addBcg2SpecialVaccine(getActivity(), vaccineGroup, vaccineList);
-            ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editmode);
+            final ImmunizationRowGroup curGroup = new ImmunizationRowGroup(getActivity(), editmode);
             curGroup.setData(vaccineGroup, childDetails, vaccineList, alertList);
             curGroup.setOnVaccineUndoClickListener(new ImmunizationRowGroup.OnVaccineUndoClickListener() {
                 @Override
                 public void onUndoClick(ImmunizationRowGroup vaccineGroup, VaccineWrapper vaccine) {
                     addVaccinationDialogFragment(Arrays.asList(vaccine), vaccineGroup);
-
                 }
             });
 
@@ -262,7 +266,7 @@ public class ChildUnderFiveFragment extends Fragment {
 
         try {
             for (String type : serviceTypeMap.keySet()) {
-                ServiceRowGroup curGroup = new ServiceRowGroup(getActivity(), editmode);
+                final ServiceRowGroup curGroup = new ServiceRowGroup(getActivity(), editmode);
                 curGroup.setData(childDetails, serviceTypeMap.get(type), serviceRecords, alertList);
                 curGroup.setOnServiceUndoClickListener(new ServiceRowGroup.OnServiceUndoClickListener() {
                     @Override
@@ -297,11 +301,13 @@ public class ChildUnderFiveFragment extends Fragment {
 
 
     private void addVaccinationDialogFragment(List<VaccineWrapper> vaccineWrappers, ImmunizationRowGroup vaccineGroup) {
-        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-        android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                DIALOG_TAG);
+        if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+            return;
         }
+
+        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -319,11 +325,14 @@ public class ChildUnderFiveFragment extends Fragment {
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceRowGroup serviceRowGroup) {
-        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
-        android.app.Fragment prev = getActivity().getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(getActivity(),
+                DIALOG_TAG);
+        if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+            return;
         }
+
+        FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -338,6 +347,7 @@ public class ChildUnderFiveFragment extends Fragment {
         ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
+
 
     public void setAlertService(AlertService alertService) {
         this.alertService = alertService;

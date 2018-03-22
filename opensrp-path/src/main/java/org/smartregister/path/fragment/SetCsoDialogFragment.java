@@ -2,7 +2,6 @@ package org.smartregister.path.fragment;
 
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -28,7 +27,10 @@ import org.smartregister.path.activity.BaseReportActivity;
 import org.smartregister.path.domain.CoverageHolder;
 import org.smartregister.path.helper.LocationHelper;
 
+import java.util.HashMap;
 import java.util.List;
+
+import util.Utils;
 
 /**
  * Created by keyman on 22/12/17.
@@ -37,6 +39,7 @@ public class SetCsoDialogFragment extends DialogFragment {
 
     private CoverageHolder holder;
     private OnSetCsoListener listener;
+    private static Utils.DuplicateDialogGuard duplicateDialogGuard;
 
     public static SetCsoDialogFragment newInstance(CoverageHolder holder) {
         SetCsoDialogFragment f = new SetCsoDialogFragment();
@@ -51,6 +54,7 @@ public class SetCsoDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        duplicateDialogGuard = new Utils.DuplicateDialogGuard();
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
     }
 
@@ -160,16 +164,28 @@ public class SetCsoDialogFragment extends DialogFragment {
         }
     }
 
+    /**
+     *
+     * @param activity
+     * @param dialogTag
+     * @param holder
+     *
+     * @return SetCsoDialogFragment if successful and null if there's an error in displaying the dialog
+     */
     public static SetCsoDialogFragment launchDialog(BaseActivity activity,
                                                     String dialogTag, CoverageHolder holder) {
-        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(holder);
-        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
-        Fragment prev = activity.getFragmentManager().findFragmentByTag(dialogTag);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(activity,
+                dialogTag);
+        if (isDuplicateDialog == 1) {
+            return (SetCsoDialogFragment) activity.getFragmentManager().findFragmentByTag(dialogTag);
+        } else if (isDuplicateDialog == -1) {
+            return null;
         }
+        FragmentTransaction ft = activity.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
+        SetCsoDialogFragment dialogFragment = SetCsoDialogFragment.newInstance(holder);
         dialogFragment.show(ft, dialogTag);
 
         return dialogFragment;

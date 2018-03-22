@@ -1,6 +1,5 @@
 package org.smartregister.path.activity;
 
-import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -93,7 +91,6 @@ import util.AsyncTaskUtils;
 import util.ImageUtils;
 import util.PathConstants;
 
-
 /**
  * Created by Jason Rogena - jrogena@ona.io on 16/02/2017.
  */
@@ -105,7 +102,6 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final String EXTRA_CHILD_DETAILS = "child_details";
     private static final String EXTRA_REGISTER_CLICKABLES = "register_clickables";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-    private static final String DIALOG_TAG = "ChildImmunoActivity_DIALOG_TAG";
     private ArrayList<VaccineGroup> vaccineGroups;
     private ArrayList<ServiceGroup> serviceGroups;
     private static final ArrayList<String> COMBINED_VACCINES;
@@ -116,6 +112,8 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
+    private util.Utils.DuplicateDialogGuard duplicateDialogGuard;
+    private static String DIALOG_TAG = "org.smartregister.path.activity.ChildImmunizationActivity";
 
     static {
         COMBINED_VACCINES = new ArrayList<>();
@@ -137,11 +135,12 @@ public class ChildImmunizationActivity extends BaseActivity
     private CommonPersonObjectClient childDetails;
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
-    private boolean dialogOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        duplicateDialogGuard = new util.Utils.DuplicateDialogGuard();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -383,26 +382,18 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroups = new ArrayList<>();
             LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
 
-            ServiceGroup curGroup = new ServiceGroup(this);
+            final ServiceGroup curGroup = new ServiceGroup(this);
             curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
             curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     addServiceDialogFragment(serviceWrapper, serviceGroup);
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
                 }
             });
@@ -462,25 +453,17 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
-        VaccineGroup curGroup = new VaccineGroup(this);
+        final VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
-                if (dialogOpen) {
-                    return;
-                }
-                dialogOpen = true;
                 addVaccinationDialogFragment(dueVaccines, vaccineGroup);
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
-                dialogOpen = true;
                 ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                 vaccineWrappers.add(vaccine);
                 addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
@@ -489,11 +472,6 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
-
-                dialogOpen = true;
                 addVaccineUndoDialogFragment(vaccineGroup, vaccine);
             }
         });
@@ -517,43 +495,33 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineUndoDialogFragment(VaccineGroup vaccineGroup, VaccineWrapper vaccineWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
+        if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+            return;
         }
 
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
 
         UndoVaccinationDialogFragment undoVaccinationDialogFragment = UndoVaccinationDialogFragment.newInstance(vaccineWrapper);
         undoVaccinationDialogFragment.show(ft, DIALOG_TAG);
-        undoVaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
     }
 
     private void addServiceUndoDialogFragment(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicateFragment = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
+        if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
+            return;
         }
 
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
         UndoServiceDialogFragment undoServiceDialogFragment = UndoServiceDialogFragment.newInstance(serviceWrapper);
         undoServiceDialogFragment.show(ft, DIALOG_TAG);
-        undoServiceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
     }
 
     private void updateWeightViews(Weight lastUnsyncedWeight) {
@@ -592,17 +560,23 @@ public class ChildImmunizationActivity extends BaseActivity
 
         updateRecordWeightViews(weightWrapper);
 
-        ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
+        final ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Utils.startAsyncTask(new ShowGrowthChartTask(), null);
+                int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(ChildImmunizationActivity.this,
+                        DIALOG_TAG);
+                if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+                    return;
+                }
+                Utils.startAsyncTask(new ShowGrowthChartTask(growthChartButton), null);
             }
         });
+
     }
 
     private void updateRecordWeightViews(WeightWrapper weightWrapper) {
-        View recordWeight = findViewById(R.id.record_weight);
+        final View recordWeight = findViewById(R.id.record_weight);
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
@@ -647,11 +621,13 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showWeightDialog(View view) {
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+
+        int isDuplicate = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
+        if (isDuplicate == -1 || isDuplicate == 1) {
+            return;
         }
+
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
 
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -796,12 +772,12 @@ public class ChildImmunizationActivity extends BaseActivity
 
     private void addVaccinationDialogFragment(ArrayList<VaccineWrapper> vaccineWrappers, VaccineGroup vaccineGroup) {
 
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+        int isDuplicateFragment = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
+        if (isDuplicateFragment == -1 || isDuplicateFragment == 1) {
+            return;
         }
 
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         vaccineGroup.setModalOpen(true);
         String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
@@ -816,23 +792,16 @@ public class ChildImmunizationActivity extends BaseActivity
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
-        vaccinationDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
-
     }
 
     private void addServiceDialogFragment(ServiceWrapper serviceWrapper, ServiceGroup serviceGroup) {
 
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
+        int isDuplicateDialog = duplicateDialogGuard.findDuplicateDialogFragment(this, DIALOG_TAG);
+        if (isDuplicateDialog == -1 || isDuplicateDialog == 1) {
+            return;
         }
 
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
         ft.addToBackStack(null);
         serviceGroup.setModalOpen(true);
 
@@ -847,12 +816,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
         ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
-        serviceDialogFragment.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                dialogOpen = false;
-            }
-        });
     }
 
     private void performRegisterActions() {
@@ -983,6 +946,7 @@ public class ChildImmunizationActivity extends BaseActivity
                         public void onClick(View v) {
                             View recordWeight = findViewById(R.id.record_weight);
                             showWeightDialog(recordWeight);
+
                             hideNotification();
                         }
                     }, R.string.cancel, new View.OnClickListener() {
@@ -1379,6 +1343,11 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private class ShowGrowthChartTask extends AsyncTask<Void, Void, List<Weight>> {
+        private ImageButton growthChartButton;
+        ShowGrowthChartTask(ImageButton growthChartButton) {
+            this.growthChartButton = growthChartButton;
+        }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -1411,15 +1380,9 @@ public class ChildImmunizationActivity extends BaseActivity
             super.onPostExecute(allWeights);
             hideProgressDialog();
             FragmentTransaction ft = ChildImmunizationActivity.this.getFragmentManager().beginTransaction();
-            Fragment prev = ChildImmunizationActivity.this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-            if (prev != null) {
-                ft.remove(prev);
-            }
             ft.addToBackStack(null);
-
-
             GrowthDialogFragment growthDialogFragment = GrowthDialogFragment.newInstance(childDetails, allWeights);
-            growthDialogFragment.show(ft, DIALOG_TAG);
+            growthDialogFragment.show(ft, growthDialogFragment.getClass().getName());
         }
     }
 
