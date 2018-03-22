@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -812,7 +811,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
                 .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) vaccineList = new ArrayList<>();
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
@@ -844,6 +845,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
                 .findByEntityId(childDetails.entityId());
+        if (serviceRecordList == null) {
+            serviceRecordList = new ArrayList<>();
+        }
 
         ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);

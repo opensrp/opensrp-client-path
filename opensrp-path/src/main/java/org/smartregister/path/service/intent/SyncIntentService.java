@@ -1,17 +1,9 @@
 package org.smartregister.path.service.intent;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.os.Process;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
@@ -35,13 +27,12 @@ import org.smartregister.service.HTTPAgent;
 
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import util.NetworkUtils;
 
-public class SyncService extends IntentService {
+public class SyncIntentService extends IntentService {
     private static final String ADD_URL = "/rest/event/add";
     public static final String SYNC_URL = "/rest/event/sync";
 
@@ -51,8 +42,8 @@ public class SyncService extends IntentService {
     public static final int EVENT_PULL_LIMIT = 500;
     private static final int EVENT_PUSH_LIMIT = 50;
 
-    public SyncService() {
-        super("SyncService");
+    public SyncIntentService() {
+        super("SyncIntentService");
     }
 
     @Override
@@ -115,10 +106,10 @@ public class SyncService extends IntentService {
             }
 
             Long lastSyncDatetime = ecSyncUpdater.getLastSyncTimeStamp();
-            Log.i(SyncService.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
+            Log.i(SyncIntentService.class.getName(), "LAST SYNC DT :" + new DateTime(lastSyncDatetime));
 
-            String url = baseUrl + SYNC_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncService.EVENT_PULL_LIMIT;
-            Log.i(SyncService.class.getName(), "URL: " + url);
+            String url = baseUrl + SYNC_URL + "?" + AllConstants.SyncFilters.FILTER_LOCATION_ID + "=" + locations + "&serverVersion=" + lastSyncDatetime + "&limit=" + SyncIntentService.EVENT_PULL_LIMIT;
+            Log.i(SyncIntentService.class.getName(), "URL: " + url);
 
             if (httpAgent == null) {
                 complete(FetchStatus.fetchedFailed);
@@ -236,6 +227,7 @@ public class SyncService extends IntentService {
         Intent intent = new Intent();
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
+        intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, true);
 
         sendBroadcast(intent);
 
@@ -281,22 +273,8 @@ public class SyncService extends IntentService {
         return Pair.create(0L, 0L);
     }
 
-    private Map<String, String> authHeaders() {
-        final String USERNAME = VaccinatorApplication.getInstance().context().allSharedPreferences().fetchRegisteredANM();
-        final String PASSWORD = VaccinatorApplication.getInstance().context().allSettings().fetchANMPassword();
-        Map<String, String> headers = new HashMap<>();
-        // add headers <key,value>
-        String credentials = USERNAME + ":" + PASSWORD;
-        String auth = "Basic "
-                + Base64.encodeToString(credentials.getBytes(),
-                Base64.NO_WRAP);
-        headers.put("Content-Type", "application/json");
-        headers.put("Authorization", auth);
-        return headers;
-    }
-
     private int fetchNumberOfEvents(JSONObject jsonObject) {
-        int count = 0;
+        int count = -1;
         final String NO_OF_EVENTS = "no_of_events";
         try {
             if (jsonObject != null && jsonObject.has(NO_OF_EVENTS)) {
