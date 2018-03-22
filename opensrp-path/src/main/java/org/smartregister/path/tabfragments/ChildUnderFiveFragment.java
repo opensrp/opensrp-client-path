@@ -110,10 +110,19 @@ public class ChildUnderFiveFragment extends Fragment {
         }
     }
 
-    private void createWeightLayout(List<Weight> weightList, LinearLayout fragmentContainer, boolean editmode) {
-        LinkedHashMap<Long, Pair<String, String>> weightmap = new LinkedHashMap<>();
-        ArrayList<Boolean> weighteditmode = new ArrayList<>();
+    private void createWeightLayout(List<Weight> weights, LinearLayout fragmentContainer, boolean editmode) {
+        LinkedHashMap<Long, Pair<String, String>> weightMap = new LinkedHashMap<>();
+        ArrayList<Boolean> weightEditMode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
+
+        List<Weight> weightList = new ArrayList<>();
+        if(weights != null && !weights.isEmpty()){
+            if(weights.size() <= 5){
+                weightList = weights;
+            }else{
+                weightList = weights.subList(0, 5);
+            }
+        }
 
         for (int i = 0; i < weightList.size(); i++) {
             Weight weight = weightList.get(i);
@@ -133,13 +142,13 @@ public class ChildUnderFiveFragment extends Fragment {
             }
 
             if (!formattedAge.equalsIgnoreCase("0d")) {
-                weightmap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
+                weightMap.put(weight.getId(), Pair.create(formattedAge, Utils.kgStringSuffix(weight.getKg())));
 
                 boolean lessThanThreeMonthsEventCreated = WeightUtils.lessThanThreeMonths(weight);
                 if (lessThanThreeMonthsEventCreated) {
-                    weighteditmode.add(editmode);
+                    weightEditMode.add(editmode);
                 } else {
-                    weighteditmode.add(false);
+                    weightEditMode.add(false);
                 }
 
                 final int finalI = i;
@@ -155,15 +164,15 @@ public class ChildUnderFiveFragment extends Fragment {
 
         }
 
-        if (weightmap.size() < 5) {
-            weightmap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
-            weighteditmode.add(false);
+        if (weightMap.size() < 5) {
+            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
+            weightEditMode.add(false);
             listeners.add(null);
         }
 
         WidgetFactory wd = new WidgetFactory();
-        if (weightmap.size() > 0) {
-            wd.createWeightWidget(inflater, fragmentContainer, weightmap, listeners, weighteditmode);
+        if (weightMap.size() > 0) {
+            wd.createWeightWidget(inflater, fragmentContainer, weightMap, listeners, weightEditMode);
         }
     }
 
