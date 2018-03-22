@@ -2,9 +2,14 @@ package org.smartregister.path.fragment;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -117,8 +122,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
 
     private AdvancedSearchPaginatedCursorAdapter clientAdapter;
 
-    @Override
+    private BroadcastReceiver connectionChangeReciever;
 
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -141,6 +147,15 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+
+        if (connectionChangeReciever != null) {
+            getActivity().unregisterReceiver(connectionChangeReciever);
+        }
+    }
+
+    @Override
     public void setupViews(View view) {
         super.setupViews(view);
 
@@ -151,7 +166,6 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         ImageButton imageButton = (ImageButton) view.findViewById(R.id.global_search);
         imageButton.setBackgroundColor(getResources().getColor(R.color.transparent_dark_blue));
         imageButton.setOnClickListener(clientActionHandler);
-
 
         final View filterSection = view.findViewById(R.id.filter_selection);
         filterSection.setOnClickListener(clientActionHandler);
@@ -203,14 +217,24 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         outsideInside.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                myCatchment.setChecked(!isChecked);
+                if (!Utils.isConnectedToNetwork(getActivity())) {
+                    myCatchment.setChecked(true);
+                    outsideInside.setChecked(false);
+                } else {
+                    myCatchment.setChecked(!isChecked);
+                }
             }
         });
 
         myCatchment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                outsideInside.setChecked(!isChecked);
+                if (!Utils.isConnectedToNetwork(getActivity())) {
+                    myCatchment.setChecked(true);
+                    outsideInside.setChecked(false);
+                } else {
+                    outsideInside.setChecked(!isChecked);
+                }
             }
         });
 
@@ -218,7 +242,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         outsideInsideLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                outsideInside.performClick();
+                outsideInside.toggle();
             }
         });
 
@@ -226,35 +250,59 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         mycatchmentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                myCatchment.performClick();
+                myCatchment.toggle();
             }
         });
 
         active = (CheckBox) view.findViewById(R.id.active);
+        active.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (!isChecked && !inactive.isChecked() && !lostToFollowUp.isChecked()) {
+                    active.setChecked(true);
+                }
+            }
+        });
         inactive = (CheckBox) view.findViewById(R.id.inactive);
+        inactive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (!isChecked && !active.isChecked() && !lostToFollowUp.isChecked()) {
+                    inactive.setChecked(true);
+                }
+            }
+        });
         lostToFollowUp = (CheckBox) view.findViewById(R.id.lost_to_follow_up);
+        lostToFollowUp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (!isChecked && !active.isChecked() && !inactive.isChecked()) {
+                    lostToFollowUp.setChecked(true);
+                }
+            }
+        });
 
-        View activeLayout = view.findViewById(R.id.active_layout);
+        final View activeLayout = view.findViewById(R.id.active_layout);
         activeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                active.performClick();
+                active.toggle();
             }
         });
 
-        View inactiveLayout = view.findViewById(R.id.inactive_layout);
+        final View inactiveLayout = view.findViewById(R.id.inactive_layout);
         inactiveLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                inactive.performClick();
+                inactive.toggle();
             }
         });
 
-        View lostToFollowUpLayout = view.findViewById(R.id.lost_to_follow_up_layout);
+        final View lostToFollowUpLayout = view.findViewById(R.id.lost_to_follow_up_layout);
         lostToFollowUpLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lostToFollowUp.performClick();
+                lostToFollowUp.toggle();
             }
         });
 
@@ -303,9 +351,26 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         if (Utils.isConnectedToNetwork(getActivity())) {
             outsideInside.setChecked(true);
             myCatchment.setChecked(false);
+
         } else {
             myCatchment.setChecked(true);
             outsideInside.setChecked(false);
+        }
+
+        if (connectionChangeReciever == null) {
+            connectionChangeReciever = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (!Utils.isConnectedToNetwork(getActivity())) {
+                        myCatchment.setChecked(true);
+                        outsideInside.setChecked(false);
+                    }
+                }
+            };
+
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            getActivity().registerReceiver(connectionChangeReciever, intentFilter);
         }
 
     }
@@ -928,8 +993,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         }
     }
 
-    private void refreshBaseRegister() {
+    private void refreshAndSwitchToBaseRegister() {
         ((ChildSmartRegisterActivity) getActivity()).refreshList(FetchStatus.fetched);
+        ((ChildSmartRegisterActivity) getActivity()).switchToBaseFragment(null);
     }
 
     private void moveToMyCatchmentArea(final List<String> ids) {
@@ -1097,7 +1163,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             if (jsonObject != null) {
                 if (MoveToMyCatchmentUtils.processMoveToCatchment(getActivity(), context().allSharedPreferences(), jsonObject)) {
                     clientAdapter.notifyDataSetChanged();
-                    refreshBaseRegister();
+                    refreshAndSwitchToBaseRegister();
                 } else {
                     Toast.makeText(getActivity(), "Error Processing Records", Toast.LENGTH_SHORT).show();
                 }

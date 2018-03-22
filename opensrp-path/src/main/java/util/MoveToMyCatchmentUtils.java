@@ -181,6 +181,7 @@ public class MoveToMyCatchmentUtils {
                 // Update providerId, locationId and Save unsynced event
                 event.setProviderId(toProviderId);
                 event.setLocationId(toLocationId);
+                event.setVersion(System.currentTimeMillis());
                 JSONObject updatedJsonEvent = ecUpdater.convertToJson(event);
                 jsonEvent = JsonFormUtils.merge(jsonEvent, updatedJsonEvent);
 
