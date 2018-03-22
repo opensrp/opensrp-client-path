@@ -30,6 +30,7 @@ import org.smartregister.path.fragment.AdvancedSearchFragment;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
 import org.smartregister.path.wrapper.VaccineViewRecordUpdateWrapper;
 import org.smartregister.path.wrapper.WeightViewRecordUpdateWrapper;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.OpenSRPImageLoader;
@@ -74,15 +75,19 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
     private final WeightRepository weightRepository;
     private final AbsListView.LayoutParams clientViewLayoutParams;
     private final CommonRepository commonRepository;
+    private AllSharedPreferences allSharedPreferences;
 
     public ChildSmartClientsProvider(Context context, View.OnClickListener onClickListener,
-                                     AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
+                                     AlertService alertService, VaccineRepository vaccineRepository,
+                                     WeightRepository weightRepository, CommonRepository commonRepository,
+                                     AllSharedPreferences allSharedPreferences) {
         this.onClickListener = onClickListener;
         this.context = context;
         this.alertService = alertService;
         this.vaccineRepository = vaccineRepository;
         this.weightRepository = weightRepository;
         this.commonRepository = commonRepository;
+        this.allSharedPreferences = allSharedPreferences;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         clientViewLayoutParams = new AbsListView.LayoutParams(MATCH_PARENT, (int) context.getResources().getDimension(org.smartregister.R.dimen.list_item_height));
@@ -132,7 +137,8 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         final ImageView profilePic = (ImageView) convertView.findViewById(R.id.child_profilepic);
         int defaultImageResId = ImageUtils.profileImageResourceByGender(gender);
         profilePic.setImageResource(defaultImageResId);
-        if (pc.entityId() != null && !SyncStatusBroadcastReceiver.getInstance().isSyncing()) { //image already in local storage most likely ):
+
+        if (pc.entityId() != null && show()) { //image already in local storage most likely ):
             //set profile image by passing the client id.If the image doesn't exist in the image repository then download and save locally
             profilePic.setTag(org.smartregister.R.id.entity_id, pc.entityId());
             DrishtiApplication.getCachedImageLoaderInstance().getImageByClientId(pc.entityId(), OpenSRPImageLoader.getStaticImageListener(profilePic, 0, 0));
@@ -155,8 +161,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
 
-        boolean showButtons = !ChildSmartClientsProvider.class.equals(this.getClass()) || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
-        if (showButtons) {
+        if (show()) {
             try {
                 Utils.startAsyncTask(new WeightAsyncTask(convertView, pc.entityId(), lostToFollowUp, inactive, client, cursor), null);
                 Utils.startAsyncTask(new VaccinationAsyncTask(convertView, pc.entityId(), dobString, lostToFollowUp, inactive, client, cursor), null);
@@ -381,7 +386,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         return inflater;
     }
 
-    public void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
+    private void updateViews(View convertView, SmartRegisterClient client, boolean isWeightRecord) {
 
         CommonPersonObjectClient pc = (CommonPersonObjectClient) client;
 
@@ -441,7 +446,10 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
     }
 
-    public enum State {
+    private boolean show(){
+        return !ChildSmartClientsProvider.class.equals(this.getClass()) || !allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
+    }
+    private enum State {
         DUE,
         OVERDUE,
         UPCOMING_NEXT_7_DAYS,

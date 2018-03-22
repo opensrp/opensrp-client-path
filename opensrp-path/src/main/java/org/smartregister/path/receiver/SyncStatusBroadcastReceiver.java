@@ -10,11 +10,13 @@ import org.joda.time.DateTime;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.ExtendedSyncIntentService;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static org.smartregister.util.Log.logError;
 
 /**
@@ -27,11 +29,14 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
     public static final String EXTRA_COMPLETE_STATUS = "complete_status";
 
     private static SyncStatusBroadcastReceiver singleton;
+    private final ArrayList<SyncStatusListener> syncStatusListeners;
     private boolean isSyncing;
     private boolean alarmsTriggered = false;
     private long lastFetchedTimestamp;
 
-    private final ArrayList<SyncStatusListener> syncStatusListeners;
+    public SyncStatusBroadcastReceiver() {
+        syncStatusListeners = new ArrayList<>();
+    }
 
     public static void init(Context context) {
         if (singleton != null) {
@@ -55,10 +60,6 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
 
     public static SyncStatusBroadcastReceiver getInstance() {
         return singleton;
-    }
-
-    public SyncStatusBroadcastReceiver() {
-        syncStatusListeners = new ArrayList<>();
     }
 
     public void addSyncStatusListener(SyncStatusListener syncStatusListener) {
@@ -89,7 +90,7 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
                 } else {
                     boolean isComplete = data.getBoolean(EXTRA_COMPLETE_STATUS);
                     if (isComplete) {
-                        complete(fetchStatus);
+                        complete(fetchStatus, context);
                         startExtendedSyncAndAlarms(context);
                     } else {
                         inProgress(fetchStatus);
@@ -125,7 +126,11 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void complete(FetchStatus fetchStatus) {
+    private void complete(FetchStatus fetchStatus, Context context) {
+        if (fetchStatus.equals(FetchStatus.nothingFetched) || fetchStatus.equals(FetchStatus.fetchedFailed)) {
+            AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(context.getApplicationContext()));
+            allSharedPreferences.saveIsSyncInitial(false);
+        }
         isSyncing = false;
         lastFetchedTimestamp = 0;
         for (SyncStatusListener syncStatusListener : syncStatusListeners) {
