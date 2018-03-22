@@ -529,7 +529,11 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
         AdvancedSearchClientsProvider hhscp = new AdvancedSearchClientsProvider(getActivity(),
-                clientActionHandler, context().alertService(), VaccinatorApplication.getInstance().vaccineRepository(), VaccinatorApplication.getInstance().weightRepository(), commonRepository());
+                clientActionHandler, context().alertService(),
+                VaccinatorApplication.getInstance().vaccineRepository(),
+                VaccinatorApplication.getInstance().weightRepository(),
+                commonRepository(),
+                context().allSharedPreferences());
         clientAdapter = new AdvancedSearchPaginatedCursorAdapter(getActivity(), null, hhscp, context().commonrepository(tableName));
         clientsView.setAdapter(clientAdapter);
 
