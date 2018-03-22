@@ -47,7 +47,6 @@ import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
-import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
@@ -1015,71 +1014,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         }
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
-    }
-
-    public void showWeightDialog(int i) {
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
-
-
-        String childName = constructChildName();
-        String gender = getValue(childDetails.getColumnmaps(), "gender", true);
-        String motherFirstName = getValue(childDetails.getColumnmaps(), "mother_first_name", true);
-        if (StringUtils.isBlank(childName) && StringUtils.isNotBlank(motherFirstName)) {
-            childName = "B/o " + motherFirstName.trim();
-        }
-        String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
-        String duration = "";
-        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
-        DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
-
-        Date dob = null;
-        if (dateTime != null) {
-            duration = DateUtil.getDuration(dateTime);
-            dob = dateTime.toDate();
-        }
-
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        Photo photo = getProfilePhotoByClient();
-
-        WeightWrapper weightWrapper = new WeightWrapper();
-        weightWrapper.setId(childDetails.entityId());
-        WeightRepository wp = getVaccinatorApplicationInstance().weightRepository();
-        List<Weight> weightlist = wp.findLast5(childDetails.entityId());
-        if (!weightlist.isEmpty()) {
-            weightWrapper.setWeight(weightlist.get(i).getKg());
-            weightWrapper.setUpdatedWeightDate(new DateTime(weightlist.get(i).getDate()), false);
-            weightWrapper.setDbKey(weightlist.get(i).getId());
-        }
-
-        weightWrapper.setGender(gender);
-        weightWrapper.setPatientName(childName);
-        weightWrapper.setPatientNumber(zeirId);
-        weightWrapper.setPatientAge(duration);
-        weightWrapper.setPhoto(photo);
-        weightWrapper.setPmtctStatus(getValue(childDetails.getColumnmaps(), PMTCT_STATUS_LOWER_CASE, false));
-
-        EditWeightDialogFragment editWeightDialogFragment = EditWeightDialogFragment.newInstance(this, dob, weightWrapper);
-        editWeightDialogFragment.show(ft, DIALOG_TAG);
-
-    }
-
-    protected Photo getProfilePhotoByClient() {
-        return ImageUtils.profilePhotoByClient(childDetails);
-    }
-
-
-    private String constructChildName() {
-        String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
-        return getName(firstName, lastName).trim();
     }
 
     private void saveVaccine(List<VaccineWrapper> tags, final View view) {
