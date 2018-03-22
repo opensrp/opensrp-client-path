@@ -86,7 +86,7 @@
         "openmrs_entity_id": "ZEIR_ID",
         "type": "barcode",
         "barcode_type": "qrcode",
-        "hint": "Child's ZEIR ID *",
+        "hint": "Child's CFC ID *",
         "scanButtonText": "Scan QR Code",
         "value": "0",
         "v_numeric": {
@@ -95,7 +95,7 @@
         },
         "v_required": {
           "value": "true",
-          "err": "Please enter the Child's ZEIR ID"
+          "err": "Please enter the Child's CFC ID"
         }
       },
       {
@@ -473,24 +473,6 @@
         "v_regex": {
           "value": "(09[5-7][0-9]{7})|\s*",
           "err": "Number must begin with 095, 096, or 097 and must be a total of 10 digits in length"
-        }
-      },
-      {
-        "key": "PMTCT_Status",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "concept",
-        "openmrs_entity_id": "1396AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-        "type": "spinner",
-        "hint": "HIV exposure",
-        "values": [
-          "CE",
-          "MSU",
-          "CNE"
-        ],
-        "openmrs_choice_ids": {
-          "CE": "703AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "MSU": "1067AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-          "CNE": "664AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         }
       }
     ]
