@@ -8,6 +8,7 @@ import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.path.R;
+import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.service.AlertService;
 import org.smartregister.view.contract.SmartRegisterClient;
 
@@ -16,9 +17,15 @@ import org.smartregister.view.contract.SmartRegisterClient;
  */
 public class AdvancedSearchClientsProvider extends ChildSmartClientsProvider {
 
-    public AdvancedSearchClientsProvider(Context context, View.OnClickListener onClickListener,
-                                         AlertService alertService, VaccineRepository vaccineRepository, WeightRepository weightRepository, CommonRepository commonRepository) {
-        super(context, onClickListener, alertService, vaccineRepository, weightRepository, commonRepository);
+    public AdvancedSearchClientsProvider(Context context,
+                                         View.OnClickListener onClickListener,
+                                         AlertService alertService,
+                                         VaccineRepository vaccineRepository,
+                                         WeightRepository weightRepository,
+                                         CommonRepository commonRepository,
+                                         AllSharedPreferences allSharedPreferences) {
+        super(context, onClickListener, alertService,
+                vaccineRepository, weightRepository, commonRepository, allSharedPreferences);
 
     }
 
