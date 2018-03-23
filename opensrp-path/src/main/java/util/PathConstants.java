@@ -96,10 +96,6 @@ PathConstants extends AllConstants {
         public static final String WEEK = "week";
         public static final String MONTH = "month";
         public static final String DAY = "day";
-        public static final String NORMAL = "normal";
-        public static final String UPCOMING = "upcoming";
-        public static final String URGENT = "urgent";
-        public static final String EXPIRED = "expired";
         public static final String PMTCT_STATUS = "pmtct_status";
         public static final String LOCATION_NAME = "location_name";
         public static final String LAST_INTERACTED_WITH = "last_interacted_with";
