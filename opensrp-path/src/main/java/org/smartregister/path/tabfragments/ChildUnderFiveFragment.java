@@ -20,6 +20,7 @@ import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.EditWeightDialogFragment;
+import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.growthmonitoring.util.WeightUtils;
 import org.smartregister.immunization.domain.ServiceRecord;
 import org.smartregister.immunization.domain.ServiceType;
@@ -35,6 +36,7 @@ import org.smartregister.immunization.view.ImmunizationRowGroup;
 import org.smartregister.immunization.view.ServiceRowGroup;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.viewcomponents.WidgetFactory;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
@@ -68,11 +70,8 @@ public class ChildUnderFiveFragment extends Fragment {
     private Boolean curServiceMode;
     private Boolean curWeightMode;
 
-    private List<Vaccine> vaccineList = new ArrayList<>();
-    private List<ServiceRecord> serviceRecords = new ArrayList<>();
-    private List<Weight> weightList = new ArrayList<>();
-
-    public static ChildUnderFiveFragment newInstance(Bundle args) {
+    public static ChildUnderFiveFragment newInstance(Bundle bundle) {
+        Bundle args = bundle;
         ChildUnderFiveFragment fragment = new ChildUnderFiveFragment();
         if (args == null) {
             args = new Bundle();
@@ -113,7 +112,7 @@ public class ChildUnderFiveFragment extends Fragment {
     public void loadWeightView(List<Weight> weightList, boolean editWeightMode) {
         boolean showWeight = curWeightMode == null || !curWeightMode.equals(editWeightMode);
         if (fragmentContainer != null && showWeight) {
-            createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
+            createPTCMTVIEW(fragmentContainer, "PMTCT: ", getValue(childDetails.getColumnmaps(), "pmtct_status", true));
             createWeightLayout(weightList, fragmentContainer, editWeightMode);
             curWeightMode = editWeightMode;
         }
@@ -124,7 +123,7 @@ public class ChildUnderFiveFragment extends Fragment {
         ArrayList<Boolean> weightEditMode = new ArrayList<>();
         ArrayList<View.OnClickListener> listeners = new ArrayList<>();
 
-        weightList = new ArrayList<>();
+        List<Weight> weightList = new ArrayList<>();
         if (weights != null && !weights.isEmpty()) {
             if (weights.size() <= 5) {
                 weightList = weights;
@@ -138,7 +137,7 @@ public class ChildUnderFiveFragment extends Fragment {
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+                String birthdate = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
                 Date birth = util.Utils.dobStringToDate(birthdate);
                 if (birth != null) {
                     long timeDiff = weighttaken.getTime() - birth.getTime();
@@ -174,7 +173,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         if (weightMap.size() < 5) {
-            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
+            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), getValue(detailsMap, "Birth_Weight", true) + " kg"));
             weightEditMode.add(false);
             listeners.add(null);
         }
@@ -198,7 +197,7 @@ public class ChildUnderFiveFragment extends Fragment {
         boolean showVaccine = curVaccineMode == null || !curVaccineMode.equals(editVaccineMode);
         if (fragmentContainer != null && showVaccine) {
 
-            vaccineList = new ArrayList<>();
+            List<Vaccine> vaccineList = new ArrayList<>();
             if (vaccines != null && !vaccines.isEmpty()) {
                 vaccineList = vaccines;
             }
@@ -239,7 +238,7 @@ public class ChildUnderFiveFragment extends Fragment {
         boolean showService = curServiceMode == null || !curServiceMode.equals(editServiceMode);
         if (fragmentContainer != null && showService) {
 
-            serviceRecords = new ArrayList<>();
+            List<ServiceRecord> serviceRecords = new ArrayList<>();
             if (services != null && !services.isEmpty()) {
                 serviceRecords = services;
             }
@@ -283,10 +282,16 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
         Date dob = util.Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
+        }
+
+        List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
+                .findByEntityId(childDetails.entityId());
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
         }
 
         VaccinationEditDialogFragment vaccinationDialogFragment = VaccinationEditDialogFragment.newInstance(getActivity(), dob, vaccineList, vaccineWrappers, vaccineGroup, true);
@@ -301,13 +306,19 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
         DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
         if (dateTime == null) {
             dateTime = DateTime.now();
         }
 
-        ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecords, serviceWrapper, serviceRowGroup, true);
+        List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
+                .findByEntityId(childDetails.entityId());
+        if (serviceRecordList == null) {
+            serviceRecordList = new ArrayList<>();
+        }
+
+        ServiceEditDialogFragment serviceEditDialogFragment = ServiceEditDialogFragment.newInstance(dateTime, serviceRecordList, serviceWrapper, serviceRowGroup, true);
         serviceEditDialogFragment.show(ft, DIALOG_TAG);
     }
 
@@ -346,6 +357,8 @@ public class ChildUnderFiveFragment extends Fragment {
         WeightWrapper weightWrapper = new WeightWrapper();
         weightWrapper.setId(childDetails.entityId());
 
+        WeightRepository weightRepository = VaccinatorApplication.getInstance().weightRepository();
+        List<Weight> weightList = weightRepository.findByEntityId(childDetails.entityId());
         if (!weightList.isEmpty()) {
             weightWrapper.setWeight(weightList.get(i).getKg());
             weightWrapper.setUpdatedWeightDate(new DateTime(weightList.get(i).getDate()), false);

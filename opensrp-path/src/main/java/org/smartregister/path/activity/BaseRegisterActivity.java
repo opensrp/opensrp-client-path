@@ -29,7 +29,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.listener.CustomNavigationBarListener;
 import org.smartregister.path.listener.NavigationItemListener;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.service.intent.SyncService;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredNativeSmartRegisterActivity;
@@ -111,7 +111,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        ServiceTools.startService(getApplicationContext(), SyncService.class);
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncService.class);
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////
