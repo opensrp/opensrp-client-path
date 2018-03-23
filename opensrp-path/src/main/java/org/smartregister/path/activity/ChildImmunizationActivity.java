@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
-import org.json.JSONException;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.AllCommonsRepository;
 import org.smartregister.commonregistry.CommonPersonObject;
@@ -812,7 +811,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
                 .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) vaccineList = new ArrayList<>();
+        if (vaccineList == null) {
+            vaccineList = new ArrayList<>();
+        }
 
         VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
         vaccinationDialogFragment.show(ft, DIALOG_TAG);
@@ -844,6 +845,9 @@ public class ChildImmunizationActivity extends BaseActivity
 
         List<ServiceRecord> serviceRecordList = VaccinatorApplication.getInstance().recurringServiceRecordRepository()
                 .findByEntityId(childDetails.entityId());
+        if (serviceRecordList == null) {
+            serviceRecordList = new ArrayList<>();
+        }
 
         ServiceDialogFragment serviceDialogFragment = ServiceDialogFragment.newInstance(dob, serviceRecordList, serviceWrapper, true);
         serviceDialogFragment.show(ft, DIALOG_TAG);
@@ -1191,7 +1195,6 @@ public class ChildImmunizationActivity extends BaseActivity
         @SuppressWarnings("unchecked")
         @Override
         protected void onPostExecute(Map<String, NamedObject<?>> map) {
-            hideProgressDialog();
 
             List<Vaccine> vaccineList = AsyncTaskUtils.extractVaccines(map);
             Map<String, List<ServiceType>> serviceTypeMap = AsyncTaskUtils.extractServiceTypes(map);
@@ -1203,6 +1206,8 @@ public class ChildImmunizationActivity extends BaseActivity
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
+
+            hideProgressDialog();
         }
 
         @Override
@@ -1233,10 +1238,15 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             if (recurringServiceTypeRepository != null) {
-                List<String> types = recurringServiceTypeRepository.fetchTypes();
-                for (String type : types) {
-                    List<ServiceType> subTypes = recurringServiceTypeRepository.findByType(type);
-                    serviceTypeMap.put(type, subTypes);
+                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
+                for (ServiceType serviceType : serviceTypes) {
+                    String type = serviceType.getType();
+                    List<ServiceType> serviceTypeList = serviceTypeMap.get(type);
+                    if (serviceTypeList == null) {
+                        serviceTypeList = new ArrayList<>();
+                    }
+                    serviceTypeList.add(serviceType);
+                    serviceTypeMap.put(type, serviceTypeList);
                 }
             }
 
@@ -1311,12 +1321,8 @@ public class ChildImmunizationActivity extends BaseActivity
             RecurringServiceRecordRepository recurringServiceRecordRepository = VaccinatorApplication.getInstance().recurringServiceRecordRepository();
             List<ServiceRecord> serviceRecordList = recurringServiceRecordRepository.findByEntityId(childDetails.entityId());
 
-            RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-            List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-            String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
-
             AlertService alertService = getOpenSRPContext().alertService();
-            List<Alert> alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
+            List<Alert> alertList = alertService.findByEntityId(childDetails.entityId());
 
             return Triple.of(list, serviceRecordList, alertList);
 
@@ -1355,12 +1361,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
                 ServiceSchedule.updateOfflineAlerts(tag.getType(), childDetails.entityId(), Utils.dobToDateTime(childDetails));
 
-                RecurringServiceTypeRepository recurringServiceTypeRepository = VaccinatorApplication.getInstance().recurringServiceTypeRepository();
-                List<ServiceType> serviceTypes = recurringServiceTypeRepository.fetchAll();
-                String[] alertArray = VaccinateActionUtils.allAlertNames(serviceTypes);
-
                 AlertService alertService = getOpenSRPContext().alertService();
-                alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(), alertArray);
+                alertList = alertService.findByEntityId(childDetails.entityId());
 
             }
             return null;
@@ -1489,8 +1491,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, PathConstants.KEY.CHILD);
             }
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-            alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                    VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+            alertList = alertService.findByEntityId(childDetails.entityId());
 
             return pair;
         }
@@ -1535,8 +1536,7 @@ public class ChildImmunizationActivity extends BaseActivity
                     if (dateTime != null) {
                         affectedVaccines = VaccineSchedule.updateOfflineAlerts(childDetails.entityId(), dateTime, PathConstants.KEY.CHILD);
                         vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
-                        alertList = alertService.findByEntityIdAndAlertNames(childDetails.entityId(),
-                                VaccinateActionUtils.allAlertNames(PathConstants.KEY.CHILD));
+                        alertList = alertService.findByEntityId(childDetails.entityId());
                     }
                 }
             }

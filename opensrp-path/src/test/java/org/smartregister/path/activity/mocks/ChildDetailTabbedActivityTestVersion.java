@@ -2,7 +2,6 @@ package org.smartregister.path.activity.mocks;
 
 import android.os.Bundle;
 
-import org.smartregister.domain.Photo;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 
@@ -17,11 +16,6 @@ public class ChildDetailTabbedActivityTestVersion extends ChildDetailTabbedActiv
     public void onCreate(Bundle bundle) {
         setTheme(R.style.AppTheme); //we need this here
         super.onCreate(bundle);
-    }
-
-    @Override
-    protected Photo getProfilePhotoByClient() {
-        return new Photo();
     }
 
     @Override

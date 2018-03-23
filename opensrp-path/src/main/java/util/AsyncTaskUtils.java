@@ -71,4 +71,25 @@ public class AsyncTaskUtils {
         return null;
     }
 
+    public static List<Weight> extractWeights(Map<String, NamedObject<?>> map) {
+        if (map.containsKey(Weight.class.getName())) {
+            NamedObject<?> namedObject = map.get(Weight.class.getName());
+            if (namedObject != null) {
+                return (List<Weight>) namedObject.object;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public static Map<String, String> extractDetailsMap(Map<String, NamedObject<?>> map) {
+        if (map.containsKey(Map.class.getName())) {
+            NamedObject<?> namedObject = map.get(Map.class.getName());
+            if (namedObject != null) {
+                return (Map<String, String>) namedObject.object;
+            }
+        }
+        return new HashMap<>();
+    }
+
+
 }

@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
 import org.smartregister.clientandeventmodel.DateUtil;
 import org.smartregister.commonregistry.AllCommonsRepository;
@@ -161,6 +162,10 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 vaccineObj.setEventId(vaccine.getEvent().getEventId());
                 vaccineObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
 
+                String createdAtString = contentValues.getAsString(VaccineRepository.CREATED_AT);
+                Date createdAt = getDate(createdAtString);
+                vaccineObj.setCreatedAt(createdAt);
+
                 Utils.addVaccine(vaccineRepository, vaccineObj);
 
                 Log.d(TAG, "Ending processVaccine table: " + vaccineTable.name);
@@ -207,6 +212,18 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 weightObj.setFormSubmissionId(weight.getEvent().getFormSubmissionId());
                 weightObj.setEventId(weight.getEvent().getEventId());
                 weightObj.setOutOfCatchment(outOfCatchment ? 1 : 0);
+
+                if (contentValues.containsKey(WeightRepository.Z_SCORE)) {
+                    String zscoreString = contentValues.getAsString(WeightRepository.Z_SCORE);
+                    if (NumberUtils.isNumber(zscoreString)) {
+                        weightObj.setZScore(Double.valueOf(zscoreString));
+                    }
+                }
+
+                String createdAtString = contentValues.getAsString(WeightRepository.CREATED_AT);
+                Date createdAt = getDate(createdAtString);
+                weightObj.setCreatedAt(createdAt);
+
                 weightRepository.add(weightObj);
 
                 Log.d(TAG, "Ending processWeight table: " + weightTable.name);
@@ -285,6 +302,10 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 serviceObj.setEventId(service.getEvent().getEventId()); //FIXME hard coded id
                 serviceObj.setValue(value);
                 serviceObj.setRecurringServiceId(serviceTypeList.get(0).getId());
+
+                String createdAtString = contentValues.getAsString(RecurringServiceRecordRepository.CREATED_AT);
+                Date createdAt = getDate(createdAtString);
+                serviceObj.setCreatedAt(createdAt);
 
                 recurringServiceRecordRepository.add(serviceObj);
 

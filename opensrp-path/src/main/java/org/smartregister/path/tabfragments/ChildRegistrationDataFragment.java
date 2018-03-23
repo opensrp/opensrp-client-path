@@ -12,8 +12,6 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.ChildDetailTabbedActivity;
 import org.smartregister.path.helper.LocationHelper;
-import org.smartregister.path.viewcomponents.WidgetFactory;
-import org.smartregister.repository.DetailsRepository;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.Utils;
 import org.smartregister.view.customcontrols.CustomFontTextView;
@@ -30,6 +28,16 @@ import util.PathConstants;
 public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
+
+    public static ChildRegistrationDataFragment newInstance(Bundle bundle) {
+        Bundle args = bundle;
+        ChildRegistrationDataFragment fragment = new ChildRegistrationDataFragment();
+        if (args == null) {
+            args = new Bundle();
+        }
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public ChildRegistrationDataFragment() {
         // Required empty public constructor
@@ -50,13 +58,11 @@ public class ChildRegistrationDataFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         fragmentView = inflater.inflate(R.layout.child_registration_data_fragment, container, false);
-        loadData();
         return fragmentView;
     }
 
-    public void loadData() {
+    public void loadData(Map<String, String> detailsMap) {
         if (fragmentView != null) {
-            Map<String, String> detailsMap;
 
             CustomFontTextView tvChildsHomeHealthFacility = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_home_health_facility);
             CustomFontTextView tvChildsZeirID = (CustomFontTextView) fragmentView.findViewById(R.id.value_childs_zeir_id);
@@ -90,12 +96,7 @@ public class ChildRegistrationDataFragment extends Fragment {
             TableRow tableRowChildsOtherBirthFacility = (TableRow) fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherBirthFacility);
             TableRow tableRowChildsOtherResidentialArea = (TableRow) fragmentView.findViewById(R.id.tableRow_childRegDataFragment_childsOtherResidentialArea);
 
-            DetailsRepository detailsRepository = ((ChildDetailTabbedActivity) getActivity()).getDetailsRepository();
-            childDetails = childDetails != null ? childDetails : ((ChildDetailTabbedActivity) getActivity()).getChildDetails();
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-
             Map<String, String> childDetailsColumnMaps = childDetails.getColumnmaps();
-            WidgetFactory wd = new WidgetFactory();
 
             tvChildsHomeHealthFacility.setText(LocationHelper.getInstance().getOpenMrsReadableName(LocationHelper.getInstance().getOpenMrsLocationName(Utils.getValue(detailsMap, "Home_Facility", false))));
             tvChildsZeirID.setText(Utils.getValue(childDetailsColumnMaps, "zeir_id", false));

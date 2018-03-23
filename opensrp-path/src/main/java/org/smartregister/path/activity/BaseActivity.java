@@ -48,7 +48,7 @@ import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.CustomNavigationBarListener;
 import org.smartregister.path.listener.NavigationItemListener;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
-import org.smartregister.path.service.intent.SyncService;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
@@ -371,7 +371,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncService.class);
+        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
     }
 
     /**

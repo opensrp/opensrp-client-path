@@ -49,7 +49,6 @@ public class WidgetFactory {
     }
 
     public void createWeightWidget(LayoutInflater inflater, LinearLayout fragmentContainer, HashMap<Long, Pair<String, String>> last_five_weight_map, ArrayList<View.OnClickListener> listeners, ArrayList<Boolean> editenabled) {
-
         LinearLayout tableLayout = (LinearLayout) fragmentContainer.findViewById(R.id.weightvalues);
         tableLayout.removeAllViews();
 
