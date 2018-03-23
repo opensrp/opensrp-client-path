@@ -111,7 +111,7 @@ public class ChildUnderFiveFragment extends Fragment {
     public void loadWeightView(List<Weight> weightList, boolean editWeightMode) {
         boolean showWeight = curWeightMode == null || !curWeightMode.equals(editWeightMode);
         if (fragmentContainer != null && showWeight) {
-            createPTCMTVIEW(fragmentContainer, "PMTCT: ", Utils.getValue(childDetails.getColumnmaps(), "pmtct_status", true));
+            createPTCMTVIEW(fragmentContainer, "PMTCT: ", getValue(childDetails.getColumnmaps(), "pmtct_status", true));
             createWeightLayout(weightList, fragmentContainer, editWeightMode);
             curWeightMode = editWeightMode;
         }
@@ -136,7 +136,7 @@ public class ChildUnderFiveFragment extends Fragment {
             String formattedAge = "";
             if (weight.getDate() != null) {
                 Date weighttaken = weight.getDate();
-                String birthdate = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+                String birthdate = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
                 Date birth = util.Utils.dobStringToDate(birthdate);
                 if (birth != null) {
                     long timeDiff = weighttaken.getTime() - birth.getTime();
@@ -172,7 +172,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
 
         if (weightMap.size() < 5) {
-            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), Utils.getValue(detailsMap, "Birth_Weight", true) + " kg"));
+            weightMap.put(0l, Pair.create(DateUtil.getDuration(0), getValue(detailsMap, "Birth_Weight", true) + " kg"));
             weightEditMode.add(false);
             listeners.add(null);
         }
@@ -281,7 +281,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
         Date dob = util.Utils.dobStringToDate(dobString);
         if (dob == null) {
             dob = Calendar.getInstance().getTime();
@@ -305,7 +305,7 @@ public class ChildUnderFiveFragment extends Fragment {
         }
         ft.addToBackStack(null);
 
-        String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
+        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
         DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
         if (dateTime == null) {
             dateTime = DateTime.now();
