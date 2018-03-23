@@ -205,10 +205,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
             @Override
             public void onPageSelected(int position) {
-                if (position == 0) {
-                    if(saveButton.getVisibility() == View.VISIBLE) {
-                       resetOptionsMenu();
-                    }
+                if (position == 0 && saveButton.getVisibility() == View.VISIBLE) {
+                    resetOptionsMenu();
                 }
             }
 
@@ -266,7 +264,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return true;
     }
 
-    private void resetOptionsMenu(){
+    private void resetOptionsMenu() {
         detailtoolbar.showOverflowMenu();
         invalidateOptionsMenu();
 

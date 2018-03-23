@@ -63,9 +63,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     private CommonPersonObjectClient childDetails;
 
     @Mock
-    private DetailsRepository detailsRepository;
-
-    @Mock
     private org.smartregister.Context context_;
     private ActivityController<ChildDetailTabbedActivityTestVersion> controller;
     private Map<String, String> details;
@@ -98,7 +95,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         activity = null;
         controller = null;
         context_ = null;
-        detailsRepository = null;
         childDetails = null;
 
     }
@@ -727,12 +723,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         assertTrue(statusTextView.getVisibility() == View.VISIBLE);
         assertEquals("Lost to\nFollow-Up", statusTextView.getText().toString());
 
-    }
-
-    private DetailsRepository getDetailsRepository() {
-
-
-        return new DetailsRepositoryLocal();
     }
 
     private void destroyController() {

@@ -29,7 +29,8 @@ public class ChildRegistrationDataFragment extends Fragment {
     public CommonPersonObjectClient childDetails;
     private View fragmentView;
 
-    public static ChildRegistrationDataFragment newInstance(Bundle args) {
+    public static ChildRegistrationDataFragment newInstance(Bundle bundle) {
+        Bundle args = bundle;
         ChildRegistrationDataFragment fragment = new ChildRegistrationDataFragment();
         if (args == null) {
             args = new Bundle();
