@@ -70,7 +70,8 @@ public class ChildUnderFiveFragment extends Fragment {
     private Boolean curServiceMode;
     private Boolean curWeightMode;
 
-    public static ChildUnderFiveFragment newInstance(Bundle args) {
+    public static ChildUnderFiveFragment newInstance(Bundle bundle) {
+        Bundle args = bundle;
         ChildUnderFiveFragment fragment = new ChildUnderFiveFragment();
         if (args == null) {
             args = new Bundle();
