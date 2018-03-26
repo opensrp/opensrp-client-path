@@ -557,7 +557,7 @@ public class ChildImmunizationActivity extends BaseActivity
         });
     }
 
-    private void updateWeightViews(Weight lastUnsyncedWeight) {
+    private void updateWeightViews(Weight lastUnsyncedWeight, boolean isActive) {
 
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.GENDER, true);
@@ -600,6 +600,10 @@ public class ChildImmunizationActivity extends BaseActivity
                 Utils.startAsyncTask(new ShowGrowthChartTask(), null);
             }
         });
+
+        if (!isActive) {
+            growthChartButton.setClickable(false);
+        }
     }
 
     private void updateRecordWeightViews(WeightWrapper weightWrapper) {
@@ -1209,7 +1213,9 @@ public class ChildImmunizationActivity extends BaseActivity
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retriveWeight(map);
 
-            updateWeightViews(weight);
+            boolean isActive = isActiveStatus(childDetails);
+
+            updateWeightViews(weight, isActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
@@ -1279,6 +1285,16 @@ public class ChildImmunizationActivity extends BaseActivity
             map.put(alertsNamedObject.name, alertsNamedObject);
 
             return map;
+        }
+
+        private boolean isActiveStatus(CommonPersonObjectClient child) {
+            String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
+
+            if (getString(R.string.active).equals(humanFriendlyStatus)) {
+                return true;
+            }
+
+            return false;
         }
     }
 
