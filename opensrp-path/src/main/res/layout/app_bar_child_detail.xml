@@ -12,6 +12,8 @@
 
         <include layout="@layout/toolbar_child_details" />
 
+        <include layout="@layout/inactive_status_bar"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

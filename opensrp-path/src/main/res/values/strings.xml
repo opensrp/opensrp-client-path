@@ -282,4 +282,6 @@
     <string name="child_detail_registration_fragment">Registration Data</string>
     <string name="child_detail_under_five_fragment">Under Five History</string>
 
+    <string name="status_text">Status: %1$s</string>
+
 </resources>

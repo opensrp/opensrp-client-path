@@ -574,6 +574,23 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     }
 
+    protected void showChildStatus(String status) {
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_inactive_status_bar_layout);
+        boolean isStatusActive = getString(R.string.active).equals(status);
+
+        if (linearLayout != null) {
+            linearLayout.setVisibility((isStatusActive) ? View.GONE : View.VISIBLE);
+
+            if (!isStatusActive) {
+                TextView textView = (TextView) findViewById(R.id.tv_inactive_status_bar_status_text);
+
+                if (textView != null) {
+                    textView.setText(String.format(getString(R.string.status_text), status));
+                }
+            }
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {

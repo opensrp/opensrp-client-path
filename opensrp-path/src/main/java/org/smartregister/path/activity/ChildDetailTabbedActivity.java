@@ -3,7 +3,6 @@ package org.smartregister.path.activity;
 import android.app.FragmentTransaction;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -786,7 +785,14 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public void updateStatus() {
+        String status = getString(R.string.active);
+        if (detailsMap.containsKey(inactive) && detailsMap.get(inactive) != null && detailsMap.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            status = getString(R.string.inactive);
+        } else if (detailsMap.containsKey(lostToFollowUp) && detailsMap.get(lostToFollowUp) != null && detailsMap.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            status = getString(R.string.lost_to_follow_up);
+        }
 
+        showChildStatus(status);
     }
 
     private String updateActivityTitle() {
