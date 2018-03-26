@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_stacked_tab_max_width"
+        android:layout_marginTop="@dimen/button_height"
+        android:layout_marginBottom="@dimen/button_height"
+        android:maxHeight="400dp"
+        android:src="@drawable/ic_check_bcg_scar" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/abc_text_size_title_material"
+        android:layout_marginRight ="@dimen/abc_text_size_title_material"
+        android:text="@string/bcg_scar_reminder_question"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:textSize="24sp" />
+
+</LinearLayout>

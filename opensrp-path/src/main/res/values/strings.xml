@@ -282,4 +282,15 @@
     <string name="child_detail_registration_fragment">Registration Data</string>
     <string name="child_detail_under_five_fragment">Under Five History</string>
 
+    <string name="go_back_button_label">GO BACK</string>
+    <string name="dismiss_button_label">DISMISS</string>
+    <string name="turn_off_reminder_button_label">TURN OFF BCG SCAR REMINDER</string>
+    <string name="bcg_scar_present_label">BCG scar is present so no BCG 2 is necessary</string>
+    <string name="bcg_scar_not_present_label">Child does not have a BCG scar so BCG 2 is necessary</string>
+    <string name="create_reminder_button_label">CREATE REMINDER</string>
+    <string name="turn_off_reminder_label">Turn off BCG reminder?</string>
+    <string name="create_reminder_label">Create BCG 2 reminder?</string>
+    <string name="turn_off_reminder_notification_message">BCG reminder turned off</string>
+    <string name="create_reminder_notification_message">BCG reminder created</string>
+    <string name="bcg_scar_reminder_question">Does this child have a BCG scar?</string>
 </resources>
