@@ -86,45 +86,6 @@
                             android:layout_marginLeft="5dp" />
                     </LinearLayout>
                 </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="25dp"
-                    android:layout_marginLeft="10dp"
-                    android:id="@+id/statusview">
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/statusimage"
-                        android:src="@drawable/ic_icon_status_active"
-                        android:layout_gravity="center_horizontal"
-                        android:tint="@color/alert_completed"
-                        android:scaleType="fitCenter" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="Active"
-                        android:id="@+id/statusname"
-                        android:textColor="#31B404"
-                        android:layout_gravity="center_horizontal" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="status"
-                        android:id="@+id/status"
-                        android:singleLine="false"
-                        android:gravity="center"
-                        android:layout_gravity="center_horizontal"
-                        android:textColor="@color/dark_grey"
-                        android:textAlignment="center" />
-                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

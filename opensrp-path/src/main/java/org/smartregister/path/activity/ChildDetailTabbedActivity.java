@@ -225,19 +225,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         });
         detailtoolbar.setTitle(updateActivityTitle());
 
-        LinearLayout statusview = (LinearLayout) findViewById(R.id.statusview);
-        statusview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                android.app.Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                StatusEditDialogFragment.newInstance(detailsMap).show(ft, DIALOG_TAG);
-            }
-        });
-
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -799,31 +786,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public void updateStatus() {
-        ImageView statusImage = (ImageView) findViewById(R.id.statusimage);
-        TextView status_name = (TextView) findViewById(R.id.statusname);
-        TextView status = (TextView) findViewById(R.id.status);
-        if (detailsMap.containsKey(inactive) && detailsMap.get(inactive) != null && detailsMap.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-            statusImage.clearColorFilter();
-            statusImage.setColorFilter(Color.TRANSPARENT);
-            statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
-            status_name.setText(R.string.inactive);
-            status_name.setTextColor(getResources().getColor(R.color.dark_grey));
-            status_name.setVisibility(View.VISIBLE);
-            status.setText(R.string.status);
-        } else if (detailsMap.containsKey(lostToFollowUp) && detailsMap.get(lostToFollowUp) != null && detailsMap.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-            statusImage.clearColorFilter();
-            statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
-            statusImage.setColorFilter(Color.TRANSPARENT);
-            status_name.setVisibility(View.GONE);
-            status.setText(R.string.lost_to_follow_up_with_nl);
-        } else {
-            statusImage.setImageResource(R.drawable.ic_icon_status_active);
-            statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
-            status_name.setText(R.string.active);
-            status_name.setTextColor(getResources().getColor(R.color.alert_completed));
-            status_name.setVisibility(View.VISIBLE);
-            status.setText(R.string.status);
-        }
+
     }
 
     private String updateActivityTitle() {
