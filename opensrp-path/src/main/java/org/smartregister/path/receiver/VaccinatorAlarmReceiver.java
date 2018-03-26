@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import util.PathConstants;
-import util.ServiceTools;
 
 public class VaccinatorAlarmReceiver extends BroadcastReceiver {
 
@@ -40,7 +39,7 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
             switch (serviceType) {
                 case PathConstants.ServiceType.AUTO_SYNC:
                     android.util.Log.i(TAG, "Started AUTO_SYNC service at: " + dateFormatter.format(new Date()));
-                    ServiceTools.startService(context, SyncIntentService.class);
+                    serviceIntent = new Intent(context, SyncIntentService.class);
                     break;
                 case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
                     android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));

@@ -20,8 +20,6 @@ import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredActivity;
 
-import util.ServiceTools;
-
 import static util.PathConstants.JSONFORM.CHILD_ENROLLMENT;
 import static util.PathConstants.JSONFORM.OUT_OF_CATCHMENT;
 
@@ -45,7 +43,8 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
         Intent intent;
         switch (v.getId()) {
             case R.id.nav_sync:
-                ServiceTools.startService(context.getApplicationContext(), SyncIntentService.class);
+                intent = new Intent(context, SyncIntentService.class);
+                startService(intent);
                 drawer.closeDrawer(GravityCompat.START);
                 break;
             case R.id.nav_register:
@@ -105,6 +104,10 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
 
     private void startActivity(Intent intent) {
         context.startActivity(intent);
+    }
+
+    private void startService(Intent intent) {
+        context.startService(intent);
     }
 
     private Context getApplicationContext() {
