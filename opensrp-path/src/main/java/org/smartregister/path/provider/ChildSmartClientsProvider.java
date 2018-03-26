@@ -19,6 +19,7 @@ import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.commonregistry.CommonRepository;
 import org.smartregister.cursoradapter.SmartRegisterCLientsProviderForCursorAdapter;
 import org.smartregister.domain.Alert;
+import org.smartregister.domain.AlertStatus;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.repository.WeightRepository;
 import org.smartregister.immunization.db.VaccineRepo;
@@ -217,40 +218,54 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         updateWrapper.getConvertView().setLayoutParams(clientViewLayoutParams);
 
-        State state = State.FULLY_IMMUNIZED;
-        String stateKey = null;
+        State state = State.WAITING;
+        String stateKey = "";
 
         Map<String, Object> nv = updateWrapper.getNv();
 
         if (nv != null) {
-            DateTime dueDate = (DateTime) nv.get(PathConstants.KEY.DATE);
-            VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(PathConstants.KEY.VACCINE);
-            stateKey = VaccinateActionUtils.stateKey(vaccine);
-            if (nv.get(PathConstants.KEY.ALERT) == null) {
+            if (nv.get(PathConstants.KEY.VACCINE) != null && nv.get(PathConstants.KEY.VACCINE) instanceof VaccineRepo.Vaccine) {
+                VaccineRepo.Vaccine vaccine = (VaccineRepo.Vaccine) nv.get(PathConstants.KEY.VACCINE);
+                stateKey = VaccinateActionUtils.stateKey(vaccine);
+            }
+
+            Alert alert = null;
+            if (nv.get(PathConstants.KEY.ALERT) != null && nv.get(PathConstants.KEY.ALERT) instanceof Alert) {
+                alert = (Alert) nv.get(PathConstants.KEY.ALERT);
+            }
+
+            if (alert == null) {
                 state = State.NO_ALERT;
-            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.NORMAL)) {
+            } else if (AlertStatus.normal.equals(alert.status())) {
                 state = State.DUE;
-            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.UPCOMING)) {
+            } else if (AlertStatus.upcoming.equals(alert.status())) {
                 Calendar today = Calendar.getInstance();
                 today.set(Calendar.HOUR_OF_DAY, 0);
                 today.set(Calendar.MINUTE, 0);
                 today.set(Calendar.SECOND, 0);
                 today.set(Calendar.MILLISECOND, 0);
 
-                if (dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
+                DateTime dueDate = null;
+                if (nv.get(PathConstants.KEY.DATE) != null && nv.get(PathConstants.KEY.DATE) instanceof DateTime) {
+                    dueDate = (DateTime) nv.get(PathConstants.KEY.DATE);
+                }
+
+                if (dueDate != null && dueDate.getMillis() >= (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) && dueDate.getMillis() < (today.getTimeInMillis() + TimeUnit.MILLISECONDS.convert(7, TimeUnit.DAYS))) {
                     state = State.UPCOMING_NEXT_7_DAYS;
                 } else {
                     state = State.UPCOMING;
                 }
-            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.URGENT)) {
+            } else if (AlertStatus.urgent.equals(alert.status())) {
                 state = State.OVERDUE;
-            } else if (((Alert) nv.get(PathConstants.KEY.ALERT)).status().value().equalsIgnoreCase(PathConstants.KEY.EXPIRED)) {
+            } else if (AlertStatus.expired.equals(alert.status())) {
                 state = State.EXPIRED;
             }
-        } else {
-            state = State.WAITING;
         }
 
+        // Check for fully immunized child
+        if (nv == null && updateWrapper.getVaccines() != null && !updateWrapper.getVaccines().isEmpty()) {
+            state = State.FULLY_IMMUNIZED;
+        }
 
         // Update active/inactive/lostToFollowup status
         if (updateWrapper.getLostToFollowUp().equals(Boolean.TRUE.toString())) {
@@ -446,9 +461,10 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
         }
     }
 
-    private boolean show(){
+    private boolean show() {
         return !ChildSmartClientsProvider.class.equals(this.getClass()) || !allSharedPreferences.fetchIsSyncInitial() || !SyncStatusBroadcastReceiver.getInstance().isSyncing();
     }
+
     private enum State {
         DUE,
         OVERDUE,
