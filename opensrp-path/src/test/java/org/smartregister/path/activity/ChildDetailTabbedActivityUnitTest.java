@@ -630,7 +630,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         intent.putExtra("location_name", "Nairobi");
         Bundle bundle = new Bundle();
         CommonPersonObjectClient newChildDetails = new CommonPersonObjectClient("1", new HashMap<String, String>(), "test");
-        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.inactive, "true").map();
+        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.INACTIVE, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
         details = columnMap; //save for later call to getAllDetailsForClient method
@@ -704,7 +704,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         intent.putExtra("location_name", "Nairobi");
         Bundle bundle = new Bundle();
         CommonPersonObjectClient newChildDetails = new CommonPersonObjectClient("1", new HashMap<String, String>(), "test");
-        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.lostToFollowUp, "true").map();
+        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.LOST_TO_FOLLOW_UP, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
         details = columnMap; //save for later call to getAllDetailsForClient method

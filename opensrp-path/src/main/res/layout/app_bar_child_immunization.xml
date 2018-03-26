@@ -8,6 +8,8 @@
 
     <include layout="@layout/toolbar_location_switcher" />
 
+    <include layout="@layout/inactive_status_bar"/>
+
     <include layout="@layout/content_child_immunization" />
 
     <include layout="@layout/notification_base" />

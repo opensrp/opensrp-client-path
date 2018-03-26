@@ -181,6 +181,8 @@ public class ChildImmunizationActivity extends BaseActivity
 
         toolbar.init(this);
         setLastModified(false);
+
+        showChildsStatus(childDetails);
     }
 
     @Override
@@ -708,6 +710,11 @@ public class ChildImmunizationActivity extends BaseActivity
             name = constructChildName();
         }
         return String.format("%s > %s", getString(R.string.app_name), name.trim());
+    }
+
+    private void showChildsStatus(CommonPersonObjectClient child) {
+        String status = getHumanFriendlyChildsStatus(child);
+        showChildsStatus(status);
     }
 
     @Override
