@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
@@ -138,6 +140,8 @@ public class ChildImmunizationActivity extends BaseActivity
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
 
+    private AlertDialog activateChildsStatusDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -214,7 +218,6 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroups = null;
         }
         updateViews();
-        showChildsStatus(childDetails);
     }
 
     private boolean isDataOk() {
@@ -233,6 +236,8 @@ public class ChildImmunizationActivity extends BaseActivity
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
         util.Utils.putAll(childDetails.getColumnmaps(), details);
+
+        showChildsStatus(childDetails);
 
         updateGenderViews();
         toolbar.setTitle(updateActivityTitle());
@@ -556,7 +561,7 @@ public class ChildImmunizationActivity extends BaseActivity
         });
     }
 
-    private void updateWeightViews(Weight lastUnsyncedWeight, boolean isActive) {
+    private void updateWeightViews(Weight lastUnsyncedWeight, final boolean isActive) {
 
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.GENDER, true);
@@ -590,7 +595,7 @@ public class ChildImmunizationActivity extends BaseActivity
             weightWrapper.setUpdatedWeightDate(new DateTime(lastUnsyncedWeight.getDate()), false);
         }
 
-        updateRecordWeightViews(weightWrapper);
+        updateRecordWeightViews(weightWrapper, isActive);
 
         ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
@@ -599,26 +604,29 @@ public class ChildImmunizationActivity extends BaseActivity
                 Utils.startAsyncTask(new ShowGrowthChartTask(), null);
             }
         });
-
-        if (!isActive) {
-            growthChartButton.setClickable(false);
-        }
     }
 
-    private void updateRecordWeightViews(WeightWrapper weightWrapper) {
+    private void updateRecordWeightViews(WeightWrapper weightWrapper, final boolean isActive) {
         View recordWeight = findViewById(R.id.record_weight);
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
         TextView recordWeightText = (TextView) findViewById(R.id.record_weight_text);
         recordWeightText.setText(R.string.record_weight);
+        if (!isActive) {
+            recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
+        }
 
         ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
         recordWeightCheck.setVisibility(View.GONE);
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showWeightDialog(view);
+                if (isActive) {
+                    showWeightDialog(view);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
 
@@ -668,6 +676,71 @@ public class ChildImmunizationActivity extends BaseActivity
         RecordWeightDialogFragment recordWeightDialogFragment = RecordWeightDialogFragment.newInstance(dob, weightWrapper);
         recordWeightDialogFragment.show(ft, DIALOG_TAG);
 
+    }
+
+    private boolean isActiveStatus(CommonPersonObjectClient child) {
+        String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
+
+        if (getString(R.string.active).equals(humanFriendlyStatus)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void showActivateChildStatusDialogBox() {
+        String dialogTitle = String.format(
+                getString(R.string.activate_child_status_dialog_title),
+                WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' '),
+                getChildsThirdPersonPronoun(childDetails));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(dialogTitle)
+                .setMessage(R.string.activate_child_status_dialog_message)
+                .setPositiveButton(R.string.make_active, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
+                        Utils.startAsyncTask(saveChildsStatusTask, null);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null);
+
+        activateChildsStatusDialog = builder.create();
+        activateChildsStatusDialog.show();
+    }
+
+    private String getChildsThirdPersonPronoun(CommonPersonObjectClient commonPersonObjectClient) {
+        String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
+        if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
+            return getString(R.string.her);
+        } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
+            return getString(R.string.him);
+        }
+
+        return getString(R.string.her) + "/" + getString(R.string.him);
+    }
+
+    private void hideActivateChildsStatusDialogBox() {
+        if (activateChildsStatusDialog != null) {
+            activateChildsStatusDialog.dismiss();
+            activateChildsStatusDialog = null;
+        }
+    }
+
+    private void activateChildsStatus() {
+        try {
+            Map<String, String> details = childDetails.getColumnmaps();
+            if (details.containsKey(ChildDetailTabbedActivity.INACTIVE) && details.get(ChildDetailTabbedActivity.INACTIVE) != null && details.get(ChildDetailTabbedActivity.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(util.Utils.updateClientAttribute(this, childDetails, ChildDetailTabbedActivity.INACTIVE, false));
+            }
+
+            if (details.containsKey(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP) && details.get(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP) != null && details.get(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(util.Utils.updateClientAttribute(this, childDetails, ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP, false));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
     }
 
     private String readAssetContents(String path) {
@@ -777,7 +850,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             tag.setDbKey(weight.getId());
-            updateRecordWeightViews(tag);
+            updateRecordWeightViews(tag, isActiveStatus(childDetails));
             setLastModified(true);
         }
     }
@@ -1285,16 +1358,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
             return map;
         }
-
-        private boolean isActiveStatus(CommonPersonObjectClient child) {
-            String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
-
-            if (getString(R.string.active).equals(humanFriendlyStatus)) {
-                return true;
-            }
-
-            return false;
-        }
     }
 
     public class SaveServiceTask extends AsyncTask<ServiceWrapper, Void, Triple<ArrayList<ServiceWrapper>, List<ServiceRecord>, List<Alert>>> {
@@ -1620,6 +1683,30 @@ public class ChildImmunizationActivity extends BaseActivity
 
             SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
             siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, ids);
+        }
+    }
+
+    private class SaveChildsStatusTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog("Updating Child's Status", "");
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            activateChildsStatus();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            hideProgressDialog();
+            super.onPostExecute(aVoid);
+
+            hideActivateChildsStatusDialogBox();
+            updateViews();
         }
     }
 

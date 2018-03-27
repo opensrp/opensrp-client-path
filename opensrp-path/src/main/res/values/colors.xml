@@ -49,4 +49,5 @@
     <color name="cumulative_blue_line">#000AD5</color>
 
     <color name="inactive_status_bar_color">#534D54</color>
+    <color name="inactive_text_color">#C1C1C1</color>
 </resources>

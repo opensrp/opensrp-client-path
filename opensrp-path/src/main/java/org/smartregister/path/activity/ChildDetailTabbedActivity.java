@@ -1134,57 +1134,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
-            Date date = new Date();
-            EventClientRepository db = getVaccinatorApplicationInstance().eventClientRepository();
-            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(this);
-
-            JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
-            JSONObject attributes = client.getJSONObject(JsonFormUtils.attributes);
-            attributes.put(attributeName, attributeValue);
-            client.remove(JsonFormUtils.attributes);
-            client.put(JsonFormUtils.attributes, attributes);
-            db.addorUpdateClient(childDetails.entityId(), client);
-
-
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
-            ContentValues contentValues = new ContentValues();
-            //Add the base_entity_id
-            contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-            db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
-
-            AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
-            String locationName = allSharedPreferences.fetchCurrentLocality();
-            if (StringUtils.isBlank(locationName)) {
-                locationName = LocationHelper.getInstance().getDefaultLocation();
-            }
-
-            Event event = (Event) new Event()
-                    .withBaseEntityId(childDetails.entityId())
-                    .withEventDate(new Date())
-                    .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
-                    .withProviderId(allSharedPreferences.fetchRegisteredANM())
-                    .withEntityType(PathConstants.EntityType.CHILD)
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
-                    .withDateCreated(new Date());
-
-            JsonFormUtils.addMetaData(this, event, date);
-            JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
-            db.addEvent(childDetails.entityId(), eventJson);
-            long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
-            Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessorForJava.getInstance(this).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-            allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
-
-            //update details
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-            if (childDetails.getColumnmaps().containsKey(attributeName)) {
-                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
-            }
-            util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
-
-
+            detailsMap = util.Utils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }

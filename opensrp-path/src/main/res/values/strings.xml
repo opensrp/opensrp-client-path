@@ -283,5 +283,10 @@
     <string name="child_detail_under_five_fragment">Under Five History</string>
 
     <string name="status_text">Status: %1$s</string>
+    <string name="activate_child_status_dialog_title">The child\'s status is %1$s. Make %2$s active?</string>
+    <string name="activate_child_status_dialog_message">Making the child active will resume the ZEIR service schedules and lets you record services.</string>
+    <string name="make_active">Make Active</string>
+    <string name="him">him</string>
+    <string name="her">her</string>
 
 </resources>
