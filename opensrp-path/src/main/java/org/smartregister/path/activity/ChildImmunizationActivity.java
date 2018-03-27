@@ -615,6 +615,8 @@ public class ChildImmunizationActivity extends BaseActivity
         recordWeightText.setText(R.string.record_weight);
         if (!isActive) {
             recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
+        } else {
+            recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
         }
 
         ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
