@@ -181,8 +181,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
         toolbar.init(this);
         setLastModified(false);
-
-        showChildsStatus(childDetails);
     }
 
     @Override
@@ -216,6 +214,7 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroups = null;
         }
         updateViews();
+        showChildsStatus(childDetails);
     }
 
     private boolean isDataOk() {
