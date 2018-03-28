@@ -351,7 +351,7 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, List<Alert> alerts) {
-
+        final boolean isChildActive = isActiveStatus(childDetails);
         Map<String, List<ServiceType>> foundServiceTypeMap = new LinkedHashMap<>();
         if (serviceGroups == null) {
             for (String type : serviceTypeMap.keySet()) {
@@ -388,31 +388,44 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroups = new ArrayList<>();
             LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
 
-            ServiceGroup curGroup = new ServiceGroup(this);
+            ServiceGroup curGroup = new ServiceGroup(this, isChildActive);
             curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
             curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
+                    if (isChildActive) {
+                        if (dialogOpen) {
+                            return;
+                        }
+                        dialogOpen = true;
+                        addServiceDialogFragment(serviceWrapper, serviceGroup);
+                    } else {
+                        showActivateChildStatusDialogBox();
                     }
-                    dialogOpen = true;
-                    addServiceDialogFragment(serviceWrapper, serviceGroup);
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
-                    if (dialogOpen) {
-                        return;
+                    if (isChildActive) {
+                        if (dialogOpen) {
+                            return;
+                        }
+                        dialogOpen = true;
+                        addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+                    } else {
+                        showActivateChildStatusDialogBox();
                     }
-                    dialogOpen = true;
-                    addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
                 }
             });
             serviceGroupCanvasLL.addView(curGroup);
             serviceGroups.add(curGroup);
+        } else {
+            for(ServiceGroup serviceGroup: serviceGroups) {
+                serviceGroup.setChildActive(isChildActive);
+                serviceGroup.updateChildsActiveStatus();
+            }
         }
 
     }
@@ -424,6 +437,12 @@ public class ChildImmunizationActivity extends BaseActivity
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
             for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : supportedVaccines) {
                 addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
+            }
+        } else {
+            boolean isChildActive = isActiveStatus(childDetails);
+            for (VaccineGroup vaccineGroup: vaccineGroups) {
+                vaccineGroup.setChildActive(isChildActive);
+                vaccineGroup.updateChildsActiveStatus();
             }
         }
 
@@ -466,40 +485,54 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
+        final boolean isChildActive = isActiveStatus(childDetails);
+
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
-        VaccineGroup curGroup = new VaccineGroup(this);
+        VaccineGroup curGroup = new VaccineGroup(this, isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
-                if (dialogOpen) {
-                    return;
+                if (isChildActive) {
+                    if (dialogOpen) {
+                        return;
+                    }
+                    dialogOpen = true;
+                    addVaccinationDialogFragment(dueVaccines, vaccineGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
                 }
-                dialogOpen = true;
-                addVaccinationDialogFragment(dueVaccines, vaccineGroup);
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
+                if (isChildActive) {
+                    if (dialogOpen) {
+                        return;
+                    }
+                    dialogOpen = true;
+                    ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
+                    vaccineWrappers.add(vaccine);
+                    addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
                 }
-                dialogOpen = true;
-                ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
-                vaccineWrappers.add(vaccine);
-                addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
             }
         });
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (dialogOpen) {
-                    return;
-                }
+                if (isChildActive) {
+                    if (dialogOpen) {
+                        return;
+                    }
 
-                dialogOpen = true;
-                addVaccineUndoDialogFragment(vaccineGroup, vaccine);
+                    dialogOpen = true;
+                    addVaccineUndoDialogFragment(vaccineGroup, vaccine);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
 
@@ -1287,9 +1320,9 @@ public class ChildImmunizationActivity extends BaseActivity
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retriveWeight(map);
 
-            boolean isActive = isActiveStatus(childDetails);
+            boolean isChildActive = isActiveStatus(childDetails);
 
-            updateWeightViews(weight, isActive);
+            updateWeightViews(weight, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
