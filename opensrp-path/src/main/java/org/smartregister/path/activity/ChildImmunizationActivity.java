@@ -735,7 +735,7 @@ public class ChildImmunizationActivity extends BaseActivity
         activateChildsStatusDialog.show();
     }
 
-    private String getChildsThirdPersonPronoun(CommonPersonObjectClient commonPersonObjectClient) {
+    private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
         String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
         if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
             return getString(R.string.her);

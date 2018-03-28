@@ -585,11 +585,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     protected boolean isActiveStatus(String humanFriendlyStatus) {
-        if (getString(R.string.active).equals(humanFriendlyStatus)) {
-            return true;
-        }
-
-        return false;
+        return getString(R.string.active).equals(humanFriendlyStatus);
     }
 
     protected void showChildsStatus(String status) {
