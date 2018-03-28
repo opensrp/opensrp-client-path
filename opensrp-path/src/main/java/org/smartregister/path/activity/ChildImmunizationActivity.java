@@ -713,16 +713,6 @@ public class ChildImmunizationActivity extends BaseActivity
 
     }
 
-    private boolean isActiveStatus(CommonPersonObjectClient child) {
-        String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
-
-        if (getString(R.string.active).equals(humanFriendlyStatus)) {
-            return true;
-        }
-
-        return false;
-    }
-
     private void showActivateChildStatusDialogBox() {
         String dialogTitle = String.format(
                 getString(R.string.activate_child_status_dialog_title),

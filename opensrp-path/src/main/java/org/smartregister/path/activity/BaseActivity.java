@@ -579,6 +579,19 @@ public abstract class BaseActivity extends AppCompatActivity
         }
     }
 
+    protected boolean isActiveStatus(CommonPersonObjectClient child) {
+        String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
+        return isActiveStatus(humanFriendlyStatus);
+    }
+
+    protected boolean isActiveStatus(String humanFriendlyStatus) {
+        if (getString(R.string.active).equals(humanFriendlyStatus)) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected void showChildsStatus(String status) {
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_inactive_status_bar_layout);
         boolean isStatusActive = getString(R.string.active).equals(status);

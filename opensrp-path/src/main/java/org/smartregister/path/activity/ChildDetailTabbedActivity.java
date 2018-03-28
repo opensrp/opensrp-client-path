@@ -316,22 +316,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
-
-        if (showVaccineList) {
-            overflow.findItem(R.id.immunization_data).setEnabled(true);
-        }
-
-        if (showServiceList) {
-            overflow.findItem(R.id.recurring_services_data).setEnabled(true);
-        }
-
-        if (showWeightEdit) {
-            overflow.findItem(R.id.weight_data).setEnabled(true);
-        }
-
-        if (showRecordBcg2) {
-            overflow.findItem(R.id.record_bcg_2).setVisible(true);
-        }
+        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
+        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
+        overflow.findItem(R.id.record_bcg_2).setVisible(showRecordBcg2);
     }
 
     @Override
@@ -785,6 +773,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public void updateStatus() {
         String status = getHumanFriendlyChildsStatus(detailsMap);
         showChildsStatus(status);
+
+        boolean isChildActive = isActiveStatus(status);
+        if (isChildActive) {
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+            Utils.startAsyncTask(new LoadAsyncTask(), null);
+        } else {
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
+        }
+    }
+
+    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
+        //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
+        overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
+        overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
+        overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
     }
 
     private String updateActivityTitle() {
