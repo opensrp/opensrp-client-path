@@ -771,13 +771,22 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public void updateStatus() {
+        updateStatus(false);
+    }
+
+    private void updateStatus(boolean fromAsyncTask) {
         String status = getHumanFriendlyChildsStatus(detailsMap);
         showChildsStatus(status);
 
         boolean isChildActive = isActiveStatus(status);
         if (isChildActive) {
             updateOptionsMenu(isChildActive, isChildActive, isChildActive);
-            Utils.startAsyncTask(new LoadAsyncTask(), null);
+
+            if (!fromAsyncTask) {
+                LoadAsyncTask loadAsyncTask = new LoadAsyncTask();
+                loadAsyncTask.setFromUpdateStatus(true);
+                Utils.startAsyncTask(loadAsyncTask, null);
+            }
         } else {
             updateOptionsMenu(isChildActive, isChildActive, isChildActive);
             updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
@@ -1253,6 +1262,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private STATUS status;
+        private boolean fromUpdateStatus = false;
 
         private LoadAsyncTask() {
             this.status = STATUS.NONE;
@@ -1260,6 +1270,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         private LoadAsyncTask(STATUS status) {
             this.status = status;
+        }
+
+        public void setFromUpdateStatus(boolean fromUpdateStatus) {
+            this.fromUpdateStatus = fromUpdateStatus;
         }
 
         @Override
@@ -1280,8 +1294,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
-            updateStatus();
-
             boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
             boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
             boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
@@ -1295,6 +1307,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            if (!fromUpdateStatus) {
+                updateStatus(true);
+            }
 
             hideProgressDialog();
         }
