@@ -388,7 +388,8 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroups = new ArrayList<>();
             LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
 
-            ServiceGroup curGroup = new ServiceGroup(this, isChildActive);
+            ServiceGroup curGroup = new ServiceGroup(this);
+            curGroup.setChildActive(isChildActive);
             curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
             curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
                 @Override
@@ -488,7 +489,8 @@ public class ChildImmunizationActivity extends BaseActivity
         final boolean isChildActive = isActiveStatus(childDetails);
 
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
-        VaccineGroup curGroup = new VaccineGroup(this, isChildActive);
+        VaccineGroup curGroup = new VaccineGroup(this);
+        curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
