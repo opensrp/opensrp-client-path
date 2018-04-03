@@ -402,8 +402,9 @@ public class CoverageDropoutIntentService extends IntentService {
                     }
 
                     // Remove the vaccine in cohortPatient
-                    boolean removed = vaccineList.removeAll(incomingVaccineList);
-                    if (removed) {
+                    List<String> toRemoveList = toRemoveList(vaccineList, incomingVaccineList);
+                    if (toRemoveList != null && !toRemoveList.isEmpty()) {
+                        vaccineList.removeAll(toRemoveList);
                         cohortPatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cohortPatient.getId());
                     }
                 }
@@ -675,8 +676,9 @@ public class CoverageDropoutIntentService extends IntentService {
                 }
 
                 // Remove the vaccine in cohortPatient
-                boolean removed = vaccineList.removeAll(incomingVaccineList);
-                if (removed) {
+                List<String> toRemoveList = toRemoveList(vaccineList, incomingVaccineList);
+                if (toRemoveList != null && !toRemoveList.isEmpty()) {
+                    vaccineList.removeAll(toRemoveList);
                     cumulativePatientRepository.changeValidVaccines(StringUtils.join(vaccineList, COMMA), cumulativePatient.getId());
                 }
 
@@ -816,6 +818,27 @@ public class CoverageDropoutIntentService extends IntentService {
             }
         }
         return null;
+    }
+
+    private static List<String> toRemoveList(List<String> vaccineList, List<String> incomingVaccineList) {
+        if (vaccineList == null || incomingVaccineList == null) {
+            return vaccineList;
+        }
+
+        List<String> toRemove = new ArrayList<>();
+        for (String vaccine : vaccineList) {
+            String splitV = vaccine;
+            if (vaccine.contains(COLON)) {
+                splitV = vaccine.split(COLON)[0];
+            }
+            for (String incomingVaccine : incomingVaccineList) {
+                if (splitV.equals(incomingVaccine)) {
+                    toRemove.add(vaccine);
+                }
+            }
+        }
+
+        return toRemove;
     }
 
 
