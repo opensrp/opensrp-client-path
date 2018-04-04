@@ -733,11 +733,18 @@ public class ChildImmunizationActivity extends BaseActivity
                 .setPositiveButton(R.string.make_active, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        dialogOpen = false;
                         SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
                         Utils.startAsyncTask(saveChildsStatusTask, null);
                     }
                 })
-                .setNegativeButton(R.string.cancel, null);
+                .setNegativeButton(R.string.cancel, null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        dialogOpen = false;
+                    }
+                });
 
 
         activateChildsStatusDialog = builder.create();
