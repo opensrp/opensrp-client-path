@@ -161,6 +161,7 @@ public class ChildSmartClientsProvider implements SmartRegisterCLientsProviderFo
 
         String lostToFollowUp = getValue(pc.getColumnmaps(), PathConstants.KEY.LOST_TO_FOLLOW_UP, false);
         String inactive = getValue(pc.getColumnmaps(), PathConstants.KEY.INACTIVE, false);
+        inactive = ("1".equals(inactive)) ? "true" : "0".equals(inactive) ? "false" : inactive;
 
         if (show()) {
             try {
