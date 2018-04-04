@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -395,11 +397,12 @@ public class ChildImmunizationActivity extends BaseActivity
                 @Override
                 public void onClick(ServiceGroup serviceGroup, ServiceWrapper
                         serviceWrapper) {
+                    if (dialogOpen) {
+                        return;
+                    }
+
+                    dialogOpen = true;
                     if (isChildActive) {
-                        if (dialogOpen) {
-                            return;
-                        }
-                        dialogOpen = true;
                         addServiceDialogFragment(serviceWrapper, serviceGroup);
                     } else {
                         showActivateChildStatusDialogBox();
@@ -409,11 +412,12 @@ public class ChildImmunizationActivity extends BaseActivity
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
                 @Override
                 public void onUndoClick(ServiceGroup serviceGroup, ServiceWrapper serviceWrapper) {
+                    if (dialogOpen) {
+                        return;
+                    }
+
+                    dialogOpen = true;
                     if (isChildActive) {
-                        if (dialogOpen) {
-                            return;
-                        }
-                        dialogOpen = true;
                         addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
                     } else {
                         showActivateChildStatusDialogBox();
@@ -495,11 +499,12 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, ArrayList<VaccineWrapper> dueVaccines) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
                 if (isChildActive) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     addVaccinationDialogFragment(dueVaccines, vaccineGroup);
                 } else {
                     showActivateChildStatusDialogBox();
@@ -509,11 +514,12 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
             @Override
             public void onClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
+                if (dialogOpen) {
+                    return;
+                }
+
+                dialogOpen = true;
                 if (isChildActive) {
-                    if (dialogOpen) {
-                        return;
-                    }
-                    dialogOpen = true;
                     ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
                     vaccineWrappers.add(vaccine);
                     addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
@@ -525,12 +531,12 @@ public class ChildImmunizationActivity extends BaseActivity
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
             @Override
             public void onUndoClick(VaccineGroup vaccineGroup, VaccineWrapper vaccine) {
-                if (isChildActive) {
-                    if (dialogOpen) {
-                        return;
-                    }
+                if (dialogOpen) {
+                    return;
+                }
 
-                    dialogOpen = true;
+                dialogOpen = true;
+                if (isChildActive) {
                     addVaccineUndoDialogFragment(vaccineGroup, vaccine);
                 } else {
                     showActivateChildStatusDialogBox();
@@ -721,7 +727,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' '),
                 getChildsThirdPersonPronoun(childDetails));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.PathAlertDialog)
                 .setTitle(dialogTitle)
                 .setMessage(R.string.activate_child_status_dialog_message)
                 .setPositiveButton(R.string.make_active, new DialogInterface.OnClickListener() {
@@ -733,8 +739,15 @@ public class ChildImmunizationActivity extends BaseActivity
                 })
                 .setNegativeButton(R.string.cancel, null);
 
+
         activateChildsStatusDialog = builder.create();
+        activateChildsStatusDialog.getWindow().getAttributes().width = (int) convertDpToPx(300);
         activateChildsStatusDialog.show();
+    }
+
+    private float convertDpToPx(int px) {
+        Resources resources = getResources();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, resources.getDisplayMetrics());
     }
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
