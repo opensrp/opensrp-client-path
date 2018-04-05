@@ -6,17 +6,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -66,6 +63,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.domain.RegisterClickables;
+import org.smartregister.immunization.fragment.ActivateChildStatusDialogFragment;
 import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
@@ -141,8 +139,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
-
-    private AlertDialog activateChildsStatusDialog;
+    private boolean isChildActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -238,6 +235,7 @@ public class ChildImmunizationActivity extends BaseActivity
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
         util.Utils.putAll(childDetails.getColumnmaps(), details);
+        isChildActive = isActiveStatus(childDetails);
 
         showChildsStatus(childDetails);
 
@@ -353,7 +351,6 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, List<Alert> alerts) {
-        final boolean isChildActive = isActiveStatus(childDetails);
         Map<String, List<ServiceType>> foundServiceTypeMap = new LinkedHashMap<>();
         if (serviceGroups == null) {
             for (String type : serviceTypeMap.keySet()) {
@@ -444,7 +441,6 @@ public class ChildImmunizationActivity extends BaseActivity
                 addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
             }
         } else {
-            boolean isChildActive = isActiveStatus(childDetails);
             for (VaccineGroup vaccineGroup: vaccineGroups) {
                 vaccineGroup.setChildActive(isChildActive);
                 vaccineGroup.updateChildsActiveStatus();
@@ -490,8 +486,6 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
-        final boolean isChildActive = isActiveStatus(childDetails);
-
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
         curGroup.setChildActive(isChildActive);
@@ -722,39 +716,32 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void showActivateChildStatusDialogBox() {
-        String dialogTitle = String.format(
-                getString(R.string.activate_child_status_dialog_title),
-                WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' '),
-                getChildsThirdPersonPronoun(childDetails));
+        String thirdPersonPronoun = getChildsThirdPersonPronoun(childDetails);
+        String childsCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.PathAlertDialog)
-                .setTitle(dialogTitle)
-                .setMessage(R.string.activate_child_status_dialog_message)
-                .setPositiveButton(R.string.make_active, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialogOpen = false;
-                        SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
-                        Utils.startAsyncTask(saveChildsStatusTask, null);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        dialogOpen = false;
-                    }
-                });
-
-
-        activateChildsStatusDialog = builder.create();
-        activateChildsStatusDialog.getWindow().getAttributes().width = (int) convertDpToPx(300);
-        activateChildsStatusDialog.show();
-    }
-
-    private float convertDpToPx(int px) {
-        Resources resources = getResources();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, px, resources.getDisplayMetrics());
+        ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childsCurrentStatus, R.style.PathAlertDialog);
+        activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
+                    Utils.startAsyncTask(saveChildsStatusTask, null);
+                }
+            }
+        });
+        activateChildStatusFragmentDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+        activateChildStatusFragmentDialog.show(ft, DIALOG_TAG);
     }
 
     private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
@@ -766,13 +753,6 @@ public class ChildImmunizationActivity extends BaseActivity
         }
 
         return getString(R.string.her) + "/" + getString(R.string.him);
-    }
-
-    private void hideActivateChildsStatusDialogBox() {
-        if (activateChildsStatusDialog != null) {
-            activateChildsStatusDialog.dismiss();
-            activateChildsStatusDialog = null;
-        }
     }
 
     private void activateChildsStatus() {
@@ -1332,8 +1312,6 @@ public class ChildImmunizationActivity extends BaseActivity
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retriveWeight(map);
 
-            boolean isChildActive = isActiveStatus(childDetails);
-
             updateWeightViews(weight, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
@@ -1751,8 +1729,6 @@ public class ChildImmunizationActivity extends BaseActivity
         protected void onPostExecute(Void aVoid) {
             hideProgressDialog();
             super.onPostExecute(aVoid);
-
-            hideActivateChildsStatusDialogBox();
             updateViews();
         }
     }
