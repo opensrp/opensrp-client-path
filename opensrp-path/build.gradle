@@ -115,23 +115,28 @@ android {
 
 dependencies {
     compile fileTree(include: ['commons-validator-1.6.jar'], dir: 'libs')
-    compile('org.smartregister:opensrp-client-native-form:1.0.4-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-native-form:1.0.5-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.2.5-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.2.1@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.2.4-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.2.2@aar') {
         transitive = true
+        exclude group: 'org.smartregister', module: 'opensrp-client-core'
+        exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
     }
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.5-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.4@aar') {
         transitive = true
+        exclude group: 'org.smartregister', module: 'opensrp-client-core'
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.0-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-stock:1.0.0@aar') {
         transitive = true
+        exclude group: 'org.smartregister', module: 'opensrp-client-core'
+        exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
     }
 
     compile('com.android.support:design:22.2.1') {

@@ -74,9 +74,14 @@ public class CohortPatientRepository extends BaseRepository {
 
 
     public void changeValidVaccines(String validVaccines, Long id) {
-        if (id == null || StringUtils.isBlank(validVaccines)) {
+        if (id == null) {
             return;
         }
+
+        if (StringUtils.isBlank(validVaccines)) {
+            validVaccines = "";
+        }
+
         try {
             SQLiteDatabase database = getWritableDatabase();
 
