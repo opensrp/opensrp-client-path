@@ -99,7 +99,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.vijay.jsonwizard.fileprovider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -109,8 +109,8 @@
 
         <activity
             android:name="org.smartregister.stock.activity.StockControlActivity"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_stock_control"
+            android:screenOrientation="portrait"
             android:theme="@style/AppThemeNoTitle.NoActionBar" />
         <activity
             android:name="org.smartregister.stock.activity.StockJsonFormActivity"
