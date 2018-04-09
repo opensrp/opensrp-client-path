@@ -119,21 +119,21 @@ dependencies {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.2.1@aar') {
+    compile('org.smartregister:opensrp-client-core:1.2.6-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.2.2@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.2.6-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
     }
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.4@aar') {
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.6-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.0@aar') {
+    compile('org.smartregister:opensrp-client-stock:1.0.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
