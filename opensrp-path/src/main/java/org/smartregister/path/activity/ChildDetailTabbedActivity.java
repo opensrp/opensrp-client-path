@@ -236,7 +236,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         overflow.findItem(R.id.immunization_data).setEnabled(false);
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
-        overflow.findItem(R.id.record_bcg_2).setVisible(false);
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
         return true;
@@ -313,7 +312,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
         overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
         overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
-        overflow.findItem(R.id.record_bcg_2).setVisible(showRecordBcg2);
     }
 
     @Override
@@ -371,9 +369,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
-            case R.id.record_bcg_2:
-                showBcg2DialogFragment();
-                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -1191,51 +1187,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return adapter;
     }
 
-    private void showBcg2DialogFragment() {
-
-        VaccineWrapper vaccineWrapper = new VaccineWrapper();
-        vaccineWrapper.setId(childDetails.entityId());
-        vaccineWrapper.setGender(childDetails.getDetails().get("gender"));
-        vaccineWrapper.setName(VaccineRepo.Vaccine.bcg2.display());
-        vaccineWrapper.setDefaultName(VaccineRepo.Vaccine.bcg2.display());
-
-        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
-        Date dob = util.Utils.dobStringToDate(dobString);
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        Photo photo = org.smartregister.immunization.util.ImageUtils.profilePhotoByClient(childDetails);
-        vaccineWrapper.setPhoto(photo);
-
-        String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
-        vaccineWrapper.setPatientNumber(zeirId);
-
-        String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
-        String childName = getName(firstName, lastName);
-        vaccineWrapper.setPatientName(childName.trim());
-
-        ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
-        vaccineWrappers.add(vaccineWrapper);
-
-        List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) {
-            vaccineList = new ArrayList<>();
-        }
-
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-
-        ft.addToBackStack(null);
-
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
-    }
 
     @Override
     protected void startJsonForm(String formName, String entityId) {

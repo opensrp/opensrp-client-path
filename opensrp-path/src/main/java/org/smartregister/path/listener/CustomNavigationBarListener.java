@@ -68,11 +68,16 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
                 drawer.closeDrawer(GravityCompat.START);
                 break;
             case R.id.child_register:
+
                 VaccinatorApplication.setCrashlyticsUser(VaccinatorApplication.getInstance().context());
-                intent = new Intent(getApplicationContext(), ChildSmartRegisterActivity.class);
-                intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
-                startActivity(intent);
-                context.finish();
+
+                if(!context.getComponentName().getClassName().equals(ChildSmartRegisterActivity.class.getCanonicalName())) {
+
+                    intent = new Intent(getApplicationContext(), ChildSmartRegisterActivity.class);
+                    intent.putExtra(BaseRegisterActivity.IS_REMOTE_LOGIN, false);
+                    context.finish();
+                    startActivity(intent);
+                }
                 drawer.closeDrawer(GravityCompat.START);
                 break;
             case R.id.hia2_reports:
