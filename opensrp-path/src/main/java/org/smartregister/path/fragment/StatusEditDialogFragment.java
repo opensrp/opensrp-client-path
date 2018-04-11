@@ -25,8 +25,8 @@ import java.util.Map;
 public class StatusEditDialogFragment extends DialogFragment {
     private StatusChangeListener listener;
     private static Map<String, String> details;
-    private static final String inactive = ChildDetailTabbedActivity.inactive;
-    private static final String lostToFollowUp = ChildDetailTabbedActivity.lostToFollowUp;
+    private static final String inactive = ChildDetailTabbedActivity.INACTIVE;
+    private static final String lostToFollowUp = ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP;
 
     private StatusEditDialogFragment(Map<String, String> details) {
         StatusEditDialogFragment.details = details;

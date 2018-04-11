@@ -30,7 +30,9 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.joda.time.DateTime;
@@ -56,6 +58,7 @@ import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
+import org.smartregister.immunization.fragment.ActivateChildStatusDialogFragment;
 import org.smartregister.immunization.fragment.ServiceDialogFragment;
 import org.smartregister.immunization.fragment.UndoServiceDialogFragment;
 import org.smartregister.immunization.fragment.UndoVaccinationDialogFragment;
@@ -153,6 +156,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private RegisterClickables registerClickables;
     private DetailsRepository detailsRepository;
     private boolean dialogOpen = false;
+    private boolean isChildActive = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -248,6 +252,9 @@ public class ChildImmunizationActivity extends BaseActivity
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
         util.Utils.putAll(childDetails.getColumnmaps(), details);
+        isChildActive = isActiveStatus(childDetails);
+
+        showChildsStatus(childDetails);
 
         updateGenderViews();
         toolbar.setTitle(updateActivityTitle());
@@ -361,7 +368,6 @@ public class ChildImmunizationActivity extends BaseActivity
     }
 
     private void updateServiceViews(Map<String, List<ServiceType>> serviceTypeMap, List<ServiceRecord> serviceRecordList, List<Alert> alerts) {
-
         Map<String, List<ServiceType>> foundServiceTypeMap = new LinkedHashMap<>();
         if (serviceGroups == null) {
             for (String type : serviceTypeMap.keySet()) {
@@ -399,6 +405,7 @@ public class ChildImmunizationActivity extends BaseActivity
             LinearLayout serviceGroupCanvasLL = (LinearLayout) findViewById(R.id.service_group_canvas_ll);
 
             ServiceGroup curGroup = new ServiceGroup(this);
+            curGroup.setChildActive(isChildActive);
             curGroup.setData(childDetails, foundServiceTypeMap, serviceRecordList, alerts);
             curGroup.setOnServiceClickedListener(new ServiceGroup.OnServiceClickedListener() {
                 @Override
@@ -407,8 +414,13 @@ public class ChildImmunizationActivity extends BaseActivity
                     if (dialogOpen) {
                         return;
                     }
+
                     dialogOpen = true;
-                    addServiceDialogFragment(serviceWrapper, serviceGroup);
+                    if (isChildActive) {
+                        addServiceDialogFragment(serviceWrapper, serviceGroup);
+                    } else {
+                        showActivateChildStatusDialogBox();
+                    }
                 }
             });
             curGroup.setOnServiceUndoClickListener(new ServiceGroup.OnServiceUndoClickListener() {
@@ -417,12 +429,22 @@ public class ChildImmunizationActivity extends BaseActivity
                     if (dialogOpen) {
                         return;
                     }
+
                     dialogOpen = true;
-                    addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+                    if (isChildActive) {
+                        addServiceUndoDialogFragment(serviceGroup, serviceWrapper);
+                    } else {
+                        showActivateChildStatusDialogBox();
+                    }
                 }
             });
             serviceGroupCanvasLL.addView(curGroup);
             serviceGroups.add(curGroup);
+        } else {
+            for(ServiceGroup serviceGroup: serviceGroups) {
+                serviceGroup.setChildActive(isChildActive);
+                serviceGroup.updateChildsActiveStatus();
+            }
         }
 
     }
@@ -469,6 +491,11 @@ public class ChildImmunizationActivity extends BaseActivity
             for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : compiledVaccineGroups) {
                 addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
             }
+        } else {
+            for (VaccineGroup vaccineGroup: vaccineGroups) {
+                vaccineGroup.setChildActive(isChildActive);
+                vaccineGroup.updateChildsActiveStatus();
+            }
         }
 
         showVaccineNotifications(vaccineList, alerts);
@@ -512,6 +539,7 @@ public class ChildImmunizationActivity extends BaseActivity
     private void addVaccineGroup(int canvasId, org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroupData, List<Vaccine> vaccineList, List<Alert> alerts) {
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         VaccineGroup curGroup = new VaccineGroup(this);
+        curGroup.setChildActive(isChildActive);
         curGroup.setData(vaccineGroupData, childDetails, vaccineList, alerts, PathConstants.KEY.CHILD);
         curGroup.setOnRecordAllClickListener(new VaccineGroup.OnRecordAllClickListener() {
             @Override
@@ -519,8 +547,13 @@ public class ChildImmunizationActivity extends BaseActivity
                 if (dialogOpen) {
                     return;
                 }
+
                 dialogOpen = true;
-                addVaccinationDialogFragment(dueVaccines, vaccineGroup);
+                if (isChildActive) {
+                    addVaccinationDialogFragment(dueVaccines, vaccineGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
         curGroup.setOnVaccineClickedListener(new VaccineGroup.OnVaccineClickedListener() {
@@ -529,10 +562,15 @@ public class ChildImmunizationActivity extends BaseActivity
                 if (dialogOpen) {
                     return;
                 }
+
                 dialogOpen = true;
-                ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
-                vaccineWrappers.add(vaccine);
-                addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
+                if (isChildActive) {
+                    ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
+                    vaccineWrappers.add(vaccine);
+                    addVaccinationDialogFragment(vaccineWrappers, vaccineGroup);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
         curGroup.setOnVaccineUndoClickListener(new VaccineGroup.OnVaccineUndoClickListener() {
@@ -543,7 +581,11 @@ public class ChildImmunizationActivity extends BaseActivity
                 }
 
                 dialogOpen = true;
-                addVaccineUndoDialogFragment(vaccineGroup, vaccine);
+                if (isChildActive) {
+                    addVaccineUndoDialogFragment(vaccineGroup, vaccine);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
 
@@ -605,7 +647,7 @@ public class ChildImmunizationActivity extends BaseActivity
         });
     }
 
-    private void updateWeightViews(Weight lastUnsyncedWeight) {
+    private void updateWeightViews(Weight lastUnsyncedWeight, final boolean isActive) {
 
         String childName = constructChildName();
         String gender = Utils.getValue(childDetails.getColumnmaps(), PathConstants.KEY.GENDER, true);
@@ -639,7 +681,7 @@ public class ChildImmunizationActivity extends BaseActivity
             weightWrapper.setUpdatedWeightDate(new DateTime(lastUnsyncedWeight.getDate()), false);
         }
 
-        updateRecordWeightViews(weightWrapper);
+        updateRecordWeightViews(weightWrapper, isActive);
 
         ImageButton growthChartButton = (ImageButton) findViewById(R.id.growth_chart_button);
         growthChartButton.setOnClickListener(new View.OnClickListener() {
@@ -650,20 +692,29 @@ public class ChildImmunizationActivity extends BaseActivity
         });
     }
 
-    private void updateRecordWeightViews(WeightWrapper weightWrapper) {
+    private void updateRecordWeightViews(WeightWrapper weightWrapper, final boolean isActive) {
         View recordWeight = findViewById(R.id.record_weight);
         recordWeight.setClickable(true);
         recordWeight.setBackground(getResources().getDrawable(R.drawable.record_weight_bg));
 
         TextView recordWeightText = (TextView) findViewById(R.id.record_weight_text);
         recordWeightText.setText(R.string.record_weight);
+        if (!isActive) {
+            recordWeightText.setTextColor(getResources().getColor(R.color.inactive_text_color));
+        } else {
+            recordWeightText.setTextColor(getResources().getColor(R.color.text_black));
+        }
 
         ImageView recordWeightCheck = (ImageView) findViewById(R.id.record_weight_check);
         recordWeightCheck.setVisibility(View.GONE);
         recordWeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showWeightDialog(view);
+                if (isActive) {
+                    showWeightDialog(view);
+                } else {
+                    showActivateChildStatusDialogBox();
+                }
             }
         });
 
@@ -715,6 +766,61 @@ public class ChildImmunizationActivity extends BaseActivity
 
     }
 
+    private void showActivateChildStatusDialogBox() {
+        String thirdPersonPronoun = getChildsThirdPersonPronoun(childDetails);
+        String childsCurrentStatus = WordUtils.uncapitalize(getHumanFriendlyChildsStatus(childDetails), '-', ' ');
+        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
+        Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        ActivateChildStatusDialogFragment activateChildStatusFragmentDialog = ActivateChildStatusDialogFragment.newInstance(thirdPersonPronoun, childsCurrentStatus, R.style.PathAlertDialog);
+        activateChildStatusFragmentDialog.setOnClickListener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    SaveChildsStatusTask saveChildsStatusTask = new SaveChildsStatusTask();
+                    Utils.startAsyncTask(saveChildsStatusTask, null);
+                }
+            }
+        });
+        activateChildStatusFragmentDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogOpen = false;
+            }
+        });
+        activateChildStatusFragmentDialog.show(ft, DIALOG_TAG);
+    }
+
+    private String getChildsThirdPersonPronoun(CommonPersonObjectClient childDetails) {
+        String genderString = Utils.getValue(childDetails, PathConstants.KEY.GENDER, false);
+        if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.FEMALE)) {
+            return getString(R.string.her);
+        } else if (genderString != null && genderString.toLowerCase().equals(PathConstants.GENDER.MALE)) {
+            return getString(R.string.him);
+        }
+
+        return getString(R.string.her) + "/" + getString(R.string.him);
+    }
+
+    private void activateChildsStatus() {
+        try {
+            Map<String, String> details = childDetails.getColumnmaps();
+            if (details.containsKey(ChildDetailTabbedActivity.INACTIVE) && details.get(ChildDetailTabbedActivity.INACTIVE) != null && details.get(ChildDetailTabbedActivity.INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(util.Utils.updateClientAttribute(this, childDetails, ChildDetailTabbedActivity.INACTIVE, false));
+            }
+
+            if (details.containsKey(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP) && details.get(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP) != null && details.get(ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+                childDetails.setColumnmaps(util.Utils.updateClientAttribute(this, childDetails, ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP, false));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        }
+    }
+
     private String readAssetContents(String path) {
         String fileContents = null;
         try {
@@ -758,6 +864,11 @@ public class ChildImmunizationActivity extends BaseActivity
             name = constructChildName();
         }
         return String.format("%s > %s", getString(R.string.app_name), name.trim());
+    }
+
+    private void showChildsStatus(CommonPersonObjectClient child) {
+        String status = getHumanFriendlyChildsStatus(child);
+        showChildsStatus(status);
     }
 
     @Override
@@ -817,7 +928,7 @@ public class ChildImmunizationActivity extends BaseActivity
             }
 
             tag.setDbKey(weight.getId());
-            updateRecordWeightViews(tag);
+            updateRecordWeightViews(tag, isActiveStatus(childDetails));
             setLastModified(true);
         }
     }
@@ -1331,7 +1442,7 @@ public class ChildImmunizationActivity extends BaseActivity
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
             Weight weight = AsyncTaskUtils.retriveWeight(map);
 
-            updateWeightViews(weight);
+            updateWeightViews(weight, isChildActive);
             updateServiceViews(serviceTypeMap, serviceRecords, alertList);
             updateVaccinationViews(vaccineList, alertList);
             performRegisterActions();
@@ -1727,6 +1838,28 @@ public class ChildImmunizationActivity extends BaseActivity
 
             SiblingPicturesGroup siblingPicturesGroup = (SiblingPicturesGroup) ChildImmunizationActivity.this.findViewById(R.id.sibling_pictures);
             siblingPicturesGroup.setSiblingBaseEntityIds(ChildImmunizationActivity.this, ids);
+        }
+    }
+
+    private class SaveChildsStatusTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            showProgressDialog("Updating Child's Status", "");
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            activateChildsStatus();
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            hideProgressDialog();
+            super.onPostExecute(aVoid);
+            updateViews();
         }
     }
 

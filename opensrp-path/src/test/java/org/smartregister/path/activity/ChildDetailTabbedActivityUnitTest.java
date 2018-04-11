@@ -133,11 +133,9 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void shouldRenderStatusImageView() {
-
-        ImageView logoImageView = (ImageView) activity.findViewById(R.id.statusimage);
-        assertNotNull(logoImageView);
-
+    public void shouldRenderChildStatusBar() {
+        LinearLayout statusBar = (LinearLayout) activity.findViewById(R.id.ll_inactive_status_bar_layout);
+        assertNotNull(statusBar);
     }
 
     @Test
@@ -149,11 +147,9 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void shouldRenderStatusNameTextView() {
-
-        TextView textView = (TextView) activity.findViewById(R.id.statusname);
+    public void shouldRenderStatusBarTextView() {
+        TextView textView = (TextView) activity.findViewById(R.id.tv_inactive_status_bar_status_text);
         assertNotNull(textView);
-
     }
 
     @Test
@@ -578,24 +574,6 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void shouldRenderStatusFragmentOnStatusViewClick() {
-
-        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
-        assertNotNull(statusView);
-        statusView.performClick();
-
-        ArrayList<View> outViews = new ArrayList<>();
-        View view = activity.getFragmentManager().findFragmentByTag(ChildDetailTabbedActivityTestVersion.DIALOG_TAG).getView();
-        assertNotNull(view); //make sure view exists
-        view.findViewsWithText(outViews, "Child Status",
-                View.FIND_VIEWS_WITH_TEXT);
-
-        assertFalse(outViews.isEmpty());
-        assertTrue(outViews.size() == 1); //only one
-        assertTrue(outViews.get(0).getVisibility() == View.VISIBLE);
-    }
-
-    @Test
     public void onCreateSetsUpSuccessfullyWithSerializedChildDetails() {
 
 
@@ -620,7 +598,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void statusViewShouldUpdateToInactiveIfChildDetailsInactiveParamIsSetToTrue() {
+    public void statusBarShouldUpdateToInactiveIfChildDetailsInactiveParamIsSetToTrue() {
 
         destroyController(); //destroy controller
 
@@ -630,7 +608,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         intent.putExtra("location_name", "Nairobi");
         Bundle bundle = new Bundle();
         CommonPersonObjectClient newChildDetails = new CommonPersonObjectClient("1", new HashMap<String, String>(), "test");
-        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.inactive, "true").map();
+        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.INACTIVE, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
         details = columnMap; //save for later call to getAllDetailsForClient method
@@ -642,10 +620,12 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         activity = controller.get();
 
         controller.setup();
-        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
+        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.ll_inactive_status_bar_layout);
         assertNotNull(statusView);
 
-        TextView statusTextView = (TextView) statusView.findViewById(R.id.statusname);
+        assertEquals(View.VISIBLE, statusView.getVisibility());
+
+        TextView statusTextView = (TextView) statusView.findViewById(R.id.tv_inactive_status_bar_status_text);
         assertTrue(statusTextView.getVisibility() == View.VISIBLE);
         assertEquals("Inactive", statusTextView.getText().toString());
 
@@ -683,18 +663,13 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         activity = controller.get();
         controller.setup();
 
-        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
+        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.ll_inactive_status_bar_layout);
         assertNotNull(statusView);
-
-        TextView statusTextView = (TextView) statusView.findViewById(R.id.statusname);
-        assertTrue(statusTextView.getVisibility() == View.VISIBLE);
-        assertEquals("Active", statusTextView.getText().toString());
-
-
+        assertEquals(View.GONE, statusView.getVisibility());
     }
 
     @Test
-    public void statusViewShouldUpdateToLostToFollowUpWhenChildStatusLostToFollowUpParamIsTrue() {
+    public void statusBarShouldUpdateToLostToFollowUpWhenChildStatusLostToFollowUpParamIsTrue() {
 
         destroyController(); //destroy controller
 
@@ -704,7 +679,7 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         intent.putExtra("location_name", "Nairobi");
         Bundle bundle = new Bundle();
         CommonPersonObjectClient newChildDetails = new CommonPersonObjectClient("1", new HashMap<String, String>(), "test");
-        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.lostToFollowUp, "true").map();
+        Map<String, String> columnMap = EasyMap.create(ChildDetailTabbedActivityTestVersion.LOST_TO_FOLLOW_UP, "true").map();
         newChildDetails.setColumnmaps(columnMap);
         newChildDetails.setDetails(columnMap);
         details = columnMap; //save for later call to getAllDetailsForClient method
@@ -716,12 +691,12 @@ public class ChildDetailTabbedActivityUnitTest extends BaseUnitTest {
         activity = controller.get();
 
         controller.setup();
-        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.statusview);
+        LinearLayout statusView = (LinearLayout) activity.findViewById(R.id.ll_inactive_status_bar_layout);
         assertNotNull(statusView);
+        assertEquals(View.VISIBLE, statusView.getVisibility());
 
         TextView statusTextView = (TextView) statusView.findViewById(R.id.status);
-        assertTrue(statusTextView.getVisibility() == View.VISIBLE);
-        assertEquals("Lost to\nFollow-Up", statusTextView.getText().toString());
+        assertEquals("Lost to Follow-Up", statusTextView.getText().toString());
 
     }
 
