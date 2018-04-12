@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -131,7 +132,16 @@ public class StatusEditDialogFragment extends DialogFragment {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                getDialog().getWindow().setLayout(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                Window window = null;
+                if (getDialog() != null) {
+                    window = getDialog().getWindow();
+                }
+
+                if (window == null) {
+                    return;
+                }
+
+                window.setLayout(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
             }
         });
