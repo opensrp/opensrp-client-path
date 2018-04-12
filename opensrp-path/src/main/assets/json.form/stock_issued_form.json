@@ -102,7 +102,7 @@
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Number of [vaccine] Vials issued *",
+        "hint": "Number of [vaccine] vials issued *",
         "v_min": {
           "value": "1",
           "err": "issued vials must be greater than 0"
@@ -166,7 +166,7 @@
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Number of wasted Vials (e.g. Damaged Vials)",
+        "hint": "Number of wasted vials (e.g. damaged vials)",
         "v_min": {
           "value": "0",
           "err": "value cannot be less than zero"
@@ -188,7 +188,7 @@
       {
         "key": "Vials_Balance",
         "type": "label",
-        "text": "NEW [vaccine] Balance: 0 vials",
+        "text": "New [vaccine] balance: 0 vials",
         "has_bg": true,
         "top_padding": "30dp",
         "left_padding": "20dp",
