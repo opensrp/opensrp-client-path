@@ -115,4 +115,6 @@
     <dimen name="facility_cumulative_text_width">53dp</dimen>
 
     <dimen name="nav_view_width">450dp</dimen>
+    <dimen name="bcg_popup_button_padding_top">60dp</dimen>
+    <dimen name="bcg_popup_button_padding">20dp</dimen>
 </resources>

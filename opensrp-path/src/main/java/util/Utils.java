@@ -16,6 +16,7 @@
 
 package util;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -31,10 +32,21 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.json.JSONObject;
+import org.smartregister.clientandeventmodel.Event;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.immunization.db.VaccineRepo;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.repository.VaccineRepository;
+import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.EditWrapper;
+import org.smartregister.path.helper.LocationHelper;
+import org.smartregister.path.sync.ECSyncUpdater;
+import org.smartregister.path.sync.PathClientProcessorForJava;
+import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.repository.BaseRepository;
+import org.smartregister.repository.DetailsRepository;
+import org.smartregister.repository.EventClientRepository;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -342,5 +354,62 @@ public class Utils {
 
     public static boolean isEmptyCollection(Collection collection) {
         return collection == null || collection.isEmpty();
+    }
+
+    public static Map<String, String> updateClientAttribute(Context context, CommonPersonObjectClient childDetails, String attributeName, Object attributeValue) throws Exception {
+
+        org.smartregister.Context openSRPContext = VaccinatorApplication.getInstance().context();
+
+        Date date = new Date();
+        EventClientRepository db = VaccinatorApplication.getInstance().eventClientRepository();
+        ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+
+        JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
+        JSONObject attributes = client.getJSONObject(JsonFormUtils.attributes);
+        attributes.put(attributeName, attributeValue);
+        client.remove(JsonFormUtils.attributes);
+        client.put(JsonFormUtils.attributes, attributes);
+        db.addorUpdateClient(childDetails.entityId(), client);
+
+
+        DetailsRepository detailsRepository = openSRPContext.detailsRepository();
+        detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
+        ContentValues contentValues = new ContentValues();
+        //Add the base_entity_id
+        contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
+        db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
+
+        AllSharedPreferences allSharedPreferences = openSRPContext.allSharedPreferences();
+        String locationName = allSharedPreferences.fetchCurrentLocality();
+        if (StringUtils.isBlank(locationName)) {
+            locationName = LocationHelper.getInstance().getDefaultLocation();
+        }
+
+        Event event = (Event) new Event()
+                .withBaseEntityId(childDetails.entityId())
+                .withEventDate(new Date())
+                .withEventType(JsonFormUtils.encounterType)
+                .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
+                .withProviderId(allSharedPreferences.fetchRegisteredANM())
+                .withEntityType(PathConstants.EntityType.CHILD)
+                .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
+                .withDateCreated(new Date());
+
+        JsonFormUtils.addMetaData(context, event, date);
+        JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
+        db.addEvent(childDetails.entityId(), eventJson);
+        long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
+        Date lastSyncDate = new Date(lastSyncTimeStamp);
+        PathClientProcessorForJava.getInstance(context).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
+        allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
+
+        //update details
+        Map<String, String> detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+        if (childDetails.getColumnmaps().containsKey(attributeName)) {
+            childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
+        }
+        util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+        return detailsMap;
     }
 }
