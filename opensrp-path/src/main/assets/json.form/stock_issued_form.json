@@ -65,6 +65,49 @@
         }
       },
       {
+        "key": "Children_Vaccinated_Count",
+        "type": "label",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "text": "Children vaccinated on this date: <Enter date to calculate>",
+        "text_color": "#000000",
+        "text_size": "10sp",
+        "hint_on_text": true
+      },
+      {
+        "key": "Vials_Issued_Count",
+        "type": "label",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "text": "Estimated vials issued on this date: <Enter date to calculate>",
+        "text_color": "#000000",
+        "text_size": "10sp",
+        "hint_on_text": true
+      },
+      {
+        "key": "Vials_Issued",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "openmrs_data_type": "text",
+        "type": "edit_text",
+        "hint": "Number of [vaccine] Vials issued *",
+        "v_min": {
+          "value": "1",
+          "err": "issued vials must be greater than 0"
+        },
+        "v_numeric_integer": {
+          "value": "true",
+          "err": "Enter a valid vial number"
+        },
+        "v_required": {
+          "value": "true",
+          "err": "Enter the Vials Issued"
+        }
+      },
+      {
         "key": "Issued_Stock_To",
         "openmrs_entity_parent": "",
         "openmrs_entity": "",
@@ -108,34 +151,13 @@
         }
       },
       {
-        "key": "Vials_Issued",
-        "openmrs_entity_parent": "",
-        "openmrs_entity": "",
-        "openmrs_entity_id": "",
-        "openmrs_data_type": "text",
-        "type": "edit_text",
-        "hint": "Vials [vaccine] issued *",
-        "v_min": {
-          "value": "1",
-          "err": "issued vials must be greater than 0"
-        },
-        "v_numeric_integer": {
-          "value": "true",
-          "err": "Enter a valid vial number"
-        },
-        "v_required": {
-          "value": "true",
-          "err": "Enter the Vials Issued"
-        }
-      },
-      {
         "key": "Vials_Wasted",
         "openmrs_entity_parent": "",
         "openmrs_entity": "",
         "openmrs_entity_id": "",
         "openmrs_data_type": "text",
         "type": "edit_text",
-        "hint": "Wasted vials",
+        "hint": "Number of wasted Vials (e.g. Damaged Vials)",
         "v_min": {
           "value": "0",
           "err": "value cannot be less than zero"
@@ -153,6 +175,88 @@
         "openmrs_data_type": "text",
         "type":"label",
         "text":""
+      },
+      {
+        "key": "Vials_Balance",
+        "type": "label",
+        "text": "NEW [vaccine] Balance: 0 vials",
+        "has_bg": true,
+        "top_padding": "30dp",
+        "left_padding": "20dp",
+        "right_padding": "20dp",
+        "bottom_padding": "0dp",
+        "text_size": "14sp",
+        "text_color": "#000000",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "relevance": {
+          "step1:Date_Stock_Issued": {
+            "type": "string",
+            "ex": "notEqualTo(.,\"\")"
+          }
+        }
+      },
+      {
+        "key": "Vials_Balance_Note",
+        "type": "label",
+        "text": "Compare this number with stock on hand",
+        "has_bg": true,
+        "text_size": "12sp",
+        "text_color": "#737373",
+        "left_padding": "20dp",
+        "right_padding": "20dp",
+        "bottom_padding": "10dp",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "relevance": {
+          "step1:Date_Stock_Issued": {
+            "type": "string",
+            "ex": "notEqualTo(.,\"\")"
+          }
+        }
+      },
+      {
+        "key": "Doses_wasted",
+        "type": "label",
+        "text": "Total wasted doses: 0 doses",
+        "has_bg": true,
+        "left_padding": "20dp",
+        "right_padding": "20dp",
+        "bottom_padding": "0dp",
+        "text_size": "14sp",
+        "text_color": "#000000",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "relevance": {
+          "step1:Date_Stock_Issued": {
+            "type": "string",
+            "ex": "notEqualTo(.,\"\")"
+          }
+        }
+      },
+      {
+        "key": "Doses_Wasted_Note",
+        "type": "label",
+        "text": "Unused doses in issued vials + wasted vials ([number_of_doses] doses/vial)",
+        "has_bg": true,
+        "text_size": "12sp",
+        "text_color": "#737373",
+        "bottom_padding": "30dp",
+        "bottom_margin": "20dp",
+        "left_padding": "20dp",
+        "right_padding": "20dp",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "relevance": {
+          "step1:Date_Stock_Issued": {
+            "type": "string",
+            "ex": "notEqualTo(.,\"\")"
+          }
+        }
       }
     ]
   }
