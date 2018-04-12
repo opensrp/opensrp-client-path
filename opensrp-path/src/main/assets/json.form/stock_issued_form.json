@@ -87,6 +87,15 @@
         "hint_on_text": true
       },
       {
+        "key": "divider1",
+        "type": "h_line",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "top_margin": "30dp",
+        "bottom_margin": "15dp"
+      },
+      {
         "key": "Vials_Issued",
         "openmrs_entity_parent": "",
         "openmrs_entity": "",
