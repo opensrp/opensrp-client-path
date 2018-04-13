@@ -11,7 +11,7 @@ import org.smartregister.path.widgets.PathEditTextFactory;
  */
 public class PathJsonFormInteractor extends JsonFormInteractor {
 
-    private static final JsonFormInteractor INSTANCE = new PathJsonFormInteractor();
+    private static final JsonFormInteractor PATH_INTERACTOR_INSTANCE = new PathJsonFormInteractor();
 
     private PathJsonFormInteractor() {
         super();
@@ -24,7 +24,7 @@ public class PathJsonFormInteractor extends JsonFormInteractor {
         map.put(JsonFormConstants.DATE_PICKER, new PathDatePickerFactory());
     }
 
-    public static JsonFormInteractor getInstance() {
-        return INSTANCE;
+    public static JsonFormInteractor getPathInteractorInstance() {
+        return PATH_INTERACTOR_INSTANCE;
     }
 }
