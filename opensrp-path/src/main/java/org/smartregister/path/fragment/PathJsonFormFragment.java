@@ -81,7 +81,7 @@ public class PathJsonFormFragment extends JsonFormFragment {
 
     @Override
     protected JsonFormFragmentPresenter createPresenter() {
-        return new JsonFormFragmentPresenter(this, PathJsonFormInteractor.getInstance());
+        return new JsonFormFragmentPresenter(this, PathJsonFormInteractor.getPathInteractorInstance());
     }
 
     public Context context() {
