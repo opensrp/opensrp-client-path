@@ -6,10 +6,14 @@ import android.content.Intent;
 
 import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
+import org.smartregister.path.service.intent.path.PathStockSyncIntentService;
+import org.smartregister.path.service.intent.path.PathZScoreRefreshIntentService;
 import org.smartregister.service.ActionService;
 import org.smartregister.stock.sync.StockSyncIntentService;
 
 import util.NetworkUtils;
+import util.ServiceTools;
 
 import static org.smartregister.util.Log.logInfo;
 
@@ -32,35 +36,31 @@ public class ExtendedSyncIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent workIntent) {
 
-        if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
-            logInfo("Not updating from server as user is not logged in.");
-            return;
-        }
+        boolean wakeup = workIntent.getBooleanExtra(SyncIntentService.WAKE_UP, false);
 
         if (NetworkUtils.isNetworkAvailable()) {
 
-            startStockSync();
+            startStockSync(wakeup);
 
             actionService.fetchNewActions();
 
-            startSyncValidation();
+            startSyncValidation(wakeup);
         }
-        startZscoreRefresh();
+        startZscoreRefresh(wakeup);
+
+        VaccinatorAlarmReceiver.completeWakefulIntent(workIntent);
     }
 
-    private void startStockSync() {
-        Intent intent = new Intent(context, StockSyncIntentService.class);
-        startService(intent);
+    private void startStockSync(boolean wakeup) {
+        ServiceTools.startService(context, PathStockSyncIntentService.class, wakeup);
     }
 
-    private void startSyncValidation() {
-        Intent intent = new Intent(context, ValidateIntentService.class);
-        startService(intent);
+    private void startSyncValidation(boolean wakeup) {
+        ServiceTools.startService(context, ValidateIntentService.class, wakeup);
     }
 
-    private void startZscoreRefresh() {
-        Intent intent = new Intent(context, ZScoreRefreshIntentService.class);
-        startService(intent);
+    private void startZscoreRefresh(boolean wakeup) {
+        ServiceTools.startService(context, PathZScoreRefreshIntentService.class, wakeup);
     }
 
 }

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.WakefulBroadcastReceiver;
 
 import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
@@ -14,6 +15,10 @@ import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.path.service.intent.SyncIntentService;
+import org.smartregister.path.service.intent.path.PathImageUploadSyncService;
+import org.smartregister.path.service.intent.path.PathRecurringIntentService;
+import org.smartregister.path.service.intent.path.PathVaccineIntentService;
+import org.smartregister.path.service.intent.path.PathWeightIntentService;
 import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
@@ -24,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import util.PathConstants;
 import util.ServiceTools;
 
-public class VaccinatorAlarmReceiver extends BroadcastReceiver {
+public class VaccinatorAlarmReceiver extends WakefulBroadcastReceiver {
 
     private static final String TAG = VaccinatorAlarmReceiver.class.getCanonicalName();
 
@@ -35,53 +40,53 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent alarmIntent) {
         int serviceType = alarmIntent.getIntExtra(serviceTypeName, 0);
-        if (!VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
-            Intent serviceIntent = null;
-            switch (serviceType) {
-                case PathConstants.ServiceType.AUTO_SYNC:
-                    android.util.Log.i(TAG, "Started AUTO_SYNC service at: " + dateFormatter.format(new Date()));
-                    ServiceTools.startService(context, SyncIntentService.class);
-                    break;
-                case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
-                    android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
-                    serviceIntent = new Intent(context, HIA2IntentService.class);
-                    break;
-                case PathConstants.ServiceType.PULL_UNIQUE_IDS:
-                    serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
-                    android.util.Log.i(TAG, "Started PULL_UNIQUE_IDS service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING:
-                    serviceIntent = new Intent(context, WeightIntentService.class);
-                    android.util.Log.i(TAG, "Started WEIGHT_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.VACCINE_SYNC_PROCESSING:
-                    serviceIntent = new Intent(context, VaccineIntentService.class);
-                    android.util.Log.i(TAG, "Started VACCINE_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING:
-                    serviceIntent = new Intent(context, RecurringIntentService.class);
-                    android.util.Log.i(TAG, "Started RECURRING_SERVICES_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.IMAGE_UPLOAD:
-                    serviceIntent = new Intent(context, ImageUploadSyncService.class);
-                    android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
-                    break;
-                case PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION:
-                    serviceIntent = new Intent(context, CoverageDropoutIntentService.class);
-                    android.util.Log.i(TAG, "Started COVERAGE_DROPOUT_GENERATION service at: " + dateFormatter.format(new Date()));
-                    break;
-                default:
-                    break;
-            }
-
-            if (serviceIntent != null)
-                this.startService(context, serviceIntent, serviceType);
+        Intent serviceIntent = null;
+        switch (serviceType) {
+            case PathConstants.ServiceType.AUTO_SYNC:
+                android.util.Log.i(TAG, "Started AUTO_SYNC service at: " + dateFormatter.format(new Date()));
+                serviceIntent = new Intent(context, SyncIntentService.class);
+                serviceIntent.putExtra(SyncIntentService.WAKE_UP, true);
+                break;
+            case PathConstants.ServiceType.DAILY_TALLIES_GENERATION:
+                android.util.Log.i(TAG, "Started DAILY_TALLIES_GENERATION service at: " + dateFormatter.format(new Date()));
+                serviceIntent = new Intent(context, HIA2IntentService.class);
+                break;
+            case PathConstants.ServiceType.PULL_UNIQUE_IDS:
+                serviceIntent = new Intent(context, PullUniqueIdsIntentService.class);
+                android.util.Log.i(TAG, "Started PULL_UNIQUE_IDS service at: " + dateFormatter.format(new Date()));
+                break;
+            case PathConstants.ServiceType.WEIGHT_SYNC_PROCESSING:
+                serviceIntent = new Intent(context, PathWeightIntentService.class);
+                android.util.Log.i(TAG, "Started WEIGHT_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
+                break;
+            case PathConstants.ServiceType.VACCINE_SYNC_PROCESSING:
+                serviceIntent = new Intent(context, PathVaccineIntentService.class);
+                android.util.Log.i(TAG, "Started VACCINE_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
+                break;
+            case PathConstants.ServiceType.RECURRING_SERVICES_SYNC_PROCESSING:
+                serviceIntent = new Intent(context, PathRecurringIntentService.class);
+                android.util.Log.i(TAG, "Started RECURRING_SERVICES_SYNC_PROCESSING service at: " + dateFormatter.format(new Date()));
+                break;
+            case PathConstants.ServiceType.IMAGE_UPLOAD:
+                serviceIntent = new Intent(context, PathImageUploadSyncService.class);
+                android.util.Log.i(TAG, "Started IMAGE_UPLOAD_SYNC service at: " + dateFormatter.format(new Date()));
+                break;
+            case PathConstants.ServiceType.COVERAGE_DROPOUT_GENERATION:
+                serviceIntent = new Intent(context, CoverageDropoutIntentService.class);
+                android.util.Log.i(TAG, "Started COVERAGE_DROPOUT_GENERATION service at: " + dateFormatter.format(new Date()));
+                break;
+            default:
+                break;
         }
+
+        if (serviceIntent != null)
+            this.startService(context, serviceIntent);
+
 
     }
 
-    private void startService(Context context, Intent serviceIntent, int serviceType) {
-        context.startService(serviceIntent);
+    private void startService(Context context, Intent serviceIntent) {
+        startWakefulService(context, serviceIntent);
     }
 
     /**
@@ -117,7 +122,7 @@ public class VaccinatorAlarmReceiver extends BroadcastReceiver {
                 Log.logError(TAG, e.getMessage());
             }
             //Elapsed real time uses the "time since system boot" as a reference, and real time clock uses UTC (wall clock) time
-            alarmManager.setRepeating(AlarmManager.RTC, triggerAt, triggerInterval, alarmIntent);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerAt, triggerInterval, alarmIntent);
         } catch (Exception e) {
             Log.logError(TAG, "Error in setting service Alarm " + e.getMessage());
         }

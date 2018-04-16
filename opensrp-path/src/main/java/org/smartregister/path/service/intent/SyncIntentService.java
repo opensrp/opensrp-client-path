@@ -20,6 +20,7 @@ import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.receiver.SyncStatusBroadcastReceiver;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.sync.ECSyncUpdater;
 import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.repository.EventClientRepository;
@@ -42,6 +43,9 @@ public class SyncIntentService extends IntentService {
     public static final int EVENT_PULL_LIMIT = 500;
     private static final int EVENT_PUSH_LIMIT = 50;
 
+    public static String WAKE_UP = "WAKE_UP";
+    private boolean wakeup = false;
+
     public SyncIntentService() {
         super("SyncIntentService");
     }
@@ -54,17 +58,18 @@ public class SyncIntentService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleIntent(Intent intent) {
+        wakeup = intent.getBooleanExtra(WAKE_UP, false);
+
         handleSync();
+
+        if (wakeup) {
+            VaccinatorAlarmReceiver.completeWakefulIntent(intent);
+        }
     }
 
     protected void handleSync() {
-
         sendSyncStatusBroadcastMessage(FetchStatus.fetchStarted);
-        if (VaccinatorApplication.getInstance().context().IsUserLoggedOut()) {
-            drishtiLogInfo("Not updating from server as user is not logged in.");
-            return;
-        }
 
         doSync();
     }
@@ -228,6 +233,9 @@ public class SyncIntentService extends IntentService {
         intent.setAction(SyncStatusBroadcastReceiver.ACTION_SYNC_STATUS);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_FETCH_STATUS, fetchStatus);
         intent.putExtra(SyncStatusBroadcastReceiver.EXTRA_COMPLETE_STATUS, true);
+        if (wakeup) {
+            intent.putExtra(SyncIntentService.WAKE_UP, true);
+        }
 
         sendBroadcast(intent);
 

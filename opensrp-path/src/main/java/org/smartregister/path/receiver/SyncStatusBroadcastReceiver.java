@@ -10,11 +10,14 @@ import org.joda.time.DateTime;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.ExtendedSyncIntentService;
+import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.repository.AllSharedPreferences;
 import org.smartregister.sync.DrishtiSyncScheduler;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import util.ServiceTools;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static org.smartregister.util.Log.logError;
@@ -91,7 +94,9 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
                     boolean isComplete = data.getBoolean(EXTRA_COMPLETE_STATUS);
                     if (isComplete) {
                         complete(fetchStatus, context);
-                        startExtendedSyncAndAlarms(context);
+
+                        boolean wakeup = intent.getBooleanExtra(SyncIntentService.WAKE_UP, false);
+                        startExtendedSyncAndAlarms(context, wakeup);
                     } else {
                         inProgress(fetchStatus);
                     }
@@ -138,17 +143,16 @@ public class SyncStatusBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void startExtendedSyncAndAlarms(Context context) {
-        startExtendedSync(context);
+    private void startExtendedSyncAndAlarms(Context context, boolean wakeup) {
+        startExtendedSync(context, wakeup);
         if (!alarmsTriggered) {
             VaccinatorApplication.setAlarms(context);
             alarmsTriggered = true;
         }
     }
 
-    private void startExtendedSync(Context context) {
-        Intent intent = new Intent(context, ExtendedSyncIntentService.class);
-        context.startService(intent);
+    private void startExtendedSync(Context context, boolean wakeup) {
+        ServiceTools.startService(context, ExtendedSyncIntentService.class, wakeup);
     }
 
     public interface SyncStatusListener {

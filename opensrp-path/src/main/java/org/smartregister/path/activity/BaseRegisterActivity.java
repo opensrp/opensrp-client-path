@@ -111,7 +111,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void updateFromServer() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startSyncService(getApplicationContext());
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class BaseRegisterActivity extends SecuredNativeSmartRegisterAct
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startSyncService(getApplicationContext());
     }
 
     /////////////////////////for custom navigation //////////////////////////////////////////////////////

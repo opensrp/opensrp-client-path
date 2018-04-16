@@ -376,7 +376,7 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     private void startSync() {
-        ServiceTools.startService(getApplicationContext(), SyncIntentService.class);
+        ServiceTools.startSyncService(getApplicationContext());
     }
 
     /**

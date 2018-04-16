@@ -45,7 +45,7 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
         Intent intent;
         switch (v.getId()) {
             case R.id.nav_sync:
-                ServiceTools.startService(context.getApplicationContext(), SyncIntentService.class);
+                ServiceTools.startSyncService(context.getApplicationContext());
                 drawer.closeDrawer(GravityCompat.START);
                 break;
             case R.id.nav_register:

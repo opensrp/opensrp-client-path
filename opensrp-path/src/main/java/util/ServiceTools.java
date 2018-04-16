@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
+import org.smartregister.path.service.intent.SyncIntentService;
 
 import java.util.List;
 
@@ -14,27 +16,27 @@ import java.util.List;
 
 public class ServiceTools {
 
-    public static boolean isServiceRunning(Class<?> serviceClass) {
-        final ActivityManager activityManager = (ActivityManager) VaccinatorApplication.getInstance().getSystemService(Context.ACTIVITY_SERVICE);
-        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
 
-        for (ActivityManager.RunningServiceInfo service : services) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
+    public static void startSyncService(Context context) {
+        if (context == null) {
+            return;
         }
-        return false;
+
+        Intent intent = new Intent(context, SyncIntentService.class);
+        context.startService(intent);
+
     }
 
-    public static void startService(Context context, Class<?> serviceClass) {
+    public static void startService(Context context, Class serviceClass, boolean wakeup) {
         if (context == null || serviceClass == null) {
             return;
         }
 
-        if (!isServiceRunning(serviceClass)) {
-            Intent intent = new Intent(context, serviceClass);
-            VaccinatorApplication.getInstance().startService(intent);
+        Intent intent = new Intent(context, serviceClass);
+        if (wakeup) {
+            VaccinatorAlarmReceiver.startWakefulService(context, intent);
+        } else {
+            context.startService(intent);
         }
-
     }
 }
