@@ -656,7 +656,20 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
                 DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
                 detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-                util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+                Map<String, String> columnMaps = childDetails.getColumnmaps();
+                Iterator<String> columnMapsIterator =  columnMaps.keySet().iterator();
+
+                while (columnMapsIterator.hasNext()) {
+                    String key = columnMapsIterator.next();
+
+                    if (detailsMap.containsKey(key)) {
+                        columnMaps.put(key, detailsMap.get(key));
+                    }
+                    detailsMap.put(key, columnMaps.get(key));
+                }
+
+                childDetails.setColumnmaps(columnMaps);
                 childDataFragment.loadData(detailsMap);
 
             } catch (Exception e) {
