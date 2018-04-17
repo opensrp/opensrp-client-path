@@ -434,6 +434,8 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 form.put(JsonFormUtils.RELATIONAL_ID, childDetails.getColumnmaps().get("relational_id"));
                 form.put(JsonFormUtils.CURRENT_ZEIR_ID, getValue(childDetails.getColumnmaps(), "zeir_id", true).replace("-", ""));
 
+                //Add the location id
+                form.getJSONObject("metadata").put("encounter_location", LocationHelper.getInstance().getOpenMrsLocationId(location_name));
 
                 Intent intent = new Intent(getApplicationContext(), PathJsonFormActivity.class);
                 //inject zeir id into the form
