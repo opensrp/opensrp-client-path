@@ -1488,6 +1488,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             if (detailsMap != null) {
                 childDataFragment.updateChildDetails(childDetails);
                 childDataFragment.loadData(detailsMap);
+                profileWidget();
             }
         }
     }
