@@ -11,10 +11,6 @@ import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 
 public class PathRecurringIntentService extends RecurringIntentService {
 
-    public PathRecurringIntentService() {
-        super();
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
         super.onHandleIntent(intent);

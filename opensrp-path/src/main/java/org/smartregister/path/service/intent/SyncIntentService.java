@@ -3,7 +3,6 @@ package org.smartregister.path.service.intent;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -241,10 +240,6 @@ public class SyncIntentService extends IntentService {
 
         ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(context);
         ecSyncUpdater.updateLastCheckTimeStamp(new Date().getTime());
-    }
-
-    private void drishtiLogInfo(String message) {
-        org.smartregister.util.Log.logInfo(message);
     }
 
     private Pair<Long, Long> getMinMaxServerVersions(JSONObject jsonObject) {

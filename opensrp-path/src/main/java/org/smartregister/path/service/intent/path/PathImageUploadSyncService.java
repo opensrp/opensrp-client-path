@@ -11,10 +11,6 @@ import org.smartregister.service.ImageUploadSyncService;
 
 public class PathImageUploadSyncService extends ImageUploadSyncService {
 
-    public PathImageUploadSyncService() {
-        super();
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
         super.onHandleIntent(intent);

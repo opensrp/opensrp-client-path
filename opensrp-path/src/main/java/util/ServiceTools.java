@@ -1,14 +1,10 @@
 package util;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.SyncIntentService;
-
-import java.util.List;
 
 /**
  * Created by keyman on 12/4/17.

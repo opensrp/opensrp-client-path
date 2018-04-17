@@ -11,10 +11,6 @@ import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 
 public class PathWeightIntentService extends WeightIntentService {
 
-    public PathWeightIntentService() {
-        super();
-    }
-
     @Override
     protected void onHandleIntent(Intent intent) {
         super.onHandleIntent(intent);

@@ -11,10 +11,6 @@ import org.smartregister.stock.sync.StockSyncIntentService;
 
 public class PathStockSyncIntentService extends StockSyncIntentService {
 
-    public PathStockSyncIntentService() {
-        super();
-    }
-
     @Override
     protected void onHandleIntent(Intent workIntent) {
         super.onHandleIntent(workIntent);

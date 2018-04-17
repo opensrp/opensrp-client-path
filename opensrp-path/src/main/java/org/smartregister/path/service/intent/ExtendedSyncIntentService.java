@@ -4,18 +4,14 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 
-import org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.path.PathStockSyncIntentService;
 import org.smartregister.path.service.intent.path.PathZScoreRefreshIntentService;
 import org.smartregister.service.ActionService;
-import org.smartregister.stock.sync.StockSyncIntentService;
 
 import util.NetworkUtils;
 import util.ServiceTools;
-
-import static org.smartregister.util.Log.logInfo;
 
 public class ExtendedSyncIntentService extends IntentService {
 

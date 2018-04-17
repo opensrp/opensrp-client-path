@@ -10,9 +10,6 @@ import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
  */
 
 public class PathZScoreRefreshIntentService extends ZScoreRefreshIntentService {
-    public PathZScoreRefreshIntentService() {
-        super();
-    }
 
     @Override
     protected void onHandleIntent(Intent intent) {

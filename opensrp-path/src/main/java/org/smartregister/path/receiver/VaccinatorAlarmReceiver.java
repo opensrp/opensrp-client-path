@@ -2,15 +2,10 @@ package org.smartregister.path.receiver;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
-import org.smartregister.growthmonitoring.service.intent.WeightIntentService;
-import org.smartregister.immunization.service.intent.RecurringIntentService;
-import org.smartregister.immunization.service.intent.VaccineIntentService;
-import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.path.service.intent.HIA2IntentService;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
@@ -19,7 +14,6 @@ import org.smartregister.path.service.intent.path.PathImageUploadSyncService;
 import org.smartregister.path.service.intent.path.PathRecurringIntentService;
 import org.smartregister.path.service.intent.path.PathVaccineIntentService;
 import org.smartregister.path.service.intent.path.PathWeightIntentService;
-import org.smartregister.service.ImageUploadSyncService;
 import org.smartregister.util.Log;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +21,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import util.PathConstants;
-import util.ServiceTools;
 
 public class VaccinatorAlarmReceiver extends WakefulBroadcastReceiver {
 
