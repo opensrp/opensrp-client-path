@@ -85,7 +85,7 @@
 
         <service android:name=".service.intent.SyncIntentService" />
         <service android:name=".service.intent.ExtendedSyncIntentService" />
-        <service android:name="service.intent.path.PathStockSyncIntentService" />
+        <service android:name=".service.intent.path.PathStockSyncIntentService" />
         <service android:name=".service.intent.ValidateIntentService" />
         <service android:name=".service.intent.path.PathZScoreRefreshIntentService" />
 
