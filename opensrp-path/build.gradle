@@ -115,25 +115,25 @@ android {
 
 dependencies {
     compile fileTree(include: ['commons-validator-1.6.jar'], dir: 'libs')
-    compile('org.smartregister:opensrp-client-native-form:1.0.2@aar') {
+    compile('org.smartregister:opensrp-client-native-form:1.0.7-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.2.5-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-core:1.2.7-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.2.2@aar') {
+    compile('org.smartregister:opensrp-client-immunization:1.2.9-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
     }
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.4@aar') {
+    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.7-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.0@aar') {
+    compile('org.smartregister:opensrp-client-stock:1.0.2-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
@@ -155,6 +155,7 @@ dependencies {
     compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
     compile 'com.github.ybq:Android-SpinKit:1.1.0'
     compile 'junit:junit:4.12'
+    compile 'org.pcollections:pcollections:2.1.3'
 
     testCompile('org.robolectric:robolectric:3.4.2') {
 

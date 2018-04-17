@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -99,7 +100,16 @@ public class SendMonthlyDraftDialogFragment extends DialogFragment {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                getDialog().getWindow().setLayout(FrameLayout.LayoutParams.WRAP_CONTENT,
+                Window window = null;
+                if (getDialog() != null) {
+                    window = getDialog().getWindow();
+                }
+
+                if (window == null) {
+                    return;
+                }
+
+                window.setLayout(FrameLayout.LayoutParams.WRAP_CONTENT,
                         FrameLayout.LayoutParams.WRAP_CONTENT);
             }
         });

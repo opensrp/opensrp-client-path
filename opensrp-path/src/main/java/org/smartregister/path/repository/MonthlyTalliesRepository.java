@@ -326,7 +326,12 @@ public class MonthlyTalliesRepository extends BaseRepository {
                     String value = draftFormValues.get(key);
                     ContentValues cv = new ContentValues();
                     cv.put(COLUMN_INDICATOR_ID, Integer.valueOf(key));
-                    cv.put(COLUMN_VALUE, value == null || value.isEmpty() ? 0 : Integer.valueOf(value));
+
+                    if(!(value == null || value.isEmpty()))
+                        cv.put(COLUMN_VALUE, Integer.valueOf(value));
+                    else
+                        cv.put(COLUMN_VALUE, "");
+
                     cv.put(COLUMN_MONTH, DF_YYYYMM.format(month));
                     cv.put(COLUMN_EDITED, 1);
                     cv.put(COLUMN_PROVIDER_ID, userName);

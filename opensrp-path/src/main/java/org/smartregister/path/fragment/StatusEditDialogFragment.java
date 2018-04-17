@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,8 +26,8 @@ import java.util.Map;
 public class StatusEditDialogFragment extends DialogFragment {
     private StatusChangeListener listener;
     private static Map<String, String> details;
-    private static final String inactive = ChildDetailTabbedActivity.inactive;
-    private static final String lostToFollowUp = ChildDetailTabbedActivity.lostToFollowUp;
+    private static final String inactive = ChildDetailTabbedActivity.INACTIVE;
+    private static final String lostToFollowUp = ChildDetailTabbedActivity.LOST_TO_FOLLOW_UP;
 
     private StatusEditDialogFragment(Map<String, String> details) {
         StatusEditDialogFragment.details = details;
@@ -131,7 +132,16 @@ public class StatusEditDialogFragment extends DialogFragment {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                getDialog().getWindow().setLayout(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+                Window window = null;
+                if (getDialog() != null) {
+                    window = getDialog().getWindow();
+                }
+
+                if (window == null) {
+                    return;
+                }
+
+                window.setLayout(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
 
             }
         });

@@ -7,6 +7,7 @@ import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 import org.robolectric.shadows.ShadowLinearLayout;
 import org.smartregister.domain.Alert;
+import org.smartregister.immunization.domain.State;
 import org.smartregister.immunization.domain.VaccineWrapper;
 import org.smartregister.immunization.view.ImmunizationRowCard;
 
@@ -20,17 +21,6 @@ import shared.VaccinatorApplicationTestVersion;
 
 @Implements(ImmunizationRowCard.class)
 public class ImmunizationRowCardShadow extends ShadowLinearLayout {
-
-
-    public enum State {
-        DONE_CAN_BE_UNDONE,
-        DONE_CAN_NOT_BE_UNDONE,
-        DUE,
-        NOT_DUE,
-        OVERDUE,
-        EXPIRED
-    }
-
 
     @Implementation
     private void init(Context context) {
@@ -54,8 +44,8 @@ public class ImmunizationRowCardShadow extends ShadowLinearLayout {
     }
 
     @Implementation
-    public ImmunizationRowCard.State getState() {
-        return ImmunizationRowCard.State.DUE;
+    public State getState() {
+        return State.DUE;
     }
 
     @Implementation

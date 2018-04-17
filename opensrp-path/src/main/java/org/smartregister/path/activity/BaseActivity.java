@@ -63,6 +63,7 @@ import org.smartregister.view.activity.DrishtiApplication;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Map;
 
 import util.JsonFormUtils;
 import util.PathConstants;
@@ -95,6 +96,9 @@ public abstract class BaseActivity extends AppCompatActivity
     private BaseActivityToggle toggle;
     private NavigationItemListener navigationItemListener;
     private CustomNavigationBarListener customNavigationBarListener;
+
+    public static final String INACTIVE = "inactive";
+    public static final String LOST_TO_FOLLOW_UP = "lost_to_follow_up";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -633,6 +637,48 @@ public abstract class BaseActivity extends AppCompatActivity
         }
 
         return client;
+    }
+    
+    protected boolean isActiveStatus(CommonPersonObjectClient child) {
+        String humanFriendlyStatus = getHumanFriendlyChildsStatus(child);
+        return isActiveStatus(humanFriendlyStatus);
+    }
+
+    protected boolean isActiveStatus(String humanFriendlyStatus) {
+        return getString(R.string.active).equals(humanFriendlyStatus);
+    }
+
+    protected void showChildsStatus(String status) {
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.ll_inactive_status_bar_layout);
+        boolean isStatusActive = getString(R.string.active).equals(status);
+
+        if (linearLayout != null) {
+            linearLayout.setVisibility((isStatusActive) ? View.GONE : View.VISIBLE);
+
+            if (!isStatusActive) {
+                TextView textView = (TextView) findViewById(R.id.tv_inactive_status_bar_status_text);
+
+                if (textView != null) {
+                    textView.setText(String.format(getString(R.string.status_text), status));
+                }
+            }
+        }
+    }
+
+    protected String getHumanFriendlyChildsStatus(CommonPersonObjectClient child) {
+        Map<String, String> detailsMap = child.getColumnmaps();
+        return getHumanFriendlyChildsStatus(detailsMap);
+    }
+
+    protected String getHumanFriendlyChildsStatus(Map<String, String> detailsColumnMap) {
+        String status = getString(R.string.active);
+        if (detailsColumnMap.containsKey(INACTIVE) && detailsColumnMap.get(INACTIVE) != null && detailsColumnMap.get(INACTIVE).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            status = getString(R.string.inactive);
+        } else if (detailsColumnMap.containsKey(LOST_TO_FOLLOW_UP) && detailsColumnMap.get(LOST_TO_FOLLOW_UP) != null && detailsColumnMap.get(LOST_TO_FOLLOW_UP).equalsIgnoreCase(Boolean.TRUE.toString())) {
+            status = getString(R.string.lost_to_follow_up);
+        }
+
+        return status;
     }
 
     @Override

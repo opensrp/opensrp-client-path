@@ -1,9 +1,7 @@
 package org.smartregister.path.activity;
 
 import android.app.FragmentTransaction;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -42,7 +40,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
-import org.smartregister.clientandeventmodel.Event;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
@@ -76,16 +73,12 @@ import org.smartregister.path.fragment.StatusEditDialogFragment;
 import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.listener.StatusChangeListener;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
-import org.smartregister.path.sync.ECSyncUpdater;
-import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.path.tabfragments.ChildRegistrationDataFragment;
 import org.smartregister.path.tabfragments.ChildUnderFiveFragment;
 import org.smartregister.path.toolbar.ChildDetailsToolbar;
 import org.smartregister.path.view.LocationPickerView;
 import org.smartregister.repository.AllSharedPreferences;
-import org.smartregister.repository.BaseRepository;
 import org.smartregister.repository.DetailsRepository;
-import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.AlertService;
 import org.smartregister.util.AssetHandler;
 import org.smartregister.util.DateUtil;
@@ -149,8 +142,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private Map<String, String> detailsMap;
     ////////////////////////////////////////////////
 
-    public static final String inactive = "inactive";
-    public static final String lostToFollowUp = "lost_to_follow_up";
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
 
     private static final String CHILD = "child";
@@ -226,19 +217,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         });
         detailtoolbar.setTitle(updateActivityTitle());
 
-        LinearLayout statusview = (LinearLayout) findViewById(R.id.statusview);
-        statusview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                android.app.Fragment prev = getFragmentManager().findFragmentByTag(DIALOG_TAG);
-                if (prev != null) {
-                    ft.remove(prev);
-                }
-                StatusEditDialogFragment.newInstance(detailsMap).show(ft, DIALOG_TAG);
-            }
-        });
-
         tabLayout.setupWithViewPager(viewPager);
     }
 
@@ -259,7 +237,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         overflow.findItem(R.id.immunization_data).setEnabled(false);
         overflow.findItem(R.id.recurring_services_data).setEnabled(false);
         overflow.findItem(R.id.weight_data).setEnabled(false);
-        overflow.findItem(R.id.record_bcg_2).setVisible(false);
 
         Utils.startAsyncTask(new LoadAsyncTask(), null);
         return true;
@@ -333,22 +310,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void updateOptionsMenu(boolean showVaccineList, boolean showServiceList, boolean showWeightEdit, boolean showRecordBcg2) {
-
-        if (showVaccineList) {
-            overflow.findItem(R.id.immunization_data).setEnabled(true);
-        }
-
-        if (showServiceList) {
-            overflow.findItem(R.id.recurring_services_data).setEnabled(true);
-        }
-
-        if (showWeightEdit) {
-            overflow.findItem(R.id.weight_data).setEnabled(true);
-        }
-
-        if (showRecordBcg2) {
-            overflow.findItem(R.id.record_bcg_2).setVisible(true);
-        }
+        overflow.findItem(R.id.immunization_data).setEnabled(showVaccineList);
+        overflow.findItem(R.id.recurring_services_data).setEnabled(showServiceList);
+        overflow.findItem(R.id.weight_data).setEnabled(showWeightEdit);
     }
 
     @Override
@@ -406,9 +370,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 return true;
             case R.id.report_adverse_event:
                 return launchAdverseEventForm();
-            case R.id.record_bcg_2:
-                showBcg2DialogFragment();
-                return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -800,31 +762,33 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     @Override
     public void updateStatus() {
-        ImageView statusImage = (ImageView) findViewById(R.id.statusimage);
-        TextView status_name = (TextView) findViewById(R.id.statusname);
-        TextView status = (TextView) findViewById(R.id.status);
-        if (detailsMap.containsKey(inactive) && detailsMap.get(inactive) != null && detailsMap.get(inactive).equalsIgnoreCase(Boolean.TRUE.toString())) {
-            statusImage.clearColorFilter();
-            statusImage.setColorFilter(Color.TRANSPARENT);
-            statusImage.setImageResource(R.drawable.ic_icon_status_inactive);
-            status_name.setText(R.string.inactive);
-            status_name.setTextColor(getResources().getColor(R.color.dark_grey));
-            status_name.setVisibility(View.VISIBLE);
-            status.setText(R.string.status);
-        } else if (detailsMap.containsKey(lostToFollowUp) && detailsMap.get(lostToFollowUp) != null && detailsMap.get(lostToFollowUp).equalsIgnoreCase(Boolean.TRUE.toString())) {
-            statusImage.clearColorFilter();
-            statusImage.setImageResource(R.drawable.ic_icon_status_losttofollowup);
-            statusImage.setColorFilter(Color.TRANSPARENT);
-            status_name.setVisibility(View.GONE);
-            status.setText(R.string.lost_to_follow_up_with_nl);
+        updateStatus(false);
+    }
+
+    private void updateStatus(boolean fromAsyncTask) {
+        String status = getHumanFriendlyChildsStatus(detailsMap);
+        showChildsStatus(status);
+
+        boolean isChildActive = isActiveStatus(status);
+        if (isChildActive) {
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+
+            if (!fromAsyncTask) {
+                LoadAsyncTask loadAsyncTask = new LoadAsyncTask();
+                loadAsyncTask.setFromUpdateStatus(true);
+                Utils.startAsyncTask(loadAsyncTask, null);
+            }
         } else {
-            statusImage.setImageResource(R.drawable.ic_icon_status_active);
-            statusImage.setColorFilter(getResources().getColor(R.color.alert_completed));
-            status_name.setText(R.string.active);
-            status_name.setTextColor(getResources().getColor(R.color.alert_completed));
-            status_name.setVisibility(View.VISIBLE);
-            status.setText(R.string.status);
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive);
+            updateOptionsMenu(isChildActive, isChildActive, isChildActive, isChildActive);
         }
+    }
+
+    private void updateOptionsMenu(boolean canEditRegistrationData, boolean canReportDeceased, boolean canReportAdverseEvent) {
+        //updateOptionsMenu(canEditImmunisationdata, canEditServiceData, canEditWeightData, canRecordBCG2);
+        overflow.findItem(R.id.registration_data).setEnabled(canEditRegistrationData);
+        overflow.findItem(R.id.report_deceased).setEnabled(canReportDeceased);
+        overflow.findItem(R.id.report_adverse_event).setEnabled(canReportAdverseEvent);
     }
 
     private String updateActivityTitle() {
@@ -1174,57 +1138,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     @Override
     public void updateClientAttribute(String attributeName, Object attributeValue) {
         try {
-            Date date = new Date();
-            EventClientRepository db = getVaccinatorApplicationInstance().eventClientRepository();
-            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(this);
-
-            JSONObject client = db.getClientByBaseEntityId(childDetails.entityId());
-            JSONObject attributes = client.getJSONObject(JsonFormUtils.attributes);
-            attributes.put(attributeName, attributeValue);
-            client.remove(JsonFormUtils.attributes);
-            client.put(JsonFormUtils.attributes, attributes);
-            db.addorUpdateClient(childDetails.entityId(), client);
-
-
-            DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-            detailsRepository.add(childDetails.entityId(), attributeName, attributeValue.toString(), new Date().getTime());
-            ContentValues contentValues = new ContentValues();
-            //Add the base_entity_id
-            contentValues.put(attributeName.toLowerCase(), attributeValue.toString());
-            db.getWritableDatabase().update(PathConstants.CHILD_TABLE_NAME, contentValues, "base_entity_id" + "=?", new String[]{childDetails.entityId()});
-
-            AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
-            String locationName = allSharedPreferences.fetchCurrentLocality();
-            if (StringUtils.isBlank(locationName)) {
-                locationName = LocationHelper.getInstance().getDefaultLocation();
-            }
-
-            Event event = (Event) new Event()
-                    .withBaseEntityId(childDetails.entityId())
-                    .withEventDate(new Date())
-                    .withEventType(JsonFormUtils.encounterType)
-                    .withLocationId(LocationHelper.getInstance().getOpenMrsLocationId(locationName))
-                    .withProviderId(allSharedPreferences.fetchRegisteredANM())
-                    .withEntityType(PathConstants.EntityType.CHILD)
-                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
-                    .withDateCreated(new Date());
-
-            JsonFormUtils.addMetaData(this, event, date);
-            JSONObject eventJson = new JSONObject(JsonFormUtils.gson.toJson(event));
-            db.addEvent(childDetails.entityId(), eventJson);
-            long lastSyncTimeStamp = allSharedPreferences.fetchLastUpdatedAtDate(0);
-            Date lastSyncDate = new Date(lastSyncTimeStamp);
-            PathClientProcessorForJava.getInstance(this).processClient(ecUpdater.getEvents(lastSyncDate, BaseRepository.TYPE_Unsynced));
-            allSharedPreferences.saveLastUpdatedAtDate(lastSyncDate.getTime());
-
-            //update details
-            detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
-            if (childDetails.getColumnmaps().containsKey(attributeName)) {
-                childDetails.getColumnmaps().put(attributeName, attributeValue.toString());
-            }
-            util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
-
-
+            detailsMap = util.Utils.updateClientAttribute(this, childDetails, attributeName, attributeValue);
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
         }
@@ -1274,51 +1188,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
         return adapter;
     }
 
-    private void showBcg2DialogFragment() {
-
-        VaccineWrapper vaccineWrapper = new VaccineWrapper();
-        vaccineWrapper.setId(childDetails.entityId());
-        vaccineWrapper.setGender(childDetails.getDetails().get("gender"));
-        vaccineWrapper.setName(VaccineRepo.Vaccine.bcg2.display());
-        vaccineWrapper.setDefaultName(VaccineRepo.Vaccine.bcg2.display());
-
-        String dobString = getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
-        Date dob = util.Utils.dobStringToDate(dobString);
-        if (dob == null) {
-            dob = Calendar.getInstance().getTime();
-        }
-
-        Photo photo = org.smartregister.immunization.util.ImageUtils.profilePhotoByClient(childDetails);
-        vaccineWrapper.setPhoto(photo);
-
-        String zeirId = getValue(childDetails.getColumnmaps(), "zeir_id", false);
-        vaccineWrapper.setPatientNumber(zeirId);
-
-        String firstName = getValue(childDetails.getColumnmaps(), "first_name", true);
-        String lastName = getValue(childDetails.getColumnmaps(), "last_name", true);
-        String childName = getName(firstName, lastName);
-        vaccineWrapper.setPatientName(childName.trim());
-
-        ArrayList<VaccineWrapper> vaccineWrappers = new ArrayList<>();
-        vaccineWrappers.add(vaccineWrapper);
-
-        List<Vaccine> vaccineList = VaccinatorApplication.getInstance().vaccineRepository()
-                .findByEntityId(childDetails.entityId());
-        if (vaccineList == null) {
-            vaccineList = new ArrayList<>();
-        }
-
-        FragmentTransaction ft = this.getFragmentManager().beginTransaction();
-        android.app.Fragment prev = this.getFragmentManager().findFragmentByTag(DIALOG_TAG);
-        if (prev != null) {
-            ft.remove(prev);
-        }
-
-        ft.addToBackStack(null);
-
-        VaccinationDialogFragment vaccinationDialogFragment = VaccinationDialogFragment.newInstance(dob, vaccineList, vaccineWrappers, true);
-        vaccinationDialogFragment.show(ft, DIALOG_TAG);
-    }
 
     @Override
     protected void startJsonForm(String formName, String entityId) {
@@ -1339,6 +1208,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     private class LoadAsyncTask extends AsyncTask<Void, Void, Map<String, NamedObject<?>>> {
 
         private STATUS status;
+        private boolean fromUpdateStatus = false;
 
         private LoadAsyncTask() {
             this.status = STATUS.NONE;
@@ -1346,6 +1216,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
         private LoadAsyncTask(STATUS status) {
             this.status = status;
+        }
+
+        public void setFromUpdateStatus(boolean fromUpdateStatus) {
+            this.fromUpdateStatus = fromUpdateStatus;
         }
 
         @Override
@@ -1366,8 +1240,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             List<ServiceRecord> serviceRecords = AsyncTaskUtils.extractServiceRecords(map);
             List<Alert> alertList = AsyncTaskUtils.extractAlerts(map);
 
-            updateStatus();
-
             boolean editVaccineMode = STATUS.EDIT_VACCINE.equals(status);
             boolean editServiceMode = STATUS.EDIT_SERVICE.equals(status);
             boolean editWeightMode = STATUS.EDIT_WEIGHT.equals(status);
@@ -1381,6 +1253,10 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             childUnderFiveFragment.loadWeightView(weightList, editWeightMode);
             childUnderFiveFragment.updateVaccinationViews(vaccineList, alertList, editVaccineMode);
             childUnderFiveFragment.updateServiceViews(serviceTypeMap, serviceRecords, alertList, editServiceMode);
+
+            if (!fromUpdateStatus) {
+                updateStatus(true);
+            }
 
             hideProgressDialog();
         }
