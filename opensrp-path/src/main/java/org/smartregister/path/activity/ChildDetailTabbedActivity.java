@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -649,30 +650,15 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.DEATH)) {
                     confirmReportDeceased(jsonString, allSharedPreferences);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.BITRH_REGISTRATION)) {
-                    JsonFormUtils.editsave(this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
+                    SaveRegistrationDetailsTask saveRegistrationDetailsTask = new SaveRegistrationDetailsTask();
+                    saveRegistrationDetailsTask.setJsonString(jsonString);
+                    Utils.startAsyncTask(saveRegistrationDetailsTask, null);
                 } else if (form.getString(JsonFormUtils.ENCOUNTER_TYPE).equals(PathConstants.EventType.AEFI)) {
                     JsonFormUtils.saveAdverseEvent(jsonString, location_name,
                             childDetails.entityId(), allSharedPreferences.fetchRegisteredANM());
                 }
-                childDataFragment.childDetails = childDetails;
 
-                DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
-                detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-                Map<String, String> columnMaps = childDetails.getColumnmaps();
-                Iterator<String> columnMapsIterator =  columnMaps.keySet().iterator();
-
-                while (columnMapsIterator.hasNext()) {
-                    String key = columnMapsIterator.next();
-
-                    if (detailsMap.containsKey(key)) {
-                        columnMaps.put(key, detailsMap.get(key));
-                    }
-                    detailsMap.put(key, columnMaps.get(key));
-                }
-
-                childDetails.setColumnmaps(columnMaps);
-                childDataFragment.loadData(detailsMap);
 
             } catch (Exception e) {
                 Log.e(TAG, Log.getStackTraceString(e));
@@ -1460,6 +1446,49 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             map.put(alertNamedObject.name, alertNamedObject);
 
             return map;
+        }
+    }
+
+    public class SaveRegistrationDetailsTask extends AsyncTask<Void, Void, Map<String, String>> {
+
+        private String jsonString;
+
+        public void setJsonString(String jsonString) {
+            this.jsonString = jsonString;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            showProgressDialog();
+        }
+
+        @Override
+        protected Map<String, String> doInBackground(Void... params) {
+            AllSharedPreferences allSharedPreferences = getOpenSRPContext().allSharedPreferences();
+            JsonFormUtils.editsave(ChildDetailTabbedActivity.this, getOpenSRPContext(), jsonString, allSharedPreferences.fetchRegisteredANM(), "Child_Photo", CHILD, "mother");
+
+            childDataFragment.childDetails = childDetails;
+            childDetails = getChildDetails(childDetails.entityId());
+
+            if (childDetails != null) {
+                DetailsRepository detailsRepository = getOpenSRPContext().detailsRepository();
+                detailsMap = detailsRepository.getAllDetailsForClient(childDetails.entityId());
+                util.Utils.putAll(detailsMap, childDetails.getColumnmaps());
+
+                return detailsMap;
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(@Nullable Map<String, String> detailsMap) {
+            hideProgressDialog();
+            if (detailsMap != null) {
+                childDataFragment.updateChildDetails(childDetails);
+                childDataFragment.loadData(detailsMap);
+            }
         }
     }
 

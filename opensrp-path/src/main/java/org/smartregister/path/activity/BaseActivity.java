@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -41,6 +43,10 @@ import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.Context;
+import org.smartregister.commonregistry.CommonPersonObject;
+import org.smartregister.commonregistry.CommonPersonObjectClient;
+import org.smartregister.commonregistry.CommonRepository;
+import org.smartregister.cursoradapter.SmartRegisterQueryBuilder;
 import org.smartregister.domain.FetchStatus;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
@@ -59,6 +65,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import util.JsonFormUtils;
+import util.PathConstants;
 import util.ServiceTools;
 
 import static org.smartregister.util.Log.logError;
@@ -572,6 +579,60 @@ public abstract class BaseActivity extends AppCompatActivity
             });
             notification.startAnimation(slideUpAnimation);
         }
+    }
+
+    protected CommonPersonObjectClient getChildDetails(@NonNull String baseEntityId) {
+        CommonPersonObjectClient client = null;
+        String tableName = PathConstants.CHILD_TABLE_NAME;
+        String parentTableName = PathConstants.MOTHER_TABLE_NAME;
+
+        SmartRegisterQueryBuilder countqueryBUilder = new SmartRegisterQueryBuilder();
+        countqueryBUilder.SelectInitiateMainTableCounts(tableName);
+        String mainCondition = tableName + "." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
+        String countSelect = countqueryBUilder.mainCondition(mainCondition);
+
+        SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
+        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
+                tableName + ".relationalid",
+                tableName + ".details",
+                tableName + ".zeir_id",
+                tableName + ".relational_id",
+                tableName + ".first_name",
+                tableName + ".last_name",
+                tableName + ".gender",
+                parentTableName + ".first_name as mother_first_name",
+                parentTableName + ".last_name as mother_last_name",
+                parentTableName + ".dob as mother_dob",
+                parentTableName + ".nrc_number as mother_nrc_number",
+                tableName + ".father_name",
+                tableName + ".dob",
+                tableName + ".epi_card_number",
+                tableName + ".contact_phone_number",
+                tableName + ".pmtct_status",
+                tableName + ".provider_uc",
+                tableName + ".provider_town",
+                tableName + ".provider_id",
+                tableName + ".provider_location_id",
+                tableName + ".client_reg_date",
+                tableName + ".last_interacted_with",
+                tableName + ".inactive",
+                tableName + ".lost_to_follow_up"
+        });
+        queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
+        String mainSelect = queryBUilder.mainCondition(mainCondition);
+
+        CommonRepository commonRepository = getOpenSRPContext().commonrepository(tableName);
+
+        Cursor cursor = commonRepository.rawCustomQueryForAdapter(mainSelect);
+
+        if (cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            CommonPersonObject personinlist = commonRepository.readAllcommonforCursorAdapter(cursor);
+            client = new CommonPersonObjectClient(personinlist.getCaseId(), personinlist.getDetails(), personinlist.getDetails().get("FWHOHFNAME"));
+            client.setColumnmaps(personinlist.getColumnmaps());
+        }
+
+        return client;
     }
 
     @Override
