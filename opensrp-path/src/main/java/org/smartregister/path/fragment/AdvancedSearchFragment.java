@@ -123,6 +123,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     private AdvancedSearchPaginatedCursorAdapter clientAdapter;
 
     private BroadcastReceiver connectionChangeReciever;
+    private boolean registeredConnectionChangeReceiver = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -150,8 +151,9 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
     public void onPause() {
         super.onPause();
 
-        if (connectionChangeReciever != null) {
+        if (connectionChangeReciever != null && registeredConnectionChangeReceiver) {
             getActivity().unregisterReceiver(connectionChangeReciever);
+            registeredConnectionChangeReceiver = false;
         }
     }
 
@@ -371,6 +373,7 @@ public class AdvancedSearchFragment extends BaseSmartRegisterFragment {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             getActivity().registerReceiver(connectionChangeReciever, intentFilter);
+            registeredConnectionChangeReceiver = true;
         }
 
     }
