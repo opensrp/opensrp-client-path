@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import org.smartregister.path.R;
 import org.smartregister.path.activity.HIA2ReportsActivity;
 import org.smartregister.path.activity.PathStockActivity;
-import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.view.activity.SecuredActivity;
 
@@ -53,7 +52,7 @@ public class NavigationItemListener extends BaseListener implements NavigationVi
             Intent intent = new Intent(context, PathStockActivity.class);
             context.startActivity(intent);
         } else if (id == R.id.nav_sync) {
-            ServiceTools.startService(context.getApplicationContext(), SyncIntentService.class);
+            ServiceTools.startSyncService(context.getApplicationContext());
         } else if (id == R.id.nav_hia2) {
             Intent intent = new Intent(context, HIA2ReportsActivity.class);
             context.startActivity(intent);

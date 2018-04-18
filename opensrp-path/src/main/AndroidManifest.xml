@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".application.VaccinatorApplication"
@@ -58,7 +59,6 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activity.ProviderProfileActivity" />
         <activity
             android:name=".activity.SettingsActivity"
             android:screenOrientation="portrait" />
@@ -85,15 +85,15 @@
 
         <service android:name=".service.intent.SyncIntentService" />
         <service android:name=".service.intent.ExtendedSyncIntentService" />
-        <service android:name="org.smartregister.stock.sync.StockSyncIntentService" />
+        <service android:name=".service.intent.path.PathStockSyncIntentService" />
         <service android:name=".service.intent.ValidateIntentService" />
-        <service android:name="org.smartregister.growthmonitoring.service.intent.ZScoreRefreshIntentService" />
+        <service android:name=".service.intent.path.PathZScoreRefreshIntentService" />
 
         <service android:name=".service.intent.HIA2IntentService" />
-        <service android:name="org.smartregister.service.ImageUploadSyncService" />
-        <service android:name="org.smartregister.growthmonitoring.service.intent.WeightIntentService" />
-        <service android:name="org.smartregister.immunization.service.intent.VaccineIntentService" />
-        <service android:name="org.smartregister.immunization.service.intent.RecurringIntentService" />
+        <service android:name=".service.intent.path.PathImageUploadSyncService" />
+        <service android:name=".service.intent.path.PathWeightIntentService" />
+        <service android:name=".service.intent.path.PathVaccineIntentService" />
+        <service android:name=".service.intent.path.PathRecurringIntentService" />
         <service android:name=".service.intent.PullUniqueIdsIntentService" />
         <service android:name=".service.intent.CoverageDropoutIntentService" />
 

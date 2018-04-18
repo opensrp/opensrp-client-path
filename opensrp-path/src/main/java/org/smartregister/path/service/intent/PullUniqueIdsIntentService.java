@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.smartregister.domain.Response;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.service.HTTPAgent;
 
@@ -52,8 +53,10 @@ public class PullUniqueIdsIntentService extends IntentService {
             if (ids != null && ids.has(IDENTIFIERS)) {
                 parseResponse(ids);
             }
-        } catch (Exception e1) {
-            e1.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage(), e);
+        }finally {
+            VaccinatorAlarmReceiver.completeWakefulIntent(intent);
         }
     }
 

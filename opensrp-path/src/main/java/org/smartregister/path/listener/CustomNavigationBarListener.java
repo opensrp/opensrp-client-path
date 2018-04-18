@@ -15,7 +15,6 @@ import org.smartregister.path.activity.DropoutReportsActivity;
 import org.smartregister.path.activity.HIA2ReportsActivity;
 import org.smartregister.path.activity.PathStockActivity;
 import org.smartregister.path.application.VaccinatorApplication;
-import org.smartregister.path.service.intent.SyncIntentService;
 import org.smartregister.path.toolbar.BaseToolbar;
 import org.smartregister.view.activity.DrishtiApplication;
 import org.smartregister.view.activity.SecuredActivity;
@@ -45,7 +44,7 @@ public class CustomNavigationBarListener extends BaseListener implements View.On
         Intent intent;
         switch (v.getId()) {
             case R.id.nav_sync:
-                ServiceTools.startService(context.getApplicationContext(), SyncIntentService.class);
+                ServiceTools.startSyncService(context.getApplicationContext());
                 drawer.closeDrawer(GravityCompat.START);
                 break;
             case R.id.nav_register:

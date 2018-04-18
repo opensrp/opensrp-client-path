@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.smartregister.domain.Response;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.repository.EventClientRepository;
 import org.smartregister.service.HTTPAgent;
 
@@ -114,6 +115,8 @@ public class ValidateIntentService extends IntentService {
 
         } catch (Exception e) {
             Log.e(getClass().getName(), "", e);
+        } finally {
+            VaccinatorAlarmReceiver.completeWakefulIntent(intent);
         }
     }
 
@@ -129,7 +132,7 @@ public class ValidateIntentService extends IntentService {
             if (!eventIds.isEmpty()) {
                 eventIdArray = new JSONArray(eventIds);
             }
-            
+
             if (clientIdArray != null || eventIdArray != null) {
                 JSONObject request = new JSONObject();
                 if (clientIdArray != null) {
