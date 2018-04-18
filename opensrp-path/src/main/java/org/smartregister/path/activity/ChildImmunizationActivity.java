@@ -1675,7 +1675,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
     }
 
-    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, Pair<ArrayList<VaccineWrapper>, List<Vaccine>>> {
+    private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, ArrayList<VaccineWrapper>> {
 
         private View view;
         private VaccineRepository vaccineRepository;
@@ -1700,9 +1700,9 @@ public class ChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected void onPostExecute(Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair) {
+        protected void onPostExecute(ArrayList<VaccineWrapper> list) {
             hideProgressDialog();
-            updateVaccineGroupViews(view, pair.first, pair.second);
+            updateVaccineGroupViews(view, list, vaccineList);
             View recordWeight = findViewById(R.id.record_weight);
             WeightWrapper weightWrapper = (WeightWrapper) recordWeight.getTag();
             if (weightWrapper == null || weightWrapper.getWeight() == null) {
@@ -1714,7 +1714,7 @@ public class ChildImmunizationActivity extends BaseActivity
         }
 
         @Override
-        protected Pair<ArrayList<VaccineWrapper>, List<Vaccine>> doInBackground(VaccineWrapper... vaccineWrappers) {
+        protected ArrayList<VaccineWrapper> doInBackground(VaccineWrapper... vaccineWrappers) {
 
             ArrayList<VaccineWrapper> list = new ArrayList<>();
             if (vaccineRepository != null) {
@@ -1724,7 +1724,6 @@ public class ChildImmunizationActivity extends BaseActivity
                 }
             }
 
-            Pair<ArrayList<VaccineWrapper>, List<Vaccine>> pair = new Pair<>(list, vaccineList);
             String dobString = Utils.getValue(childDetails.getColumnmaps(), PathConstants.EC_CHILD_TABLE.DOB, false);
             DateTime dateTime = util.Utils.dobStringToDateTime(dobString);
             if (dateTime != null) {
@@ -1733,7 +1732,7 @@ public class ChildImmunizationActivity extends BaseActivity
             vaccineList = vaccineRepository.findByEntityId(childDetails.entityId());
             alertList = alertService.findByEntityId(childDetails.entityId());
 
-            return pair;
+            return list;
         }
     }
 
