@@ -590,13 +590,10 @@ public abstract class BaseActivity extends AppCompatActivity
         String tableName = PathConstants.CHILD_TABLE_NAME;
         String parentTableName = PathConstants.MOTHER_TABLE_NAME;
 
-        SmartRegisterQueryBuilder countqueryBUilder = new SmartRegisterQueryBuilder();
-        countqueryBUilder.SelectInitiateMainTableCounts(tableName);
         String mainCondition = tableName + "." + PathConstants.EC_CHILD_TABLE.BASE_ENTITY_ID + " = '" + baseEntityId + "'";
-        String countSelect = countqueryBUilder.mainCondition(mainCondition);
 
-        SmartRegisterQueryBuilder queryBUilder = new SmartRegisterQueryBuilder();
-        queryBUilder.SelectInitiateMainTable(tableName, new String[]{
+        SmartRegisterQueryBuilder childQueryBuilder = new SmartRegisterQueryBuilder();
+        childQueryBuilder.SelectInitiateMainTable(tableName, new String[]{
                 tableName + ".relationalid",
                 tableName + ".details",
                 tableName + ".zeir_id",
@@ -622,18 +619,17 @@ public abstract class BaseActivity extends AppCompatActivity
                 tableName + ".inactive",
                 tableName + ".lost_to_follow_up"
         });
-        queryBUilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
-        String mainSelect = queryBUilder.mainCondition(mainCondition);
+        childQueryBuilder.customJoin("LEFT JOIN " + parentTableName + " ON  " + tableName + ".relational_id =  " + parentTableName + ".id");
+        String mainSelect = childQueryBuilder.mainCondition(mainCondition);
 
         CommonRepository commonRepository = getOpenSRPContext().commonrepository(tableName);
-
         Cursor cursor = commonRepository.rawCustomQueryForAdapter(mainSelect);
 
         if (cursor.getCount() > 0) {
             cursor.moveToFirst();
-            CommonPersonObject personinlist = commonRepository.readAllcommonforCursorAdapter(cursor);
-            client = new CommonPersonObjectClient(personinlist.getCaseId(), personinlist.getDetails(), personinlist.getDetails().get("FWHOHFNAME"));
-            client.setColumnmaps(personinlist.getColumnmaps());
+            CommonPersonObject person = commonRepository.readAllcommonforCursorAdapter(cursor);
+            client = new CommonPersonObjectClient(person.getCaseId(), person.getDetails(), person.getDetails().get("FWHOHFNAME"));
+            client.setColumnmaps(person.getColumnmaps());
         }
 
         return client;
