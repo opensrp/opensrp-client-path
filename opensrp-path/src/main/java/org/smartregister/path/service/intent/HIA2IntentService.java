@@ -22,6 +22,7 @@ import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.MonthlyTally;
 import org.smartregister.path.domain.ReportHia2Indicator;
 import org.smartregister.path.receiver.Hia2ServiceBroadcastReceiver;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.DailyTalliesRepository;
 import org.smartregister.path.repository.MonthlyTalliesRepository;
 import org.smartregister.path.service.HIA2Service;
@@ -95,6 +96,8 @@ public class HIA2IntentService extends IntentService {
             pushReportsToServer();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+        } finally {
+            VaccinatorAlarmReceiver.completeWakefulIntent(intent);
         }
         Log.i(TAG, "Finishing HIA2 service");
     }
