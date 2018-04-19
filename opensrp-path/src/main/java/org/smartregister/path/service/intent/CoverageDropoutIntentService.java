@@ -21,6 +21,7 @@ import org.smartregister.path.domain.Cumulative;
 import org.smartregister.path.domain.CumulativeIndicator;
 import org.smartregister.path.domain.CumulativePatient;
 import org.smartregister.path.receiver.CoverageDropoutBroadcastReceiver;
+import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.repository.CohortIndicatorRepository;
 import org.smartregister.path.repository.CohortPatientRepository;
 import org.smartregister.path.repository.CohortRepository;
@@ -101,6 +102,8 @@ public class CoverageDropoutIntentService extends IntentService {
 
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+        }finally {
+            VaccinatorAlarmReceiver.completeWakefulIntent(intent);
         }
         Log.i(TAG, "Finishing  Coverage Dropout service");
     }
