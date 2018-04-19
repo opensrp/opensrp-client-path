@@ -61,6 +61,10 @@ public class ChildRegistrationDataFragment extends Fragment {
         return fragmentView;
     }
 
+    public void updateChildDetails(CommonPersonObjectClient childDetails) {
+        this.childDetails = childDetails;
+    }
+
     public void loadData(Map<String, String> detailsMap) {
         if (fragmentView != null) {
 
