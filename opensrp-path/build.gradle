@@ -133,7 +133,7 @@ dependencies {
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.2-SNAPSHOT@aar') {
+    compile('org.smartregister:opensrp-client-stock:1.0.3-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
