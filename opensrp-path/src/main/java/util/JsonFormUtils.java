@@ -197,7 +197,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
             }
 
             if (StringUtils.isNotBlank(subBindType)) {
-                subFormClient = JsonFormUtils.createSubformClient(context, fields, baseClient, subBindType, relationalId);
+                subFormClient = JsonFormUtils.createSubformClient(context, fields, baseClient, subBindType, lookUpBaseEntityId);
             }
             Event se = null;
             if (subFormClient != null && e != null) {
