@@ -120,7 +120,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                         processEvent(event, client, clientClassification);
 
                     }
-                }else if (eventType.equals("bcg_scar_event") && !eventClients.isEmpty()){
+                }else if (eventType.equals("Bcg Scar Event") && !eventClients.isEmpty()){
 
                     processEvent(eventClients.get(0));
                 }
@@ -242,17 +242,17 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
-    private Boolean processEvent(EventClient eventClient) throws Exception {
+    private void processEvent(EventClient eventClient) throws Exception {
 
         ECSyncUpdater ecSyncUpdater = ECSyncUpdater.getInstance(getContext());
         Event event = eventClient.getEvent();
 
         JSONObject jsonObject = new JSONObject(new Gson().toJson(event, Event.class));
-
-
+        jsonObject.put("entityType","details");
+        jsonObject.put("dateCreated",new Date().toString());
+        jsonObject.put("eventDate",new Date().toString());
 
         ecSyncUpdater.addEvent(event.getBaseEntityId(),jsonObject);
-        return  false;
     }
 
     private Boolean processService(EventClient service, Table serviceTable) throws Exception {

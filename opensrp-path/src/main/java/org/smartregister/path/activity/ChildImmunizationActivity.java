@@ -104,6 +104,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import util.AsyncTaskUtils;
@@ -438,16 +439,14 @@ public class ChildImmunizationActivity extends BaseActivity
 
             final String BCG_NAME = "BCG";
             final String BCG_NO_SCAR_NAME = "BCG: no scar";
-            final String BCG_SCAR_NAME = "BCG: scar";
             final String VACCINE_GROUP_BIRTH_NAME = "Birth";
             final int BIRTH_VACCINE_GROUP_INDEX = 0;
-            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> compiledVaccineGroups;
+            List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> compiledVaccineGroups = null;
 
             vaccineGroups = new ArrayList<>();
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
 
             boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) && Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
-            boolean turnedOffBcg2Reminder = (childDetails.getColumnmaps().containsKey(TURN_OFF_BCG2_REMINDER));
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup = (org.smartregister.immunization.domain.jsonmapping.VaccineGroup)
                     clone(getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
@@ -459,14 +458,6 @@ public class ChildImmunizationActivity extends BaseActivity
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
                 updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_NO_SCAR_NAME);
                 birthVaccineGroup.vaccines.addAll(specialVaccines);
-            }
-            else if(turnedOffBcg2Reminder){
-
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(TURN_OFF_BCG2_REMINDER));
-                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
-
-                updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_SCAR_NAME);
-                getVaccineAquiredByName(vaccineList,BCG_NAME.toLowerCase()).setDate(new Date(DATE));
             }
             else
                 compiledVaccineGroups = supportedVaccines;
@@ -1225,7 +1216,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 break;
 
             case TURN_OFF_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), TURN_OFF_BCG2_REMINDER, String.valueOf(DATE), DATE);
+                createBcgScarEvent(childDetails);
                 break;
 
             default:
@@ -1294,27 +1285,27 @@ public class ChildImmunizationActivity extends BaseActivity
         Event event = new Event();
         EventClient eventClient = new EventClient(event,client);
         List<EventClient> eventClients = new ArrayList<>();
-        Obs obs = new Obs();
-        obs.setValue(Boolean.valueOf(true));
+        List<Object> values = new ArrayList<>();
+        List<Object> humanReadableValues = new ArrayList<>();
+        String formSubmission = UUID.randomUUID().toString();
+        values.add("1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        humanReadableValues.add("yes");
+        Obs obs = new Obs("concept","coded","160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","",values,"",formSubmission,humanReadableValues);
+        obs.setFormSubmissionField("bcg_scar");
         event.addObs(obs);
         event.setBaseEntityId(childDetails.entityId());
-        event.setEventType("bcg_scar_event");
-
-
+        event.setEventType("Bcg Scar Event");
+        event.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        event.setProviderId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+        event.setFormSubmissionId(formSubmission);
         eventClients.add(eventClient);
         PathClientProcessorForJava clientProcessorForJava = PathClientProcessorForJava.getInstance(getBaseContext());
 
         try{
             clientProcessorForJava.processClient(eventClients);
         }catch (Exception e){
-
+            Log.e(TAG,e.getMessage());
         }
-
-
-
-
-
-        //clientProcessorForJava.processClient();
     }
 
     ////////////////////////////////////////////////////////////////
