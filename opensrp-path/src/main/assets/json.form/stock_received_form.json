@@ -137,6 +137,15 @@
         }
       },
       {
+        "key":"Empty_Label",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
+        "openmrs_data_type": "text",
+        "type":"label",
+        "text":""
+      },
+      {
         "key":"Balance",
         "openmrs_entity_parent": "",
         "openmrs_entity": "",
@@ -145,11 +154,32 @@
         "type":"label",
         "text":"",
         "has_bg": true,
-        "top_margin": "20dp",
         "top_padding": "20dp",
-        "bottom_padding": "20dp",
         "left_padding": "20dp",
         "right_padding": "20dp",
+        "bottom_padding": "0dp",
+        "text_size": "14sp",
+        "text_color": "#000000",
+        "relevance": {
+          "step1:Vials_Received": {
+            "type": "string",
+            "ex": "notEqualTo(.,\"\")"
+          }
+        }
+      },
+      {
+        "key": "Re_Balance_Note",
+        "type": "label",
+        "text": "Compare this number with stock on hand",
+        "has_bg": true,
+        "text_size": "12sp",
+        "text_color": "#737373",
+        "left_padding": "20dp",
+        "right_padding": "20dp",
+        "bottom_padding": "20dp",
+        "openmrs_entity_parent": "",
+        "openmrs_entity": "",
+        "openmrs_entity_id": "",
         "relevance": {
           "step1:Vials_Received": {
             "type": "string",
