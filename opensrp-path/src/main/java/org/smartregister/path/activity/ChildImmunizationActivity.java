@@ -43,6 +43,10 @@ import org.smartregister.commonregistry.CommonPersonObject;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
 import org.smartregister.domain.Photo;
+import org.smartregister.domain.db.Client;
+import org.smartregister.domain.db.Event;
+import org.smartregister.domain.db.EventClient;
+import org.smartregister.domain.db.Obs;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.fragment.GrowthDialogFragment;
@@ -79,6 +83,7 @@ import org.smartregister.path.domain.NamedObject;
 import org.smartregister.path.domain.RegisterClickables;
 import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
+import org.smartregister.path.sync.PathClientProcessorForJava;
 import org.smartregister.path.toolbar.LocationSwitcherToolbar;
 import org.smartregister.path.view.SiblingPicturesGroup;
 import org.smartregister.repository.DetailsRepository;
@@ -102,6 +107,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import util.AsyncTaskUtils;
@@ -476,14 +482,6 @@ public class ChildImmunizationActivity extends BaseActivity
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
                 updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_NO_SCAR_NAME);
                 birthVaccineGroup.vaccines.addAll(specialVaccines);
-            }
-            else if(turnedOffBcg2Reminder){
-
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(TURN_OFF_BCG2_REMINDER));
-                compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
-
-                updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_SCAR_NAME);
-                getVaccineAquiredByName(vaccineList,BCG_NAME.toLowerCase()).setDate(new Date(DATE));
             }
             else
                 compiledVaccineGroups = supportedVaccines;
@@ -1331,7 +1329,7 @@ public class ChildImmunizationActivity extends BaseActivity
                 break;
 
             case TURN_OFF_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), TURN_OFF_BCG2_REMINDER, String.valueOf(DATE), DATE);
+                createBcgScarEvent(childDetails);
                 break;
 
             default:
@@ -1392,6 +1390,35 @@ public class ChildImmunizationActivity extends BaseActivity
         Class<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>> classType = (Class) List.class;
         Type listType = new TypeToken<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>>() {}.getType();
         return ImmunizationLibrary.getInstance().assetJsonToJava(filename, classType, listType);
+    }
+
+    private void createBcgScarEvent(CommonPersonObjectClient childDetails){
+
+        Client client = new Client(childDetails.entityId());
+        Event event = new Event();
+        EventClient eventClient = new EventClient(event,client);
+        List<EventClient> eventClients = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
+        List<Object> humanReadableValues = new ArrayList<>();
+        String formSubmission = UUID.randomUUID().toString();
+        values.add("1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        humanReadableValues.add("yes");
+        Obs obs = new Obs("concept","coded","160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","",values,"",formSubmission,humanReadableValues);
+        obs.setFormSubmissionField("bcg_scar");
+        event.addObs(obs);
+        event.setBaseEntityId(childDetails.entityId());
+        event.setEventType("Bcg Scar Event");
+        event.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        event.setProviderId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+        event.setFormSubmissionId(formSubmission);
+        eventClients.add(eventClient);
+        PathClientProcessorForJava clientProcessorForJava = PathClientProcessorForJava.getInstance(getBaseContext());
+
+        try{
+            clientProcessorForJava.processClient(eventClients);
+        }catch (Exception e){
+            Log.e(TAG,e.getMessage());
+        }
     }
 
     ////////////////////////////////////////////////////////////////
