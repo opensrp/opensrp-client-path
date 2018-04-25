@@ -191,13 +191,9 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
                 lookUpBaseEntityId = getString(lookUpJSONObject, "value");
             }
 
-            if ("mother".equals(lookUpEntityId) && StringUtils.isNotBlank(lookUpBaseEntityId)) {
-                Client ss = new Client(lookUpBaseEntityId);
-                addRelationship(context, ss, baseClient);
-            }
-
             if (StringUtils.isNotBlank(subBindType)) {
-                subFormClient = JsonFormUtils.createSubformClient(context, fields, baseClient, subBindType, relationalId);
+                String motherBaseEntityId = TextUtils.isEmpty(lookUpBaseEntityId) ? relationalId : lookUpBaseEntityId;
+                subFormClient = JsonFormUtils.createSubformClient(context, fields, baseClient, subBindType, motherBaseEntityId);
             }
             Event se = null;
             if (subFormClient != null && e != null) {
