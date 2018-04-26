@@ -511,6 +511,10 @@ public class ChildImmunizationActivity extends BaseActivity
             return;
         }
 
+        if(registerClickables != null){
+            return;
+        }
+
         if (VaccinateActionUtils.hasVaccine(vaccineList, VaccineRepo.Vaccine.bcg2)) {
             return;
         }
