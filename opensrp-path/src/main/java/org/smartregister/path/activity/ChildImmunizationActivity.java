@@ -65,6 +65,7 @@ import org.smartregister.immunization.fragment.UndoVaccinationDialogFragment;
 import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
+import org.smartregister.immunization.listener.VaccineCardAdapterLoadingListener;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
 import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
@@ -1046,18 +1047,23 @@ public class ChildImmunizationActivity extends BaseActivity
             vaccineGroup.post(new Runnable() {
                 @Override
                 public void run() {
-                    ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
-                    if (!vaccineWrappers.isEmpty()) {
-                        final TextView recordAllTV = (TextView) vaccineGroup.findViewById(R.id.record_all_tv);
-                        recordAllTV.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                recordAllTV.performClick();
+                    vaccineGroup.setVaccineCardAdapterLoadingListener(new VaccineCardAdapterLoadingListener() {
+                        @Override
+                        public void onFinishedLoadingVaccineWrappers() {
+                            ArrayList<VaccineWrapper> vaccineWrappers = vaccineGroup.getDueVaccines();
+                            if (!vaccineWrappers.isEmpty()) {
+                                final TextView recordAllTV = (TextView) vaccineGroup.findViewById(R.id.record_all_tv);
+                                recordAllTV.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        recordAllTV.performClick();
+                                    }
+                                });
+                            } else {
+                                performRecordAllClick(index + 1);
                             }
-                        });
-                    } else {
-                        performRecordAllClick(index + 1);
-                    }
+                        }
+                    });
                 }
             });
         }
