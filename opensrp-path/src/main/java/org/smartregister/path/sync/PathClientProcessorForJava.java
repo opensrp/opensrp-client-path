@@ -31,6 +31,7 @@ import org.smartregister.immunization.repository.RecurringServiceTypeRepository;
 import org.smartregister.immunization.repository.VaccineRepository;
 import org.smartregister.immunization.service.intent.RecurringIntentService;
 import org.smartregister.immunization.service.intent.VaccineIntentService;
+import org.smartregister.path.activity.ChildImmunizationActivity;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.service.intent.CoverageDropoutIntentService;
 import org.smartregister.repository.AllSharedPreferences;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import util.JsonFormUtils;
 import util.MoveToMyCatchmentUtils;
 import util.PathConstants;
 import util.Utils;
@@ -102,6 +104,8 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                         continue;
                     }
                     processService(eventClient, serviceTable);
+                } else if (eventType.equals(JsonFormUtils.BCG_SCAR_EVENT)) {
+                    processBCGScarEvent(eventClient);
                 } else if (eventType.equals(MoveToMyCatchmentUtils.MOVE_TO_CATCHMENT_EVENT)) {
                     unsyncEvents.add(event);
                 } else if (eventType.equals(PathConstants.EventType.DEATH)) {
@@ -319,6 +323,23 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
         }
     }
 
+    private void processBCGScarEvent(EventClient bcgScarEventClient) {
+        if (bcgScarEventClient == null || bcgScarEventClient.getEvent() == null) {
+            return;
+        }
+
+        Event event = bcgScarEventClient.getEvent();
+
+        String baseEntityId = event.getBaseEntityId();
+        DateTime eventDate = event.getEventDate();
+        long date = 0;
+        if (eventDate != null) {
+            date = eventDate.getMillis();
+        }
+
+        DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
+        detailsRepository.add(baseEntityId, ChildImmunizationActivity.SHOW_BCG_SCAR, String.valueOf(date), date);
+    }
 
     private ContentValues processCaseModel(EventClient eventClient, Table table) {
         try {
