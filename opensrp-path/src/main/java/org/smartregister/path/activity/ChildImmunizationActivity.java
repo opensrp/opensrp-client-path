@@ -18,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,6 +106,7 @@ import java.util.concurrent.TimeUnit;
 
 import util.AsyncTaskUtils;
 import util.ImageUtils;
+import util.JsonFormUtils;
 import util.PathConstants;
 
 
@@ -128,12 +128,11 @@ public class ChildImmunizationActivity extends BaseActivity
     private static final HashMap<String, String> COMBINED_VACCINES_MAP;
     private boolean bcgScarNotificationShown;
     private boolean weightNotificationShown;
-    private final String BCG2_NOTIFICATION_DONE = "bcg2_not_done";
     private static final int RANDOM_MAX_RANGE = 4232;
     private static final int RANDOM_MIN_RANGE = 213;
     private static final int RECORD_WEIGHT_BUTTON_ACTIVE_MIN = 12;
     private final String SHOW_BCG2_REMINDER = "show_bcg2_reminder";
-    private final String TURN_OFF_BCG2_REMINDER = "turn_off_bcg2_reminder";
+    public static final String SHOW_BCG_SCAR = "show_bcg_scar";
 
 
     static {
@@ -442,7 +441,7 @@ public class ChildImmunizationActivity extends BaseActivity
             serviceGroupCanvasLL.addView(curGroup);
             serviceGroups.add(curGroup);
         } else {
-            for(ServiceGroup serviceGroup: serviceGroups) {
+            for (ServiceGroup serviceGroup : serviceGroups) {
                 serviceGroup.setChildActive(isChildActive);
                 serviceGroup.updateChildsActiveStatus();
             }
@@ -455,6 +454,7 @@ public class ChildImmunizationActivity extends BaseActivity
         if (vaccineGroups == null) {
 
             final String BCG_NAME = "BCG";
+            final String BCG2_NAME = "BCG 2";
             final String BCG_NO_SCAR_NAME = "BCG: no scar";
             final String BCG_SCAR_NAME = "BCG: scar";
             final String VACCINE_GROUP_BIRTH_NAME = "Birth";
@@ -465,35 +465,55 @@ public class ChildImmunizationActivity extends BaseActivity
             List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> supportedVaccines = VaccinatorUtils.getSupportedVaccines(this);
 
             boolean showBcg2Reminder = ((childDetails.getColumnmaps().containsKey(SHOW_BCG2_REMINDER)) && Boolean.parseBoolean(childDetails.getColumnmaps().get(SHOW_BCG2_REMINDER)));
-            boolean turnedOffBcg2Reminder = (childDetails.getColumnmaps().containsKey(TURN_OFF_BCG2_REMINDER));
+            boolean showBcgScar = (childDetails.getColumnmaps().containsKey(SHOW_BCG_SCAR));
 
             org.smartregister.immunization.domain.jsonmapping.VaccineGroup birthVaccineGroup = (org.smartregister.immunization.domain.jsonmapping.VaccineGroup)
                     clone(getVaccineGroupByName(supportedVaccines, VACCINE_GROUP_BIRTH_NAME));
 
-            if(showBcg2Reminder){
+            if (showBcg2Reminder) {
 
                 compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
+
+                updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines, BCG_NAME), BCG_NO_SCAR_NAME);
 
                 List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
-                updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_NO_SCAR_NAME);
-                birthVaccineGroup.vaccines.addAll(specialVaccines);
-            }
-            else if(turnedOffBcg2Reminder){
+                if (specialVaccines != null && !specialVaccines.isEmpty()) {
+                    for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
+                        if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
+                            vaccine.name = BCG2_NAME;
+                            birthVaccineGroup.vaccines.add(vaccine);
+                            break;
+                        }
+                    }
 
-                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(TURN_OFF_BCG2_REMINDER));
+                }
+            } else if (showBcgScar) {
+
                 compiledVaccineGroups = TreePVector.from(supportedVaccines).minus(BIRTH_VACCINE_GROUP_INDEX).plus(BIRTH_VACCINE_GROUP_INDEX, birthVaccineGroup);
 
-                updateVaccineName(getVaccineByName(birthVaccineGroup.vaccines,BCG_NAME), BCG_SCAR_NAME);
-                getVaccineAquiredByName(vaccineList,BCG_NAME.toLowerCase()).setDate(new Date(DATE));
-            }
-            else
+                final long DATE = Long.valueOf(childDetails.getColumnmaps().get(SHOW_BCG_SCAR));
+
+                List<org.smartregister.immunization.domain.jsonmapping.Vaccine> specialVaccines = getJsonVaccineGroup("special_vaccines.json");
+                if (specialVaccines != null && !specialVaccines.isEmpty()) {
+                    for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : specialVaccines) {
+                        if (vaccine.name.contains(BCG_NAME) && BCG_NAME.equals(vaccine.type)) {
+                            vaccine.name = BCG_SCAR_NAME;
+                            birthVaccineGroup.vaccines.add(vaccine);
+                            vaccineList.add(createDummyVaccine(BCG_SCAR_NAME, new Date(DATE), VaccineRepository.TYPE_Synced));
+                            break;
+                        }
+                    }
+
+                }
+            } else {
                 compiledVaccineGroups = supportedVaccines;
+            }
 
             for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : compiledVaccineGroups) {
                 addVaccineGroup(-1, vaccineGroup, vaccineList, alerts);
             }
         } else {
-            for (VaccineGroup vaccineGroup: vaccineGroups) {
+            for (VaccineGroup vaccineGroup : vaccineGroups) {
                 vaccineGroup.setChildActive(isChildActive);
                 vaccineGroup.updateChildsActiveStatus();
             }
@@ -507,7 +527,7 @@ public class ChildImmunizationActivity extends BaseActivity
         DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
         Map<String, String> details = detailsRepository.getAllDetailsForClient(childDetails.entityId());
 
-        if (details.containsKey(BCG2_NOTIFICATION_DONE)) {
+        if (details.containsKey(SHOW_BCG2_REMINDER) || details.containsKey(SHOW_BCG_SCAR)) {
             return;
         }
 
@@ -1115,6 +1135,27 @@ public class ChildImmunizationActivity extends BaseActivity
         setLastModified(true);
     }
 
+    private Vaccine createDummyVaccine(String name, Date date, String syncStatus) {
+        Vaccine vaccine = new Vaccine();
+        vaccine.setId(-1l);
+        vaccine.setBaseEntityId(childDetails.entityId());
+        vaccine.setName(name);
+        vaccine.setDate(date);
+        vaccine.setAnmId(getOpenSRPContext().allSharedPreferences().fetchRegisteredANM());
+        vaccine.setLocationId(LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation()));
+        vaccine.setSyncStatus(syncStatus);
+        vaccine.setFormSubmissionId(JsonFormUtils.generateRandomUUIDString());
+        vaccine.setUpdatedAt(new Date().getTime());
+
+        String lastChar = vaccine.getName().substring(vaccine.getName().length() - 1);
+        if (StringUtils.isNumeric(lastChar)) {
+            vaccine.setCalculation(Integer.valueOf(lastChar));
+        } else {
+            vaccine.setCalculation(-1);
+        }
+        return vaccine;
+    }
+
     private void updateVaccineGroupViews(View view, final ArrayList<VaccineWrapper> wrappers, List<Vaccine> vaccineList) {
         updateVaccineGroupViews(view, wrappers, vaccineList, false);
     }
@@ -1178,10 +1219,10 @@ public class ChildImmunizationActivity extends BaseActivity
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    onBcgReminderOptionSelected(TURN_OFF_BCG2_REMINDER);
+                    onBcgReminderOptionSelected(SHOW_BCG_SCAR);
                     Snackbar.make(rootView, R.string.turn_off_reminder_notification_message, Snackbar.LENGTH_LONG).show();
                 }
-            },new DialogInterface.OnClickListener() {
+            }, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
@@ -1330,77 +1371,82 @@ public class ChildImmunizationActivity extends BaseActivity
         Utils.startAsyncTask(backgroundTask, arrayTags);
     }
 
-    public void onBcgReminderOptionSelected(String option){
+    public void onBcgReminderOptionSelected(String option) {
 
         final long DATE = new Date().getTime();
 
-        switch(option) {
+        switch (option) {
 
             case SHOW_BCG2_REMINDER:
                 detailsRepository.add(childDetails.entityId(), SHOW_BCG2_REMINDER, Boolean.TRUE.toString(), DATE);
                 break;
 
-            case TURN_OFF_BCG2_REMINDER:
-                detailsRepository.add(childDetails.entityId(), TURN_OFF_BCG2_REMINDER, String.valueOf(DATE), DATE);
+            case SHOW_BCG_SCAR:
+                detailsRepository.add(childDetails.entityId(), SHOW_BCG_SCAR, String.valueOf(DATE), DATE);
+
+                String providerId = getOpenSRPContext().allSharedPreferences().fetchRegisteredANM();
+                String locationId = LocationHelper.getInstance().getOpenMrsLocationId(toolbar.getCurrentLocation());
+                JsonFormUtils.createBCGScarEvent(ChildImmunizationActivity.this, childDetails.entityId(), providerId, locationId);
                 break;
 
             default:
                 break;
         }
 
+
         LinearLayout vaccineGroupCanvasLL = (LinearLayout) findViewById(R.id.vaccine_group_canvas_ll);
         vaccineGroupCanvasLL.removeAllViews();
         vaccineGroups = null;
-        Utils.startAsyncTask(new MarkBcgTwoAsDoneTask(), null);
         updateViews();
     }
 
-    public org.smartregister.immunization.domain.jsonmapping.Vaccine getVaccineByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccineList, @NonNull String name){
+    public org.smartregister.immunization.domain.jsonmapping.Vaccine getVaccineByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.Vaccine> vaccineList, @NonNull String name) {
 
-        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine: vaccineList){
-            if(vaccine.name.equals(name))
+        for (org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine : vaccineList) {
+            if (vaccine.name.equals(name))
                 return vaccine;
         }
         return null;
     }
 
-    public Vaccine getVaccineAquiredByName(@NonNull List<Vaccine> vaccineList, @NonNull String name){
+    public Vaccine getVaccineAquiredByName(@NonNull List<Vaccine> vaccineList, @NonNull String name) {
 
-        for (Vaccine vaccine: vaccineList){
-            if(vaccine.getName().equals(name))
+        for (Vaccine vaccine : vaccineList) {
+            if (vaccine.getName().equals(name))
                 return vaccine;
         }
         return null;
     }
 
 
-    public void updateVaccineName(org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, @NonNull String newName){
+    public void updateVaccineName(org.smartregister.immunization.domain.jsonmapping.Vaccine vaccine, @NonNull String newName) {
 
-        if(vaccine != null)
+        if (vaccine != null)
             vaccine.name = newName;
     }
 
-    public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList, @NonNull String name){
+    public org.smartregister.immunization.domain.jsonmapping.VaccineGroup getVaccineGroupByName(@NonNull List<org.smartregister.immunization.domain.jsonmapping.VaccineGroup> vaccineGroupList, @NonNull String name) {
 
-        for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup: vaccineGroupList){
-            if(vaccineGroup.name.equals(name))
+        for (org.smartregister.immunization.domain.jsonmapping.VaccineGroup vaccineGroup : vaccineGroupList) {
+            if (vaccineGroup.name.equals(name))
                 return vaccineGroup;
         }
         return null;
     }
 
-    public static Object clone(@NonNull Object object){
+    public static Object clone(@NonNull Object object) {
 
         Gson gson = new Gson();
         String serializedOject = gson.toJson(object);
 
-        return gson.fromJson(serializedOject,object.getClass());
+        return gson.fromJson(serializedOject, object.getClass());
     }
 
-    public List<org.smartregister.immunization.domain.jsonmapping.Vaccine> getJsonVaccineGroup(@NonNull String filename){
+    public List<org.smartregister.immunization.domain.jsonmapping.Vaccine> getJsonVaccineGroup(@NonNull String filename) {
 
         Class<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>> classType = (Class) List.class;
-        Type listType = new TypeToken<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>>() {}.getType();
+        Type listType = new TypeToken<List<org.smartregister.immunization.domain.jsonmapping.Vaccine>>() {
+        }.getType();
         return ImmunizationLibrary.getInstance().assetJsonToJava(filename, classType, listType);
     }
 
@@ -1675,16 +1721,6 @@ public class ChildImmunizationActivity extends BaseActivity
         }
     }
 
-    private class MarkBcgTwoAsDoneTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            DetailsRepository detailsRepository = VaccinatorApplication.getInstance().context().detailsRepository();
-            detailsRepository.add(childDetails.entityId(), BCG2_NOTIFICATION_DONE, Boolean.TRUE.toString(), new Date().getTime());
-            return null;
-        }
-
-    }
-
     private class SaveVaccinesTask extends AsyncTask<VaccineWrapper, Void, ArrayList<VaccineWrapper>> {
 
         private View view;
@@ -1892,7 +1928,7 @@ public class ChildImmunizationActivity extends BaseActivity
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if(alertDialog != null) {
+                if (alertDialog != null) {
 
                     showDisablePositiveButton(alertDialog);
                     increaseBtnTextSizeTabletDevice(alertDialog);
@@ -1901,11 +1937,11 @@ public class ChildImmunizationActivity extends BaseActivity
         };
 
         private BCGNotificationDialog(final Context context, final DialogInterface.OnClickListener subDialogPositiveListener,
-                                      final DialogInterface.OnClickListener subDialogNegativeListener){
+                                      final DialogInterface.OnClickListener subDialogNegativeListener) {
             this.context = context;
 
             alertDialog = new AlertDialog.Builder(context, THEME)
-                    .setCustomTitle(View.inflate(context,R.layout.dialog_view_title_bcg_scar,null))
+                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_scar, null))
                     .setSingleChoiceItems(singleChoiceItems, -1, new DialogInterface.OnClickListener() {
 
                         @Override
@@ -1923,11 +1959,10 @@ public class ChildImmunizationActivity extends BaseActivity
                             alertDialog = new BCGNotificationDialog(context, subDialogPositiveListener, subDialogNegativeListener)
                                     .getAlertDialogInstance();
 
-                            if(selectedOption.get(SELECTED_OPTION, NO) == YES){
+                            if (selectedOption.get(SELECTED_OPTION, NO) == YES) {
                                 subDialogPositive.show();
                                 increaseBtnTextSizeTabletDevice(subDialogPositive);
-                            }
-                            else {
+                            } else {
                                 subDialogNegative.show();
                                 increaseBtnTextSizeTabletDevice(subDialogNegative);
                             }
@@ -1938,7 +1973,7 @@ public class ChildImmunizationActivity extends BaseActivity
 
             subDialogPositive = new AlertDialog.Builder(context, THEME)
                     .setCancelable(false)
-                    .setCustomTitle(View.inflate(context,R.layout.dialog_view_title_bcg_turn_off,null))
+                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_turn_off, null))
                     .setPositiveButton(R.string.turn_off_reminder_button_label, subDialogPositiveListener)
                     .setNegativeButton(R.string.go_back_button_label, backListener)
                     .create();
@@ -1946,45 +1981,46 @@ public class ChildImmunizationActivity extends BaseActivity
             subDialogNegative = new AlertDialog.Builder(context, THEME)
                     .setCancelable(false)
                     .setTitle(R.string.create_reminder_label)
-                    .setCustomTitle(View.inflate(context,R.layout.dialog_view_title_bcg_create,null))
+                    .setCustomTitle(View.inflate(context, R.layout.dialog_view_title_bcg_create, null))
                     .setPositiveButton(R.string.create_reminder_button_label, subDialogNegativeListener)
                     .setNegativeButton(R.string.go_back_button_label, backListener)
                     .create();
         }
 
-        private void show(){
+        private void show() {
             showDisablePositiveButton(alertDialog);
             increaseBtnTextSizeTabletDevice(alertDialog);
         }
 
-        private AlertDialog getAlertDialogInstance(){return alertDialog;}
+        private AlertDialog getAlertDialogInstance() {
+            return alertDialog;
+        }
 
-        private void increaseBtnTextSizeTabletDevice(@NonNull AlertDialog alertDialog){
+        private void increaseBtnTextSizeTabletDevice(@NonNull AlertDialog alertDialog) {
 
             final float TEXT_SIZE = 20f;
             final int TABLET_WIDTH_DP = 600;
-            final Button positiveButton =  alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            final Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
             final Button negativeButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
 
             DisplayMetrics displayMetrics = new DisplayMetrics();
             final float DEVICE_DP = displayMetrics.density;
-            ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            final int DEVICE_WIDTH_DP = (int)(displayMetrics.widthPixels / DEVICE_DP);
-            final int DIALOG_BUTTON_PADDING_TOP = (int)getResources().getDimension(R.dimen.bcg_popup_button_padding_top);
-            final int DEFAULT_DIALOG_BUTTON_PADDING = (int)getResources().getDimension(R.dimen.bcg_popup_button_padding);
+            ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            final int DEVICE_WIDTH_DP = (int) (displayMetrics.widthPixels / DEVICE_DP);
+            final int DIALOG_BUTTON_PADDING_TOP = (int) getResources().getDimension(R.dimen.bcg_popup_button_padding_top);
+            final int DEFAULT_DIALOG_BUTTON_PADDING = (int) getResources().getDimension(R.dimen.bcg_popup_button_padding);
 
 
-
-            if(DEVICE_WIDTH_DP >= TABLET_WIDTH_DP){
+            if (DEVICE_WIDTH_DP >= TABLET_WIDTH_DP) {
 
                 positiveButton.setTextSize(TEXT_SIZE);
                 negativeButton.setTextSize(TEXT_SIZE);
-                positiveButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING,DIALOG_BUTTON_PADDING_TOP,DEFAULT_DIALOG_BUTTON_PADDING,DEFAULT_DIALOG_BUTTON_PADDING);
-                negativeButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING,DIALOG_BUTTON_PADDING_TOP,DEFAULT_DIALOG_BUTTON_PADDING,DEFAULT_DIALOG_BUTTON_PADDING);
+                positiveButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING, DEFAULT_DIALOG_BUTTON_PADDING);
+                negativeButton.setPadding(DEFAULT_DIALOG_BUTTON_PADDING, DIALOG_BUTTON_PADDING_TOP, DEFAULT_DIALOG_BUTTON_PADDING, DEFAULT_DIALOG_BUTTON_PADDING);
             }
         }
 
-        public void showDisablePositiveButton(@NonNull AlertDialog alertDialog){
+        public void showDisablePositiveButton(@NonNull AlertDialog alertDialog) {
 
             alertDialog.show();
             alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
