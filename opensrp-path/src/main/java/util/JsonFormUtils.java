@@ -90,6 +90,7 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
     public static final String ZEIR_ID = "ZEIR_ID";
     private static final String M_ZEIR_ID = "M_ZEIR_ID";
     public static final String encounterType = "Update Birth Registration";
+    public static final String BCG_SCAR_EVENT = "Bcg Scar";
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static final SimpleDateFormat dd_MM_yyyy = new SimpleDateFormat("dd-MM-yyyy");
@@ -1278,6 +1279,43 @@ public class JsonFormUtils extends org.smartregister.util.JsonFormUtils {
         } catch (Exception e) {
             Log.e(TAG, Log.getStackTraceString(e));
             return null;
+        }
+    }
+
+    public static void createBCGScarEvent(Context context, String baseEntityId, String providerId, String locationId) {
+
+        try {
+
+            Event event = (Event) new Event()
+                    .withBaseEntityId(baseEntityId)
+                    .withEventDate(new Date())
+                    .withEventType(BCG_SCAR_EVENT)
+                    .withLocationId(locationId)
+                    .withProviderId(providerId)
+                    .withEntityType("child")
+                    .withFormSubmissionId(JsonFormUtils.generateRandomUUIDString())
+                    .withDateCreated(new Date());
+
+
+            final String BCG_SCAR_CONCEPT = "160265AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            final String YES_CONCEPT = "1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+            List<Object> values = new ArrayList<>();
+            values.add(YES_CONCEPT);
+
+            List<Object> humanReadableValues = new ArrayList<>();
+            humanReadableValues.add("Yes");
+
+            event.addObs(new Obs(CONCEPT, "select one", BCG_SCAR_CONCEPT, "", values, humanReadableValues, null, "bcg_scar"));
+
+            ECSyncUpdater ecUpdater = ECSyncUpdater.getInstance(context);
+            JSONObject eventJson = new JSONObject(gson.toJson(event));
+            if (eventJson != null) {
+                ecUpdater.addEvent(baseEntityId, eventJson);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
     }
 
