@@ -14,8 +14,8 @@
     android:fadingEdge="none"
     android:listSelector="@android:color/transparent"
     android:overScrollMode="ifContentScrolls"
-    android:paddingBottom="@dimen/abc_dialog_list_padding_vertical_material"
+    android:paddingBottom="@dimen/dialog_list_padding_vertical"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:paddingTop="@dimen/abc_dialog_list_padding_vertical_material"
+    android:paddingTop="@dimen/dialog_list_padding_vertical"
     android:scrollbars="vertical" />

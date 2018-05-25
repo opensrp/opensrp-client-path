@@ -8,8 +8,8 @@
         android:id="@+id/rev1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/abc_dialog_list_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_dialog_list_padding_vertical_material">
+        android:layout_marginBottom="@dimen/dialog_list_padding_vertical"
+        android:layout_marginTop="@dimen/dialog_list_padding_vertical">
 
         <ImageView
             android:id="@+id/img"
@@ -39,8 +39,8 @@
         android:id="@+id/rev2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/abc_dialog_list_padding_vertical_material"
-        android:layout_marginTop="@dimen/abc_dialog_list_padding_vertical_material">
+        android:layout_marginBottom="@dimen/dialog_list_padding_vertical"
+        android:layout_marginTop="@dimen/dialog_list_padding_vertical">
 
         <ImageView
             android:id="@+id/img2"

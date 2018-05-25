@@ -117,4 +117,7 @@
     <dimen name="nav_view_width">450dp</dimen>
     <dimen name="bcg_popup_button_padding_top">60dp</dimen>
     <dimen name="bcg_popup_button_padding">20dp</dimen>
+
+    <dimen name="navigation_icon_size">24dp</dimen>
+    <dimen name="dialog_list_padding_vertical">8dp</dimen>
 </resources>
