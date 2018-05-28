@@ -20,11 +20,8 @@ import shared.customshadows.FontTextViewShadow;
  * Created by onadev on 13/06/2017.
  */
 
-
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = VaccinatorApplicationTestVersion.class, shadows = {FontTextViewShadow.class})
-@PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*"})
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = VaccinatorApplicationTestVersion.class, shadows = {FontTextViewShadow.class}, sdk = 21)
 public abstract class BaseUnitTest {
     public static class INT_TEST_CONSTANTS {
         public static final int INT_1 = 1;

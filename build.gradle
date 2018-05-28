@@ -53,7 +53,7 @@ apply plugin : 'java'
 apply plugin : 'build-dashboard'
 
 buildDashboard {
-    reports.html.setDestination("build/")
+    reports.html.setDestination(file("build/"))
 }
 
 test.reports.html.enabled = false
