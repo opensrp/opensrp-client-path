@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -70,6 +72,7 @@ import org.smartregister.immunization.util.RecurringServiceUtils;
 import org.smartregister.immunization.util.VaccinateActionUtils;
 import org.smartregister.immunization.util.VaccinatorUtils;
 import org.smartregister.immunization.view.ImmunizationRowGroup;
+import org.smartregister.path.BuildConfig;
 import org.smartregister.path.R;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.path.domain.NamedObject;
@@ -149,6 +152,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     public static final String PMTCT_STATUS_LOWER_CASE = "pmtct_status";
 
     private static final String CHILD = "child";
+
+    private Uri sharedFileUri;
+    public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -847,8 +853,20 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 currentfile = photoFile;
+
+                sharedFileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", photoFile);
+
+                if (Build.VERSION.SDK_INT < 24) {
+                    final PackageManager packageManager = getPackageManager();
+                    final List<ResolveInfo> activities = packageManager.queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolvedIntentInfo : activities) {
+                        final String packageName = resolvedIntentInfo.activityInfo.packageName;
+                        grantUriPermission(packageName, sharedFileUri, PHOTO_TAKING_PERMISSION);
+                    }
+                }
+
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(photoFile));
+                        sharedFileUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -1219,6 +1237,15 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             startJsonForm(formName, entityId, location_name);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (sharedFileUri != null) {
+            revokeUriPermission(sharedFileUri, PHOTO_TAKING_PERMISSION);
         }
     }
 
