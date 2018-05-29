@@ -13,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -53,6 +54,7 @@ import java.util.zip.ZipFile;
 
 import util.NetworkUtils;
 import util.PathConstants;
+import util.Permissions;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
@@ -73,6 +75,8 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private android.content.Context appContext;
     private RemoteLoginTask remoteLoginTask;
+
+    private static final int PERMISSIONS_REQUEST_CODE = 342;
 
     public static void setLanguage() {
         AllSharedPreferences allSharedPreferences = new AllSharedPreferences(getDefaultSharedPreferences(getOpenSRPContext().applicationContext()));
@@ -150,6 +154,7 @@ public class LoginActivity extends AppCompatActivity {
 
         setLanguage();
 
+        checkPermissions();
     }
 
     @Override
@@ -413,6 +418,22 @@ public class LoginActivity extends AppCompatActivity {
                 canvasRL.setMinimumHeight(windowHeight);
             }
         });
+    }
+
+
+    private void checkPermissions() {
+        String[] unauthorizedPermissions = Permissions.getUnauthorizedCriticalPermissions(this);
+        if (unauthorizedPermissions.length > 0) {
+            Permissions.request(this, unauthorizedPermissions, PERMISSIONS_REQUEST_CODE);
+        } else {
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            checkPermissions();
+        }
     }
 
     ////////////////////////////////////////////////////////////////
