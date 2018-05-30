@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -48,7 +49,6 @@ import org.json.JSONObject;
 import org.opensrp.api.constants.Gender;
 import org.smartregister.commonregistry.CommonPersonObjectClient;
 import org.smartregister.domain.Alert;
-import org.smartregister.domain.Photo;
 import org.smartregister.growthmonitoring.domain.Weight;
 import org.smartregister.growthmonitoring.domain.WeightWrapper;
 import org.smartregister.growthmonitoring.listener.WeightActionListener;
@@ -62,7 +62,6 @@ import org.smartregister.immunization.domain.ServiceWrapper;
 import org.smartregister.immunization.domain.Vaccine;
 import org.smartregister.immunization.domain.VaccineSchedule;
 import org.smartregister.immunization.domain.VaccineWrapper;
-import org.smartregister.immunization.fragment.VaccinationDialogFragment;
 import org.smartregister.immunization.listener.ServiceActionListener;
 import org.smartregister.immunization.listener.VaccinationActionListener;
 import org.smartregister.immunization.repository.RecurringServiceRecordRepository;
@@ -91,6 +90,7 @@ import org.smartregister.util.AssetHandler;
 import org.smartregister.util.DateUtil;
 import org.smartregister.util.FormUtils;
 import org.smartregister.util.OpenSRPImageLoader;
+import org.smartregister.util.PermissionUtils;
 import org.smartregister.util.Utils;
 import org.smartregister.view.activity.DrishtiApplication;
 
@@ -114,7 +114,6 @@ import util.ImageUtils;
 import util.JsonFormUtils;
 import util.PathConstants;
 
-import static org.smartregister.util.Utils.getName;
 import static org.smartregister.util.Utils.getValue;
 
 /**
@@ -155,6 +154,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private Uri sharedFileUri;
     public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
+    public static final int PERMISSIONS_REQUEST_CODE = 789234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -824,7 +824,9 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             profileImageIV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    dispatchTakePictureIntent();
+                    if (PermissionUtils.isPermissionGranted(this, new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE)) {
+                        dispatchTakePictureIntent();
+                    }
                 }
             });
         }
@@ -868,6 +870,15 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         sharedFileUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA)) {
+                dispatchTakePictureIntent();
             }
         }
     }

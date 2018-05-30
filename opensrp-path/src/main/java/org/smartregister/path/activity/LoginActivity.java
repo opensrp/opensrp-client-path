@@ -1,5 +1,6 @@
 package org.smartregister.path.activity;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -43,6 +44,7 @@ import org.smartregister.path.helper.LocationHelper;
 import org.smartregister.path.receiver.VaccinatorAlarmReceiver;
 import org.smartregister.path.service.intent.PullUniqueIdsIntentService;
 import org.smartregister.repository.AllSharedPreferences;
+import org.smartregister.util.PermissionUtils;
 import org.smartregister.util.Utils;
 
 import java.io.IOException;
@@ -54,7 +56,6 @@ import java.util.zip.ZipFile;
 
 import util.NetworkUtils;
 import util.PathConstants;
-import util.Permissions;
 
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 import static android.view.inputmethod.InputMethodManager.HIDE_NOT_ALWAYS;
@@ -422,10 +423,9 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void checkPermissions() {
-        String[] unauthorizedPermissions = Permissions.getUnauthorizedCriticalPermissions(this);
-        if (unauthorizedPermissions.length > 0) {
-            Permissions.request(this, unauthorizedPermissions, PERMISSIONS_REQUEST_CODE);
-        }
+        PermissionUtils.isPermissionGranted(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                PERMISSIONS_REQUEST_CODE);
     }
 
     @Override
