@@ -824,7 +824,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             profileImageIV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(this, new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE)) {
+                    if (PermissionUtils.isPermissionGranted(ChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE)) {
                         dispatchTakePictureIntent();
                     }
                 }
