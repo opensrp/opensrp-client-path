@@ -425,7 +425,6 @@ public class LoginActivity extends AppCompatActivity {
         String[] unauthorizedPermissions = Permissions.getUnauthorizedCriticalPermissions(this);
         if (unauthorizedPermissions.length > 0) {
             Permissions.request(this, unauthorizedPermissions, PERMISSIONS_REQUEST_CODE);
-        } else {
         }
     }
 

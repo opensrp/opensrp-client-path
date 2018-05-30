@@ -52,12 +52,8 @@ public class Permissions {
      *          {@code FALSE} if the permission is not authorised
      */
     public static boolean check(Context context, String permission) {
-        if (ContextCompat.checkSelfPermission(context, permission)
-                != PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-
-        return true;
+        return (ContextCompat.checkSelfPermission(context, permission)
+                == PackageManager.PERMISSION_GRANTED);
     }
 
     /**
