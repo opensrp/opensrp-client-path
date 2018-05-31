@@ -104,6 +104,9 @@ public class PathRepository extends Repository {
                 case 12:
                     upgradeToVersion12(db);
                     break;
+                case 13:
+                    upgradeToVersion13(db);
+                    break;
                 default:
                     break;
             }
@@ -351,6 +354,18 @@ public class PathRepository extends Repository {
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion12 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion13(SQLiteDatabase db){
+        try {
+            db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
+            db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_TEAM_COL);
+
+            db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
+            db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_TEAM_COL);
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion13 " + e.getMessage());
         }
     }
 

@@ -1,14 +1,13 @@
 buildscript {
     repositories {
+        google()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:1.2.3"
-        classpath 'org.apache.commons:commons-lang3:3.3.2'
-        classpath 'org.robolectric:robolectric-gradle-plugin:1.1.0'
+        classpath "com.android.tools.build:gradle:3.1.2"
         classpath 'io.fabric.tools:gradle:1.+'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.4.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.2'
     }
 }
 
@@ -24,6 +23,10 @@ apply plugin: 'io.fabric'
 apply plugin: 'jacoco'
 apply plugin: 'com.github.kt3k.coveralls'
 
+jacoco {
+    toolVersion = "0.7.9"
+}
+
 repositories {
     maven { url 'https://maven.fabric.io/public' }
     maven { url 'https://jitpack.io' }
@@ -31,20 +34,20 @@ repositories {
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "26.0.1"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "org.smartregister.path"
         minSdkVersion 18
-        targetSdkVersion 21
+        targetSdkVersion 27
         versionCode 14
-        versionName "1.4.0"
+        versionName "1.4.1"
         multiDexEnabled true
+        buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 
     dexOptions {
-        incremental true
         javaMaxHeapSize "4g"
     }
 
@@ -61,7 +64,7 @@ android {
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '1'
-            buildConfigField "int", "DATABASE_VERSION", '12'
+            buildConfigField "int", "DATABASE_VERSION", '13'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "true"
             buildConfigField "int", "AUTO_SYNC_DURATION", '15'
@@ -79,7 +82,7 @@ android {
             buildConfigField "int", "OPENMRS_UNIQUE_ID_INITIAL_BATCH_SIZE", '250'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_BATCH_SIZE", '100'
             buildConfigField "int", "OPENMRS_UNIQUE_ID_SOURCE", '2'
-            buildConfigField "int", "DATABASE_VERSION", '12'
+            buildConfigField "int", "DATABASE_VERSION", '13'
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
             buildConfigField "int", "AUTO_SYNC_DURATION", '2'
@@ -109,84 +112,93 @@ android {
 
 
     testOptions {
-        unitTests.returnDefaultValues = true
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
     }
 }
 
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+}
+
 dependencies {
-    compile fileTree(include: ['commons-validator-1.6.jar'], dir: 'libs')
-    compile('org.smartregister:opensrp-client-native-form:1.0.3@aar') {
+    implementation 'commons-validator:commons-validator:1.6'
+
+    implementation('org.smartregister:opensrp-client-native-form:1.2.3-SNAPSHOT@aar') {
         transitive = true
-        exclude group: 'com.android.support', module: 'recyclerview-v7'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    compile('org.smartregister:opensrp-client-core:1.2.3@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.3.4-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    compile('org.smartregister:opensrp-client-immunization:1.2.6@aar') {
+    implementation('org.smartregister:opensrp-client-immunization:1.4.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    compile('org.smartregister:opensrp-client-growth-monitoring:1.0.6@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'appcompat-v7'
     }
 
-    compile('org.smartregister:opensrp-client-stock:1.0.1@aar') {
+    implementation('org.smartregister:opensrp-client-stock:1.1.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
+        exclude group: 'com.android.support', module: 'design'
+        exclude group: 'com.android.support', module: 'cardview-v7'
+        exclude group: 'com.jjoe64'
     }
 
-    compile('com.android.support:design:22.2.1') {
+    annotationProcessor 'com.jakewharton:butterknife:7.0.0'
+
+    implementation('com.android.support:design:27.1.1') {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
 
     }
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:cardview-v7:22.2.1'
-    compile 'com.android.support:leanback-v17:22.2.1'
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.android.support:leanback-v17:27.1.1'
+
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
-    compile 'com.jjoe64:graphview:4.2.1'
-    compile 'com.android.support:support-v4:22.2.1'
-    compile 'id.zelory:compressor:1.0.4'
-    compile 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
-    compile 'com.github.ybq:Android-SpinKit:1.1.0'
-    compile 'junit:junit:4.12'
-    compile 'org.pcollections:pcollections:2.1.3'
 
-    testCompile('org.robolectric:robolectric:3.4.2') {
+    implementation 'com.jjoe64:graphview:4.2.1'
+    implementation 'id.zelory:compressor:1.0.4'
+    implementation 'com.twotoasters.SectionCursorAdapter:library:1.0.+'
+    implementation 'com.github.ybq:Android-SpinKit:1.1.0'
+    implementation 'junit:junit:4.12'
+    implementation 'org.pcollections:pcollections:2.1.3'
 
-        exclude group: 'com.google.guava', module: 'guava'
-        exclude group: 'org.apache.maven', module: 'maven-model'
-        exclude group: 'org.apache.maven', module: 'maven-ant-tasks'
-        exclude group: 'com.android.support'
-    }
+    implementation group: 'net.vidageek', name: 'mirror', version: '1.6.1'
 
-    compile group: 'net.vidageek', name: 'mirror', version: '1.6.1'
-
-    testCompile("org.robolectric:shadows-multidex:3.4-rc2") {
+    testImplementation('org.robolectric:robolectric:3.8') {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.+') {
-
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'junit', module: 'junit'
+    testImplementation("org.robolectric:shadows-multidex:3.8") {
+        exclude group: 'com.google.guava', module: 'guava'
     }
+
     // PowerMock
     def powerMockVersion = '1.7.1'
-    testCompile "org.powermock:powermock-module-junit4:$powerMockVersion"
-    testCompile "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
-    testCompile "org.powermock:powermock-api-mockito2:$powerMockVersion"
-    testCompile("org.powermock:powermock-classloading-xstream:$powerMockVersion") {
+    testImplementation "org.powermock:powermock-module-junit4:$powerMockVersion"
+    testImplementation "org.powermock:powermock-module-junit4-rule:$powerMockVersion"
+    testImplementation "org.powermock:powermock-api-mockito2:$powerMockVersion"
+    testImplementation("org.powermock:powermock-classloading-xstream:$powerMockVersion") {
 
         exclude group: 'com.thoughtworks.xstream', module: 'xstream'
     }
 
-    testCompile 'org.apache.maven:maven-ant-tasks:2.1.3'
+    testImplementation 'org.apache.maven:maven-ant-tasks:2.1.3'
 }
 
 //Testing and coveralls
@@ -195,7 +207,7 @@ coveralls {
     jacocoReportPath = "${buildDir}/reports/jacoco/jacocoRootReport/merged.xml"
 }
 
-task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebug']) {
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
 
     reports {
         xml.enabled = true
@@ -212,7 +224,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebug']) {
     sourceDirectories = files([mainSrc])
     classDirectories = files([debugTree])
     executionData = fileTree(dir: project.buildDir, includes: [
-            'jacoco/testDebug.exec', 'outputs/code-coverage/connected/*coverage.ec'
+            'jacoco/testDebugUnitTest.exec', 'outputs/code-coverage/connected/*coverage.ec'
     ])
 }
 
