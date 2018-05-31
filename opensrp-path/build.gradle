@@ -44,6 +44,7 @@ android {
         versionCode 14
         versionName "1.4.0"
         multiDexEnabled true
+        buildConfigField "long", "BUILD_TIMESTAMP", System.currentTimeMillis() + "L"
     }
 
     dexOptions {
@@ -125,7 +126,7 @@ tasks.withType(Test) {
 dependencies {
     implementation 'commons-validator:commons-validator:1.6'
 
-    implementation('org.smartregister:opensrp-client-native-form:1.2.1-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-native-form:1.2.3-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }

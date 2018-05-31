@@ -297,4 +297,7 @@
     <string name="turn_off_reminder_notification_message">BCG reminder turned off</string>
     <string name="create_reminder_notification_message">BCG reminder created</string>
     <string name="bcg_scar_reminder_question">Does this child have a BCG scar?</string>
+
+    <string name="permissions_required">Permissions Required</string>
+    <string name="read_write_permissions_required">Read and write external storage permissions are required when saving and accessing profile images.</string>
 </resources>

@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -154,7 +155,6 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
 
     private Uri sharedFileUri;
     public static final int PHOTO_TAKING_PERMISSION = Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION;
-    public static final int PERMISSIONS_REQUEST_CODE = 789234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -824,7 +824,7 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
             profileImageIV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (PermissionUtils.isPermissionGranted(ChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE)) {
+                    if (PermissionUtils.isPermissionGranted(ChildDetailTabbedActivity.this, new String[]{Manifest.permission.CAMERA}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
                         dispatchTakePictureIntent();
                     }
                 }
@@ -841,45 +841,52 @@ public class ChildDetailTabbedActivity extends BaseActivity implements Vaccinati
     }
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                Log.e(TAG, Log.getStackTraceString(ex));
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                currentfile = photoFile;
-
-                sharedFileUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", photoFile);
-
-                if (Build.VERSION.SDK_INT < 24) {
-                    final PackageManager packageManager = getPackageManager();
-                    final List<ResolveInfo> activities = packageManager.queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolvedIntentInfo : activities) {
-                        final String packageName = resolvedIntentInfo.activityInfo.packageName;
-                        grantUriPermission(packageName, sharedFileUri, PHOTO_TAKING_PERMISSION);
-                    }
+        if (PermissionUtils.isPermissionGranted(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE)) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                // Create the File where the photo should go
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    Log.e(TAG, Log.getStackTraceString(ex));
                 }
+                // Continue only if the File was successfully created
+                if (photoFile != null) {
 
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        sharedFileUri);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                    //We need this for backward compatibility
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                        StrictMode.setVmPolicy(builder.build());
+                    }
+
+                    currentfile = photoFile;
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                            Uri.fromFile(photoFile));
+                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                }
             }
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSIONS_REQUEST_CODE) {
-            if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA)) {
-                dispatchTakePictureIntent();
-            }
+        Log.d(TAG, "Permission callback called-------");
+
+        if (grantResults.length == 0) {
+            return;
+        }
+        switch (requestCode) {
+            case PermissionUtils.CAMERA_PERMISSION_REQUEST_CODE:
+                if (PermissionUtils.verifyPermissionGranted(permissions, grantResults, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    dispatchTakePictureIntent();
+                }
+                break;
+            default:
+                break;
+
         }
     }
 
