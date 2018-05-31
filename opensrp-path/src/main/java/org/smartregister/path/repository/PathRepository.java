@@ -106,6 +106,7 @@ public class PathRepository extends Repository {
                     break;
                 case 13:
                     upgradeToVersion13(db);
+                    break;
                 default:
                     break;
             }
