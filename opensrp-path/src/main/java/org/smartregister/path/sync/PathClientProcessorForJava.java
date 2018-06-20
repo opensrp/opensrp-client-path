@@ -160,7 +160,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 }
                 vaccineObj.setDate(date);
                 vaccineObj.setAnmId(contentValues.getAsString(VaccineRepository.ANMID));
-                vaccineObj.setLocationId(contentValues.getAsString(VaccineRepository.LOCATIONID));
+                vaccineObj.setLocationId(contentValues.getAsString(VaccineRepository.LOCATION_ID));
                 vaccineObj.setSyncStatus(VaccineRepository.TYPE_Synced);
                 vaccineObj.setFormSubmissionId(vaccine.getEvent().getFormSubmissionId());
                 vaccineObj.setEventId(vaccine.getEvent().getEventId());
@@ -300,7 +300,7 @@ public class PathClientProcessorForJava extends ClientProcessorForJava {
                 serviceObj.setName(name);
                 serviceObj.setDate(date);
                 serviceObj.setAnmId(contentValues.getAsString(RecurringServiceRecordRepository.ANMID));
-                serviceObj.setLocationId(contentValues.getAsString(RecurringServiceRecordRepository.LOCATIONID));
+                serviceObj.setLocationId(contentValues.getAsString(RecurringServiceRecordRepository.LOCATION_ID));
                 serviceObj.setSyncStatus(RecurringServiceRecordRepository.TYPE_Synced);
                 serviceObj.setFormSubmissionId(service.getEvent().getFormSubmissionId());
                 serviceObj.setEventId(service.getEvent().getEventId()); //FIXME hard coded id
