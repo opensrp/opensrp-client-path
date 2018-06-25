@@ -86,12 +86,12 @@ android {
             buildConfigField "long", "MAX_SERVER_TIME_DIFFERENCE", "1800000l"
             buildConfigField "boolean", "TIME_CHECK", "false"
             buildConfigField "int", "AUTO_SYNC_DURATION", '2'
-            buildConfigField "int", "WEIGHT_SYNC_PROCESSING_MINUTES", '3'
-            buildConfigField "int", "VACCINE_SYNC_PROCESSING_MINUTES", '3'
-            buildConfigField "int", "RECURRING_SERVICES_SYNC_PROCESSING_MINUTES", '3'
-            buildConfigField "int", "DAILY_TALLIES_GENERATION_MINUTES", '5'
-            buildConfigField "int", "COVERAGE_DROPOUT_GENERATION_MINUTES", '5'
-            buildConfigField "int", "IMAGE_UPLOAD_MINUTES", '7'
+            buildConfigField "int", "WEIGHT_SYNC_PROCESSING_MINUTES", '1'
+            buildConfigField "int", "VACCINE_SYNC_PROCESSING_MINUTES", '1'
+            buildConfigField "int", "RECURRING_SERVICES_SYNC_PROCESSING_MINUTES", '1'
+            buildConfigField "int", "DAILY_TALLIES_GENERATION_MINUTES", '2'
+            buildConfigField "int", "COVERAGE_DROPOUT_GENERATION_MINUTES", '2'
+            buildConfigField "int", "IMAGE_UPLOAD_MINUTES", '2'
             buildConfigField "int", "PULL_UNIQUE_IDS_MINUTES", '10'
             testCoverageEnabled true
         }
@@ -126,22 +126,22 @@ tasks.withType(Test) {
 dependencies {
     implementation 'commons-validator:commons-validator:1.6'
 
-    implementation('org.smartregister:opensrp-client-native-form:1.2.4-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-native-form:1.2.3-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    implementation('org.smartregister:opensrp-client-core:1.3.5-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-core:1.3.6-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'com.github.bmelnychuk', module: 'atv'
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    implementation('org.smartregister:opensrp-client-immunization:1.4.2-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-immunization:1.4.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'org.smartregister', module: 'opensrp-client-native-form'
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.1-SNAPSHOT@aar') {
+    implementation('org.smartregister:opensrp-client-growth-monitoring:1.1.0-SNAPSHOT@aar') {
         transitive = true
         exclude group: 'org.smartregister', module: 'opensrp-client-core'
         exclude group: 'com.android.support', module: 'design'

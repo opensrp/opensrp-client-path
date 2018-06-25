@@ -19,6 +19,7 @@ import org.smartregister.immunization.util.IMDatabaseUtils;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.AlertRepository;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.repository.Hia2ReportRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.stock.StockLibrary;
 import org.smartregister.stock.repository.StockRepository;
@@ -50,9 +51,9 @@ public class PathRepository extends Repository {
     public void onCreate(SQLiteDatabase database) {
         super.onCreate(database);
         EventClientRepository.createTable(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
-        EventClientRepository.createTable(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
+        //EventClientRepository.createTable(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
         EventClientRepository.createTable(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
-        EventClientRepository.createTable(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
+        //EventClientRepository.createTable(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
         UniqueIdRepository.createTable(database);
         WeightRepository.createTable(database);
         VaccineRepository.createTable(database);
@@ -247,7 +248,7 @@ public class PathRepository extends Repository {
             db.execSQL(WeightRepository.UPDATE_TABLE_ADD_OUT_OF_AREA_COL_INDEX);
             DailyTalliesRepository.createTable(db);
             MonthlyTalliesRepository.createTable(db);
-            EventClientRepository.createTable(db, EventClientRepository.Table.path_reports, EventClientRepository.report_column.values());
+            EventClientRepository.createTable(db, Hia2ReportRepository.Table.hia2_report, Hia2ReportRepository.report_column.values());
             HIA2IndicatorsRepository.createTable(db);
             db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_HIA2_STATUS_COL);
 
@@ -294,14 +295,14 @@ public class PathRepository extends Repository {
             String ALTER_CLIENT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.client + " ADD COLUMN " + EventClientRepository.client_column.validationStatus + " VARCHAR";
             database.execSQL(ALTER_CLIENT_TABLE_VALIDATE_COLUMN);
 
-            String ALTER_REPORT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + EventClientRepository.Table.path_reports + " ADD COLUMN " + EventClientRepository.report_column.validationStatus + " VARCHAR";
+            String ALTER_REPORT_TABLE_VALIDATE_COLUMN = "ALTER TABLE " + Hia2ReportRepository.Table.hia2_report + " ADD COLUMN " + Hia2ReportRepository.report_column.validationStatus + " VARCHAR";
             database.execSQL(ALTER_REPORT_TABLE_VALIDATE_COLUMN);
 
             EventClientRepository.createIndex(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
             EventClientRepository.createIndex(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
-            EventClientRepository.createIndex(database, EventClientRepository.Table.path_reports, EventClientRepository.report_column.values());
-            EventClientRepository.createIndex(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
-            EventClientRepository.createIndex(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
+            EventClientRepository.createIndex(database, Hia2ReportRepository.Table.hia2_report, Hia2ReportRepository.report_column.values());
+            //EventClientRepository.createIndex(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
+            //EventClientRepository.createIndex(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion9 " + e.getMessage());

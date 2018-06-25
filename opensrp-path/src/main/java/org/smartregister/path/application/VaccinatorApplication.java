@@ -47,6 +47,7 @@ import org.smartregister.path.repository.PathRepository;
 import org.smartregister.path.repository.PathStockHelperRepository;
 import org.smartregister.path.repository.UniqueIdRepository;
 import org.smartregister.repository.EventClientRepository;
+import org.smartregister.repository.Hia2ReportRepository;
 import org.smartregister.repository.Repository;
 import org.smartregister.stock.StockLibrary;
 import org.smartregister.stock.repository.StockRepository;
@@ -85,6 +86,7 @@ public class VaccinatorApplication extends DrishtiApplication
     private CumulativeRepository cumulativeRepository;
     private CumulativeIndicatorRepository cumulativeIndicatorRepository;
     private CumulativePatientRepository cumulativePatientRepository;
+    private Hia2ReportRepository hia2ReportRepository;
     private boolean lastModified;
 
     @Override
@@ -323,6 +325,13 @@ public class VaccinatorApplication extends DrishtiApplication
             eventClientRepository = new EventClientRepository(getRepository());
         }
         return eventClientRepository;
+    }
+
+    public Hia2ReportRepository hia2ReportRepository() {
+        if (hia2ReportRepository == null) {
+            hia2ReportRepository = new Hia2ReportRepository(getRepository());
+        }
+        return hia2ReportRepository;
     }
 
     public StockRepository stockRepository() {
