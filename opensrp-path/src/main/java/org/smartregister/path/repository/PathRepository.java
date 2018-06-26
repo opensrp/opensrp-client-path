@@ -105,6 +105,12 @@ public class PathRepository extends Repository {
                 case 13:
                     upgradeToVersion13(db);
                     break;
+                case 14:
+                    upgradeToVersion14(db);
+                    break;
+                case 15:
+                    upgradeToVersion15RemoveUnnecessaryTables(db);
+                    break;
                 default:
                     break;
             }
@@ -298,8 +304,6 @@ public class PathRepository extends Repository {
             EventClientRepository.createIndex(database, EventClientRepository.Table.event, EventClientRepository.event_column.values());
             EventClientRepository.createIndex(database, EventClientRepository.Table.client, EventClientRepository.client_column.values());
             EventClientRepository.createIndex(database, Hia2ReportRepository.Table.hia2_report, Hia2ReportRepository.report_column.values());
-            //EventClientRepository.createIndex(database, EventClientRepository.Table.address, EventClientRepository.address_column.values());
-            //EventClientRepository.createIndex(database, EventClientRepository.Table.obs, EventClientRepository.obs_column.values());
 
         } catch (Exception e) {
             Log.e(TAG, "upgradeToVersion9 " + e.getMessage());
@@ -367,13 +371,28 @@ public class PathRepository extends Repository {
         }
     }
 
-    private void upgradeToVersion14RemoveUnnecessaryTables(SQLiteDatabase db) {
+    private void upgradeToVersion14(SQLiteDatabase db) {
+        try {
+
+            db.execSQL(WeightRepository.UPDATE_TABLE_ADD_TEAM_ID_COL);
+            db.execSQL(WeightRepository.UPDATE_TABLE_ADD_TEAM_COL);
+
+            db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
+
+            db.execSQL(WeightRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
+
+            db.execSQL(RecurringServiceRecordRepository.UPDATE_TABLE_ADD_CHILD_LOCATION_ID_COL);
+        } catch (Exception e) {
+            Log.e(TAG, "upgradeToVersion14 " + e.getMessage());
+        }
+    }
+
+    private void upgradeToVersion15RemoveUnnecessaryTables(SQLiteDatabase db) {
         try {
             db.execSQL("DROP TABLE IF EXISTS address");
             db.execSQL("DROP TABLE IF EXISTS obs");
             if (DatabaseMigrationUtils.isColumnExists(db, "path_reports", Hia2ReportRepository.report_column.json.name()))
                 db.execSQL("ALTER TABLE path_reports RENAME TO " + Hia2ReportRepository.Table.hia2_report.name() + ";");
-            db.execSQL(VaccineRepository.UPDATE_TABLE_ADD_TEAM_COL);
             if (DatabaseMigrationUtils.isColumnExists(db, EventClientRepository.Table.client.name(), "firstName"))
                 DatabaseMigrationUtils.recreateSyncTableWithExistingColumnsOnly(db, EventClientRepository.Table.client);
             if (DatabaseMigrationUtils.isColumnExists(db, EventClientRepository.Table.event.name(), "locationId"))
@@ -381,7 +400,7 @@ public class PathRepository extends Repository {
 
 
         } catch (Exception e) {
-            Log.e(TAG, "upgradeToVersion13 " + e.getMessage());
+            Log.e(TAG, "upgradeToVersion15RemoveUnnecessaryTables " + e.getMessage());
         }
     }
 
