@@ -5,23 +5,24 @@ import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.smartregister.CoreLibrary;
 import org.smartregister.domain.db.EventClient;
 import org.smartregister.path.application.VaccinatorApplication;
 import org.smartregister.repository.EventClientRepository;
-import org.smartregister.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import util.MoveToMyCatchmentUtils;
+import org.smartregister.repository.AllSharedPreferences;
+
 
 public class ECSyncUpdater {
-    private static final String LAST_SYNC_TIMESTAMP = "LAST_SYNC_TIMESTAMP";
-    private static final String LAST_CHECK_TIMESTAMP = "LAST_SYNC_CHECK_TIMESTAMP";
 
     private final EventClientRepository db;
     private final Context context;
+    private AllSharedPreferences mSharedPreferences;
 
     private static ECSyncUpdater instance;
 
@@ -35,6 +36,7 @@ public class ECSyncUpdater {
     private ECSyncUpdater(Context context) {
         this.context = context;
         db = VaccinatorApplication.getInstance().eventClientRepository();
+        mSharedPreferences = CoreLibrary.getInstance().context().allSharedPreferences();
     }
 
     public boolean saveAllClientsAndEvents(JSONObject jsonObject) {
@@ -108,19 +110,19 @@ public class ECSyncUpdater {
     }
 
     public long getLastSyncTimeStamp() {
-        return Long.parseLong(Utils.getPreference(context, LAST_SYNC_TIMESTAMP, "0"));
+        return mSharedPreferences.fetchLastSyncDate(0);
     }
 
     public void updateLastSyncTimeStamp(long lastSyncTimeStamp) {
-        Utils.writePreference(context, LAST_SYNC_TIMESTAMP, lastSyncTimeStamp + "");
+        mSharedPreferences.saveLastSyncDate(lastSyncTimeStamp);
     }
 
     public long getLastCheckTimeStamp() {
-        return Long.parseLong(Utils.getPreference(context, LAST_CHECK_TIMESTAMP, "0"));
+        return mSharedPreferences.fetchLastCheckTimeStamp();
     }
 
     public void updateLastCheckTimeStamp(long lastSyncTimeStamp) {
-        Utils.writePreference(context, LAST_CHECK_TIMESTAMP, lastSyncTimeStamp + "");
+        mSharedPreferences.updateLastCheckTimeStamp(lastSyncTimeStamp);
     }
 
     public void batchSave(JSONArray events, JSONArray clients) throws Exception {
