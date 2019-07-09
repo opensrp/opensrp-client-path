@@ -170,6 +170,8 @@ public class HIA2ReportsActivity extends BaseActivity {
 
                 JSONObject monthlyDraftForm = new JSONObject(jsonString);
                 Map<String, String> result = JsonFormUtils.sectionFields(monthlyDraftForm);
+
+               // Map<String, String> result2 = JsonFormUtils.;
                 boolean saveClicked;
                 if (result.containsKey(FORM_KEY_CONFIRM)) {
                     saveClicked = Boolean.valueOf(result.get(FORM_KEY_CONFIRM));
@@ -181,7 +183,7 @@ public class HIA2ReportsActivity extends BaseActivity {
                     saveClicked = false;
                 }
                 VaccinatorApplication.getInstance().monthlyTalliesRepository().save(result, month);
-                if (saveClicked && !skipValidationSet) {
+                if (!skipValidationSet) {
                     sendReport(month);
                 }
             } catch (JSONException e) {

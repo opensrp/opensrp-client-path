@@ -65,6 +65,12 @@ public class SyncIntentService extends IntentService {
         if (wakeup) {
             VaccinatorAlarmReceiver.completeWakefulIntent(intent);
         }
+
+        Intent serviceIntent = new Intent(context, HIA2IntentService.class);
+        startService(serviceIntent);
+
+        Intent idIntent = new Intent(context, PullUniqueIdsIntentService.class);
+        startService(idIntent);
     }
 
     protected void handleSync() {

@@ -101,7 +101,7 @@ public class ECSyncUpdater {
         }
     }
 
-    public void addReport(JSONObject jsonObject) {
+    public void  addReport(JSONObject jsonObject) {
         try {
             VaccinatorApplication.getInstance().hia2ReportRepository().addReport(jsonObject);
         } catch (Exception e) {

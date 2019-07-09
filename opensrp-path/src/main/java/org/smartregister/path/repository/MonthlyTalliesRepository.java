@@ -457,4 +457,8 @@ public class MonthlyTalliesRepository extends BaseRepository {
 
         return tallies;
     }
+
+    public void clearTable(){
+        getWritableDatabase().rawQuery("Delete from "+TABLE_NAME,null);
+    }
 }
